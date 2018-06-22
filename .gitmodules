@@ -1,0 +1,6 @@
+[submodule "src/picorv32"]
+	path = src/picorv32
+	url = https://github.com/cliffordwolf/picorv32.git
+[submodule "src/up5k-demos"]
+	path = src/up5k-demos
+	url = https://github.com/daveshah1/up5k-demos.git
