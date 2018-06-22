@@ -27,6 +27,20 @@ import os
 import subprocess
 import time
 import collections
+import json
+import re
+import sys
+
+def icetime_parse(f):
+    ret = {
+        }
+    for l in f:
+        # Total path delay: 8.05 ns (124.28 MHz)
+        m = re.match(r'Total path delay: .*s \((.*) (.*)\)', l)
+        if m:
+            assert m.group(2) == 'MHz'
+            ret['max_freq'] = float(m.group(1)) * 1e6
+    return ret
 
 class Timed():
     def __init__(self, t, name):
@@ -45,6 +59,7 @@ class Toolchain:
     def __init__(self):
         self.runtimes = collections.OrderedDict()
         self.toolchain = None
+        self.verbose = False
 
         self.family = None
         self.device = None
@@ -79,7 +94,10 @@ class Toolchain:
         print("Running: %s %s" % (cmd, argstr))
         open("%s/%s.txt" % (self.out_dir, cmd), "w").write("Running: %s %s\n\n" % (cmd, argstr))
         with Timed(self, cmd):
-            subprocess.check_call("%s %s |&tee -a %s.txt; (exit $PIPESTATUS )" % (cmd, argstr, cmd), shell=True, cwd=self.out_dir)
+            if self.verbose:
+                subprocess.check_call("(%s %s) |&tee -a %s.txt; (exit $PIPESTATUS )" % (cmd, argstr, cmd), shell=True, cwd=self.out_dir)
+            else:
+                subprocess.check_call("(%s %s) >& %s.txt" % (cmd, argstr, cmd), shell=True, cwd=self.out_dir)
 
 class Icestorm(Toolchain):
     def __init__(self):
@@ -97,6 +115,9 @@ class Icestorm(Toolchain):
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd hx8k my.asc")
+
+    def max_freq(self):
+        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
 
 class VPR(Toolchain):
     def __init__(self):
@@ -119,11 +140,19 @@ class VPR(Toolchain):
             self.cmd("vpr", arch_xml + " my.eblif --device hx8k-cm81 --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --debug_clustering on --pack --place --route")
 
             self.cmd("icebox_hlc2asc.py", "top.hlc > my.asc")
+            self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd hx8k my.asc")
 
-def run_vpr(srcs, top, out_dir):
-    pass
+    def max_freq(self):
+        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+
+def write_metadata(t, out_dir):
+    j = {
+        "runtime": t.runtimes,
+        "max_freq": t.max_freq(),
+        }
+    json.dump(j, open(out_dir + '/meta.json', 'w'), sort_keys=True, indent=4)
 
 def run(family, device, toolchain, project, out_dir):
     assert family == 'ice40'
@@ -155,6 +184,7 @@ def run(family, device, toolchain, project, out_dir):
 
     t.run()
     t.perf()
+    write_metadata(t, out_dir)
 
 def main():
     import argparse
