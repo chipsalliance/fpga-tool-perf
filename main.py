@@ -45,6 +45,12 @@ class Timed():
         end = time.time()
         self.t.add_runtime(self.name, end - self.start)
 
+# couldn't get icestorm version
+# filed https://github.com/cliffordwolf/icestorm/issues/163
+def yosys_ver():
+    # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
+    return subprocess.check_output("yosys -V", shell=True, universal_newlines=True).strip()
+
 class Toolchain:
     def __init__(self):
         self.runtimes = collections.OrderedDict()
@@ -138,6 +144,20 @@ class Arachne(Toolchain):
     def resources(self):
         return icebox_stat("my.asc", self.out_dir)
 
+    @staticmethod
+    def arachne_version():
+        '''
+        $ arachne-pnr -v
+        arachne-pnr 0.1+203+0 (git sha1 7e135ed, g++ 4.8.4-2ubuntu1~14.04.3 -O2)
+        '''
+        return subprocess.check_output("arachne-pnr -v", shell=True, universal_newlines=True).strip()
+
+    def versions(self):
+        return {
+            'yosys': yosys_ver(),
+            'arachne': Arachne.arachne_version(),
+            }
+
 class VPR(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
@@ -213,6 +233,39 @@ class VPR(Toolchain):
     def resources(self):
         return icebox_stat("my.asc", self.out_dir)
 
+    @staticmethod
+    def vpr_version():
+        '''
+        vpr  --version
+
+        VPR FPGA Placement and Routing.
+        Version: 8.0.0-dev+vpr-7.0.5-6027-g94a747729
+        Revision: vpr-7.0.5-6027-g94a747729
+        Compiled: 2018-06-21T16:45:11 (release build)
+        Compiler: GNU 6.3.0 on Linux-4.9.0-5-amd64 x86_64
+        University of Toronto
+        vtr-users@googlegroups.com
+        This is free open source code under MIT license.
+        '''
+        out = subprocess.check_output("vpr --version", shell=True, universal_newlines=True).strip()
+        version = None
+        revision = None
+        for l in out.split('\n'):
+            l = l.strip()
+            if l.find('Version:') == 0:
+                version = l
+            if l.find('Revision:') == 0:
+                revision = l
+        assert version is not None
+        assert revision is not None
+        return version + ', ' + revision
+
+    def versions(self):
+        return {
+            'yosys': yosys_ver(),
+            'vpr': VPR.vpr_version(),
+            }
+
 def print_stats(t):
     s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name
     print('Timing (%s)' % s)
@@ -236,6 +289,7 @@ def write_metadata(t, out_dir):
         "runtime": t.runtimes,
         "max_freq": t.max_freq(),
         "resources": t.resources(),
+        "verions": t.versions(),
         }
     json.dump(j, open(out_dir + '/meta.json', 'w'), sort_keys=True, indent=4)
 
