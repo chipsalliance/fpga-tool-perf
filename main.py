@@ -30,17 +30,7 @@ import collections
 import json
 import re
 import sys
-
-def icetime_parse(f):
-    ret = {
-        }
-    for l in f:
-        # Total path delay: 8.05 ns (124.28 MHz)
-        m = re.match(r'Total path delay: .*s \((.*) (.*)\)', l)
-        if m:
-            assert m.group(2) == 'MHz'
-            ret['max_freq'] = float(m.group(1)) * 1e6
-    return ret
+import glob
 
 class Timed():
     def __init__(self, t, name):
@@ -75,12 +65,6 @@ class Toolchain:
     def add_runtime(self, name, dt):
         self.runtimes[name] = dt
 
-    def perf(self):
-        s = self.family + '-' + self.device + '_' + self.toolchain + '_' + self.project_name
-        print('Timing (%s)' % s)
-        for k, v in self.runtimes.items():
-            print('  % -16s %0.3f' % (k + ':', v))
-
     def project(self, name, family, device, srcs, top, out_dir):
         self.family = family
         self.device = device
@@ -99,10 +83,42 @@ class Toolchain:
             else:
                 subprocess.check_call("(%s %s) >& %s.txt" % (cmd, argstr, cmd), shell=True, cwd=self.out_dir)
 
-class Icestorm(Toolchain):
+def icetime_parse(f):
+    ret = {
+        }
+    for l in f:
+        # Total path delay: 8.05 ns (124.28 MHz)
+        m = re.match(r'Total path delay: .*s \((.*) (.*)\)', l)
+        if m:
+            assert m.group(2) == 'MHz'
+            ret['max_freq'] = float(m.group(1)) * 1e6
+    return ret
+
+def icebox_stat(fn, out_dir):
+    subprocess.check_call("icebox_stat %s >icebox_stat.txt" % fn, shell=True, cwd=out_dir)
+    '''
+    DFFs:     22
+    LUTs:     24
+    CARRYs:   20
+    BRAMs:     0
+    IOBs:      4
+    PLLs:      0
+    GLBs:      1
+    '''
+    ret = {}
+    for l in open(out_dir + "/icebox_stat.txt"):
+        # DFFs:     22
+        m = re.match(r'(.*)s: *([0-9]*)', l)
+        t = m.group(1)
+        n = int(m.group(2))
+        ret[t] = n
+    assert 'LUT' in ret
+    return ret
+
+class Arachne(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
-        self.toolchain = 'icestorm'
+        self.toolchain = 'arachne'
 
     def yosys(self):
         yscript = "synth_ice40 -top %s -blif my.blif" % self.top
@@ -118,6 +134,9 @@ class Icestorm(Toolchain):
 
     def max_freq(self):
         return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+
+    def resources(self):
+        return icebox_stat("my.asc", self.out_dir)
 
 class VPR(Toolchain):
     def __init__(self):
@@ -147,23 +166,119 @@ class VPR(Toolchain):
     def max_freq(self):
         return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
 
+    """
+    @staticmethod
+    def resource_parse(f):
+        '''
+        abanonded in favor of icebox_stat
+        although maybe would be good to compare results?
+
+        Resource usage...
+            Netlist      0    blocks of type: EMPTY
+            Architecture 0    blocks of type: EMPTY
+            Netlist      4    blocks of type: BLK_TL-PLB
+            Architecture 960    blocks of type: BLK_TL-PLB
+            Netlist      0    blocks of type: BLK_TL-RAM
+            Architecture 32    blocks of type: BLK_TL-RAM
+            Netlist      2    blocks of type: BLK_TL-PIO
+            Architecture 256    blocks of type: BLK_TL-PIO
+
+        Device Utilization: 0.00 (target 1.00)
+            Block Utilization: 0.00 Type: EMPTY
+            Block Utilization: 0.00 Type: BLK_TL-PLB
+            Block Utilization: 0.00 Type: BLK_TL-RAM
+            Block Utilization: 0.01 Type: BLK_TL-PIO
+        '''
+        def waitfor(s):
+            while True:
+                l = f.readline()
+                if not l:
+                    raise Exception("EOF")
+                if s.find(s) >= 0:
+                    return
+        waitfor('Resource usage...')
+        while True:
+            l = f.readline().strip()
+            if not l:
+                break
+            # Netlist      2    blocks of type: BLK_TL-PIO
+            # Architecture 256    blocks of type: BLK_TL-PIO
+            parts = l.split()
+            if parts[0] != 'Netlist':
+                continue
+
+        waitfor('Device Utilization: ')
+    """
+
+    def resources(self):
+        return icebox_stat("my.asc", self.out_dir)
+
+def print_stats(t):
+    s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name
+    print('Timing (%s)' % s)
+    for k, v in t.runtimes.items():
+        print('  % -16s %0.3f' % (k + ':', v))
+    print('Max frequency: %0.3f MHz' % (t.max_freq() / 1e6,))
+    print('Resource utilization')
+    for k, v in sorted(t.resources().items()):
+        print('  %- 20s %s' % (k + ':', v))
+
 def write_metadata(t, out_dir):
     j = {
+        'toolchain': t.toolchain,
+        'family': t.family,
+        'device': t.device,
+        'project_name': t.project_name,
+        # canonicalize
+        'sources': [x.replace(os.getcwd(), '.') for x in t.srcs],
+        'top': t.top,
+
         "runtime": t.runtimes,
         "max_freq": t.max_freq(),
+        "resources": t.resources(),
         }
     json.dump(j, open(out_dir + '/meta.json', 'w'), sort_keys=True, indent=4)
 
-def run(family, device, toolchain, project, out_dir):
+def get_project(name):
+    cwd = os.getcwd()
+
+    projects = [
+        {
+        'srcs': [cwd + '/src/blinky.v'],
+        'top': 'top',
+        'name': 'blinky',
+        },
+    ]
+
+    #srcs = filter(lambda x: x.find('_tb.v') < 0 and 'spiflash.v' not in x, glob.glob(cwd + "/src/picorv32/picosoc/*.v"))
+    d = cwd + "/src/picorv32/"
+    srcs = [
+        d + "picosoc/picosoc.v",
+        d + "picorv32.v",
+        d + "picosoc/spimemio.v",
+        d + "picosoc/simpleuart.v",
+        d + "picosoc/hx8kdemo.v",
+        ]
+    projects.append({
+        'srcs': srcs,
+        'top': 'hx8kdemo',
+        'name': 'picosoc-hx8kdemo',
+        })
+
+    projects = dict([(p['name'], p) for p in projects])
+    return projects[name]
+
+def run(family, device, toolchain, project, out_dir, verbose=False):
     assert family == 'ice40'
     assert device == 'hx8k'
 
     t = {
-        'icestorm': Icestorm,
+        'arachne': Arachne,
         'vpr': VPR,
         #'radiant': VPR,
         #'icecube': VPR,
         }[toolchain]()
+    t.verbose = verbose
 
     if out_dir is None:
         out_dir = "build/" + family + '-' + device + '_' + toolchain + '_' + project
@@ -173,17 +288,11 @@ def run(family, device, toolchain, project, out_dir):
         os.mkdir(out_dir)
     print('Writing to %s' % out_dir)
 
-    cwd = os.getcwd()
-
-    if 1:
-        srcs = [cwd + '/src/blinky.v']
-        top = 'top'
-        name = 'blinky'
-
-    t.project(name, family, device, srcs, top, out_dir)
+    p = get_project(project)
+    t.project(p['name'], family, device, p['srcs'], p['top'], out_dir)
 
     t.run()
-    t.perf()
+    print_stats(t)
     write_metadata(t, out_dir)
 
 def main():
@@ -203,7 +312,7 @@ def main():
     parser.add_argument('--out-dir', default=None, help='Output directory')
     args = parser.parse_args()
 
-    run(args.family, args.device, args.toolchain, args.project, args.out_dir)
+    run(args.family, args.device, args.toolchain, args.project, args.out_dir, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
