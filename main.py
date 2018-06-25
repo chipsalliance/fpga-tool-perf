@@ -85,9 +85,12 @@ class Toolchain:
         open("%s/%s.txt" % (self.out_dir, cmd), "w").write("Running: %s %s\n\n" % (cmd, argstr))
         with Timed(self, cmd):
             if self.verbose:
-                subprocess.check_call("(%s %s) |&tee -a %s.txt; (exit $PIPESTATUS )" % (cmd, argstr, cmd), shell=True, cwd=self.out_dir)
+                cmdstr = "(%s %s) |&tee -a %s.txt; (exit $PIPESTATUS )" % (cmd, argstr, cmd)
+                print("Running: %s" % cmdstr)
+                print("  cwd: %s" % self.out_dir)
             else:
-                subprocess.check_call("(%s %s) >& %s.txt" % (cmd, argstr, cmd), shell=True, cwd=self.out_dir)
+                cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd)
+            subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir)
 
 def icetime_parse(f):
     ret = {
