@@ -56,6 +56,7 @@ class Toolchain:
         self.runtimes = collections.OrderedDict()
         self.toolchain = None
         self.verbose = False
+        self.cmds = []
 
         self.family = None
         self.device = None
@@ -80,8 +81,9 @@ class Toolchain:
         self.top = top
         self.out_dir = out_dir
 
-    def cmd(self, cmd, argstr):
+    def cmd(self, cmd, argstr, env=None):
         print("Running: %s %s" % (cmd, argstr))
+        self.cmds.append('%s %s' % (cmd, argstr))
         open("%s/%s.txt" % (self.out_dir, cmd), "w").write("Running: %s %s\n\n" % (cmd, argstr))
         with Timed(self, cmd):
             if self.verbose:
@@ -90,7 +92,25 @@ class Toolchain:
                 print("  cwd: %s" % self.out_dir)
             else:
                 cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd)
-            subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir)
+            subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir, env=env)
+
+    def write_metadata(self, out_dir):
+        j = {
+            'toolchain': self.toolchain,
+            'family': self.family,
+            'device': self.device,
+            'project_name': self.project_name,
+            # canonicalize
+            'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
+            'top': self.top,
+    
+            "runtime": self.runtimes,
+            "max_freq": self.max_freq(),
+            "resources": self.resources(),
+            "verions": self.versions(),
+            }
+        json.dump(j, open(out_dir + '/meta.json', 'w'), sort_keys=True, indent=4)
+
 
 def icetime_parse(f):
     ret = {
@@ -269,6 +289,47 @@ class VPR(Toolchain):
             'vpr': VPR.vpr_version(),
             }
 
+def asc_ver(f):
+    '''
+    .comment
+    Lattice
+    iCEcube2 2017.08.27940
+    Part: iCE40HX1K-TQ144
+    Date: Jun 27 2018 13:22:06
+    '''
+    for l in f:
+        if l.find('iCEcube2') == 0:
+            return l.split()[1].strip()
+    assert 0
+
+class Icecube2(Toolchain):
+    def __init__(self):
+        Toolchain.__init__(self)
+        self.toolchain = 'icecube'
+        self.icecubedir = "/opt/lscc/iCEcube2.2017.08"
+
+    def run(self):
+        with Timed(self, 'bit-all'):
+            env = os.environ.copy()
+            env["SRCS"] = ' '.join(self.srcs)
+            self.cmd("../../icecubed.sh", "", env=env)
+
+            self.cmd("iceunpack", "my.bin my.asc")
+
+        self.cmd("icetime", "-tmd hx8k my.asc")
+
+    def max_freq(self):
+        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+
+    def resources(self):
+        return icebox_stat("my.asc", self.out_dir)
+
+    def versions(self):
+        return {
+            'yosys': yosys_ver(),
+            'icecube2': asc_ver(open(self.out_dir + '/my.asc')),
+            }
+
 def print_stats(t):
     s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name
     print('Timing (%s)' % s)
@@ -278,23 +339,6 @@ def print_stats(t):
     print('Resource utilization')
     for k, v in sorted(t.resources().items()):
         print('  %- 20s %s' % (k + ':', v))
-
-def write_metadata(t, out_dir):
-    j = {
-        'toolchain': t.toolchain,
-        'family': t.family,
-        'device': t.device,
-        'project_name': t.project_name,
-        # canonicalize
-        'sources': [x.replace(os.getcwd(), '.') for x in t.srcs],
-        'top': t.top,
-
-        "runtime": t.runtimes,
-        "max_freq": t.max_freq(),
-        "resources": t.resources(),
-        "verions": t.versions(),
-        }
-    json.dump(j, open(out_dir + '/meta.json', 'w'), sort_keys=True, indent=4)
 
 def get_project(name):
     cwd = os.getcwd()
@@ -332,8 +376,8 @@ def run(family, device, toolchain, project, out_dir, verbose=False):
     t = {
         'arachne': Arachne,
         'vpr': VPR,
+        'icecube2': Icecube2,
         #'radiant': VPR,
-        #'icecube': VPR,
         }[toolchain]()
     t.verbose = verbose
 
@@ -350,7 +394,7 @@ def run(family, device, toolchain, project, out_dir, verbose=False):
 
     t.run()
     print_stats(t)
-    write_metadata(t, out_dir)
+    t.write_metadata(out_dir)
 
 def main():
     import argparse
