@@ -153,13 +153,18 @@ class Arachne(Toolchain):
         yscript = "synth_ice40 -top %s -blif my.blif" % self.top
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
 
+    def device_simple(self):
+        # hx8k => 8k
+        assert len(self.device) == 4
+        return self.device[2:]
+
     def run(self):
         with Timed(self, 'bit-all'):
             self.yosys()
-            self.cmd("arachne-pnr", "-d 8k -P cm81 -o my.asc my.blif")
+            self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif")
             self.cmd("icepack", "my.asc my.bin")
 
-        self.cmd("icetime", "-tmd hx8k my.asc")
+        self.cmd("icetime", "-tmd " + self.device + " my.asc")
 
     def max_freq(self):
         return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
@@ -199,12 +204,14 @@ class VPR(Toolchain):
             rr_graph = self.sfad_build + "/rr_graph.real.xml"
             # --fix_pins " + io_place
             #io_place = ".../symbiflow-arch-defs/tests/ice40/tiny-b2_blink//build-ice40-top-routing-virt-hx8k/io.place"
-            self.cmd("vpr", arch_xml + " my.eblif --device hx8k-cm81 --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --debug_clustering on --pack --place --route")
+            #devstr = "hx8k-cm81"
+            devstr = self.device + '-' + self.package
+            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --debug_clustering on --pack --place --route")
 
             self.cmd("icebox_hlc2asc.py", "top.hlc > my.asc")
             self.cmd("icepack", "my.asc my.bin")
 
-        self.cmd("icetime", "-tmd hx8k my.asc")
+        self.cmd("icetime", "-tmd " + self.device + " my.asc")
 
     def max_freq(self):
         return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
@@ -302,17 +309,20 @@ def asc_ver(f):
             return l.split()[1].strip()
     assert 0
 
+
 class Icecube2(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
-        self.toolchain = 'icecube'
         self.icecubedir = "/opt/lscc/iCEcube2.2017.08"
 
     def run(self):
         with Timed(self, 'bit-all'):
             env = os.environ.copy()
             env["SRCS"] = ' '.join(self.srcs)
-            self.cmd("../../icecubed.sh", "", env=env)
+            env["TOP"] = self.top
+            env["ICECUBEDIR"] = self.icecubedir
+            env["ICEDEV"] = 'hx8k-ct256'
+            self.cmd("../../icecubed.sh", "--syn %s" % self.syn(), env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
@@ -329,6 +339,25 @@ class Icecube2(Toolchain):
             'yosys': yosys_ver(),
             'icecube2': asc_ver(open(self.out_dir + '/my.asc')),
             }
+
+
+class Icecube2Synpro(Icecube2):
+    def __init__(self):
+        Icecube2.__init__(self)
+        self.toolchain = 'icecube-synpro'
+
+    def syn(self):
+        return "synpro"
+
+
+class Icecube2LSE(Icecube2):
+    def __init__(self):
+        Icecube2.__init__(self)
+        self.toolchain = 'icecube-lse'
+
+    def syn(self):
+        return "lse"
+
 
 def print_stats(t):
     s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name
@@ -369,14 +398,16 @@ def get_project(name):
     projects = dict([(p['name'], p) for p in projects])
     return projects[name]
 
-def run(family, device, toolchain, project, out_dir, verbose=False):
+def run(family, device, package, toolchain, project, out_dir, verbose=False):
     assert family == 'ice40'
     assert device == 'hx8k'
+    assert package == 'ct256'
 
     t = {
         'arachne': Arachne,
         'vpr': VPR,
-        'icecube2': Icecube2,
+        'icecube2-synpro': Icecube2Synpro,
+        'icecube2-lse': Icecube2LSE,
         #'radiant': VPR,
         }[toolchain]()
     t.verbose = verbose
@@ -407,13 +438,15 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='')
     parser.add_argument('--overwrite', action='store_true', help='')
     parser.add_argument('--family', default='ice40', help='Device family')
-    parser.add_argument('--device', default='hx8k', help='Device')
+    parser.add_argument('--device', default='hx8k', help='Device within family')
+    parser.add_argument('--package', default='ct256', help='Device package')
+    parser.add_argument('--strategy', default='default', help='Optimization strategy')
     parser.add_argument('--toolchain', required=True, help='Tools to use')
     parser.add_argument('--project', required=True, help='Source code to run on')
     parser.add_argument('--out-dir', default=None, help='Output directory')
     args = parser.parse_args()
 
-    run(args.family, args.device, args.toolchain, args.project, args.out_dir, verbose=args.verbose)
+    run(args.family, args.device, args.package, args.toolchain, args.project, args.out_dir, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()

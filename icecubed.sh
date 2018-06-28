@@ -74,6 +74,10 @@ if [ -z "$SRCS" ] ; then
     echo "SRCS required"
     exit 1
 fi
+if [ -z "$TOP" ] ; then
+    echo "TOP required"
+    exit 1
+fi
 
 scriptdir=${BASH_SOURCE%/*}
 if [ -z "$scriptdir" ]; then scriptdir="."; fi
@@ -399,7 +403,6 @@ elif [ "$syn" = "lse" ] ; then
 -fix_gated_clocks 1
 -loop_limit 1950
 
--ver "input.v"
 -p "$PWD"
 
 #set result format/file last
@@ -407,7 +410,12 @@ elif [ "$syn" = "lse" ] ; then
 
 #set log file
 -logfile "impl_lse.log"
+#-ver "input2.v"
 EOT
+    for f in $SRCS ; do
+        echo "-ver \"$f\"" >> impl_lse.prj
+    done
+
     "$icecubedir"/LSE/bin/${lin_lin64}/synthesis -f "impl_lse.prj"
 else
     echo "bad syntehsis: $SYN"
@@ -418,19 +426,19 @@ fi
 "$icecubedir"/sbt_backend/bin/linux/opt/edifparser "$icecubedir"/sbt_backend/devices/$devfile "$PWD"/impl/impl.edf "$PWD"/netlist -p$iCEPACKAGE -yinput.pcf -sinput.sdc -c --devicename $iCE40DEV
 
 # run placer
-"$icecubedir"/sbt_backend/bin/linux/opt/sbtplacer --des-lib "$PWD"/netlist/oadb-top --outdir "$PWD"/outputs/placer --device-file "$icecubedir"/sbt_backend/devices/$devfile --package $iCEPACKAGE --deviceMarketName $iCE40DEV --sdc-file "$PWD"/Temp/sbt_temp.sdc --lib-file "$icecubedir"/sbt_backend/devices/$libfile --effort_level std --out-sdc-file "$PWD"/outputs/placer/top_pl.sdc
+"$icecubedir"/sbt_backend/bin/linux/opt/sbtplacer --des-lib "$PWD"/netlist/oadb-$TOP --outdir "$PWD"/outputs/placer --device-file "$icecubedir"/sbt_backend/devices/$devfile --package $iCEPACKAGE --deviceMarketName $iCE40DEV --sdc-file "$PWD"/Temp/sbt_temp.sdc --lib-file "$icecubedir"/sbt_backend/devices/$libfile --effort_level std --out-sdc-file "$PWD"/outputs/placer/${TOP}_pl.sdc
 
 # run packer
-"$icecubedir"/sbt_backend/bin/linux/opt/packer "$icecubedir"/sbt_backend/devices/$devfile "$PWD"/netlist/oadb-top --package $iCEPACKAGE --outdir "$PWD"/outputs/packer --translator "$icecubedir"/sbt_backend/bin/sdc_translator.tcl --src_sdc_file "$PWD"/outputs/placer/top_pl.sdc --dst_sdc_file "$PWD"/outputs/packer/top_pk.sdc --devicename $iCE40DEV
+"$icecubedir"/sbt_backend/bin/linux/opt/packer "$icecubedir"/sbt_backend/devices/$devfile "$PWD"/netlist/oadb-$TOP --package $iCEPACKAGE --outdir "$PWD"/outputs/packer --translator "$icecubedir"/sbt_backend/bin/sdc_translator.tcl --src_sdc_file "$PWD"/outputs/placer/${TOP}_pl.sdc --dst_sdc_file "$PWD"/outputs/packer/${TOP}_pk.sdc --devicename $iCE40DEV
 
 # run router
-"$icecubedir"/sbt_backend/bin/linux/opt/sbrouter "$icecubedir"/sbt_backend/devices/$devfile "$PWD"/netlist/oadb-top "$icecubedir"/sbt_backend/devices/$libfile "$PWD"/outputs/packer/top_pk.sdc --outdir "$PWD"/outputs/router --sdf_file "$PWD"/outputs/netlist/top_sbt.sdf --pin_permutation
+"$icecubedir"/sbt_backend/bin/linux/opt/sbrouter "$icecubedir"/sbt_backend/devices/$devfile "$PWD"/netlist/oadb-$TOP "$icecubedir"/sbt_backend/devices/$libfile "$PWD"/outputs/packer/${TOP}_pk.sdc --outdir "$PWD"/outputs/router --sdf_file "$PWD"/outputs/netlist/${TOP}_sbt.sdf --pin_permutation
 
 # run netlister
-"$icecubedir"/sbt_backend/bin/linux/opt/netlister --verilog "$PWD"/outputs/netlist/top_sbt.v --vhdl "$PWD"/outputs/netlist/top_sbt.vhd --lib "$PWD"/netlist/oadb-top --view rt --device "$icecubedir"/sbt_backend/devices/$devfile --splitio --in-sdc-file "$PWD"/outputs/packer/top_pk.sdc --out-sdc-file "$PWD"/outputs/netlist/top_sbt.sdc
+"$icecubedir"/sbt_backend/bin/linux/opt/netlister --verilog "$PWD"/outputs/netlist/${TOP}_sbt.v --vhdl "$PWD"/outputs/netlist/${TOP}_sbt.vhd --lib "$PWD"/netlist/oadb-$TOP --view rt --device "$icecubedir"/sbt_backend/devices/$devfile --splitio --in-sdc-file "$PWD"/outputs/packer/${TOP}_pk.sdc --out-sdc-file "$PWD"/outputs/netlist/${TOP}_sbt.sdc
 
 if [ -n "$ICE_SBTIMER_LP" ]; then
-    "$icecubedir"/sbt_backend/bin/linux/opt/sbtimer --des-lib "$PWD"/netlist/oadb-top --lib-file "$icecubedir"/sbt_backend/devices/$libfile --sdc-file "$PWD"/outputs/netlist/top_sbt.sdc --sdf-file "$PWD"/outputs/netlist/top_sbt_lp.sdf --report-file "$PWD"/outputs/netlist/top_timing_lp.rpt --device-file "$icecubedir"/sbt_backend/devices/$devfile --timing-summary
+    "$icecubedir"/sbt_backend/bin/linux/opt/sbtimer --des-lib "$PWD"/netlist/oadb-$TOP --lib-file "$icecubedir"/sbt_backend/devices/$libfile --sdc-file "$PWD"/outputs/netlist/${TOP}_sbt.sdc --sdf-file "$PWD"/outputs/netlist/${TOP}_sbt_lp.sdf --report-file "$PWD"/outputs/netlist/${TOP}_timing_lp.rpt --device-file "$icecubedir"/sbt_backend/devices/$devfile --timing-summary
 fi
 
 # hacks for sbtimer so it knows what device we are dealing with
@@ -454,10 +462,10 @@ derValue=0.701346
 EOT
 
 # run timer
-"$icecubedir"/sbt_backend/bin/linux/opt/sbtimer --des-lib "$PWD"/foobar_Implmnt/sbt/netlist/oadb-top --lib-file "$icecubedir"/sbt_backend/devices/$libfile --sdc-file "$PWD"/outputs/netlist/top_sbt.sdc --sdf-file "$PWD"/outputs/netlist/top_sbt.sdf --report-file "$PWD"/outputs/netlist/top_timing.rpt --device-file "$icecubedir"/sbt_backend/devices/$devfile --timing-summary
+"$icecubedir"/sbt_backend/bin/linux/opt/sbtimer --des-lib "$PWD"/foobar_Implmnt/sbt/netlist/oadb-$TOP --lib-file "$icecubedir"/sbt_backend/devices/$libfile --sdc-file "$PWD"/outputs/netlist/${TOP}_sbt.sdc --sdf-file "$PWD"/outputs/netlist/${TOP}_sbt.sdf --report-file "$PWD"/outputs/netlist/${TOP}_timing.rpt --device-file "$icecubedir"/sbt_backend/devices/$devfile --timing-summary
 
 # make bitmap
-"$icecubedir"/sbt_backend/bin/linux/opt/bitmap "$icecubedir"/sbt_backend/devices/$devfile --design "$PWD"/netlist/oadb-top --device_name $iCE40DEV --package $iCEPACKAGE --outdir "$PWD"/outputs/bitmap --debug --low_power on --init_ram on --init_ram_bank 1111 --frequency low --warm_boot on
+"$icecubedir"/sbt_backend/bin/linux/opt/bitmap "$icecubedir"/sbt_backend/devices/$devfile --design "$PWD"/netlist/oadb-$TOP --device_name $iCE40DEV --package $iCEPACKAGE --outdir "$PWD"/outputs/bitmap --debug --low_power on --init_ram on --init_ram_bank 1111 --frequency low --warm_boot on
 )
 
 (
@@ -468,15 +476,15 @@ echo "export TCL_LIBRARY=\"$TCL_LIBRARY\""
 echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
 )
 
-cp "$PRJNAME.tmp"/outputs/bitmap/top_bitmap.bin "$PRJNAME.bin"
-cp "$PRJNAME.tmp"/outputs/bitmap/top_bitmap_glb.txt "$PRJNAME.glb"
-cp "$PRJNAME.tmp"/outputs/placer/top_sbt.pcf "$PRJNAME.psb"
-cp "$PRJNAME.tmp"/outputs/netlist/top_sbt.v "$PRJNAME.vsb"
-cp "$PRJNAME.tmp"/outputs/netlist/top_sbt.sdf "$PRJNAME.sdf"
-cp "$PRJNAME.tmp"/outputs/netlist/top_timing.rpt "$PRJNAME.rpt"
+cp "$PRJNAME.tmp"/outputs/bitmap/${TOP}_bitmap.bin "$PRJNAME.bin"
+cp "$PRJNAME.tmp"/outputs/bitmap/${TOP}_bitmap_glb.txt "$PRJNAME.glb"
+cp "$PRJNAME.tmp"/outputs/placer/${TOP}_sbt.pcf "$PRJNAME.psb"
+cp "$PRJNAME.tmp"/outputs/netlist/${TOP}_sbt.v "$PRJNAME.vsb"
+cp "$PRJNAME.tmp"/outputs/netlist/${TOP}_sbt.sdf "$PRJNAME.sdf"
+cp "$PRJNAME.tmp"/outputs/netlist/${TOP}_timing.rpt "$PRJNAME.rpt"
 if [ -n "$ICE_SBTIMER_LP" ]; then
-    cp "$PRJNAME.tmp"/outputs/netlist/top_sbt_lp.sdf "$PRJNAME.slp"
-    cp "$PRJNAME.tmp"/outputs/netlist/top_timing_lp.rpt "$PRJNAME.rlp"
+    cp "$PRJNAME.tmp"/outputs/netlist/${TOP}_sbt_lp.sdf "$PRJNAME.slp"
+    cp "$PRJNAME.tmp"/outputs/netlist/${TOP}_timing_lp.rpt "$PRJNAME.rlp"
 fi
 
 #export LD_LIBRARY_PATH=""

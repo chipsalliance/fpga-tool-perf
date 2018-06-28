@@ -1,7 +1,9 @@
 rm -rf build
 
-python3 main.py --toolchain arachne --project blinky
-python3 main.py --toolchain vpr --project blinky
+python3 main.py --toolchain arachne         --project blinky
+python3 main.py --toolchain vpr             --project blinky
+python3 main.py --toolchain icecube2-synpro  --project blinky
+python3 main.py --toolchain icecube2-lse    --project blinky
 
 python3 main.py --toolchain arachne --project picosoc-hx8kdemo --verbose
 # SB_IO issue
