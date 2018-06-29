@@ -57,6 +57,7 @@ class Toolchain:
         self.toolchain = None
         self.verbose = False
         self.cmds = []
+        self.strategy = "default"
 
         self.family = None
         self.device = None
@@ -322,7 +323,7 @@ class Icecube2(Toolchain):
             env["TOP"] = self.top
             env["ICECUBEDIR"] = self.icecubedir
             env["ICEDEV"] = 'hx8k-ct256'
-            self.cmd("../../icecubed.sh", "--syn %s" % self.syn(), env=env)
+            self.cmd("../../icecubed.sh", "--syn %s --strategy %s" % (self.syn(), self.strategy), env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
@@ -344,7 +345,7 @@ class Icecube2(Toolchain):
 class Icecube2Synpro(Icecube2):
     def __init__(self):
         Icecube2.__init__(self)
-        self.toolchain = 'icecube-synpro'
+        self.toolchain = 'icecube2-synpro'
 
     def syn(self):
         return "synpro"
@@ -353,14 +354,23 @@ class Icecube2Synpro(Icecube2):
 class Icecube2LSE(Icecube2):
     def __init__(self):
         Icecube2.__init__(self)
-        self.toolchain = 'icecube-lse'
+        self.toolchain = 'icecube2-lse'
 
     def syn(self):
         return "lse"
 
 
+class Icecube2Yosys(Icecube2):
+    def __init__(self):
+        Icecube2.__init__(self)
+        self.toolchain = 'icecube2-yosys'
+
+    def syn(self):
+        return "yosys"
+
+
 def print_stats(t):
-    s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name
+    s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name + "_" + t.strategy
     print('Timing (%s)' % s)
     for k, v in t.runtimes.items():
         print('  % -16s %0.3f' % (k + ':', v))
@@ -398,7 +408,7 @@ def get_project(name):
     projects = dict([(p['name'], p) for p in projects])
     return projects[name]
 
-def run(family, device, package, toolchain, project, out_dir, verbose=False):
+def run(family, device, package, toolchain, project, out_dir, verbose=False, strategy="default"):
     assert family == 'ice40'
     assert device == 'hx8k'
     assert package == 'ct256'
@@ -408,12 +418,14 @@ def run(family, device, package, toolchain, project, out_dir, verbose=False):
         'vpr': VPR,
         'icecube2-synpro': Icecube2Synpro,
         'icecube2-lse': Icecube2LSE,
+        'icecube2-yosys': Icecube2Yosys,
         #'radiant': VPR,
         }[toolchain]()
     t.verbose = verbose
+    t.strategy = strategy
 
     if out_dir is None:
-        out_dir = "build/" + family + '-' + device + '_' + toolchain + '_' + project
+        out_dir = "build/" + family + '-' + device + '_' + toolchain + '_' + project + '_' + strategy
     if not os.path.exists("build"):
         os.mkdir("build")
     if not os.path.exists(out_dir):
@@ -446,7 +458,7 @@ def main():
     parser.add_argument('--out-dir', default=None, help='Output directory')
     args = parser.parse_args()
 
-    run(args.family, args.device, args.package, args.toolchain, args.project, args.out_dir, verbose=args.verbose)
+    run(args.family, args.device, args.package, args.toolchain, args.project, args.out_dir, strategy=args.strategy, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()

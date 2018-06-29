@@ -30,6 +30,8 @@
 
 syn=synpro
 #syn=lse
+PRJNAME=my
+strategy=default
 
 usage() {
     echo "usage: icecube.sh [args] <PRJNAME>"
@@ -44,31 +46,22 @@ while [[ $# -gt 0 ]]; do
         shift
         shift
         ;;
+    --strategy)
+        strategy=$2
+        shift
+        shift
+        ;;
     -h|--help)
         usage
         exit 0
         ;;
-    -*)
+    *)
         echo "Unrecognized argument"
         usage
         exit 1
         ;;
-    *)
-        ARGS+=("$1")
-        shift
-        ;;
     esac
 done
-
-
-#NA=${#ARGS[@]}
-#if [ "$NA" -ne 1 ] ; then
-#    echo "Missing arguments"
-#    usage
-#    exit 1
-#fi
-#PRJNAME=${ARGS[0]}
-PRJNAME=my
 
 if [ -z "$SRCS" ] ; then
     echo "SRCS required"
@@ -322,8 +315,7 @@ if [ "$syn" = "synpro" ] ; then
         echo "add_file -verilog -lib work $f" >>impl_syn.prj
     done
 
-    cat >> impl_syn.prj << EOT
-#add_file -verilog -lib work input.v
+        cat >> impl_syn.prj << EOT
 impl -add impl -type fpga
 
 # implementation attributes
@@ -336,6 +328,19 @@ set_option -part $iCE40DEV
 set_option -package $iCEPACKAGE
 set_option -speed_grade
 set_option -part_companion ""
+EOT
+
+    # CLI tool defaults
+    if [ "$strategy" = "default_cli" ] ; then
+        cat >> impl_syn.prj << EOT
+# automatic place and route (vendor) options
+set_option -write_apr_constraint 1
+EOT
+    # From actual tool run
+    # matches icestorm icecube.sh
+    elif [ "$strategy" = "default" ] ; then
+        cat >> impl_syn.prj << EOT
+#compilation/mapping options
 
 # mapper_options
 set_option -frequency auto
@@ -363,8 +368,48 @@ set_option -symbolic_fsm_compiler 1
 set_option -compiler_compatible 0
 set_option -resource_sharing 1
 
+#automatic place and route (vendor) options
+set_option -write_apr_constraint 1
+EOT
+    elif [ "$strategy" = "speed" ] ; then
+        cat >> impl_syn.prj << EOT
+set_option -autosm 1
+
+# mapper_options
+set_option -frequency auto
+set_option -write_verilog 0
+set_option -write_vhdl 0
+
+# Silicon Blue iCE40
+set_option -maxfan 10000
+set_option -disable_io_insertion 0
+set_option -pipe 1
+set_option -retiming 1
+set_option -update_models_cp 0
+set_option -fixgatedclocks 2
+set_option -fixgeneratedclocks 0
+
+# NFilter
+set_option -popfeed 0
+set_option -constprop 0
+set_option -createhierarchy 0
+
+# sequential_optimization_options
+set_option -symbolic_fsm_compiler 1
+
+# Compiler Options
+set_option -compiler_compatible 0
+set_option -resource_sharing 1
+
 # automatic place and route (vendor) options
 set_option -write_apr_constraint 1
+EOT
+    else
+        echo "bad strategy $strategy"
+        exit 1
+    fi
+
+        cat >> impl_syn.prj << EOT
 
 # set result format/file last
 project -result_format edif
@@ -417,6 +462,16 @@ EOT
     done
 
     "$icecubedir"/LSE/bin/${lin_lin64}/synthesis -f "impl_lse.prj"
+elif [ "$syn" = "yosys" ] ; then
+    echo "temp"
+    echo $PWD
+    mkdir -p impl
+    cp ../../my.edf impl/impl.edf
+elif [ "$syn" = "yosys" ] ; then
+    mkdir -p impl
+    #yscript="synth_ice40 -top $TOP -blif my.blif"
+    yscript="synth_ice40 -top $TOP; write_edif -top $TOP impl/impl.edf"
+    LD_LIBRARY_PATH= "yosys" -p "$yscript" $SRCS
 else
     echo "bad syntehsis: $SYN"
     exit 1
