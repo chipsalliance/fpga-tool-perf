@@ -297,20 +297,6 @@ class VPR(Toolchain):
             'vpr': VPR.vpr_version(),
             }
 
-def asc_ver(f):
-    '''
-    .comment
-    Lattice
-    iCEcube2 2017.08.27940
-    Part: iCE40HX1K-TQ144
-    Date: Jun 27 2018 13:22:06
-    '''
-    for l in f:
-        if l.find('iCEcube2') == 0:
-            return l.split()[1].strip()
-    assert 0
-
-
 class Icecube2(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
@@ -335,10 +321,24 @@ class Icecube2(Toolchain):
     def resources(self):
         return icebox_stat("my.asc", self.out_dir)
 
+    @staticmethod
+    def asc_ver(f):
+        '''
+        .comment
+        Lattice
+        iCEcube2 2017.08.27940
+        Part: iCE40HX1K-TQ144
+        Date: Jun 27 2018 13:22:06
+        '''
+        for l in f:
+            if l.find('iCEcube2') == 0:
+                return l.split()[1].strip()
+        assert 0
+
     def versions(self):
         return {
             'yosys': yosys_ver(),
-            'icecube2': asc_ver(open(self.out_dir + '/my.asc')),
+            'icecube2': Icecube2.asc_ver(open(self.out_dir + '/my.asc')),
             }
 
 
@@ -367,6 +367,65 @@ class Icecube2Yosys(Icecube2):
 
     def syn(self):
         return "yosys"
+
+
+# .asc version field just says "DiamondNG"
+# guess that was the code name...
+class Radiant(Toolchain):
+    def __init__(self):
+        Toolchain.__init__(self)
+        self.radiantdir = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
+
+    def run(self):
+        with Timed(self, 'bit-all'):
+            env = os.environ.copy()
+            env["SRCS"] = ' '.join(self.srcs)
+            env["TOP"] = self.top
+            env["RADIANTDIR"] = self.radiantdir
+            #env["RADDEV"] = 'iCE40UP5K-UWG30ITR'
+            self.cmd("../../radiant.sh", "--syn %s --strategy %s" % (self.syn(), self.strategy), env=env)
+
+            self.cmd("iceunpack", "my.bin my.asc")
+
+        self.cmd("icetime", "-tmd up5k my.asc")
+
+    def max_freq(self):
+        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+
+    def resources(self):
+        return icebox_stat("my.asc", self.out_dir)
+
+    def radiant_ver(self):
+        # a lot of places where this is, but not sure whats authoritative
+        for l in open(self.radiantdir + '/data/ispsys.ini'):
+            # ./data/ispsys.ini:19:ProductType=1.0.0.350.6
+            if l.find('ProductType') == 0:
+                return l.split('=')[1].strip()
+        assert 0
+
+    def versions(self):
+        return {
+            'yosys': yosys_ver(),
+            'radiant': self.radiant_ver(),
+            }
+
+
+class RadiantLSE(Radiant):
+    def __init__(self):
+        Radiant.__init__(self)
+        self.toolchain = 'radiant-lse'
+
+    def syn(self):
+        return "lse"
+
+
+class RadiantSynpro(Radiant):
+    def __init__(self):
+        Radiant.__init__(self)
+        self.toolchain = 'radiant-synpro'
+
+    def syn(self):
+        return "synpro"
 
 
 def print_stats(t):
@@ -416,9 +475,11 @@ def run(family, device, package, toolchain, project, out_dir, verbose=False, str
     t = {
         'arachne': Arachne,
         'vpr': VPR,
-        'icecube2-synpro': Icecube2Synpro,
-        'icecube2-lse': Icecube2LSE,
-        'icecube2-yosys': Icecube2Yosys,
+        'icecube2-synpro':  Icecube2Synpro,
+        'icecube2-lse':     Icecube2LSE,
+        'icecube2-yosys':   Icecube2Yosys,
+        'radiant-synpro':   RadiantSynpro,
+        'radiant-lse':      RadiantLSE,
         #'radiant': VPR,
         }[toolchain]()
     t.verbose = verbose
