@@ -377,7 +377,7 @@ class Icecube2Yosys(Icecube2):
         self.toolchain = 'icecube2-yosys'
 
     def syn(self):
-        return "yosys"
+        return "yosys-synpro"
 
 
 # .asc version field just says "DiamondNG"

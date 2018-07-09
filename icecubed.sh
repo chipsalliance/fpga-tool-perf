@@ -307,9 +307,9 @@ mkdir -p outputs/netlist
 mkdir -p netlist/Log/bitmap
 
 
+syn_synpro() {
+    SRCS=$1
 
-# synthesis (Synplify Pro)
-if [ "$syn" = "synpro" ] ; then
     rm -f impl_syn.prj
     for f in $SRCS ; do
         echo "add_file -verilog -lib work $f" >>impl_syn.prj
@@ -419,6 +419,12 @@ project -run synthesis -clean
 EOT
 
     "$icecubedir"/sbt_backend/bin/linux/opt/synpwrap/synpwrap -prj impl_syn.prj -log impl.srr
+}
+
+
+# synthesis (Synplify Pro)
+if [ "$syn" = "synpro" ] ; then
+    syn_synpro $SRCS
 # synthesis (Lattice LSE)
 elif [ "$syn" = "lse" ] ; then
     cat > impl_lse.prj << EOT
@@ -462,18 +468,23 @@ EOT
     done
 
     "$icecubedir"/LSE/bin/${lin_lin64}/synthesis -f "impl_lse.prj"
-elif [ "$syn" = "yosys" ] ; then
-    echo "temp"
-    echo $PWD
+elif [ "$syn" = "yosys-synpro" ] ; then
+    # Use yosys to create a verilog file using primitives
     mkdir -p impl
-    cp ../../my.edf impl/impl.edf
-elif [ "$syn" = "yosys" ] ; then
-    mkdir -p impl
-    #yscript="synth_ice40 -top $TOP -blif my.blif"
-    yscript="synth_ice40 -top $TOP; write_edif -top $TOP impl/impl.edf"
+    yscript="synth_ice40 -top $TOP; write_verilog impl/impl.v"
     LD_LIBRARY_PATH= "yosys" -p "$yscript" $SRCS
+
+    # Then feed it into a icecube compatible script
+    syn_synpro impl/impl.v
+# yosys edif format is incompatible with icecube2
+# possibly will work with radiant
+#elif [ "$syn" = "yosys-edif" ] ; then
+#    mkdir -p impl
+#    #yscript="synth_ice40 -top $TOP -blif my.blif"
+#    yscript="synth_ice40 -top $TOP; write_edif -top $TOP impl/impl.edf"
+#    LD_LIBRARY_PATH= "yosys" -p "$yscript" $SRCS
 else
-    echo "bad syntehsis: $SYN"
+    echo "bad syntehsis: $syn"
     exit 1
 fi
 
