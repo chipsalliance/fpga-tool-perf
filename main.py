@@ -51,6 +51,14 @@ def yosys_ver():
     # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
     return subprocess.check_output("yosys -V", shell=True, universal_newlines=True).strip()
 
+def default_package(device, package):
+    if package is not None:
+        return package
+    if device in ('up3k', 'up5k'):
+        return 'uwg30'
+    else:
+        return 'ct256'
+
 class Toolchain:
     def __init__(self):
         self.runtimes = collections.OrderedDict()
@@ -61,6 +69,7 @@ class Toolchain:
 
         self.family = None
         self.device = None
+        self.package = None
 
         self.project_name = None
         self.srcs = None
@@ -73,9 +82,10 @@ class Toolchain:
     def add_runtime(self, name, dt):
         self.runtimes[name] = dt
 
-    def project(self, name, family, device, srcs, top, out_dir):
+    def project(self, name, family, device, package, srcs, top, out_dir):
         self.family = family
         self.device = device
+        self.package = package
 
         self.project_name = name
         self.srcs = srcs
@@ -191,7 +201,7 @@ class VPR(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'vpr'
-        self.sfad_build = os.getenv("HOME") + "/symbiflow-arch-defs/tests/build/ice40-top-routing-virt-hx8k"
+        self.sfad_build = os.getenv("SFAD_BUILD", os.getenv("HOME") + "/symbiflow-arch-defs/tests/build/ice40-top-routing-virt-hx8k")
 
     def yosys(self):
         yscript = "synth_ice40 -top %s -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % self.top
@@ -300,7 +310,7 @@ class VPR(Toolchain):
 class Icecube2(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
-        self.icecubedir = "/opt/lscc/iCEcube2.2017.08"
+        self.icecubedir = os.getenv("ICECUBEDIR", "/opt/lscc/iCEcube2.2017.08")
 
     def run(self):
         with Timed(self, 'bit-all'):
@@ -308,7 +318,8 @@ class Icecube2(Toolchain):
             env["SRCS"] = ' '.join(self.srcs)
             env["TOP"] = self.top
             env["ICECUBEDIR"] = self.icecubedir
-            env["ICEDEV"] = 'hx8k-ct256'
+            #env["ICEDEV"] = 'hx8k-ct256'
+            env["ICEDEV"] = self.device + '-' + self.package
             self.cmd("../../icecubed.sh", "--syn %s --strategy %s" % (self.syn(), self.strategy), env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
@@ -377,13 +388,20 @@ class Radiant(Toolchain):
         self.radiantdir = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
 
     def run(self):
+        # acceptable for either device
+        assert (self.device, self.package) in [('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')]
+
         with Timed(self, 'bit-all'):
             env = os.environ.copy()
             env["SRCS"] = ' '.join(self.srcs)
             env["TOP"] = self.top
             env["RADIANTDIR"] = self.radiantdir
-            #env["RADDEV"] = 'iCE40UP5K-UWG30ITR'
-            self.cmd("../../radiant.sh", "--syn %s --strategy %s" % (self.syn(), self.strategy), env=env)
+            env["RADDEV"] = self.device + '-' + self.package
+            syn = {
+                'lse': 'lse',
+                'synpro': 'synplify',
+                }[self.syn()]
+            self.cmd("../../radiant.sh", "--syn %s --strategy %s" % (syn, self.strategy), env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
@@ -469,8 +487,9 @@ def get_project(name):
 
 def run(family, device, package, toolchain, project, out_dir, verbose=False, strategy="default"):
     assert family == 'ice40'
-    assert device == 'hx8k'
-    assert package == 'ct256'
+    #assert device == 'hx8k'
+    #assert package == 'ct256'
+    package = default_package(device, package)
 
     t = {
         'arachne': Arachne,
@@ -486,7 +505,7 @@ def run(family, device, package, toolchain, project, out_dir, verbose=False, str
     t.strategy = strategy
 
     if out_dir is None:
-        out_dir = "build/" + family + '-' + device + '_' + toolchain + '_' + project + '_' + strategy
+        out_dir = "build/" + family + '-' + device + '-' + package + '_' + toolchain + '_' + project + '_' + strategy
     if not os.path.exists("build"):
         os.mkdir("build")
     if not os.path.exists(out_dir):
@@ -494,7 +513,7 @@ def run(family, device, package, toolchain, project, out_dir, verbose=False, str
     print('Writing to %s' % out_dir)
 
     p = get_project(project)
-    t.project(p['name'], family, device, p['srcs'], p['top'], out_dir)
+    t.project(p['name'], family, device, package, p['srcs'], p['top'], out_dir)
 
     t.run()
     print_stats(t)
@@ -512,7 +531,7 @@ def main():
     parser.add_argument('--overwrite', action='store_true', help='')
     parser.add_argument('--family', default='ice40', help='Device family')
     parser.add_argument('--device', default='hx8k', help='Device within family')
-    parser.add_argument('--package', default='ct256', help='Device package')
+    parser.add_argument('--package', default=None, help='Device package')
     parser.add_argument('--strategy', default='default', help='Optimization strategy')
     parser.add_argument('--toolchain', required=True, help='Tools to use')
     parser.add_argument('--project', required=True, help='Source code to run on')

@@ -41,8 +41,24 @@ if [ -z "$SRCS" ] ; then
 fi
 
 
+case "${RADDEV:-up5k-uwg30}" in
+    up5k-sg48)
+        echo "fixme: package"; exit 1
+        iCEPACKAGE="SG48"
+        iCE40DEV="iCE40UP5K"
+        ;;
+    up5k-uwg30)
+        iCEPACKAGE="UWG30ITR"
+        iCE40DEV="iCE40UP5K"
+        ;;
+    *)
+        echo "ERROR: Invalid \$RADDEV device config '$RADDEV'."
+        exit 1
+esac
+
+
 cat >run.tcl <<EOF
-prj_create -name "test1" -impl "test1" -dev iCE40UP5K-UWG30ITR -performance "High-Performance_1.2V" -synthesis "$syn"
+prj_create -name "test1" -impl "test1" -dev $iCE40DEV-$iCEPACKAGE -performance "High-Performance_1.2V" -synthesis "$syn"
 prj_set_strategy "$strategy"
 EOF
 
