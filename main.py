@@ -106,22 +106,35 @@ class Toolchain:
             subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir, env=env)
 
     def write_metadata(self, out_dir):
+        resources = self.resources()
+        max_freq = self.max_freq()
         j = {
-            'toolchain': self.toolchain,
             'family': self.family,
             'device': self.device,
-            'project_name': self.project_name,
+            'package': self.package,
+            'project': self.project_name,
+    
+            'toolchain': self.toolchain,
+            'strategy': self.strategy,
+    
             # canonicalize
             'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
             'top': self.top,
     
             "runtime": self.runtimes,
-            "max_freq": self.max_freq(),
-            "resources": self.resources(),
+            "max_freq": max_freq,
+            "resources": resources,
             "verions": self.versions(),
             }
         json.dump(j, open(out_dir + '/meta.json', 'w'), sort_keys=True, indent=4)
 
+        # write .csv for easy import
+        csv = open(out_dir + '/meta.csv', 'w')
+        csv.write('Family,Device,Package,Project,Toolchain,Strategy,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, '%0.1f' % (max_freq/1e6), '%0.3f' % self.runtimes['bit-all']]
+        fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
+        csv.write(','.join(fields) + '\n')
+        csv.close()
 
 def icetime_parse(f):
     ret = {

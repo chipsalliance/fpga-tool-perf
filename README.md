@@ -43,4 +43,6 @@ To generate other archs you need to hack around a bit
 touch ~/symbiflow-arch-defs/tests/ice40/blink/test-upk5-uwg30.pcf
 make BOARD=test-upk5-uwg30 DEVICE=up5k PACKAGE=uwg30 PROG_TOOL=/dev/null bit
 
+To create a performance .csv:
+./hx8k.sh
 
