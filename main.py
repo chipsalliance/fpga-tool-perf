@@ -201,13 +201,24 @@ class VPR(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'vpr'
-        self.sfad_build = os.getenv("SFAD_BUILD", os.getenv("HOME") + "/symbiflow-arch-defs/tests/build/ice40-top-routing-virt-hx8k")
 
     def yosys(self):
         yscript = "synth_ice40 -top %s -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % self.top
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
 
     def run(self):
+        def sfad_build():
+            sfad_build = os.getenv("SFAD_BUILD", None)
+            if sfad_build:
+                return sfad_build
+    
+            sfad_dir = os.getenv("SFAD_DIR", os.getenv("HOME") + "/symbiflow-arch-defs")
+            return sfad_dir + "/tests/build/ice40-top-routing-virt-" + self.device
+
+        self.sfad_build = sfad_build()
+        if not os.path.exists(self.sfad_build):
+            raise Exception("Missing VPR dir: %s" % self.sfad_build)
+
         with Timed(self, 'bit-all'):
             self.yosys()
 
@@ -219,7 +230,7 @@ class VPR(Toolchain):
             devstr = self.device + '-' + self.package
             self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --debug_clustering on --pack --place --route")
 
-            self.cmd("icebox_hlc2asc.py", "top.hlc > my.asc")
+            self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
@@ -397,10 +408,7 @@ class Radiant(Toolchain):
             env["TOP"] = self.top
             env["RADIANTDIR"] = self.radiantdir
             env["RADDEV"] = self.device + '-' + self.package
-            syn = {
-                'lse': 'lse',
-                'synpro': 'synplify',
-                }[self.syn()]
+            syn = self.syn()
             self.cmd("../../radiant.sh", "--syn %s --strategy %s" % (syn, self.strategy), env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
@@ -443,12 +451,29 @@ class RadiantSynpro(Radiant):
         self.toolchain = 'radiant-synpro'
 
     def syn(self):
-        return "synpro"
+        return "synplify"
 
+
+# @E: CG389 :"/home/mcmaster/.../impl/impl.v":18:4:18:7|Reference to undefined module SB_LUT4
+# didn't look into importing edif
+class RadiantYosys(Radiant):
+    def __init__(self):
+        Radiant.__init__(self)
+        self.toolchain = 'radiant-yosys'
+
+    def syn(self):
+        return "yosys-synpro"
 
 def print_stats(t):
     s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name + "_" + t.strategy
-    print('Timing (%s)' % s)
+    print('Design %s' % s)
+    print('  Family: %s' % t.family)
+    print('  Device: %s' % t.device)
+    print('  Package: %s' % t.package)
+    print('  Project: %s' % t.project_name)
+    print('  Toolchain: %s' % t.toolchain)
+    print('  Strategy: %s' % t.strategy)
+    print('Timing:')
     for k, v in t.runtimes.items():
         print('  % -16s %0.3f' % (k + ':', v))
     print('Max frequency: %0.3f MHz' % (t.max_freq() / 1e6,))
@@ -499,6 +524,7 @@ def run(family, device, package, toolchain, project, out_dir, verbose=False, str
         'icecube2-yosys':   Icecube2Yosys,
         'radiant-synpro':   RadiantSynpro,
         'radiant-lse':      RadiantLSE,
+        #'radiant-yosys':    RadiantYosys,
         #'radiant': VPR,
         }[toolchain]()
     t.verbose = verbose

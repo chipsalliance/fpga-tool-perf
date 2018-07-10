@@ -57,23 +57,52 @@ case "${RADDEV:-up5k-uwg30}" in
 esac
 
 
-cat >run.tcl <<EOF
+run_radiant() {
+    syn=$1
+    SRCS=$2
+    #edif=$3
+
+    set -ex
+
+    cat >run.tcl <<EOF
 prj_create -name "test1" -impl "test1" -dev $iCE40DEV-$iCEPACKAGE -performance "High-Performance_1.2V" -synthesis "$syn"
 prj_set_strategy "$strategy"
 EOF
 
-for f in $SRCS ; do
-    echo "prj_add_source \"$f\"" >>run.tcl
-done
+    for f in $SRCS ; do
+        echo "prj_add_source \"$f\"" >>run.tcl
+    done
 
-cat >>run.tcl <<EOF
+    cat >>run.tcl <<EOF
 prj_save
 prj_run PAR -impl test1
 prj_run Export -impl test1
 EOF
-#timing -sethld -v 10 -u 10 -endpoints 10  -nperend 1 -html -rpt "test1_test1.twr" "test1_test1.udb" 
-#bitgen -w "test1_test1.udb" -f "test1_test1.t2b" 
+    #timing -sethld -v 10 -u 10 -endpoints 10  -nperend 1 -html -rpt "test1_test1.twr" "test1_test1.udb" 
+    #bitgen -w "test1_test1.udb" -f "test1_test1.t2b" 
 
-cat run.tcl | $radiantdir/bin/lin64/radiantc
-cp ./test1/test1_test1.bin my.bin
+    cat run.tcl | $radiantdir/bin/lin64/radiantc
+    cp ./test1/test1_test1.bin my.bin
+}
+
+if [ "$syn" = "yosys-synpro" ] ; then
+    # Use yosys to create a verilog file using primitives
+    mkdir -p impl
+    yscript="synth_ice40 -top $TOP; write_verilog impl/impl.v"
+    LD_LIBRARY_PATH= "yosys" -p "$yscript" $SRCS
+
+    # Then feed it into a icecube compatible script
+    run_radiant "synplify" "impl/impl.v"
+# not sure the tcl command and don't care enough to look into
+#elif [ "$syn" = "yosys-edif" ] ; then
+#    # Use yosys to create a verilog file using primitives
+#    mkdir -p impl
+#    yscript="synth_ice40 -top $TOP; write_edif -top $TOP impl/impl.edf"
+#    LD_LIBRARY_PATH= "yosys" -p "$yscript" $SRCS
+#
+#    # Then feed it into a icecube compatible script
+#    run_radiant "synplify" "" "impl/impl.edf"
+else
+    run_radiant "$syn" "$SRCS"
+fi
 
