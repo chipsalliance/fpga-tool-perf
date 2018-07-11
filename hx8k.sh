@@ -8,16 +8,21 @@ set -e
 function run() {
     toolchain=$1
     project=$2
-    python3 main.py --toolchain $toolchain --project $project --device "hx8k" --package "ct256"
+    # some of these may fail pnr
+    python3 main.py --toolchain $toolchain --project $project --device "hx8k" --package "ct256" || true
 }
 
-run icecube2-synpro blinky
-run icecube2-lse blinky
-run icecube2-yosys blinky
+for project in blinky picosoc-hx8kdemo ; do
+    run arachne $project
 
-# Radiant does not support this part
+    run icecube2-synpro $project
+    run icecube2-lse $project
+    run icecube2-yosys $project
 
-run vpr blinky
+    # Radiant does not support this part
 
-cat $(find build -name '*.csv') |sort -u >build/hx8k.csv
+    run vpr $project
+done
+
+cat $(find build -name '*.csv') |sort -u >build/all.csv
 

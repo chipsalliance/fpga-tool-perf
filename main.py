@@ -131,7 +131,7 @@ class Toolchain:
         # write .csv for easy import
         csv = open(out_dir + '/meta.csv', 'w')
         csv.write('Family,Device,Package,Project,Toolchain,Strategy,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
-        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, '%0.1f' % (max_freq/1e6), '%0.3f' % self.runtimes['bit-all']]
+        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
         fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
         csv.write(','.join(fields) + '\n')
         csv.close()
@@ -209,6 +209,7 @@ class Arachne(Toolchain):
             'yosys': yosys_ver(),
             'arachne': Arachne.arachne_version(),
             }
+
 
 class VPR(Toolchain):
     def __init__(self):
@@ -414,6 +415,9 @@ class Radiant(Toolchain):
     def run(self):
         # acceptable for either device
         assert (self.device, self.package) in [('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')]
+        # FIXME: strategy doesn't seem to actually do anything
+        # any value can be passed in, and valid values seem to get ignored
+        #assert self.strategy in ['default', 'Quick', 'Timing', 'Area']
 
         with Timed(self, 'bit-all'):
             env = os.environ.copy()
