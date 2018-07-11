@@ -59,6 +59,9 @@ def default_package(device, package):
     else:
         return 'ct256'
 
+def canonicalize(fns):
+    return [os.path.realpath(fn) for fn in fns]
+
 class Toolchain:
     def __init__(self):
         self.runtimes = collections.OrderedDict()
@@ -88,7 +91,7 @@ class Toolchain:
         self.package = package
 
         self.project_name = name
-        self.srcs = srcs
+        self.srcs = canonicalize(srcs)
         self.top = top
         self.out_dir = out_dir
 
@@ -135,6 +138,10 @@ class Toolchain:
         fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
         csv.write(','.join(fields) + '\n')
         csv.close()
+
+        # Provide some context when comparing runtimes against systems
+        subprocess.check_call('uname -a >uname.txt', shell=True, executable='bash', cwd=self.out_dir)
+        subprocess.check_call('lscpu >lscpu.txt', shell=True, executable='bash', cwd=self.out_dir)
 
 def icetime_parse(f):
     ret = {
@@ -498,35 +505,6 @@ def print_stats(t):
     for k, v in sorted(t.resources().items()):
         print('  %- 20s %s' % (k + ':', v))
 
-def get_project(name):
-    cwd = os.getcwd()
-
-    projects = [
-        {
-        'srcs': [cwd + '/src/oneblink.v'],
-        'top': 'top',
-        'name': 'oneblink',
-        },
-    ]
-
-    #srcs = filter(lambda x: x.find('_tb.v') < 0 and 'spiflash.v' not in x, glob.glob(cwd + "/src/picorv32/picosoc/*.v"))
-    d = cwd + "/src/picorv32/"
-    srcs = [
-        d + "picosoc/picosoc.v",
-        d + "picorv32.v",
-        d + "picosoc/spimemio.v",
-        d + "picosoc/simpleuart.v",
-        d + "picosoc/hx8kdemo.v",
-        ]
-    projects.append({
-        'srcs': srcs,
-        'top': 'hx8kdemo',
-        'name': 'picosoc-hx8kdemo',
-        })
-
-    projects = dict([(p['name'], p) for p in projects])
-    return projects[name]
-
 def run(family, device, package, toolchain, project, out_dir, verbose=False, strategy="default"):
     assert family == 'ice40'
     #assert device == 'hx8k'
@@ -548,15 +526,14 @@ def run(family, device, package, toolchain, project, out_dir, verbose=False, str
     t.strategy = strategy
 
     if out_dir is None:
-        out_dir = "build/" + family + '-' + device + '-' + package + '_' + toolchain + '_' + project + '_' + strategy
+        out_dir = "build/" + family + '-' + device + '-' + package + '_' + toolchain + '_' + project['name'] + '_' + strategy
     if not os.path.exists("build"):
         os.mkdir("build")
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
     print('Writing to %s' % out_dir)
 
-    p = get_project(project)
-    t.project(p['name'], family, device, package, p['srcs'], p['top'], out_dir)
+    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir)
 
     t.run()
     print_stats(t)
@@ -581,7 +558,8 @@ def main():
     parser.add_argument('--out-dir', default=None, help='Output directory')
     args = parser.parse_args()
 
-    run(args.family, args.device, args.package, args.toolchain, args.project, args.out_dir, strategy=args.strategy, verbose=args.verbose)
+    project_fn = 'project/' + args.project + '.json'
+    run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
