@@ -242,7 +242,7 @@ class VPR(Toolchain):
             #io_place = ".../symbiflow-arch-defs/tests/ice40/tiny-b2_blink//build-ice40-top-routing-virt-hx8k/io.place"
             #devstr = "hx8k-cm81"
             devstr = self.device + '-' + self.package
-            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --debug_clustering on --pack --place --route")
+            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route")
 
             self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
             self.cmd("icepack", "my.asc my.bin")
@@ -503,9 +503,9 @@ def get_project(name):
 
     projects = [
         {
-        'srcs': [cwd + '/src/blinky.v'],
+        'srcs': [cwd + '/src/oneblink.v'],
         'top': 'top',
-        'name': 'blinky',
+        'name': 'oneblink',
         },
     ]
 
