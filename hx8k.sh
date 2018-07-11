@@ -12,7 +12,7 @@ function run() {
     python3 main.py --toolchain $toolchain --project $project --device "hx8k" --package "ct256" || true
 }
 
-for project in blinky picosoc-hx8kdemo ; do
+for project in oneblink picosoc-hx8kdemo ; do
     run arachne $project
 
     run icecube2-synpro $project
@@ -21,7 +21,7 @@ for project in blinky picosoc-hx8kdemo ; do
 
     # Radiant does not support this part
 
-    run vpr $project
+    #run vpr $project
 done
 
 cat $(find build -name '*.csv') |sort -u >build/all.csv

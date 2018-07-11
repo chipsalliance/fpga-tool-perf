@@ -12,14 +12,14 @@ function run() {
     python3 main.py --toolchain $toolchain --project $project --device "up5k" --package "uwg30" || true
 }
 
-run icecube2-synpro blinky
-run icecube2-lse blinky
+run icecube2-synpro oneblink
+run icecube2-lse oneblink
 
-run radiant-synpro blinky
-run radiant-lse blinky
+run radiant-synpro oneblink
+run radiant-lse oneblink
 
 # FIXME: vpr issue mixing up hx and up
-# run vpr blinky
+# run vpr oneblink
 
 cat $(find build -name '*.csv') |sort -u >build/all.csv
 
