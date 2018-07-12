@@ -46,10 +46,24 @@ def find_clks(m):
 def run(src_fns, fout, module=None, top='top', clks=None, verbose=False):
     ast, directives = parse(src_fns)
 
-    def find_def(ast):
-        return ast.children()[0].definitions[0]
+    def get_top_module(ast, module=None):
+        # Only one module?
+        if len(ast.children()) == 1 and len(ast.children()[0].definitions) == 1:
+            ret = ast.children()[0].definitions[0]
+            if module:
+                assert ret.name == module
+            return ret
+        else:
+            if not module:
+                raise ValueError("Multiple modules and module not given")
+            for child in ast.children():
+                for m in child.definitions:
+                    if m.name == module:
+                        return m
+            else:
+                raise ValueError("Failed to find given module name")
 
-    m = find_def(ast)
+    m = get_top_module(ast, module)
     dut = m.name
     assert type(m) == pyverilog.vparser.ast.ModuleDef
 
@@ -141,6 +155,7 @@ def main():
 
     parser.add_argument('--verbose', action='store_true', help='')
     parser.add_argument('--top', default='top', help='')
+    # if we were really smart we could figure this out maybe
     parser.add_argument('--module', default=None, help='must be specified if more than one module')
     parser.add_argument('--clks', default=None, help='comma separated clock signal names')
     parser.add_argument('fn_in', help='Verilog file name')
