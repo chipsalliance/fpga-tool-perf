@@ -4,3 +4,6 @@
 [submodule "src/up5k-demos"]
 	path = src/up5k-demos
 	url = https://github.com/daveshah1/up5k-demos.git
+[submodule "src/VexRiscv-verilog"]
+	path = src/vexriscv-verilog
+	url = https://github.com/m-labs/VexRiscv-verilog
