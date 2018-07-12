@@ -1,0 +1,9 @@
+{
+    "srcs": [
+        "src/picorv32/picorv32.v",
+        "src/picorv32_wrap.v"
+        ],
+    "top": "picorv32",
+    "name": "picorv32-wrap"
+}
+

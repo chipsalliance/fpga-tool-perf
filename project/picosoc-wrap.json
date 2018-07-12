@@ -1,0 +1,10 @@
+{
+    "srcs": [
+        "src/picorv32/picosoc/picosoc.v",
+        "src/picorv32/picorv32.v",
+        "src/picosoc_wrap.v"
+        ],
+    "top": "picosoc",
+    "name": "picosoc-wrap"
+}
+
