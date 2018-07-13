@@ -234,9 +234,9 @@ class Arachne(Toolchain):
 
             optstr = ''
             if self.seed:
-                optstr += '--seed %d' % self.seed
+                optstr += ' --seed %d' % self.seed
             if self.pcf:
-                optstr += '--pcf-file %s' % self.pcf
+                optstr += ' --pcf-file %s' % self.pcf
 
             self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif %s" % optstr)
             self.cmd("icepack", "my.asc my.bin")
@@ -591,7 +591,7 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     t.verbose = verbose
     t.strategy = strategy
     t.seed = seed
-    t.pcf = os.path.realpath(pcf)
+    t.pcf = os.path.realpath(pcf) if pcf else None
 
     if not os.path.exists("build"):
         os.mkdir("build")
