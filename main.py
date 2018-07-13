@@ -376,6 +376,7 @@ class VPR(Toolchain):
             'vpr': VPR.vpr_version(),
             }
 
+# no seed support?
 class Icecube2(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
@@ -451,6 +452,7 @@ class Icecube2Yosys(Icecube2):
 
 # .asc version field just says "DiamondNG"
 # guess that was the code name...
+# no seed support? -n just does more passes
 class Radiant(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)

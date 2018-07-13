@@ -35,17 +35,16 @@ def calc_port_width(m, clks):
             assert 0
     return dinn, doutn
 
-def find_clks(m):
-    '''Return signals containing clock like names'''
+def find_iclks(m):
+    '''Return input signals containing clock like names'''
     ret = set()
     for port in m.portlist.ports:
         c0 = port_child(port)
-        if c0.name.lower().find('clk') >= 0:
-            assert type(c0) is pyverilog.vparser.ast.Input
+        if type(c0) is pyverilog.vparser.ast.Input and c0.name.lower().find('clk') >= 0:
             ret.add(c0.name)
     return ret
 
-def run(src_fn, fout, module=None, top='top', clks=None, verbose=False):
+def run(src_fn, fout, module=None, top='top', iclks=None, verbose=False):
     ast, directives = parse([src_fn])
 
     def get_top_module(ast, module=None):
@@ -69,10 +68,10 @@ def run(src_fn, fout, module=None, top='top', clks=None, verbose=False):
     dut = m.name
     assert type(m) == pyverilog.vparser.ast.ModuleDef
 
-    if clks is None:
-        clks = find_clks(m)
+    if iclks is None:
+        iclks = find_iclks(m)
 
-    dinn, doutn = calc_port_width(m, clks)
+    dinn, doutn = calc_port_width(m, iclks)
 
     fout.write('''\
 /*
@@ -122,7 +121,7 @@ module %s(input wire clk, input wire stb, input wire di, output wire do);
                 widthn = 1
 
             # Connect to clock net, not general I/O
-            if c0.name in clks:
+            if c0.name in iclks:
                 return 'clk'
             elif type(c0) is pyverilog.vparser.ast.Input:
                 if c0.width:
@@ -163,15 +162,15 @@ def main():
     parser.add_argument('--top', default='top', help='')
     # if we were really smart we could figure this out maybe
     parser.add_argument('--module', default=None, help='must be specified if more than one module')
-    parser.add_argument('--clks', default=None, help='comma separated clock signal names')
+    parser.add_argument('--iclks', default=None, help='comma separated input clock signal names')
     parser.add_argument('fn_in', help='Verilog file name')
     parser.add_argument('fn_out', default='/dev/stdout', nargs='?', help='Verilog file name')
     args = parser.parse_args()
 
-    clks = None
-    if args.clks:
-        clks = args.clks.split(',')
-    run(args.fn_in, open(args.fn_out, 'w'), module=args.module, top=args.top, clks=clks, verbose=args.verbose)
+    iclks = None
+    if args.iclks:
+        iclks = args.iclks.split(',')
+    run(args.fn_in, open(args.fn_out, 'w'), module=args.module, top=args.top, iclks=iclks, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
