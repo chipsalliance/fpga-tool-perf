@@ -70,6 +70,7 @@ class Toolchain:
         self.cmds = []
         self.strategy = "default"
         self.seed = None
+        self.pcf = None
 
         self.family = None
         self.device = None
@@ -84,10 +85,20 @@ class Toolchain:
             subprocess.check_call("true", shell=True, cwd=self.out_dir)
 
     def optstr(self):
+        ret = ''
+        def add(s):
+            nonlocal ret
+
+            if ret:
+                ret += '_' + s
+            else:
+                ret = s
+
         if self.seed:
-            return 'seed-%08X' % (self.seed,)
-        else:
-            return ''
+            add('seed-%08X' % (self.seed,))
+        if self.pcf:
+            add('pcf')
+        return ret
 
     def add_runtime(self, name, dt):
         self.runtimes[name] = dt
@@ -220,11 +231,13 @@ class Arachne(Toolchain):
         with Timed(self, 'bit-all'):
             self.yosys()
 
-            seedstr = ''
+            optstr = ''
             if self.seed:
-                seedstr = '--seed %d' % self.seed
+                optstr += '--seed %d' % self.seed
+            if self.pcf:
+                optstr += '--fix_pins %s' % self.pcf
 
-            self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif %s" % seedstr)
+            self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif %s" % optstr)
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
@@ -259,16 +272,18 @@ class VPR(Toolchain):
         yscript = "synth_ice40 -top %s -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % self.top
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
 
-    def run(self):
-        def sfad_build():
-            sfad_build = os.getenv("SFAD_BUILD", None)
-            if sfad_build:
-                return sfad_build
-    
-            sfad_dir = os.getenv("SFAD_DIR", os.getenv("HOME") + "/symbiflow-arch-defs")
-            return sfad_dir + "/tests/build/ice40-top-routing-virt-" + self.device
+    def sfad_dir(self):
+        return os.getenv("SFAD_DIR", os.getenv("HOME") + "/symbiflow-arch-defs")
 
-        self.sfad_build = sfad_build()
+    def sfad_build(self):
+        sfad_build = os.getenv("SFAD_BUILD", None)
+        if sfad_build:
+            return sfad_build
+
+        return self.sfad_dir() + "/tests/build/ice40-top-routing-virt-" + self.device
+
+    def run(self):
+        self.sfad_build = self.sfad_build()
         if not os.path.exists(self.sfad_build):
             raise Exception("Missing VPR dir: %s" % self.sfad_build)
 
@@ -282,11 +297,17 @@ class VPR(Toolchain):
             #devstr = "hx8k-cm81"
             devstr = self.device + '-' + self.package
 
-            seedstr = ''
+            optstr = ''
             if self.seed:
-                seedstr = '--seed %d' % self.seed
+                optstr += '--seed %d' % self.seed
+            if self.pcf:
+                print(self.pcf)
+                io_place_file = self.out_dir + '/io.place'
+                create_ioplace = 'python ' + self.sfad_dir() + './ice40/utils/ice40_create_ioplace.py'
+                self.cmd('%s --pcf %s --blif %s --map %s' % (create_ioplace, self.pcf, "my.eblif", io_place_file) )
+                optstr += '--fix_pins %s' % io_place_file
 
-            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route " + seedstr)
+            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route " + optstr)
 
             self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
             self.cmd("icepack", "my.asc my.bin")
@@ -375,6 +396,7 @@ class VPR(Toolchain):
             'yosys': yosys_ver(),
             'vpr': VPR.vpr_version(),
             }
+
 
 # no seed support?
 class Icecube2(Toolchain):
@@ -547,7 +569,7 @@ def print_stats(t):
     for k, v in sorted(t.resources().items()):
         print('  %- 20s %s' % (k + ':', v))
 
-def run(family, device, package, toolchain, project, out_dir=None, verbose=False, strategy="default", seed=None):
+def run(family, device, package, toolchain, project, out_dir=None, verbose=False, strategy="default", seed=None, pcf=None):
     assert family == 'ice40'
     #assert device == 'hx8k'
     #assert package == 'ct256'
@@ -567,6 +589,7 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     t.verbose = verbose
     t.strategy = strategy
     t.seed = seed
+    t.pcf = pcf
 
     if not os.path.exists("build"):
         os.mkdir("build")
@@ -595,11 +618,12 @@ def main():
     parser.add_argument('--project', required=True, help='Source code to run on')
     parser.add_argument('--seed', default=None, help='32 bit sSeed number to use, possibly directly mapped to PnR tool')
     parser.add_argument('--out-dir', default=None, help='Output directory')
+    parser.add_argument('--pcf', default=None, help='')
     args = parser.parse_args()
 
     project_fn = 'project/' + args.project + '.json'
     seed = int(args.seed, 0) if args.seed else None
-    run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, seed=seed, verbose=args.verbose)
+    run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
 
 if __name__ == '__main__':
     main()
