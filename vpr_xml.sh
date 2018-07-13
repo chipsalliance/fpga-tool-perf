@@ -5,7 +5,7 @@ if [ '!' -d "$SFAD_DIR" ] ; then
     exit 1
 fi
 
-cd $SFAD_DIR/ice40/tests/blink
+cd $SFAD_DIR/ice40/tests/blink || cd $SFAD_DIR/tests/ice40/blink
 
 # tim: maybe run make route instead of bit
 
