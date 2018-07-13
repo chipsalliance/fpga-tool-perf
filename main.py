@@ -130,14 +130,15 @@ class Toolchain:
     def cmd(self, cmd, argstr, env=None):
         print("Running: %s %s" % (cmd, argstr))
         self.cmds.append('%s %s' % (cmd, argstr))
-        open("%s/%s.txt" % (self.out_dir, cmd), "w").write("Running: %s %s\n\n" % (cmd, argstr))
-        with Timed(self, cmd):
+        cmd_base = os.path.basename(cmd)
+        open("%s/%s.txt" % (self.out_dir, cmd_base), "w").write("Running: %s %s\n\n" % (cmd_base, argstr))
+        with Timed(self, cmd_base):
             if self.verbose:
                 cmdstr = "(%s %s) |&tee -a %s.txt; (exit $PIPESTATUS )" % (cmd, argstr, cmd)
                 print("Running: %s" % cmdstr)
                 print("  cwd: %s" % self.out_dir)
             else:
-                cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd)
+                cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd_base)
             subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir, env=env)
 
     def write_metadata(self):
@@ -235,7 +236,7 @@ class Arachne(Toolchain):
             if self.seed:
                 optstr += '--seed %d' % self.seed
             if self.pcf:
-                optstr += '--fix_pins %s' % self.pcf
+                optstr += '--pcf-file %s' % self.pcf
 
             self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif %s" % optstr)
             self.cmd("icepack", "my.asc my.bin")
@@ -301,11 +302,12 @@ class VPR(Toolchain):
             if self.seed:
                 optstr += '--seed %d' % self.seed
             if self.pcf:
-                print(self.pcf)
-                io_place_file = self.out_dir + '/io.place'
-                create_ioplace = 'python ' + self.sfad_dir() + './ice40/utils/ice40_create_ioplace.py'
-                self.cmd('%s --pcf %s --blif %s --map %s' % (create_ioplace, self.pcf, "my.eblif", io_place_file) )
-                optstr += '--fix_pins %s' % io_place_file
+                #io_place_file = self.out_dir + '/io.place'
+                #create_ioplace = 'python3 ' + self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
+                create_ioplace = self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
+                map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device, self.package)
+                self.cmd(create_ioplace, '--pcf %s --blif %s --map %s --output %s' % (self.pcf, "my.eblif", map_file, 'io.place'))
+                optstr += '--fix_pins io.place'
 
             self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route " + optstr)
 
@@ -589,7 +591,7 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     t.verbose = verbose
     t.strategy = strategy
     t.seed = seed
-    t.pcf = pcf
+    t.pcf = os.path.realpath(pcf)
 
     if not os.path.exists("build"):
         os.mkdir("build")
