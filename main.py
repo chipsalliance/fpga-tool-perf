@@ -69,6 +69,7 @@ class Toolchain:
         self.verbose = False
         self.cmds = []
         self.strategy = "default"
+        self.seed = None
 
         self.family = None
         self.device = None
@@ -82,10 +83,23 @@ class Toolchain:
         with Timed(self, 'nop'):
             subprocess.check_call("true", shell=True, cwd=self.out_dir)
 
+    def optstr(self):
+        if self.seed:
+            return 'seed-%08X' % (self.seed,)
+        else:
+            return ''
+
     def add_runtime(self, name, dt):
         self.runtimes[name] = dt
 
-    def project(self, name, family, device, package, srcs, top, out_dir):
+    def design(self):
+        ret = self.family + '-' + self.device + '-' + self.package + '_' + self.toolchain + '_' + self.project_name + '_' + self.strategy
+        op = self.optstr()
+        if op:
+            ret += '_' + op
+        return ret
+
+    def project(self, name, family, device, package, srcs, top, out_dir=None):
         self.family = family
         self.device = device
         self.package = package
@@ -93,7 +107,14 @@ class Toolchain:
         self.project_name = name
         self.srcs = canonicalize(srcs)
         self.top = top
+
+        if out_dir is None:
+            out_dir = "build/" + self.design()
         self.out_dir = out_dir
+
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
+        print('Writing to %s' % out_dir)
 
     def cmd(self, cmd, argstr, env=None):
         print("Running: %s %s" % (cmd, argstr))
@@ -108,15 +129,19 @@ class Toolchain:
                 cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd)
             subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir, env=env)
 
-    def write_metadata(self, out_dir):
+    def write_metadata(self):
+        out_dir = self.out_dir
         resources = self.resources()
         max_freq = self.max_freq()
         j = {
+            'design': self.design(),
             'family': self.family,
             'device': self.device,
             'package': self.package,
             'project': self.project_name,
-    
+            'optstr': self.optstr(),
+            'seed': self.seed,
+
             'toolchain': self.toolchain,
             'strategy': self.strategy,
     
@@ -133,8 +158,9 @@ class Toolchain:
 
         # write .csv for easy import
         csv = open(out_dir + '/meta.csv', 'w')
-        csv.write('Family,Device,Package,Project,Toolchain,Strategy,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
-        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
+        csv.write('Family,Device,Package,Project,Toolchain,Strategy,option,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+        seed_str = '%08X' % self.seed if self.seed else ''
+        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
         fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
         csv.write(','.join(fields) + '\n')
         csv.close()
@@ -175,6 +201,7 @@ def icebox_stat(fn, out_dir):
     assert 'LUT' in ret
     return ret
 
+
 class Arachne(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
@@ -192,7 +219,12 @@ class Arachne(Toolchain):
     def run(self):
         with Timed(self, 'bit-all'):
             self.yosys()
-            self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif")
+
+            seedstr = ''
+            if self.seed:
+                seedstr = '--seed %d' % self.seed
+
+            self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif %s" % seedstr)
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
@@ -249,7 +281,12 @@ class VPR(Toolchain):
             #io_place = ".../symbiflow-arch-defs/tests/ice40/tiny-b2_blink//build-ice40-top-routing-virt-hx8k/io.place"
             #devstr = "hx8k-cm81"
             devstr = self.device + '-' + self.package
-            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route")
+
+            seedstr = ''
+            if self.seed:
+                seedstr = '--seed %d' % self.seed
+
+            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route " + seedstr)
 
             self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
             self.cmd("icepack", "my.asc my.bin")
@@ -489,14 +526,17 @@ class RadiantYosys(Radiant):
         return "yosys-synpro"
 
 def print_stats(t):
-    s = t.family + '-' + t.device + '_' + t.toolchain + '_' + t.project_name + "_" + t.strategy
-    print('Design %s' % s)
+    print('Design %s' % t.design())
     print('  Family: %s' % t.family)
     print('  Device: %s' % t.device)
     print('  Package: %s' % t.package)
     print('  Project: %s' % t.project_name)
     print('  Toolchain: %s' % t.toolchain)
     print('  Strategy: %s' % t.strategy)
+    if t.seed:
+        print('  Seed: 0x%08X (%u)' % (t.seed, t.seed))
+    else:
+        print('  Seed: default')
     print('Timing:')
     for k, v in t.runtimes.items():
         print('  % -16s %0.3f' % (k + ':', v))
@@ -505,7 +545,7 @@ def print_stats(t):
     for k, v in sorted(t.resources().items()):
         print('  %- 20s %s' % (k + ':', v))
 
-def run(family, device, package, toolchain, project, out_dir, verbose=False, strategy="default"):
+def run(family, device, package, toolchain, project, out_dir=None, verbose=False, strategy="default", seed=None):
     assert family == 'ice40'
     #assert device == 'hx8k'
     #assert package == 'ct256'
@@ -524,20 +564,16 @@ def run(family, device, package, toolchain, project, out_dir, verbose=False, str
         }[toolchain]()
     t.verbose = verbose
     t.strategy = strategy
+    t.seed = seed
 
-    if out_dir is None:
-        out_dir = "build/" + family + '-' + device + '-' + package + '_' + toolchain + '_' + project['name'] + '_' + strategy
     if not os.path.exists("build"):
         os.mkdir("build")
-    if not os.path.exists(out_dir):
-        os.mkdir(out_dir)
-    print('Writing to %s' % out_dir)
 
     t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir)
 
     t.run()
     print_stats(t)
-    t.write_metadata(out_dir)
+    t.write_metadata()
 
 def main():
     import argparse
@@ -555,11 +591,13 @@ def main():
     parser.add_argument('--strategy', default='default', help='Optimization strategy')
     parser.add_argument('--toolchain', required=True, help='Tools to use')
     parser.add_argument('--project', required=True, help='Source code to run on')
+    parser.add_argument('--seed', default=None, help='32 bit sSeed number to use, possibly directly mapped to PnR tool')
     parser.add_argument('--out-dir', default=None, help='Output directory')
     args = parser.parse_args()
 
     project_fn = 'project/' + args.project + '.json'
-    run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, verbose=args.verbose)
+    seed = int(args.seed, 0) if args.seed else None
+    run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, seed=seed, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
