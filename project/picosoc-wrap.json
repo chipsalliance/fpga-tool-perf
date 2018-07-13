@@ -6,7 +6,7 @@
         "src/picorv32/picosoc/simpleuart.v",
         "src/picosoc_wrap.v"
         ],
-    "top": "picosoc",
+    "top": "top",
     "name": "picosoc-wrap"
 }
 

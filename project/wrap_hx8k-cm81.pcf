@@ -1,0 +1,5 @@
+set_io stb J1
+set_io di G1
+set_io do E1
+set_io clk B4
+
