@@ -32,7 +32,7 @@ def calc_port_width(m, clks):
         elif type(c0) is pyverilog.vparser.ast.Output:
             doutn += widthn
         else:
-            assert 0
+            raise ValueError("Bidirectional port not supported")
     return dinn, doutn
 
 def find_iclks(m):

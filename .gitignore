@@ -1,1 +1,9 @@
 build
+/build.*
+
+# tool crap
+# vpr
+vpr_stdout.log
+# verilog parser
+parser.out
+parsetab.py

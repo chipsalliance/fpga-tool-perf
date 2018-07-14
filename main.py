@@ -232,13 +232,16 @@ class Arachne(Toolchain):
         with Timed(self, 'bit-all'):
             self.yosys()
 
-            optstr = ''
+            args = ''
+            args += "-d " + self.device_simple()
+            args += " -P " + self.package
+            args += " -o my.asc my.blif"
             if self.seed:
-                optstr += ' --seed %d' % self.seed
+                args += ' --seed %d' % self.seed
             if self.pcf:
-                optstr += ' --pcf-file %s' % self.pcf
+                args += ' --pcf-file %s' % self.pcf
 
-            self.cmd("arachne-pnr", "-d " + self.device_simple() + " -P " + self.package + " -o my.asc my.blif %s" % optstr)
+            self.cmd("arachne-pnr", args)
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
@@ -300,16 +303,16 @@ class VPR(Toolchain):
 
             optstr = ''
             if self.seed:
-                optstr += '--seed %d' % self.seed
+                optstr += ' --seed %d' % self.seed
             if self.pcf:
                 #io_place_file = self.out_dir + '/io.place'
                 #create_ioplace = 'python3 ' + self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
                 create_ioplace = self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
                 map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device, self.package)
                 self.cmd(create_ioplace, '--pcf %s --blif %s --map %s --output %s' % (self.pcf, "my.eblif", map_file, 'io.place'))
-                optstr += '--fix_pins io.place'
+                optstr += ' --fix_pins io.place'
 
-            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route " + optstr)
+            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
 
             self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
             self.cmd("icepack", "my.asc my.bin")
@@ -408,6 +411,7 @@ class Icecube2(Toolchain):
 
     def run(self):
         with Timed(self, 'bit-all'):
+            print('top: %s' % self.top)
             env = os.environ.copy()
             env["SRCS"] = ' '.join(self.srcs)
             env["TOP"] = self.top
@@ -591,6 +595,7 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     t.verbose = verbose
     t.strategy = strategy
     t.seed = seed
+    # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
 
     if not os.path.exists("build"):
