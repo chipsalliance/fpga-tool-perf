@@ -170,7 +170,7 @@ class Toolchain:
 
         # write .csv for easy import
         csv = open(out_dir + '/meta.csv', 'w')
-        csv.write('Family,Device,Package,Project,Toolchain,Strategy,option,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+        csv.write('Family,Device,Package,Project,Toolchain,Strategy,seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
         seed_str = '%08X' % self.seed if self.seed else ''
         fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
         fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
@@ -307,7 +307,7 @@ class SPNR(Toolchain):
             args += " --" + self.device
             args += " --package " + self.package
             if self.seed:
-                args += " --seed " + self.seed
+                args += " --seed %u" % (self.seed,)
             if self.pcf:
                 args += " --pcf " + self.pcf
             args += " --json my.json"
