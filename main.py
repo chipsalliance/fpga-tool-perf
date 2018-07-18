@@ -639,13 +639,7 @@ def print_stats(t):
     for k, v in sorted(t.resources().items()):
         print('  %- 20s %s' % (k + ':', v))
 
-def run(family, device, package, toolchain, project, out_dir=None, verbose=False, strategy="default", seed=None, pcf=None):
-    assert family == 'ice40'
-    #assert device == 'hx8k'
-    #assert package == 'ct256'
-    package = default_package(device, package)
-
-    t = {
+toolchains = {
         'arachne': Arachne,
         'vpr': VPR,
         'spnr': SPNR,
@@ -656,7 +650,15 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
         'radiant-lse':      RadiantLSE,
         #'radiant-yosys':    RadiantYosys,
         #'radiant': VPR,
-        }[toolchain]()
+        }
+
+def run(family, device, package, toolchain, project, out_dir=None, verbose=False, strategy="default", seed=None, pcf=None):
+    assert family == 'ice40'
+    #assert device == 'hx8k'
+    #assert package == 'ct256'
+    package = default_package(device, package)
+
+    t = toolchains[toolchain]()
     t.verbose = verbose
     t.strategy = strategy
     t.seed = seed
@@ -672,6 +674,11 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     print_stats(t)
     t.write_metadata()
 
+def list_toolchains():
+    print('Supported toolchains:')
+    for t in sorted(toolchains.keys()):
+        print(t)
+
 def main():
     import argparse
 
@@ -686,16 +693,23 @@ def main():
     parser.add_argument('--device', default='hx8k', help='Device within family')
     parser.add_argument('--package', default=None, help='Device package')
     parser.add_argument('--strategy', default='default', help='Optimization strategy')
-    parser.add_argument('--toolchain', required=True, help='Tools to use')
-    parser.add_argument('--project', required=True, help='Source code to run on')
+    parser.add_argument('--toolchain', help='Tools to use')
+    parser.add_argument('--list-toolchains', action='store_true', help='')
+    parser.add_argument('--project', help='Source code to run on')
     parser.add_argument('--seed', default=None, help='32 bit sSeed number to use, possibly directly mapped to PnR tool')
     parser.add_argument('--out-dir', default=None, help='Output directory')
     parser.add_argument('--pcf', default=None, help='')
     args = parser.parse_args()
 
-    project_fn = 'project/' + args.project + '.json'
-    seed = int(args.seed, 0) if args.seed else None
-    run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
+    if args.list_toolchains:
+        list_toolchains()
+    else:
+        assert args.toolchain is not None, 'toolchain required'
+        assert args.project is not None, 'project required'
+
+        project_fn = 'project/' + args.project + '.json'
+        seed = int(args.seed, 0) if args.seed else None
+        run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
 
 if __name__ == '__main__':
     main()
