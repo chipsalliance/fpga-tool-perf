@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Run all officially support up5k designs
+# Run all officially support hx8k designs
 
 set -x
 set -e
