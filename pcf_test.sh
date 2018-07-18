@@ -1,6 +1,7 @@
 usage() {
     echo "Exhaustively run all projects with valid .pcf"
     echo "usage: pcf_test.sh"
+    echo "--out-prefix <dir>        output directory prefix (default: build)"
 }
 
 prefix=pcf_test
