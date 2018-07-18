@@ -7,6 +7,7 @@ dry=
 aproject=
 atoolchain=
 verbose=
+onfail=true
 
 usage() {
     echo "Exhaustively try project-toolchain combinations, seeding if possible"
@@ -17,6 +18,7 @@ usage() {
     echo "--toolchain <toolchain>   run given toolchain only (default: all)"
     echo "--pcf <pcf>               pin constraint file (default: none)"
     echo "--dry                     print commands, don't invoke"
+    echo "--fail                    fail on error"
     echo "--verbose                 verbose output"
 }
 
@@ -52,6 +54,10 @@ while [[ $# -gt 0 ]]; do
         shift
         shift
         ;;
+    --fail)
+        onfail=false
+        shift
+        ;;
     --verbose)
         verbose=--verbose
         shift
@@ -85,11 +91,11 @@ function run() {
     if [[ $(python3 main.py --list-seedable) = *"$toolchain"* ]]; then
         for seed in 1 10 100 1000 10000 100000 1000000 10000000 100000000 1000000000 ; do
             # some of these may fail pnr
-            $dry python3 main.py --toolchain $toolchain --project $project --device $device --package $package --seed $seed $pcf_arg $verbose || true
+            $dry python3 main.py --toolchain $toolchain --project $project --device $device --package $package --seed $seed $pcf_arg $verbose || $onfail
         done
     else
         # some of these may fail pnr
-        $dry python3 main.py --toolchain $toolchain --project $project --device $device --package $package $pcf_arg $verbose || true
+        $dry python3 main.py --toolchain $toolchain --project $project --device $device --package $package $pcf_arg $verbose || $onfail
     fi
     # make ^C easier
     sleep 0.1
@@ -114,6 +120,6 @@ function exhaustive() {
 
 exhaustive
 
-cat $(find build -name '*.csv') |sort -u >build/all.csv
+cat $(find build -mindepth 2 -name '*.csv') |sort -u >build/all.csv
 python sow.py build/all.csv build/sow.csv
 
