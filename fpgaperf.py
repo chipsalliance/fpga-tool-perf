@@ -9,6 +9,10 @@ import re
 import sys
 import glob
 
+# to find data files
+root_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = root_dir + '/project'
+
 class Timed():
     def __init__(self, t, name):
         self.t = t
@@ -28,16 +32,8 @@ def yosys_ver():
     # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
     return subprocess.check_output("yosys -V", shell=True, universal_newlines=True).strip()
 
-def default_package(device, package):
-    if package is not None:
-        return package
-    if device in ('up3k', 'up5k'):
-        return 'uwg30'
-    else:
-        return 'ct256'
-
 def canonicalize(fns):
-    return [os.path.realpath(fn) for fn in fns]
+    return [os.path.realpath(root_dir + '/' + fn) for fn in fns]
 
 class Toolchain:
     def __init__(self):
@@ -96,11 +92,13 @@ class Toolchain:
         self.srcs = canonicalize(srcs)
         self.top = top
 
+        out_prefix = out_prefix or 'build'
+        if not os.path.exists(out_prefix):
+            os.mkdir(out_prefix)
+    
         if out_dir is None:
-            out_prefix = out_prefix or 'build'
             out_dir = out_prefix + "/" + self.design()
         self.out_dir = out_dir
-
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
         print('Writing to %s' % out_dir)
@@ -481,7 +479,7 @@ class Icecube2(Toolchain):
             env["ICECUBEDIR"] = self.icecubedir
             #env["ICEDEV"] = 'hx8k-ct256'
             env["ICEDEV"] = self.device + '-' + self.package
-            self.cmd("../../icecubed.sh", "--syn %s --strategy %s" % (self.syn(), self.strategy), env=env)
+            self.cmd(root_dir + "/icecubed.sh", "--syn %s --strategy %s" % (self.syn(), self.strategy), env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
@@ -563,7 +561,7 @@ class Radiant(Toolchain):
             env["RADIANTDIR"] = self.radiantdir
             env["RADDEV"] = self.device + '-' + self.package
             syn = self.syn()
-            self.cmd("../../radiant.sh", "--syn %s --strategy %s" % (syn, self.strategy), env=env)
+            self.cmd(root_dir + "/radiant.sh", "--syn %s --strategy %s" % (syn, self.strategy), env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
@@ -653,9 +651,10 @@ toolchains = {
 
 def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy="default", seed=None, pcf=None):
     assert family == 'ice40'
-    #assert device == 'hx8k'
-    #assert package == 'ct256'
-    package = default_package(device, package)
+    assert device is not None
+    assert package is not None
+    assert toolchain is not None
+    assert project is not None
 
     t = toolchains[toolchain]()
     t.verbose = verbose
@@ -663,9 +662,6 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     t.seed = seed
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
-
-    if not os.path.exists("build"):
-        os.mkdir("build")
 
     t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix)
 
@@ -678,13 +674,18 @@ def list_toolchains():
         print(t)
 
 def list_projects():
-    for project in sorted([re.match('project/(.*)[.]json', fn).group(1) for fn in glob.glob('project/*.json')]):
+    for project in sorted([re.match(project_dir + '/(.*)[.]json', fn).group(1) for fn in glob.glob('project/*.json')]):
         print(project)
 
 def list_seedable():
     for t, tc in sorted(toolchains.items()):
         if tc.seedable():
             print(t)
+
+def get_project(name):
+    project_fn = project_dir + '/' + name + '.json'
+    with open(project_fn, 'r') as f:
+        return json.load(f)
 
 def main():
     import argparse
@@ -721,9 +722,8 @@ def main():
         assert args.toolchain is not None, 'toolchain required'
         assert args.project is not None, 'project required'
 
-        project_fn = 'project/' + args.project + '.json'
         seed = int(args.seed, 0) if args.seed else None
-        run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
+        run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
 
 if __name__ == '__main__':
     main()
