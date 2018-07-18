@@ -103,8 +103,19 @@ picosoc-wrap
 vexriscv-verilog
 ```
 
-Additionally, there are a few scripts that exhaustively test all supported invocations and aggregate results:
- * [hx8k.sh](hx8k.sh)
- * [up5k.sh](up5k.sh)
- 
-See build for output. Note in particular [build/all.csv](build/all.csv)
+Use exhaust.sh to automatically try project-toolchain permutations:
+```
+./exhaust.sh -h
+Exhaustively try project-toolchain combinations, seeding if possible
+usage: exaust.sh [args]
+--device         device (default: hx8k)
+--package        device package (default: ct256)
+```
+
+For example:
+```
+./exhaust.sh --device hx8k --package ct256
+```
+
+See build directory for output. Note in particular [build/all.csv](build/all.csv)
+
