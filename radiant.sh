@@ -8,6 +8,7 @@ top="${TOP:-top}"
 usage() {
     echo "usage: radiant.sh [args]"
     echo "--syn         synthesis target"
+    echo "--strategy    synthesis strategy"
 }
 
 ARGS=()
