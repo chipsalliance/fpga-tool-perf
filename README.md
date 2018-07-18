@@ -46,7 +46,7 @@ $ ./vpr_xml.sh
 
 Quick start example:
 ```
-python3 main.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256"
+$ python3 main.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256"
 ```
 
 Use --help to see all argument options:
@@ -105,7 +105,7 @@ vexriscv-verilog
 
 Use exhaust.sh to automatically try project-toolchain permutations:
 ```
-./exhaust.sh -h
+$ ./exhaust.sh -h
 Exhaustively try project-toolchain combinations, seeding if possible
 usage: exaust.sh [args]
 --device <device>         device (default: hx8k)
@@ -119,14 +119,22 @@ usage: exaust.sh [args]
 
 For example:
 ```
-./exhaust.sh --device hx8k --package ct256
+$ ./exhaust.sh --device hx8k --package ct256
 ```
 
 Its also possible to run against a single toolchain and/or project:
 ```
-./exhaust.sh --device hx8k --package cm81 --project oneblink --toolchain spnr --pcf project/oneblink_lp8k-cm81.pcf
+$ ./exhaust.sh --device hx8k --package cm81 --project oneblink --toolchain spnr --pcf project/oneblink_lp8k-cm81.pcf
 ```
 
 See build directory for output. Note in particular [build/all.csv](build/all.csv)
 
 There is also [build/sow.csv](build/sow.csv) (a seed pun), which has seed results processed into min/max rows
+
+Since pcf files are project specific, you can't easily use exaust.sh by itself to test all configurations. If you want to do this, use pcf_test.sh:
+```
+$ ./pcf_test.sh  -h
+Exhaustively run all projects with valid .pcf
+usage: pcf_test.sh
+--out-prefix <dir>        output directory prefix (default: build)
+```
