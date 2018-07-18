@@ -329,6 +329,10 @@ class VPR(Toolchain):
         Toolchain.__init__(self)
         self.toolchain = 'vpr'
 
+    # FIXME: hack until vpr is fixed (it has hx8k-cm81 instead of lp8k-cm81)
+    def device_workaround(self):
+        return {'lp8k': 'hx8k'}.get(self.device, self.device)
+
     def yosys(self):
         yscript = "synth_ice40 -top %s -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % self.top
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
@@ -341,7 +345,7 @@ class VPR(Toolchain):
         if sfad_build:
             return sfad_build
 
-        return self.sfad_dir() + "/tests/build/ice40-top-routing-virt-" + self.device
+        return self.sfad_dir() + "/tests/build/ice40-top-routing-virt-" + self.device_workaround()
 
     def run(self):
         self.sfad_build = self.sfad_build()
@@ -354,16 +358,14 @@ class VPR(Toolchain):
             arch_xml = self.sfad_build + '/arch.xml'
             rr_graph = self.sfad_build + "/rr_graph.real.xml"
     
-            # FIXME: hack
-            # devstr = self.device + '-' + self.package
-            devstr = {'lp8k': 'hx8k'}.get(self.device, self.device) + '-' + self.package
+            devstr = self.device_workaround() + '-' + self.package
 
             optstr = ''
             if self.pcf:
                 #io_place_file = self.out_dir + '/io.place'
                 #create_ioplace = 'python3 ' + self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
                 create_ioplace = self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
-                map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device, self.package)
+                map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device_workaround(), self.package)
                 self.cmd(create_ioplace, '--pcf %s --blif %s --map %s --output %s' % (self.pcf, "my.eblif", map_file, 'io.place'))
                 optstr += ' --fix_pins io.place'
             if self.seed:
