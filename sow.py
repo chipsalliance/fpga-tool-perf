@@ -2,7 +2,8 @@
 
 def run(fin, fout, verbose=False):
     row = fin.readline().strip()
-    assert row.split(',')[6] == 'Seed'
+    seedpos = 7
+    assert row.split(',')[seedpos] == 'Seed'
     fout.write(row)
 
     lines_raw = {}
@@ -13,7 +14,7 @@ def run(fin, fout, verbose=False):
         nlines += 1
         parts = l.strip().split(',')
         # key: Family,Device,Package,Project,Toolchain,Strategy
-        key = parts[0:6]
+        key = parts[0:seedpos]
         lines_raw.setdefault(tuple(key), []).append(parts)
 
     # Now aggregate any keys that appear twice (multiple seeds
@@ -27,7 +28,7 @@ def run(fin, fout, verbose=False):
         minstate = []
         maxstate = []
         cols = len(vs[0])
-        for i in xrange(7, cols):
+        for i in xrange(seedpos + 1, cols):
             minstate.append(min([v[i] for v in vs]))
             maxstate.append(max([v[i] for v in vs]))
         lines_out.append(list(k) + ['min'] + minstate)
