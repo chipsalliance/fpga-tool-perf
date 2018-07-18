@@ -91,9 +91,9 @@ spnr
 vpr
 ```
 
-Supported projects are named after the .json files in the project directory. ie to get all supported projects:
+Supported projects can be queried as follows:
 ```
-$ ls project/*.json |sed "sXproject/\(.*\).jsonX\1X" |sort
+$ python3 main.py  --list-projects
 oneblink
 picorv32-wrap
 picosoc-hx8kdemo

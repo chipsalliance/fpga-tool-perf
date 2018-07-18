@@ -675,9 +675,12 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     t.write_metadata()
 
 def list_toolchains():
-    print('Supported toolchains:')
     for t in sorted(toolchains.keys()):
         print(t)
+
+def list_projects():
+    for project in sorted([re.match('project/(.*)[.]json', fn).group(1) for fn in glob.glob('project/*.json')]):
+        print(project)
 
 def main():
     import argparse
@@ -696,6 +699,7 @@ def main():
     parser.add_argument('--toolchain', help='Tools to use')
     parser.add_argument('--list-toolchains', action='store_true', help='')
     parser.add_argument('--project', help='Source code to run on')
+    parser.add_argument('--list-projects', action='store_true', help='')
     parser.add_argument('--seed', default=None, help='32 bit sSeed number to use, possibly directly mapped to PnR tool')
     parser.add_argument('--out-dir', default=None, help='Output directory')
     parser.add_argument('--pcf', default=None, help='')
@@ -703,6 +707,8 @@ def main():
 
     if args.list_toolchains:
         list_toolchains()
+    elif args.list_projects:
+        list_projects()
     else:
         assert args.toolchain is not None, 'toolchain required'
         assert args.project is not None, 'project required'
