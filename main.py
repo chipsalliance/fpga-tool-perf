@@ -181,6 +181,11 @@ class Toolchain:
         subprocess.check_call('uname -a >uname.txt', shell=True, executable='bash', cwd=self.out_dir)
         subprocess.check_call('lscpu >lscpu.txt', shell=True, executable='bash', cwd=self.out_dir)
 
+    @staticmethod
+    def seedable():
+        return False
+
+
 def icetime_parse(f):
     ret = {
         }
@@ -266,6 +271,10 @@ class Arachne(Toolchain):
             'arachne': Arachne.arachne_version(),
             }
 
+    @staticmethod
+    def seedable():
+        return True
+
 
 # FIXME: project name still settling ("nextpnr")
 class SPNR(Toolchain):
@@ -329,6 +338,10 @@ class SPNR(Toolchain):
             'yosys': yosys_ver(),
             'nextpnr-ice40': SPNR.spnr_version(),
             }
+
+    @staticmethod
+    def seedable():
+        return True
 
 
 class VPR(Toolchain):
@@ -465,6 +478,10 @@ class VPR(Toolchain):
             'yosys': yosys_ver(),
             'vpr': VPR.vpr_version(),
             }
+
+    @staticmethod
+    def seedable():
+        return True
 
 
 # no seed support?
@@ -682,6 +699,11 @@ def list_projects():
     for project in sorted([re.match('project/(.*)[.]json', fn).group(1) for fn in glob.glob('project/*.json')]):
         print(project)
 
+def list_seedable():
+    for t, tc in sorted(toolchains.items()):
+        if tc.seedable():
+            print(t)
+
 def main():
     import argparse
 
@@ -701,6 +723,7 @@ def main():
     parser.add_argument('--project', help='Source code to run on')
     parser.add_argument('--list-projects', action='store_true', help='')
     parser.add_argument('--seed', default=None, help='32 bit sSeed number to use, possibly directly mapped to PnR tool')
+    parser.add_argument('--list-seedable', action='store_true', help='')
     parser.add_argument('--out-dir', default=None, help='Output directory')
     parser.add_argument('--pcf', default=None, help='')
     args = parser.parse_args()
@@ -709,6 +732,8 @@ def main():
         list_toolchains()
     elif args.list_projects:
         list_projects()
+    elif args.list_seedable:
+        list_seedable()
     else:
         assert args.toolchain is not None, 'toolchain required'
         assert args.project is not None, 'project required'
