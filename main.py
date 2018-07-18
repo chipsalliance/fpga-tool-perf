@@ -267,6 +267,70 @@ class Arachne(Toolchain):
             }
 
 
+# FIXME: project name still settling ("nextpnr")
+class SPNR(Toolchain):
+    def __init__(self):
+        Toolchain.__init__(self)
+        self.toolchain = 'spnr'
+
+    def yosys(self):
+        yscript = "synth_ice40 -top %s -nocarry ; write_json my.json" % self.top
+        self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
+
+    def device_simple(self):
+        # hx8k => 8k
+        assert len(self.device) == 4
+        return self.device[2:]
+
+    def run(self):
+        '''
+         - Run `yosys blinky.ys` in `ice40/` to synthesise the blinky design and  produce `blinky.json`.
+            $ cat blinky.ys 
+            read_verilog blinky.v
+            synth_ice40 -top blinky -nocarry
+            write_json blinky.json
+         - To place-and-route the blinky using nextpnr, run `./nextpnr-ice40 --hx1k --json ice40/blinky.json --pcf ice40/blinky.pcf --asc blinky.asc`
+        '''
+        with Timed(self, 'bit-all'):
+            self.yosys()
+
+            args = ''
+            args += " --" + self.device
+            args += " --package " + self.package
+            if self.seed:
+                args += " --seed " + self.seed
+            if self.pcf:
+                args += " --pcf " + self.pcf
+            args += " --json my.json"
+            args += " --asc my.asc"
+            self.cmd("nextpnr-ice40", args)
+            self.cmd("icepack", "my.asc my.bin")
+
+        self.cmd("icetime", "-tmd " + self.device + " my.asc")
+
+    def max_freq(self):
+        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+
+    def resources(self):
+        return icebox_stat("my.asc", self.out_dir)
+
+    @staticmethod
+    def spnr_version():
+        '''
+        $ nextpnr-ice40 -V
+        nextpnr-ice40 -- Next Generation Place and Route (git sha1 edf7bd0)
+        $ echo $?
+        1
+        '''
+        return subprocess.check_output("nextpnr-ice40 -V || true", shell=True, universal_newlines=True).strip()
+
+    def versions(self):
+        return {
+            'yosys': yosys_ver(),
+            'nextpnr-ice40': SPNR.spnr_version(),
+            }
+
+
 class VPR(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
@@ -584,6 +648,7 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     t = {
         'arachne': Arachne,
         'vpr': VPR,
+        'spnr': SPNR,
         'icecube2-synpro':  Icecube2Synpro,
         'icecube2-lse':     Icecube2LSE,
         'icecube2-yosys':   Icecube2Yosys,
