@@ -91,7 +91,7 @@ spnr
 vpr
 ```
 
-Supported projects are named after the .json files in the project directory. ie to get all supported projected:
+Supported projects are named after the .json files in the project directory. ie to get all supported projects:
 ```
 $ ls project/*.json |sed "sXproject/\(.*\).jsonX\1X" |sort
 oneblink
