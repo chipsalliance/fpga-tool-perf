@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''
 Designs do not use constrianed I/O
 Therefore they do not target a real dev board
@@ -94,10 +96,10 @@ class Toolchain:
             else:
                 ret = s
 
-        if self.seed:
-            add('seed-%08X' % (self.seed,))
         if self.pcf:
             add('pcf')
+        if self.seed:
+            add('seed-%08X' % (self.seed,))
         return ret
 
     def add_runtime(self, name, dt):
@@ -152,6 +154,7 @@ class Toolchain:
             'package': self.package,
             'project': self.project_name,
             'optstr': self.optstr(),
+            'pcf': os.path.basename(self.pcf),
             'seed': self.seed,
 
             'toolchain': self.toolchain,
@@ -170,9 +173,10 @@ class Toolchain:
 
         # write .csv for easy import
         csv = open(out_dir + '/meta.csv', 'w')
-        csv.write('Family,Device,Package,Project,Toolchain,Strategy,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+        csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+        pcf_str = os.path.basename(self.pcf) if self.pcf else None
         seed_str = '%08X' % self.seed if self.seed else ''
-        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
+        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, pcf_str, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
         fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
         csv.write(','.join(fields) + '\n')
         csv.close()
@@ -241,10 +245,10 @@ class Arachne(Toolchain):
             args += "-d " + self.device_simple()
             args += " -P " + self.package
             args += " -o my.asc my.blif"
-            if self.seed:
-                args += ' --seed %d' % self.seed
             if self.pcf:
                 args += ' --pcf-file %s' % self.pcf
+            if self.seed:
+                args += ' --seed %d' % self.seed
 
             self.cmd("arachne-pnr", args)
             self.cmd("icepack", "my.asc my.bin")
@@ -306,10 +310,10 @@ class SPNR(Toolchain):
             args = ''
             args += " --" + self.device
             args += " --package " + self.package
-            if self.seed:
-                args += " --seed %u" % (self.seed,)
             if self.pcf:
                 args += " --pcf " + self.pcf
+            if self.seed:
+                args += " --seed %u" % (self.seed,)
             args += " --json my.json"
             args += " --asc my.asc"
             self.cmd("nextpnr-ice40", args)
@@ -379,8 +383,6 @@ class VPR(Toolchain):
             devstr = self.device + '-' + self.package
 
             optstr = ''
-            if self.seed:
-                optstr += ' --seed %d' % self.seed
             if self.pcf:
                 #io_place_file = self.out_dir + '/io.place'
                 #create_ioplace = 'python3 ' + self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
@@ -388,6 +390,8 @@ class VPR(Toolchain):
                 map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device, self.package)
                 self.cmd(create_ioplace, '--pcf %s --blif %s --map %s --output %s' % (self.pcf, "my.eblif", map_file, 'io.place'))
                 optstr += ' --fix_pins io.place'
+            if self.seed:
+                optstr += ' --seed %d' % self.seed
 
             self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
 

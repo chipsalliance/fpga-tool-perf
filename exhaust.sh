@@ -69,4 +69,5 @@ function exhaustive() {
 exhaustive
 
 cat $(find build -name '*.csv') |sort -u >build/all.csv
+python sow.py build/all.csv >build/sow.csv
 
