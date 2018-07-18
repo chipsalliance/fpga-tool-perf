@@ -51,6 +51,8 @@ function run() {
         # some of these may fail pnr
         python3 main.py --toolchain $toolchain --project $project --device $device --package $package || true
     fi
+    # make ^C easier
+    sleep 0.1
 }
 
 # Some of these will fail
