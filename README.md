@@ -108,8 +108,13 @@ Use exhaust.sh to automatically try project-toolchain permutations:
 ./exhaust.sh -h
 Exhaustively try project-toolchain combinations, seeding if possible
 usage: exaust.sh [args]
---device         device (default: hx8k)
---package        device package (default: ct256)
+--device <device>         device (default: hx8k)
+--package <package>       device package (default: ct256)
+--project <project>       run given project only (default: all)
+--toolchain <toolchain>   run given toolchain only (default: all)
+--pcf <pcf>               pin constraint file (default: none)
+--dry                     print commands, don't invoke
+--verbose                 verbose output
 ```
 
 For example:
@@ -117,5 +122,11 @@ For example:
 ./exhaust.sh --device hx8k --package ct256
 ```
 
+Its also possible to run against a single toolchain and/or project:
+```
+./exhaust.sh --device hx8k --package cm81 --project oneblink --toolchain spnr --pcf project/oneblink_lp8k-cm81.pcf
+```
+
 See build directory for output. Note in particular [build/all.csv](build/all.csv)
 
+There is also [build/sow.csv](build/sow.csv) (a seed pun), which has seed results processed into min/max rows
