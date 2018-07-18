@@ -42,7 +42,68 @@ To generate architecture files for vpr:
 $ ./vpr_xml.sh
 ```
 
-Sample invocations:
+## Running
+
+Quick start example:
+```
+python3 main.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256"
+```
+
+Use --help to see all argument options:
+```
+$ python3 main.py --help
+usage: main.py [-h] [--verbose] [--overwrite] [--family FAMILY]
+               [--device DEVICE] [--package PACKAGE] [--strategy STRATEGY]
+               [--toolchain TOOLCHAIN] [--list-toolchains] [--project PROJECT]
+               [--seed SEED] [--out-dir OUT_DIR] [--pcf PCF]
+
+Analyze tool runtimes
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --verbose
+  --overwrite
+  --family FAMILY       Device family
+  --device DEVICE       Device within family
+  --package PACKAGE     Device package
+  --strategy STRATEGY   Optimization strategy
+  --toolchain TOOLCHAIN
+                        Tools to use
+  --list-toolchains
+  --project PROJECT     Source code to run on
+  --seed SEED           32 bit sSeed number to use, possibly directly mapped
+                        to PnR tool
+  --out-dir OUT_DIR     Output directory
+  --pcf PCF
+```
+
+Supported toolchains can be queried as follows:
+```
+$ python3 main.py  --list-toolchains
+Supported toolchains:
+arachne
+icecube2-lse
+icecube2-synpro
+icecube2-yosys
+radiant-lse
+radiant-synpro
+spnr
+vpr
+```
+
+Supported projects are named after the .json files in the project directory. ie to get all supported projected:
+```
+$ ls project/*.json |sed "sXproject/\(.*\).jsonX\1X" |sort
+oneblink
+picorv32-wrap
+picosoc-hx8kdemo
+picosoc-simpleuart-wrap
+picosoc-spimemio-wrap
+picosoc-wrap
+vexriscv-verilog
+```
+
+Additionally, there are a few scripts that exhaustively test all supported invocations and aggregate results:
  * [hx8k.sh](hx8k.sh)
  * [up5k.sh](up5k.sh)
  
