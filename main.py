@@ -1,30 +1,5 @@
 #!/usr/bin/env python3
 
-'''
-Designs do not use constrianed I/O
-Therefore they do not target a real dev board
-Spit out JSON for easy result aggregation
-
-Configurations of interest:
--yosys, icestorm
--yosys, vpr
--vendor, icecube
--yosys, icecube
--radiant?
-
-Tested with one or two devices
--The largest device (8k)
-
-Designs:
--SoC
--NES?
--LED blinky
-
-Versions tested with
-Radiant: 1.0 64-bit for Linux
-Icecube: iCEcube2 2017-08 for Linux
-'''
-
 import os
 import subprocess
 import time
@@ -154,7 +129,7 @@ class Toolchain:
             'package': self.package,
             'project': self.project_name,
             'optstr': self.optstr(),
-            'pcf': os.path.basename(self.pcf),
+            'pcf': os.path.basename(self.pcf) if self.pcf else None,
             'seed': self.seed,
 
             'toolchain': self.toolchain,
@@ -174,7 +149,7 @@ class Toolchain:
         # write .csv for easy import
         csv = open(out_dir + '/meta.csv', 'w')
         csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
-        pcf_str = os.path.basename(self.pcf) if self.pcf else None
+        pcf_str = os.path.basename(self.pcf) if self.pcf else ''
         seed_str = '%08X' % self.seed if self.seed else ''
         fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, pcf_str, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
         fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
@@ -377,10 +352,10 @@ class VPR(Toolchain):
 
             arch_xml = self.sfad_build + '/arch.xml'
             rr_graph = self.sfad_build + "/rr_graph.real.xml"
-            # --fix_pins " + io_place
-            #io_place = ".../symbiflow-arch-defs/tests/ice40/tiny-b2_blink//build-ice40-top-routing-virt-hx8k/io.place"
-            #devstr = "hx8k-cm81"
-            devstr = self.device + '-' + self.package
+    
+            # FIXME: hack
+            # devstr = self.device + '-' + self.package
+            devstr = {'lp8k': 'hx8k'}.get(self.device, self.device) + '-' + self.package
 
             optstr = ''
             if self.pcf:
