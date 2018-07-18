@@ -3,9 +3,16 @@ usage() {
     echo "usage: pcf_test.sh"
 }
 
+prefix=pcf_test
+
 ARGS=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
+    --out-prefix)
+        prefix=$2
+        shift
+        shift
+        ;;
     -h|--help)
         usage
         exit 0
@@ -23,8 +30,6 @@ if [ "$(python3 main.py --list-projects |md5sum |cut -d ' '  -f 1)" != "ac6dcfea
     echo "Unexpected project list"
     exit 1
 fi
-
-prefix=pcf_test
 
 # TODO: change to case loop
 # for project in $(python3 main.py --list-projects) ; do
