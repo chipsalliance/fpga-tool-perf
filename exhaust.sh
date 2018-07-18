@@ -18,6 +18,7 @@ usage() {
     echo "--project <project>       run given project only (default: all)"
     echo "--toolchain <toolchain>   run given toolchain only (default: all)"
     echo "--pcf <pcf>               pin constraint file (default: none)"
+    echo "--out-prefix <dir>        output directory prefix (default: build)"
     echo "--dry                     print commands, don't invoke"
     echo "--fail                    fail on error"
     echo "--verbose                 verbose output"
@@ -127,8 +128,7 @@ function exhaustive() {
     done
 }
 
+mkdir -p $out_prefix
 exhaustive
-
-cat $(find build -mindepth 2 -name '*.csv') |sort -u >$out_prefix/all.csv
-python sow.py $out_prefix/all.csv $out_prefix/sow.csv
+cd $out_prefix && ../csv.sh
 
