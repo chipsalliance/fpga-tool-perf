@@ -46,13 +46,13 @@ $ ./vpr_xml.sh
 
 Quick start example:
 ```
-$ python3 main.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256"
+$ python3 fpgaperf.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256"
 ```
 
 Use --help to see all argument options:
 ```
-$ python3 main.py --help
-usage: main.py [-h] [--verbose] [--overwrite] [--family FAMILY]
+$ python3 fpgaperf.py --help
+usage: fpgaperf.py [-h] [--verbose] [--overwrite] [--family FAMILY]
                [--device DEVICE] [--package PACKAGE] [--strategy STRATEGY]
                [--toolchain TOOLCHAIN] [--list-toolchains] [--project PROJECT]
                [--seed SEED] [--out-dir OUT_DIR] [--pcf PCF]
@@ -79,7 +79,7 @@ optional arguments:
 
 Supported toolchains can be queried as follows:
 ```
-$ python3 main.py  --list-toolchains
+$ python3 fpgaperf.py  --list-toolchains
 Supported toolchains:
 arachne
 icecube2-lse
@@ -93,7 +93,7 @@ vpr
 
 Supported projects can be queried as follows:
 ```
-$ python3 main.py  --list-projects
+$ python3 fpgaperf.py  --list-projects
 oneblink
 picorv32-wrap
 picosoc-hx8kdemo

@@ -27,13 +27,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Verify all projects are covered
-if [ "$(python3 main.py --list-projects |md5sum |cut -d ' '  -f 1)" != "ac6dcfea606f706dacd27e07d1b77170" ] ; then
+if [ "$(python3 fpgaperf.py --list-projects |md5sum |cut -d ' '  -f 1)" != "ac6dcfea606f706dacd27e07d1b77170" ] ; then
     echo "Unexpected project list"
     exit 1
 fi
 
 # TODO: change to case loop
-# for project in $(python3 main.py --list-projects) ; do
+# for project in $(python3 fpgaperf.py --list-projects) ; do
 # case "$project" in
 
 ./exhaust.sh --out-prefix $prefix --device lp8k --package cm81 --pcf project/oneblink_lp8k-cm81.pcf --project oneblink

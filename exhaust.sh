@@ -85,7 +85,7 @@ set -x
 set -e
 
 function run2() {
-    $dry python3 main.py --toolchain $toolchain --project $project --device $device --package $package --seed $seed $pcf_arg --out-prefix $out_prefix $verbose || $onfail
+    $dry python3 fpgaperf.py --toolchain $toolchain --project $project --device $device --package $package --seed $seed $pcf_arg --out-prefix $out_prefix $verbose || $onfail
 }
 
 function run() {
@@ -98,7 +98,7 @@ function run() {
         pcf_arg="--pcf $pcf"
     fi
 
-    if [[ $(python3 main.py --list-seedable) = *"$toolchain"* ]]; then
+    if [[ $(python3 fpgaperf.py --list-seedable) = *"$toolchain"* ]]; then
         for seed in 1 10 100 1000 10000 100000 1000000 10000000 100000000 1000000000 ; do
             # some of these may fail pnr
             run2 --seed $seed
@@ -114,11 +114,11 @@ function run() {
 # Some of these will fail
 function exhaustive() {
     echo "Running exhaustive project-toolchain search"
-    for project in $(python3 main.py --list-projects) ; do
+    for project in $(python3 fpgaperf.py --list-projects) ; do
         if [ -n "$aproject" -a "$aproject" != "$project" ] ; then
             continue
         fi
-        for toolchain in $(python3 main.py --list-toolchains) ; do
+        for toolchain in $(python3 fpgaperf.py --list-toolchains) ; do
             if [ -n "$atoolchain" -a "$atoolchain" != "$toolchain" ] ; then
                 continue
             fi
