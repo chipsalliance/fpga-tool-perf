@@ -87,7 +87,7 @@ class Toolchain:
             ret += '_' + op
         return ret
 
-    def project(self, name, family, device, package, srcs, top, out_dir=None):
+    def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None):
         self.family = family
         self.device = device
         self.package = package
@@ -97,7 +97,8 @@ class Toolchain:
         self.top = top
 
         if out_dir is None:
-            out_dir = "build/" + self.design()
+            out_prefix = out_prefix or 'build'
+            out_dir = out_prefix + "/" + self.design()
         self.out_dir = out_dir
 
         if not os.path.exists(out_dir):
@@ -648,7 +649,7 @@ toolchains = {
         #'radiant': VPR,
         }
 
-def run(family, device, package, toolchain, project, out_dir=None, verbose=False, strategy="default", seed=None, pcf=None):
+def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy="default", seed=None, pcf=None):
     assert family == 'ice40'
     #assert device == 'hx8k'
     #assert package == 'ct256'
@@ -664,7 +665,7 @@ def run(family, device, package, toolchain, project, out_dir=None, verbose=False
     if not os.path.exists("build"):
         os.mkdir("build")
 
-    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir)
+    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix)
 
     t.run()
     print_stats(t)
@@ -704,6 +705,7 @@ def main():
     parser.add_argument('--seed', default=None, help='32 bit sSeed number to use, possibly directly mapped to PnR tool')
     parser.add_argument('--list-seedable', action='store_true', help='')
     parser.add_argument('--out-dir', default=None, help='Output directory')
+    parser.add_argument('--out-prefix', default=None, help='Auto named directory prefix (default: build)')
     parser.add_argument('--pcf', default=None, help='')
     args = parser.parse_args()
 
@@ -719,7 +721,7 @@ def main():
 
         project_fn = 'project/' + args.project + '.json'
         seed = int(args.seed, 0) if args.seed else None
-        run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), args.out_dir, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
+        run(args.family, args.device, args.package, args.toolchain, json.load(open(project_fn, 'r')), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
 
 if __name__ == '__main__':
     main()
