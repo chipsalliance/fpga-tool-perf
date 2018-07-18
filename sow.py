@@ -4,7 +4,7 @@ def run(fin, fout, verbose=False):
     row = fin.readline().strip()
     seedpos = 7
     assert row.split(',')[seedpos] == 'Seed'
-    fout.write(row)
+    fout.write(row + '\n')
 
     lines_raw = {}
     nlines = 0
@@ -35,7 +35,7 @@ def run(fin, fout, verbose=False):
         lines_out.append(list(k) + ['max'] + maxstate)
     
     print('%u lines in => %u lines out' % (nlines, len(lines_out)))
-    for l in lines_out:
+    for l in sorted(lines_out):
         fout.write(','.join(l) + '\n')
 
 def main():
