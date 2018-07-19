@@ -26,6 +26,27 @@ class Timed():
         end = time.time()
         self.t.add_runtime(self.name, end - self.start)
 
+# https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+def have_exec(mybin):
+    return which(mybin) != None
+
 # couldn't get icestorm version
 # filed https://github.com/cliffordwolf/icestorm/issues/163
 def yosys_ver():
@@ -107,7 +128,8 @@ class Toolchain:
         print("Running: %s %s" % (cmd, argstr))
         self.cmds.append('%s %s' % (cmd, argstr))
         cmd_base = os.path.basename(cmd)
-        open("%s/%s.txt" % (self.out_dir, cmd_base), "w").write("Running: %s %s\n\n" % (cmd_base, argstr))
+        with open("%s/%s.txt" % (self.out_dir, cmd_base), "w") as f:
+            f.write("Running: %s %s\n\n" % (cmd_base, argstr))
         with Timed(self, cmd_base):
             if self.verbose:
                 cmdstr = "(%s %s) |&tee -a %s.txt; (exit $PIPESTATUS )" % (cmd, argstr, cmd)
@@ -143,17 +165,18 @@ class Toolchain:
             "resources": resources,
             "verions": self.versions(),
             }
-        json.dump(j, open(out_dir + '/meta.json', 'w'), sort_keys=True, indent=4)
+        with open(out_dir + '/meta.json', 'w') as f:
+            json.dump(j, f, sort_keys=True, indent=4)
 
         # write .csv for easy import
-        csv = open(out_dir + '/meta.csv', 'w')
-        csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
-        pcf_str = os.path.basename(self.pcf) if self.pcf else ''
-        seed_str = '%08X' % self.seed if self.seed else ''
-        fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, pcf_str, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
-        fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
-        csv.write(','.join(fields) + '\n')
-        csv.close()
+        with open(out_dir + '/meta.csv', 'w') as csv:
+            csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+            pcf_str = os.path.basename(self.pcf) if self.pcf else ''
+            seed_str = '%08X' % self.seed if self.seed else ''
+            fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, pcf_str, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
+            fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
+            csv.write(','.join(fields) + '\n')
+            csv.close()
 
         # Provide some context when comparing runtimes against systems
         subprocess.check_call('uname -a >uname.txt', shell=True, executable='bash', cwd=self.out_dir)
@@ -162,6 +185,10 @@ class Toolchain:
     @staticmethod
     def seedable():
         return False
+
+    @staticmethod
+    def check_env():
+        return {}
 
 
 def icetime_parse(f):
@@ -187,12 +214,13 @@ def icebox_stat(fn, out_dir):
     GLBs:      1
     '''
     ret = {}
-    for l in open(out_dir + "/icebox_stat.txt"):
-        # DFFs:     22
-        m = re.match(r'(.*)s: *([0-9]*)', l)
-        t = m.group(1)
-        n = int(m.group(2))
-        ret[t] = n
+    with open(out_dir + "/icebox_stat.txt") as f:
+        for l in f:
+            # DFFs:     22
+            m = re.match(r'(.*)s: *([0-9]*)', l)
+            t = m.group(1)
+            n = int(m.group(2))
+            ret[t] = n
     assert 'LUT' in ret
     return ret
 
@@ -230,7 +258,8 @@ class Arachne(Toolchain):
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
 
     def max_freq(self):
-        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+        with open(self.out_dir + '/icetime.txt') as f:
+            return icetime_parse(f)['max_freq']
 
     def resources(self):
         return icebox_stat("my.asc", self.out_dir)
@@ -252,6 +281,15 @@ class Arachne(Toolchain):
     @staticmethod
     def seedable():
         return True
+
+    @staticmethod
+    def check_env():
+        return {
+            'yosys':        have_exec('yosys'),
+            'arachne-pnr':  have_exec('arachne-pnr'),
+            'icepack':      have_exec('icepack'),
+            'icetime':      have_exec('icetime'),
+            }
 
 
 # FIXME: project name still settling ("nextpnr")
@@ -296,7 +334,8 @@ class SPNR(Toolchain):
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
 
     def max_freq(self):
-        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+        with open(self.out_dir + '/icetime.txt') as f:
+            return icetime_parse(f)['max_freq']
 
     def resources(self):
         return icebox_stat("my.asc", self.out_dir)
@@ -320,6 +359,15 @@ class SPNR(Toolchain):
     @staticmethod
     def seedable():
         return True
+
+    @staticmethod
+    def check_env():
+        return {
+            'yosys':            have_exec('yosys'),
+            'nextpnr-ice40':    have_exec('nextpnr-ice40'),
+            'icepack':          have_exec('icepack'),
+            'icetime':          have_exec('icetime'),
+            }
 
 
 class VPR(Toolchain):
@@ -377,7 +425,8 @@ class VPR(Toolchain):
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
 
     def max_freq(self):
-        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+        with open(self.out_dir + '/icetime.txt') as f:
+            return icetime_parse(f)['max_freq']
 
     """
     @staticmethod
@@ -463,12 +512,24 @@ class VPR(Toolchain):
     def seedable():
         return True
 
+    @staticmethod
+    def check_env():
+        return {
+            'yosys':            have_exec('yosys'),
+            'vpr':              have_exec('vpr'),
+            'icebox_hlc2asc':   have_exec('icebox_hlc2asc'),
+            'icepack':          have_exec('icepack'),
+            'icetime':          have_exec('icetime'),
+            }
+
 
 # no seed support?
 class Icecube2(Toolchain):
+    ICECUBEDIR_DEFAULT = os.getenv("ICECUBEDIR", "/opt/lscc/iCEcube2.2017.08")
+
     def __init__(self):
         Toolchain.__init__(self)
-        self.icecubedir = os.getenv("ICECUBEDIR", "/opt/lscc/iCEcube2.2017.08")
+        self.icecubedir = self.ICECUBEDIR_DEFAULT
 
     def run(self):
         with Timed(self, 'bit-all'):
@@ -486,7 +547,8 @@ class Icecube2(Toolchain):
         self.cmd("icetime", "-tmd hx8k my.asc")
 
     def max_freq(self):
-        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+        with open(self.out_dir + '/icetime.txt') as f:
+            return icetime_parse(f)['max_freq']
 
     def resources(self):
         return icebox_stat("my.asc", self.out_dir)
@@ -506,10 +568,11 @@ class Icecube2(Toolchain):
         assert 0
 
     def versions(self):
-        return {
-            'yosys': yosys_ver(),
-            'icecube2': Icecube2.asc_ver(open(self.out_dir + '/my.asc')),
-            }
+        with open(self.out_dir + '/my.asc') as ascf:
+            return {
+                'yosys': yosys_ver(),
+                'icecube2': Icecube2.asc_ver(ascf),
+                }
 
 
 class Icecube2Synpro(Icecube2):
@@ -520,6 +583,13 @@ class Icecube2Synpro(Icecube2):
     def syn(self):
         return "synpro"
 
+    @staticmethod
+    def check_env():
+        return {
+            'ICECUBEDIR':       os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
+            'icetime':          have_exec('icetime'),
+            }
+
 
 class Icecube2LSE(Icecube2):
     def __init__(self):
@@ -528,6 +598,13 @@ class Icecube2LSE(Icecube2):
 
     def syn(self):
         return "lse"
+
+    @staticmethod
+    def check_env():
+        return {
+            'ICECUBEDIR':       os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
+            'icetime':          have_exec('icetime'),
+            }
 
 
 class Icecube2Yosys(Icecube2):
@@ -538,14 +615,24 @@ class Icecube2Yosys(Icecube2):
     def syn(self):
         return "yosys-synpro"
 
+    @staticmethod
+    def check_env():
+        return {
+            'yosys':            have_exec('yosys'),
+            'ICECUBEDIR':       os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
+            'icetime':          have_exec('icetime'),
+            }
+
 
 # .asc version field just says "DiamondNG"
 # guess that was the code name...
 # no seed support? -n just does more passes
 class Radiant(Toolchain):
+    RADIANTDIR_DEFAULT = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
+
     def __init__(self):
         Toolchain.__init__(self)
-        self.radiantdir = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
+        self.radiantdir = Radiant.RADIANTDIR_DEFAULT
 
     def run(self):
         # acceptable for either device
@@ -568,7 +655,8 @@ class Radiant(Toolchain):
         self.cmd("icetime", "-tmd up5k my.asc")
 
     def max_freq(self):
-        return icetime_parse(open(self.out_dir + '/icetime.txt'))['max_freq']
+        with open(self.out_dir + '/icetime.txt') as f:
+            return icetime_parse(f)['max_freq']
 
     def resources(self):
         return icebox_stat("my.asc", self.out_dir)
@@ -585,6 +673,14 @@ class Radiant(Toolchain):
         return {
             'yosys': yosys_ver(),
             'radiant': self.radiant_ver(),
+            }
+
+    @staticmethod
+    def check_env():
+        return {
+            'RADIANTDIR':       os.path.exists(Radiant.RADIANTDIR_DEFAULT),
+            'iceunpack':        have_exec('iceunpack'),
+            'icetime':          have_exec('icetime'),
             }
 
 
@@ -615,6 +711,7 @@ class RadiantYosys(Radiant):
 
     def syn(self):
         return "yosys-synpro"
+
 
 def print_stats(t):
     print('Design %s' % t.design())
@@ -655,6 +752,8 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     assert package is not None
     assert toolchain is not None
     assert project is not None
+    # some toolchains use signed 32 bit
+    assert seed is None or 1 <= seed <= 0x7FFFFFFF
 
     t = toolchains[toolchain]()
     t.verbose = verbose
@@ -669,18 +768,43 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     print_stats(t)
     t.write_metadata()
 
+def get_toolchains():
+    return sorted(toolchains.keys())
+
 def list_toolchains():
-    for t in sorted(toolchains.keys()):
+    for t in get_toolchains():
         print(t)
 
+def get_projects():
+    return sorted([re.match('/.*/(.*)[.]json', fn).group(1) for fn in glob.glob(project_dir + '/*.json')])
+
 def list_projects():
-    for project in sorted([re.match(project_dir + '/(.*)[.]json', fn).group(1) for fn in glob.glob('project/*.json')]):
+    for project in get_projects():
         print(project)
 
-def list_seedable():
+def get_seedable():
+    ret = []
     for t, tc in sorted(toolchains.items()):
         if tc.seedable():
-            print(t)
+            ret.append(t)
+    return ret
+
+def list_seedable():
+    for t in get_seedable():
+        print(t)
+
+def check_env():
+    for t, tc in sorted(toolchains.items()):
+        print(t)
+        for k, v in tc.check_env().items():
+            print('  %s: %s' % (k, v))
+
+def env_ready():
+    for tc in sorted(toolchains.values()):
+        for v in tc.check_env().values():
+            if not v:
+                return False
+    return True
 
 def get_project(name):
     project_fn = project_dir + '/' + name + '.json'
@@ -705,8 +829,9 @@ def main():
     parser.add_argument('--list-toolchains', action='store_true', help='')
     parser.add_argument('--project', help='Source code to run on')
     parser.add_argument('--list-projects', action='store_true', help='')
-    parser.add_argument('--seed', default=None, help='32 bit sSeed number to use, possibly directly mapped to PnR tool')
+    parser.add_argument('--seed', default=None, help='31 bit seed number to use, possibly directly mapped to PnR tool')
     parser.add_argument('--list-seedable', action='store_true', help='')
+    parser.add_argument('--check-env', action='store_true', help='Check if environment is present')
     parser.add_argument('--out-dir', default=None, help='Output directory')
     parser.add_argument('--out-prefix', default=None, help='Auto named directory prefix (default: build)')
     parser.add_argument('--pcf', default=None, help='')
@@ -718,6 +843,8 @@ def main():
         list_projects()
     elif args.list_seedable:
         list_seedable()
+    elif args.check_env:
+        check_env()
     else:
         assert args.toolchain is not None, 'toolchain required'
         assert args.project is not None, 'project required'

@@ -85,7 +85,7 @@ set -x
 set -e
 
 function run2() {
-    $dry python3 fpgaperf.py --toolchain $toolchain --project $project --device $device --package $package --seed $seed $pcf_arg --out-prefix $out_prefix $verbose || $onfail
+    $dry python3 fpgaperf.py --toolchain $toolchain --project "$project" --device "$device" --package "$package" --seed "$seed" $pcf_arg --out-prefix "$out_prefix" $verbose || $onfail
 }
 
 function run() {
@@ -105,6 +105,7 @@ function run() {
         done
     else
         # some of these may fail pnr
+        seed=
         run2
     fi
     # make ^C easier
