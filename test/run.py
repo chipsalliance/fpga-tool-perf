@@ -19,7 +19,7 @@ def def_devpack(toolchain):
 
 class TestCase(unittest.TestCase):
     def setUp(self):
-        self.verbose = True
+        self.verbose = False
 
     def test_env_ready(self):
         assert fpgaperf.env_ready()
