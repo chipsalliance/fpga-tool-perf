@@ -292,11 +292,10 @@ class Arachne(Toolchain):
             }
 
 
-# FIXME: project name still settling ("nextpnr")
-class SPNR(Toolchain):
+class Nextpnr(Toolchain):
     def __init__(self):
         Toolchain.__init__(self)
-        self.toolchain = 'spnr'
+        self.toolchain = 'nextpnr'
 
     def yosys(self):
         yscript = "synth_ice40 -top %s -nocarry ; write_json my.json" % self.top
@@ -341,7 +340,7 @@ class SPNR(Toolchain):
         return icebox_stat("my.asc", self.out_dir)
 
     @staticmethod
-    def spnr_version():
+    def nextpnr_version():
         '''
         $ nextpnr-ice40 -V
         nextpnr-ice40 -- Next Generation Place and Route (git sha1 edf7bd0)
@@ -353,7 +352,7 @@ class SPNR(Toolchain):
     def versions(self):
         return {
             'yosys': yosys_ver(),
-            'nextpnr-ice40': SPNR.spnr_version(),
+            'nextpnr-ice40': Nextpnr.nextpnr_version(),
             }
 
     @staticmethod
@@ -736,7 +735,7 @@ def print_stats(t):
 toolchains = {
         'arachne': Arachne,
         'vpr': VPR,
-        'spnr': SPNR,
+        'nextpnr': Nextpnr,
         'icecube2-synpro':  Icecube2Synpro,
         'icecube2-lse':     Icecube2LSE,
         'icecube2-yosys':   Icecube2Yosys,
@@ -816,7 +815,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         description=
-        'Analyze tool runtimes'
+        'Analyze FPGA tool performance (MHz, resources, runtime, etc)'
     )
 
     parser.add_argument('--verbose', action='store_true', help='')

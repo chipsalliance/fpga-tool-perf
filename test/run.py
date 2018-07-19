@@ -50,7 +50,7 @@ class TestCase(unittest.TestCase):
         ts = fpgaperf.get_seedable()
         assert 'vpr' in ts
         assert 'arachne' in ts
-        assert 'spnr' in ts
+        assert 'nextpnr' in ts
 
     def test_toolchains(self):
         '''Try each toolchain'''

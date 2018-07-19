@@ -1,5 +1,7 @@
 # fpga-tool-perf
 
+Analyze FPGA tool performance (MHz, resources, runtime, etc)
+
 ## Setup
 
 ```
@@ -57,7 +59,7 @@ usage: fpgaperf.py [-h] [--verbose] [--overwrite] [--family FAMILY]
                [--toolchain TOOLCHAIN] [--list-toolchains] [--project PROJECT]
                [--seed SEED] [--out-dir OUT_DIR] [--pcf PCF]
 
-Analyze tool runtimes
+Analyze FPGA tool performance (MHz, resources, runtime, etc)
 
 optional arguments:
   -h, --help            show this help message and exit
