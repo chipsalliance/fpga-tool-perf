@@ -140,3 +140,36 @@ Exhaustively run all projects with valid .pcf
 usage: pcf_test.sh
 --out-prefix <dir>        output directory prefix (default: build)
 ```
+
+## Development
+
+
+### Project
+
+Projects are .json files in the project directory. Copy an existing project to suite your needs. Project names shouldn't contain underscores such that they are clearly separated from other fields when combined into folder names.
+
+### Wrapper
+
+wrapper.py creates a simple verilog interface against an arbitrary verilog module. This allows testing arbitrary verilog modules against a standard pin configuration. The rough idea is taken from project x-ray.
+
+Run wrappers.sh to regenerate all wrappers. Requires pyverilog
+
+wrapper.py (iverilog based) has the following known limitations:
+* Bidrectional ports are not supported
+* Spaces inside numbers are not supported (ex: 8' h00 vs 8'h00)
+* Attributes (sometimes?) are not supported (ex: (* LOC="HERE" *) )
+
+As a result, sometimes the module definition is cropped out to make running the tool easier (ex: src/picorv32/picosoc/spimemio.v was cropped to src/picosoc_spimemio_def.v).
+
+### Python
+
+If you change the python code, run the test suite in the test directory:
+
+```
+python3 run.py
+```
+As of this writing it takes about 6 minutes to complete. Note you can also run a single test:
+```
+python3 run.py  TestCase.test_env_ready
+```
+

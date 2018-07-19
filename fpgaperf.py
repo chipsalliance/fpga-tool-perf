@@ -57,6 +57,7 @@ def canonicalize(fns):
     return [os.path.realpath(root_dir + '/' + fn) for fn in fns]
 
 class Toolchain:
+    '''A toolchain takes in verilog files and produces a .bitstream'''
     def __init__(self):
         self.runtimes = collections.OrderedDict()
         self.toolchain = None
@@ -226,6 +227,8 @@ def icebox_stat(fn, out_dir):
 
 
 class Arachne(Toolchain):
+    '''Arachne PnR + Yosys synthesis'''
+
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'arachne'
@@ -293,6 +296,8 @@ class Arachne(Toolchain):
 
 
 class Nextpnr(Toolchain):
+    '''Nextpnr PnR + Yosys synthesis'''
+
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'nextpnr'
@@ -370,6 +375,8 @@ class Nextpnr(Toolchain):
 
 
 class VPR(Toolchain):
+    '''VPR using Yosys for synthesis'''
+
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'vpr'
@@ -524,6 +531,8 @@ class VPR(Toolchain):
 
 # no seed support?
 class Icecube2(Toolchain):
+    '''Lattice Icecube2 based toolchains'''
+
     ICECUBEDIR_DEFAULT = os.getenv("ICECUBEDIR", "/opt/lscc/iCEcube2.2017.08")
 
     def __init__(self):
@@ -575,6 +584,8 @@ class Icecube2(Toolchain):
 
 
 class Icecube2Synpro(Icecube2):
+    '''Lattice Icecube2 using Synplify for synthesis'''
+
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-synpro'
@@ -591,6 +602,8 @@ class Icecube2Synpro(Icecube2):
 
 
 class Icecube2LSE(Icecube2):
+    '''Lattice Icecube2 using LSE for synthesis'''
+
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-lse'
@@ -607,6 +620,8 @@ class Icecube2LSE(Icecube2):
 
 
 class Icecube2Yosys(Icecube2):
+    '''Lattice Icecube2 using Yosys for synthesis'''
+
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-yosys'
@@ -627,6 +642,8 @@ class Icecube2Yosys(Icecube2):
 # guess that was the code name...
 # no seed support? -n just does more passes
 class Radiant(Toolchain):
+    '''Lattice Radiant based toolchains'''
+
     RADIANTDIR_DEFAULT = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
 
     def __init__(self):
@@ -684,6 +701,7 @@ class Radiant(Toolchain):
 
 
 class RadiantLSE(Radiant):
+    '''Lattice Radiant using LSE for synthesis'''
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'radiant-lse'
@@ -693,6 +711,7 @@ class RadiantLSE(Radiant):
 
 
 class RadiantSynpro(Radiant):
+    '''Lattice Radiant using Synplify for synthesis'''
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'radiant-synpro'
@@ -768,20 +787,25 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     t.write_metadata()
 
 def get_toolchains():
+    '''Query all supported toolchains'''
     return sorted(toolchains.keys())
 
 def list_toolchains():
+    '''Print all supported toolchains'''
     for t in get_toolchains():
         print(t)
 
 def get_projects():
+    '''Query all supported projects'''
     return sorted([re.match('/.*/(.*)[.]json', fn).group(1) for fn in glob.glob(project_dir + '/*.json')])
 
 def list_projects():
+    '''Print all supported projects'''
     for project in get_projects():
         print(project)
 
 def get_seedable():
+    '''Query toolchains that support --seed'''
     ret = []
     for t, tc in sorted(toolchains.items()):
         if tc.seedable():
@@ -789,17 +813,20 @@ def get_seedable():
     return ret
 
 def list_seedable():
+    '''Print toolchains that support --seed'''
     for t in get_seedable():
         print(t)
 
 def check_env():
+    '''For each tool, print dependencies and if they are met'''
     for t, tc in sorted(toolchains.items()):
         print(t)
         for k, v in tc.check_env().items():
             print('  %s: %s' % (k, v))
 
 def env_ready():
-    for tc in sorted(toolchains.values()):
+    '''Return true if every tool can be ran'''
+    for tc in toolchains.values():
         for v in tc.check_env().values():
             if not v:
                 return False
