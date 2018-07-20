@@ -170,6 +170,7 @@ class Toolchain:
             "max_freq": max_freq,
             "resources": resources,
             "verions": self.versions(),
+            "cmds": self.cmds,
             }
         with open(out_dir + '/meta.json', 'w') as f:
             json.dump(j, f, sort_keys=True, indent=4)
