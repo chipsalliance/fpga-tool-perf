@@ -872,8 +872,17 @@ def main():
     elif args.check_env:
         check_env()
     else:
-        assert args.toolchain is not None, 'toolchain required'
-        assert args.project is not None, 'project required'
+        argument_errors = []
+        if args.toolchain is None:
+            argument_errors.append('--toolchain argument required')
+        if args.project is None:
+            argument_errors.append('--project argument required')
+        if argument_errors:
+            print()
+            print('\n'.join(argument_errors))
+            print()
+            parser.print_usage()
+            sys.exit(1)
 
         seed = int(args.seed, 0) if args.seed else None
         run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
