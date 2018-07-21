@@ -94,6 +94,18 @@ spnr
 vpr
 ```
 
+You can check if you have the toolchain environments correctly installed as
+follows:
+```
+$ python3 fpgaperf.py --check-env --toolchain vpr
+vpr
+  yosys: True
+  vpr: True
+  icebox_hlc2asc: True
+  icepack: True
+  icetime: True
+```
+
 Supported projects can be queried as follows:
 ```
 $ python3 fpgaperf.py  --list-projects

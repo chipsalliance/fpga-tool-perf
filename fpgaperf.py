@@ -817,9 +817,11 @@ def list_seedable():
     for t in get_seedable():
         print(t)
 
-def check_env():
+def check_env(to_check):
     '''For each tool, print dependencies and if they are met'''
     for t, tc in sorted(toolchains.items()):
+        if to_check and t != to_check:
+            continue
         print(t)
         for k, v in tc.check_env().items():
             print('  %s: %s' % (k, v))
@@ -870,7 +872,7 @@ def main():
     elif args.list_seedable:
         list_seedable()
     elif args.check_env:
-        check_env()
+        check_env(args.toolchain)
     else:
         argument_errors = []
         if args.toolchain is None:
