@@ -887,10 +887,9 @@ def main():
             argument_errors.append('--project argument required')
 
         if argument_errors:
-            print()
-            print('\n'.join(argument_errors))
-            print()
             parser.print_usage()
+            for e in argument_errors:
+                print('{}: error: {}'.format(sys.argv[0], e))
             sys.exit(1)
 
         seed = int(args.seed, 0) if args.seed else None
