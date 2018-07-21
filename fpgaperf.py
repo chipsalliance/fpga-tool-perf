@@ -403,7 +403,7 @@ class VPR(Toolchain):
         if sfad_build:
             return sfad_build
 
-        return self.sfad_dir() + "/tests/build/ice40-top-routing-virt-" + self.device_workaround()
+        return self.sfad_dir() + "/ice40/build/ice40-top-routing-virt-" + self.device_workaround()
 
     def run(self):
         self.sfad_build = self.sfad_build()
