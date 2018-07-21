@@ -1,0 +1,9 @@
+{
+    "srcs": [
+        "src/murax/toplevel.v",
+        "src/murax/Murax.v"
+        ],
+    "top": "top",
+    "name": "murax"
+}
+
