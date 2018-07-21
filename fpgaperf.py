@@ -431,7 +431,7 @@ class VPR(Toolchain):
 
             self.cmd(self.vpr_bin(), arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
 
-            self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
+            self.cmd("icebox_hlc2asc", "%s.hlc > my.asc" % (self.top,))
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
