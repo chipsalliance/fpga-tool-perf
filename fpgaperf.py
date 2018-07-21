@@ -401,6 +401,10 @@ class VPR(Toolchain):
 
         return self.sfad_dir() + "/ice40/build/ice40-top-routing-virt-" + self.device
 
+    @staticmethod
+    def vpr_bin():
+        return os.getenv("VPR", 'vpr')
+
     def run(self):
         self.sfad_build = self.sfad_build()
         if not os.path.exists(self.sfad_build):
@@ -425,7 +429,7 @@ class VPR(Toolchain):
             if self.seed:
                 optstr += ' --seed %d' % self.seed
 
-            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
+            self.cmd(self.vpr_bin(), arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
 
             self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
             self.cmd("icepack", "my.asc my.bin")
@@ -524,7 +528,7 @@ class VPR(Toolchain):
     def check_env():
         return {
             'yosys':            have_exec('yosys'),
-            'vpr':              have_exec('vpr'),
+            'vpr':              have_exec(VPR.vpr_bin()),
             'icebox_hlc2asc':   have_exec('icebox_hlc2asc'),
             'icepack':          have_exec('icepack'),
             'icetime':          have_exec('icetime'),
