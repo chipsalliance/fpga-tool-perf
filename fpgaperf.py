@@ -6,6 +6,7 @@ import time
 import collections
 import json
 import re
+import shutil
 import sys
 import glob
 
@@ -105,7 +106,7 @@ class Toolchain:
             ret += '_' + op
         return ret
 
-    def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None):
+    def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None, data=None):
         self.family = family
         self.device = device
         self.package = package
@@ -124,6 +125,11 @@ class Toolchain:
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
         print('Writing to %s' % out_dir)
+        if data:
+            for f in data:
+                dst = os.path.join(out_dir, os.path.basename(f))
+                print("Copying data file {} to {}".format(f, dst))
+                shutil.copy(f, dst)
 
     def cmd(self, cmd, argstr, env=None):
         print("Running: %s %s" % (cmd, argstr))
@@ -780,7 +786,7 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
 
-    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix)
+    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix, data=project.get('data', None))
 
     t.run()
     print_stats(t)
