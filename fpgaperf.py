@@ -118,7 +118,7 @@ class Toolchain:
         out_prefix = out_prefix or 'build'
         if not os.path.exists(out_prefix):
             os.mkdir(out_prefix)
-    
+
         if out_dir is None:
             out_dir = out_prefix + "/" + self.design()
         self.out_dir = out_dir
@@ -162,11 +162,11 @@ class Toolchain:
 
             'toolchain': self.toolchain,
             'strategy': self.strategy,
-    
+
             # canonicalize
             'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
             'top': self.top,
-    
+
             "runtime": self.runtimes,
             "max_freq": max_freq,
             "resources": resources,
@@ -320,7 +320,7 @@ class Nextpnr(Toolchain):
     def run(self):
         '''
          - Run `yosys blinky.ys` in `ice40/` to synthesise the blinky design and  produce `blinky.json`.
-            $ cat blinky.ys 
+            $ cat blinky.ys
             read_verilog blinky.v
             synth_ice40 -top blinky -nocarry
             write_json blinky.json
@@ -415,7 +415,7 @@ class VPR(Toolchain):
 
             arch_xml = self.sfad_build + '/arch.xml'
             rr_graph = self.sfad_build + "/rr_graph.real.xml"
-    
+
             devstr = self.device_workaround() + '-' + self.package
 
             optstr = ''
