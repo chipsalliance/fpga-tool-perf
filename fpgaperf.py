@@ -875,10 +875,17 @@ def main():
         check_env(args.toolchain)
     else:
         argument_errors = []
+        if args.family is None:
+            argument_errors.append('--family argument required')
+        if args.device is None:
+            argument_errors.append('--device argument required')
+        if args.package is None:
+            argument_errors.append('--package argument required')
         if args.toolchain is None:
             argument_errors.append('--toolchain argument required')
         if args.project is None:
             argument_errors.append('--project argument required')
+
         if argument_errors:
             print()
             print('\n'.join(argument_errors))
