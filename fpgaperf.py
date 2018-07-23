@@ -823,11 +823,14 @@ def list_seedable():
     for t in get_seedable():
         print(t)
 
-def check_env(to_check):
+def check_env(to_check=None):
     '''For each tool, print dependencies and if they are met'''
-    for t, tc in sorted(toolchains.items()):
-        if to_check and t != to_check:
-            continue
+    tools = toolchains.items()
+    if to_check:
+        tools = list(filter(lambda t: t[0] == to_check, tools))
+        if not tools:
+            raise TypeError("Unknown toolchain %s" % to_check)
+    for t, tc in sorted(tools):
         print(t)
         for k, v in tc.check_env().items():
             print('  %s: %s' % (k, v))
