@@ -29,7 +29,6 @@ class Timed():
 
 # https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 def which(program):
-    import os
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
