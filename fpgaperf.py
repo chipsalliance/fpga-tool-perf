@@ -6,6 +6,7 @@ import time
 import collections
 import json
 import re
+import shutil
 import sys
 import glob
 
@@ -28,7 +29,6 @@ class Timed():
 
 # https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 def which(program):
-    import os
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -105,7 +105,7 @@ class Toolchain:
             ret += '_' + op
         return ret
 
-    def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None):
+    def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None, data=None):
         self.family = family
         self.device = device
         self.package = package
@@ -117,13 +117,18 @@ class Toolchain:
         out_prefix = out_prefix or 'build'
         if not os.path.exists(out_prefix):
             os.mkdir(out_prefix)
-    
+
         if out_dir is None:
             out_dir = out_prefix + "/" + self.design()
         self.out_dir = out_dir
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
         print('Writing to %s' % out_dir)
+        if data:
+            for f in data:
+                dst = os.path.join(out_dir, os.path.basename(f))
+                print("Copying data file {} to {}".format(f, dst))
+                shutil.copy(f, dst)
 
     def cmd(self, cmd, argstr, env=None):
         print("Running: %s %s" % (cmd, argstr))
@@ -156,11 +161,11 @@ class Toolchain:
 
             'toolchain': self.toolchain,
             'strategy': self.strategy,
-    
+
             # canonicalize
             'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
             'top': self.top,
-    
+
             "runtime": self.runtimes,
             "max_freq": max_freq,
             "resources": resources,
@@ -314,7 +319,7 @@ class Nextpnr(Toolchain):
     def run(self):
         '''
          - Run `yosys blinky.ys` in `ice40/` to synthesise the blinky design and  produce `blinky.json`.
-            $ cat blinky.ys 
+            $ cat blinky.ys
             read_verilog blinky.v
             synth_ice40 -top blinky -nocarry
             write_json blinky.json
@@ -381,10 +386,6 @@ class VPR(Toolchain):
         Toolchain.__init__(self)
         self.toolchain = 'vpr'
 
-    # FIXME: hack until vpr is fixed (it has hx8k-cm81 instead of lp8k-cm81)
-    def device_workaround(self):
-        return {'lp8k': 'hx8k'}.get(self.device, self.device)
-
     def yosys(self):
         yscript = "synth_ice40 -top %s -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % self.top
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
@@ -397,7 +398,11 @@ class VPR(Toolchain):
         if sfad_build:
             return sfad_build
 
-        return self.sfad_dir() + "/tests/build/ice40-top-routing-virt-" + self.device_workaround()
+        return self.sfad_dir() + "/ice40/build/ice40-top-routing-virt-" + self.device
+
+    @staticmethod
+    def vpr_bin():
+        return os.getenv("VPR", 'vpr')
 
     def run(self):
         self.sfad_build = self.sfad_build()
@@ -409,23 +414,23 @@ class VPR(Toolchain):
 
             arch_xml = self.sfad_build + '/arch.xml'
             rr_graph = self.sfad_build + "/rr_graph.real.xml"
-    
-            devstr = self.device_workaround() + '-' + self.package
+
+            devstr = self.device + '-' + self.package
 
             optstr = ''
             if self.pcf:
                 #io_place_file = self.out_dir + '/io.place'
                 #create_ioplace = 'python3 ' + self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
                 create_ioplace = self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
-                map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device_workaround(), self.package)
+                map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device, self.package)
                 self.cmd(create_ioplace, '--pcf %s --blif %s --map %s --output %s' % (self.pcf, "my.eblif", map_file, 'io.place'))
                 optstr += ' --fix_pins io.place'
             if self.seed:
                 optstr += ' --seed %d' % self.seed
 
-            self.cmd("vpr", arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
+            self.cmd(self.vpr_bin(), arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
 
-            self.cmd("icebox_hlc2asc", "top.hlc > my.asc")
+            self.cmd("icebox_hlc2asc", "%s.hlc > my.asc" % (self.top,))
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
@@ -522,7 +527,7 @@ class VPR(Toolchain):
     def check_env():
         return {
             'yosys':            have_exec('yosys'),
-            'vpr':              have_exec('vpr'),
+            'vpr':              have_exec(VPR.vpr_bin()),
             'icebox_hlc2asc':   have_exec('icebox_hlc2asc'),
             'icepack':          have_exec('icepack'),
             'icetime':          have_exec('icetime'),
@@ -780,7 +785,7 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
 
-    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix)
+    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix, data=project.get('data', None))
 
     t.run()
     print_stats(t)
@@ -817,9 +822,14 @@ def list_seedable():
     for t in get_seedable():
         print(t)
 
-def check_env():
+def check_env(to_check=None):
     '''For each tool, print dependencies and if they are met'''
-    for t, tc in sorted(toolchains.items()):
+    tools = toolchains.items()
+    if to_check:
+        tools = list(filter(lambda t: t[0] == to_check, tools))
+        if not tools:
+            raise TypeError("Unknown toolchain %s" % to_check)
+    for t, tc in sorted(tools):
         print(t)
         for k, v in tc.check_env().items():
             print('  %s: %s' % (k, v))
@@ -851,9 +861,9 @@ def main():
     parser.add_argument('--device', default='hx8k', help='Device within family')
     parser.add_argument('--package', default=None, help='Device package')
     parser.add_argument('--strategy', default='default', help='Optimization strategy')
-    parser.add_argument('--toolchain', help='Tools to use')
+    parser.add_argument('--toolchain', help='Tools to use', choices=get_toolchains())
     parser.add_argument('--list-toolchains', action='store_true', help='')
-    parser.add_argument('--project', help='Source code to run on')
+    parser.add_argument('--project', help='Source code to run on', choices=get_projects())
     parser.add_argument('--list-projects', action='store_true', help='')
     parser.add_argument('--seed', default=None, help='31 bit seed number to use, possibly directly mapped to PnR tool')
     parser.add_argument('--list-seedable', action='store_true', help='')
@@ -870,10 +880,25 @@ def main():
     elif args.list_seedable:
         list_seedable()
     elif args.check_env:
-        check_env()
+        check_env(args.toolchain)
     else:
-        assert args.toolchain is not None, 'toolchain required'
-        assert args.project is not None, 'project required'
+        argument_errors = []
+        if args.family is None:
+            argument_errors.append('--family argument required')
+        if args.device is None:
+            argument_errors.append('--device argument required')
+        if args.package is None:
+            argument_errors.append('--package argument required')
+        if args.toolchain is None:
+            argument_errors.append('--toolchain argument required')
+        if args.project is None:
+            argument_errors.append('--project argument required')
+
+        if argument_errors:
+            parser.print_usage()
+            for e in argument_errors:
+                print('{}: error: {}'.format(sys.argv[0], e))
+            sys.exit(1)
 
         seed = int(args.seed, 0) if args.seed else None
         run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)

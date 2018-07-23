@@ -21,14 +21,15 @@ Variables you may need to set:
 `SFAD_DIR`
     What: symbiflow-arch-defs repository directory
     Default: ~/symbiflow-arch-defs
-    
+
 `ICECUBEDIR`
     What: Lattice iCEcube2 software directory
     Default: /opt/lscc/iCEcube2.2017.08
+
 `RADIANTDIR`
     What: Lattice Radiant software directory
     Default: /opt/lscc/radiant/1.0
-    
+
 `VPR`
     What: vpr tool to use
     Default: system path? I've always set this to binary
@@ -36,7 +37,7 @@ Variables you may need to set:
 
 
 To use VPR you'll need to create architecture XML files
-As of this writing [symbiflow-arch-defs dd77600](https://github.com/SymbiFlow/symbiflow-arch-defs/tree/dd77600) 
+As of this writing [symbiflow-arch-defs dd77600](https://github.com/SymbiFlow/symbiflow-arch-defs/tree/dd77600)
 is known to work
 
 To generate architecture files for vpr:
@@ -73,7 +74,7 @@ optional arguments:
                         Tools to use
   --list-toolchains
   --project PROJECT     Source code to run on
-  --seed SEED           32 bit sSeed number to use, possibly directly mapped
+  --seed SEED           32 bit seed number to use, possibly directly mapped
                         to PnR tool
   --out-dir OUT_DIR     Output directory
   --pcf PCF
@@ -91,6 +92,18 @@ radiant-lse
 radiant-synpro
 spnr
 vpr
+```
+
+You can check if you have the toolchain environments correctly installed as
+follows:
+```
+$ python3 fpgaperf.py --check-env --toolchain vpr
+vpr
+  yosys: True
+  vpr: True
+  icebox_hlc2asc: True
+  icepack: True
+  icetime: True
 ```
 
 Supported projects can be queried as follows:
@@ -131,9 +144,12 @@ $ ./exhaust.sh --device hx8k --package cm81 --project oneblink --toolchain spnr 
 
 See build directory for output. Note in particular [build/all.csv](build/all.csv)
 
-There is also [build/sow.csv](build/sow.csv) (a seed pun), which has seed results processed into min/max rows
+There is also [build/sow.csv](build/sow.csv) (a seed pun), which has seed
+results processed into min/max rows
 
-Since pcf files are project specific, you can't easily use exaust.sh by itself to test all configurations. If you want to do this, use pcf_test.sh:
+Since pcf files are project specific, you can't easily use exaust.sh by itself
+to test all configurations. If you want to do this, use pcf_test.sh:
+
 ```
 $ ./pcf_test.sh  -h
 Exhaustively run all projects with valid .pcf
@@ -143,23 +159,28 @@ usage: pcf_test.sh
 
 ## Development
 
-
 ### Project
 
-Projects are .json files in the project directory. Copy an existing project to suite your needs. Project names shouldn't contain underscores such that they are clearly separated from other fields when combined into folder names.
+Projects are .json files in the project directory. Copy an existing project to
+suite your needs. Project names shouldn't contain underscores such that they
+are clearly separated from other fields when combined into folder names.
 
 ### Wrapper
 
-wrapper.py creates a simple verilog interface against an arbitrary verilog module. This allows testing arbitrary verilog modules against a standard pin configuration. The rough idea is taken from project x-ray.
+wrapper.py creates a simple verilog interface against an arbitrary verilog
+module. This allows testing arbitrary verilog modules against a standard pin
+configuration. The rough idea is taken from project x-ray.
 
 Run wrappers.sh to regenerate all wrappers. Requires pyverilog
 
 wrapper.py (iverilog based) has the following known limitations:
-* Bidrectional ports are not supported
-* Spaces inside numbers are not supported (ex: 8' h00 vs 8'h00)
-* Attributes (sometimes?) are not supported (ex: (* LOC="HERE" *) )
+ * Bidrectional ports are not supported
+ * Spaces inside numbers are not supported (ex: 8' h00 vs 8'h00)
+ * Attributes (sometimes?) are not supported (ex: (* LOC="HERE" *) )
 
-As a result, sometimes the module definition is cropped out to make running the tool easier (ex: src/picorv32/picosoc/spimemio.v was cropped to src/picosoc_spimemio_def.v).
+As a result, sometimes the module definition is cropped out to make running the
+tool easier (ex: src/picorv32/picosoc/spimemio.v was cropped to
+src/picosoc_spimemio_def.v).
 
 ### Python
 
@@ -168,7 +189,9 @@ If you change the python code, run the test suite in the test directory:
 ```
 python3 run.py
 ```
-As of this writing it takes about 6 minutes to complete. Note you can also run a single test:
+
+As of this writing it takes about 6 minutes to complete. Note you can also run
+a single test:
 ```
 python3 run.py  TestCase.test_env_ready
 ```

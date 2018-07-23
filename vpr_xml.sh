@@ -15,6 +15,6 @@ make BOARD=icestick bit
 make BOARD=tinyfpga-b2 bit
 
 # up5k
-touch $SFAD_DIR/tests/ice40/blink/test-upk5-uwg30.pcf
+touch test-upk5-uwg30.pcf
 make BOARD=test-upk5-uwg30 DEVICE=up5k PACKAGE=uwg30 PROG_TOOL=/dev/null bit
 
