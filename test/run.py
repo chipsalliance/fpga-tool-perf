@@ -13,6 +13,7 @@ def def_devpack(toolchain):
         device = 'up5k'
         package = 'uwg30'
     else:
+        # FIXME: change to hx8k, ct256
         device = 'lp8k'
         package = 'cm81'
     return device, package
@@ -63,7 +64,7 @@ class TestCase(unittest.TestCase):
         for toolchain in fpgaperf.toolchains.keys():
             device, package = def_devpack(toolchain)
             if 'radiant' in toolchain:
-                pcf = fpgaperf.root_dir + '/project/oneblink_lp8k-cm81.pcf'
+                pcf = fpgaperf.root_dir + '/project/FIXME.pcf'
             else:
                 pcf = fpgaperf.root_dir + '/project/oneblink_lp8k-cm81.pcf'
             fpgaperf.run(family='ice40', device=device, package=package, toolchain=toolchain, project=fpgaperf.get_project('oneblink'), pcf=pcf, verbose=self.verbose)
