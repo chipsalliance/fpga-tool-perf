@@ -419,6 +419,12 @@ class VPR(Toolchain):
             devstr = self.device + '-' + self.package
 
             optstr = ''
+            optstr += arch_xml
+            optstr += " my.eblif"
+            optstr += " --device " + devstr
+            optstr += " --min_route_chan_width_hint 100 --route_chan_width 100"
+            optstr += " --read_rr_graph " + rr_graph
+
             if self.pcf:
                 #io_place_file = self.out_dir + '/io.place'
                 #create_ioplace = 'python3 ' + self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
@@ -429,7 +435,10 @@ class VPR(Toolchain):
             if self.seed:
                 optstr += ' --seed %d' % self.seed
 
-            self.cmd(self.vpr_bin(), arch_xml + " my.eblif --device " + devstr + " --min_route_chan_width_hint 100 --route_chan_width 100 --read_rr_graph " + rr_graph + " --pack --place --route" + optstr)
+            # Workaround for https://github.com/SymbiFlow/fpga-tool-perf/issues/9
+            # optstr += " --pack --place --route"
+            for phase_args in (" --pack --place", " --route"):
+                self.cmd(self.vpr_bin(), optstr + phase_args)
 
             self.cmd("icebox_hlc2asc", "%s.hlc > my.asc" % (self.top,))
             self.cmd("icepack", "my.asc my.bin")
