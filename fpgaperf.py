@@ -112,6 +112,9 @@ class Toolchain:
 
         self.project_name = name
         self.srcs = canonicalize(srcs)
+        for src in self.srcs:
+            if not os.path.exists(src):
+                raise ValueError("Missing source file %s" % src)
         self.top = top
 
         out_prefix = out_prefix or 'build'
