@@ -45,6 +45,25 @@ To generate architecture files for vpr:
 $ ./vpr_xml.sh
 ```
 
+### Recommended versions
+
+These "releases" are tool suite combinations known to work well together. Primary testing platform is
+Ubuntu 16.04 with some testing on Debian Buster/Sid
+
+#### 0.1
+
+Versions:
+  * [arachne-pnr](https//github.com/cseed/arachne-pnr.git): git 5d830dd
+  * [fpga-tool-perf](git@github.com:SymbiFlow/fpga-tool-perf.git): git FIXME
+  * [iCEcube2](http://www.latticesemi.com/iCEcube2): release 2017.08.27940
+  * [icestorm](https://github.com/elmsfu/icestorm.git) : git 542e9ef
+    * Waiting on some PRs as of this writing
+  * [nextpnr](FIXME Aug 1): git 7da64ee
+  * [Radiant](http://www.latticesemi.com/latticeradiant): release 1.0.0.350.6
+  * [symbiflow-arch-defs](https://github.com/SymbiFlow/symbiflow-arch-defs.git): git 8232130
+  * [vpr](git@github.com:SymbiFlow/vtr-verilog-to-routing.git): git vpr-7.0.5+ice40-v0.0.0
+  * [yosys](https://github.com/YosysHQ/yosys.git): git e275692e
+
 ## Running
 
 Quick start example:
@@ -90,7 +109,7 @@ icecube2-synpro
 icecube2-yosys
 radiant-lse
 radiant-synpro
-spnr
+nextpnr
 vpr
 ```
 
@@ -139,7 +158,7 @@ $ ./exhaust.sh --device hx8k --package ct256
 
 Its also possible to run against a single toolchain and/or project:
 ```
-$ ./exhaust.sh --device hx8k --package cm81 --project oneblink --toolchain spnr --pcf project/oneblink_lp8k-cm81.pcf
+$ ./exhaust.sh --device hx8k --package cm81 --project oneblink --toolchain nextpnr --pcf project/oneblink_lp8k-cm81.pcf
 ```
 
 See build directory for output. Note in particular [build/all.csv](build/all.csv)
