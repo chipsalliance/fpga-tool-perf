@@ -50,11 +50,11 @@ $ ./vpr_xml.sh
 These "releases" are tool suite combinations known to work well together. Primary testing platform is
 Ubuntu 16.04 with some testing on Debian Buster/Sid
 
-#### 0.1
+#### v0.0.1
 
 Versions:
   * [arachne-pnr](https//github.com/cseed/arachne-pnr.git): git 5d830dd
-  * [fpga-tool-perf](git@github.com:SymbiFlow/fpga-tool-perf.git): git FIXME
+  * [fpga-tool-perf](git@github.com:SymbiFlow/fpga-tool-perf.git): git v0.0.1
   * [iCEcube2](http://www.latticesemi.com/iCEcube2): release 2017.08.27940
   * [icestorm](https://github.com/elmsfu/icestorm.git) : git 542e9ef
     * Waiting on some PRs as of this writing
