@@ -43,9 +43,12 @@ fi
 
 
 case "${RADDEV:-up5k-uwg30}" in
+    up3k-uwg30)
+        iCEPACKAGE="UWG30ITR"
+        iCE40DEV="iCE40UP3K"
+        ;;
     up5k-sg48)
-        echo "fixme: package"; exit 1
-        iCEPACKAGE="SG48"
+        iCEPACKAGE="SG48I"
         iCE40DEV="iCE40UP5K"
         ;;
     up5k-uwg30)
