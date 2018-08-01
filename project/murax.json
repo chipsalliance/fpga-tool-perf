@@ -1,7 +1,7 @@
 {
     "srcs": [
-        "src/murax/toplevel.v",
-        "src/murax/Murax.v"
+        "src/murax/Murax.v",
+        "src/murax/toplevel.v"
         ],
     "data": [
         "src/murax/Murax.v_toplevel_system_ram_ram_symbol0.bin",
