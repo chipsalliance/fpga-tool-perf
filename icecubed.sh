@@ -308,7 +308,7 @@ mkdir -p netlist/Log/bitmap
 
 
 syn_synpro() {
-    SRCS=$1
+    SRCS="$1"
 
     rm -f impl_syn.prj
     for f in $SRCS ; do
@@ -424,7 +424,7 @@ EOT
 
 # synthesis (Synplify Pro)
 if [ "$syn" = "synpro" ] ; then
-    syn_synpro $SRCS
+    syn_synpro "$SRCS"
 # synthesis (Lattice LSE)
 elif [ "$syn" = "lse" ] ; then
     cat > impl_lse.prj << EOT

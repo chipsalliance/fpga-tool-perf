@@ -570,7 +570,7 @@ class Icecube2(Toolchain):
 
             self.cmd("iceunpack", "my.bin my.asc")
 
-        self.cmd("icetime", "-tmd hx8k my.asc")
+        self.cmd("icetime", "-tmd %s my.asc" % (self.device,))
 
     def max_freq(self):
         with open(self.out_dir + '/icetime.txt') as f:
