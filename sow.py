@@ -2,8 +2,7 @@
 
 def run(fin, fout, verbose=False):
     row = fin.readline().strip()
-    seedpos = 7
-    assert row.split(',')[seedpos] == 'Seed'
+    seedpos = row.split(',').index('Seed')
     fout.write(row + '\n')
 
     lines_raw = {}
