@@ -57,16 +57,21 @@ def canonicalize(fns):
     return [os.path.realpath(root_dir + '/' + fn) for fn in fns]
 
 class Toolchain:
+    # List of supported carry modes
+    # Default to first item
+    carries = None
+    strategies = None
+
     '''A toolchain takes in verilog files and produces a .bitstream'''
     def __init__(self):
         self.runtimes = collections.OrderedDict()
         self.toolchain = None
         self.verbose = False
         self.cmds = []
-        self.strategy = "default"
-        self.seed = None
         self.pcf = None
-        self.carry = None
+        self._strategy = None
+        self._carry = None
+        self.seed = None
 
         self.family = None
         self.device = None
@@ -92,6 +97,11 @@ class Toolchain:
 
         if self.pcf:
             add('pcf')
+        # omit carry if not explicitly given?
+        if self.carry is not None:
+            add('carry-%c' % ('y' if self.carry else 'n',))
+        if self.strategy:
+            add(self.strategy)
         if self.seed:
             add('seed-%08X' % (self.seed,))
         return ret
@@ -100,17 +110,55 @@ class Toolchain:
         self.runtimes[name] = dt
 
     def design(self):
-        ret = self.family + '-' + self.device + '-' + self.package + '_' + self.toolchain + '_' + self.project_name + '_' + self.strategy
+        ret = self.family + '-' + self.device + '-' + self.package + '_' + self.toolchain + '_' + self.project_name
         op = self.optstr()
         if op:
             ret += '_' + op
         return ret
+
+    @property
+    def carry(self):
+        return self.carries[0] if self._carry is None else self._carry
+
+    @carry.setter
+    def carry(self, value):
+        assert value is None or value in self.carries, 'Carry modes supported: %s, got: %s' % (self.carries, value)
+        self._carry = value
 
     def ycarry(self):
         if self.carry:
             return ""
         else:
             return " -nocarry"
+
+    def yscript(self, cmds):
+        def process(cmd):
+            if cmd.find('synth_ice40') == 0:
+                cmd += self.ycarry()
+            return cmd
+
+        yscript = '; '.join([process(cmd) for cmd in cmds])
+        self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
+
+    @property
+    def strategy(self):
+        # Use given strategy first
+        if self._strategy is not None:
+            return self._strategy
+        # Default
+        elif self.strategies is not None:
+            return self.strategies[0]
+        # Not supported
+        else:
+            return None
+
+    @strategy.setter
+    def strategy(self, value):
+        if self.strategies is None:
+            assert value is None, "Strategies not supported, got %s" % (value,)
+        else:
+            assert value is None or value in self.strategies, 'Strategies supported: %s, got: %s' % (self.strategies, value)
+        self._strategy = value
 
     def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None, data=None):
         self.family = family
@@ -191,7 +239,8 @@ class Toolchain:
             csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
             pcf_str = os.path.basename(self.pcf) if self.pcf else ''
             seed_str = '%08X' % self.seed if self.seed else ''
-            fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, pcf_str, str(self.carry), seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
+            strategy_str = self.strategy if self.strategy else ''
+            fields = [self.family, self.device, self.package, self.project_name, self.toolchain, strategy_str, pcf_str, str(self.carry), seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
             fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
             csv.write(','.join(fields) + '\n')
             csv.close()
@@ -199,10 +248,6 @@ class Toolchain:
         # Provide some context when comparing runtimes against systems
         subprocess.check_call('uname -a >uname.txt', shell=True, executable='bash', cwd=self.out_dir)
         subprocess.check_call('lscpu >lscpu.txt', shell=True, executable='bash', cwd=self.out_dir)
-
-    def require_carry(self, carry):
-        self.carry = carry if self.carry is None else self.carry
-        assert self.carry is carry
 
     @staticmethod
     def seedable():
@@ -249,14 +294,17 @@ def icebox_stat(fn, out_dir):
 
 class Arachne(Toolchain):
     '''Arachne PnR + Yosys synthesis'''
+    carries = (True, False)
 
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'arachne'
 
     def yosys(self):
-        yscript = "synth_ice40 -top %s%s -blif my.blif" % (self.top, self.ycarry())
-        self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
+            self.yscript([
+                "synth_ice40 -top %s" % (self.top,),
+                "write_blif -gates -attr -param my.blif",
+                ])
 
     def device_simple(self):
         # hx8k => 8k
@@ -264,8 +312,6 @@ class Arachne(Toolchain):
         return self.device[2:]
 
     def run(self):
-        self.carry = True if self.carry is None else self.carry
-
         with Timed(self, 'bit-all'):
             self.yosys()
 
@@ -317,17 +363,19 @@ class Arachne(Toolchain):
             'icetime':      have_exec('icetime'),
             }
 
-
 class Nextpnr(Toolchain):
     '''Nextpnr PnR + Yosys synthesis'''
+    carries = (True, False)
 
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'nextpnr'
 
     def yosys(self):
-        yscript = "synth_ice40 -top %s%s ; write_json my.json" % (self.top, self.ycarry())
-        self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
+        self.yscript([
+            "synth_ice40 -top %s",
+            "write_json my.json" % (self.top,),
+            ])
 
     def device_simple(self):
         # hx8k => 8k
@@ -335,8 +383,6 @@ class Nextpnr(Toolchain):
         return self.device[2:]
 
     def run(self):
-        self.carry = True if self.carry is None else self.carry
-
         with Timed(self, 'bit-all'):
             self.yosys()
 
@@ -393,14 +439,15 @@ class Nextpnr(Toolchain):
 
 class VPR(Toolchain):
     '''VPR using Yosys for synthesis'''
+    # as of 2018-08-06 think carry doesn't work
+    carries = (False,)
 
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'vpr'
 
     def yosys(self):
-        yscript = "synth_ice40 -vpr -top %s%s -blif my.eblif" % (self.top, self.ycarry())
-        self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
+        self.yscript(["synth_ice40 -vpr -top %s -blif my.eblif" % (self.top,)])
 
     def sfad_dir(self):
         return os.getenv("SFAD_DIR", os.getenv("HOME") + "/symbiflow-arch-defs")
@@ -417,9 +464,6 @@ class VPR(Toolchain):
         return os.getenv("VPR", 'vpr')
 
     def run(self):
-        # as of 2018-08-06 think carry doesn't work
-        self.require_carry(False)
-
         self.sfad_build = self.sfad_build()
         if not os.path.exists(self.sfad_build):
             raise Exception("Missing VPR dir: %s" % self.sfad_build)
@@ -561,6 +605,7 @@ class VPR(Toolchain):
 # no seed support?
 class Icecube2(Toolchain):
     '''Lattice Icecube2 based toolchains'''
+    carries = None
 
     ICECUBEDIR_DEFAULT = os.getenv("ICECUBEDIR", "/opt/lscc/iCEcube2.2017.08")
 
@@ -568,12 +613,7 @@ class Icecube2(Toolchain):
         Toolchain.__init__(self)
         self.icecubedir = self.ICECUBEDIR_DEFAULT
 
-    def check_carry(self):
-        raise Exception('required')
-
     def run(self):
-        self.check_carry()
-
         with Timed(self, 'bit-all'):
             print('top: %s' % self.top)
             env = os.environ.copy()
@@ -619,13 +659,11 @@ class Icecube2(Toolchain):
 
 class Icecube2Synpro(Icecube2):
     '''Lattice Icecube2 using Synplify for synthesis'''
+    carries = (True,)
 
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-synpro'
-
-    def check_carry(self):
-        self.require_carry(True)
 
     def syn(self):
         return "synpro"
@@ -640,13 +678,11 @@ class Icecube2Synpro(Icecube2):
 
 class Icecube2LSE(Icecube2):
     '''Lattice Icecube2 using LSE for synthesis'''
+    carries = (True,)
 
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-lse'
-
-    def check_carry(self):
-        self.require_carry(True)
 
     def syn(self):
         return "lse"
@@ -661,13 +697,11 @@ class Icecube2LSE(Icecube2):
 
 class Icecube2Yosys(Icecube2):
     '''Lattice Icecube2 using Yosys for synthesis'''
+    carries = (True, False)
 
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-yosys'
-
-    def check_carry(self):
-        self.require_carry(True)
 
     def syn(self):
         return "yosys-synpro"
@@ -686,6 +720,10 @@ class Icecube2Yosys(Icecube2):
 # no seed support? -n just does more passes
 class Radiant(Toolchain):
     '''Lattice Radiant based toolchains'''
+    carries = None
+    # FIXME: strategy isn't being set correctly
+    # https://github.com/SymbiFlow/fpga-tool-perf/issues/14
+    strategies = ('default', 'Quick', 'Timing', 'Area')
 
     RADIANTDIR_DEFAULT = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
 
@@ -693,18 +731,9 @@ class Radiant(Toolchain):
         Toolchain.__init__(self)
         self.radiantdir = Radiant.RADIANTDIR_DEFAULT
 
-    def check_carry(self):
-        raise Exception('required')
-
     def run(self):
-        self.check_carry()
-
         # acceptable for either device
         assert (self.device, self.package) in [('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')]
-
-        # FIXME: strategy isn't being set correctly
-        # https://github.com/SymbiFlow/fpga-tool-perf/issues/14
-        # assert self.strategy in ['default', 'Quick', 'Timing', 'Area']
 
         with Timed(self, 'bit-all'):
             env = os.environ.copy()
@@ -751,12 +780,11 @@ class Radiant(Toolchain):
 
 class RadiantLSE(Radiant):
     '''Lattice Radiant using LSE for synthesis'''
+    carries = (True,)
+
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'radiant-lse'
-
-    def check_carry(self):
-        self.require_carry(True)
 
     def syn(self):
         return "lse"
@@ -764,12 +792,11 @@ class RadiantLSE(Radiant):
 
 class RadiantSynpro(Radiant):
     '''Lattice Radiant using Synplify for synthesis'''
+    carries = (True,)
+
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'radiant-synpro'
-
-    def check_carry(self):
-        self.require_carry(True)
 
     def syn(self):
         return "synplify"
@@ -778,12 +805,11 @@ class RadiantSynpro(Radiant):
 # @E: CG389 :"/home/mcmaster/.../impl/impl.v":18:4:18:7|Reference to undefined module SB_LUT4
 # didn't look into importing edif
 class RadiantYosys(Radiant):
+    carries = (True, False)
+
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'radiant-yosys'
-
-    def check_carry(self):
-        self.require_carry(False)
 
     def syn(self):
         return "yosys-synpro"
@@ -921,7 +947,7 @@ def main():
     parser.add_argument('--family', default='ice40', help='Device family')
     parser.add_argument('--device', default='hx8k', help='Device within family')
     parser.add_argument('--package', default=None, help='Device package')
-    parser.add_argument('--strategy', default='default', help='Optimization strategy')
+    parser.add_argument('--strategy', default=None, help='Optimization strategy')
     add_bool_arg(parser, '--carry', default=None, help='Force carry / no carry (default: use tool default)') 
     parser.add_argument('--toolchain', help='Tools to use', choices=get_toolchains())
     parser.add_argument('--list-toolchains', action='store_true', help='')
