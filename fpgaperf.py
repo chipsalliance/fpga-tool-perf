@@ -399,7 +399,7 @@ class VPR(Toolchain):
         self.toolchain = 'vpr'
 
     def yosys(self):
-        yscript = "synth_ice40 -top %s%s; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % (self.top, self.ycarry())
+        yscript = "synth_ice40 -vpr -top %s%s -blif my.eblif" % (self.top, self.ycarry())
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
 
     def sfad_dir(self):
