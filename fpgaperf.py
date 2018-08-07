@@ -66,6 +66,7 @@ class Toolchain:
         self.strategy = "default"
         self.seed = None
         self.pcf = None
+        self.carry = None
 
         self.family = None
         self.device = None
@@ -160,6 +161,7 @@ class Toolchain:
             'project': self.project_name,
             'optstr': self.optstr(),
             'pcf': os.path.basename(self.pcf) if self.pcf else None,
+            'carry': self.carry,
             'seed': self.seed,
 
             'toolchain': self.toolchain,
@@ -180,10 +182,10 @@ class Toolchain:
 
         # write .csv for easy import
         with open(out_dir + '/meta.csv', 'w') as csv:
-            csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+            csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
             pcf_str = os.path.basename(self.pcf) if self.pcf else ''
             seed_str = '%08X' % self.seed if self.seed else ''
-            fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, pcf_str, seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
+            fields = [self.family, self.device, self.package, self.project_name, self.toolchain, self.strategy, pcf_str, str(self.carry), seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
             fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
             csv.write(','.join(fields) + '\n')
             csv.close()
@@ -191,6 +193,10 @@ class Toolchain:
         # Provide some context when comparing runtimes against systems
         subprocess.check_call('uname -a >uname.txt', shell=True, executable='bash', cwd=self.out_dir)
         subprocess.check_call('lscpu >lscpu.txt', shell=True, executable='bash', cwd=self.out_dir)
+
+    def require_carry(self, carry):
+        self.carry = carry if self.carry is None else self.carry
+        assert self.carry is carry
 
     @staticmethod
     def seedable():
@@ -252,6 +258,8 @@ class Arachne(Toolchain):
         return self.device[2:]
 
     def run(self):
+        self.require_carry(True)
+
         with Timed(self, 'bit-all'):
             self.yosys()
 
@@ -321,6 +329,8 @@ class Nextpnr(Toolchain):
         return self.device[2:]
 
     def run(self):
+        self.require_carry(False)
+
         '''
          - Run `yosys blinky.ys` in `ice40/` to synthesise the blinky design and  produce `blinky.json`.
             $ cat blinky.ys
@@ -409,6 +419,8 @@ class VPR(Toolchain):
         return os.getenv("VPR", 'vpr')
 
     def run(self):
+        self.require_carry(False)
+
         self.sfad_build = self.sfad_build()
         if not os.path.exists(self.sfad_build):
             raise Exception("Missing VPR dir: %s" % self.sfad_build)
@@ -557,7 +569,12 @@ class Icecube2(Toolchain):
         Toolchain.__init__(self)
         self.icecubedir = self.ICECUBEDIR_DEFAULT
 
+    def check_carry(self):
+        raise Exception('required')
+
     def run(self):
+        self.check_carry()
+
         with Timed(self, 'bit-all'):
             print('top: %s' % self.top)
             env = os.environ.copy()
@@ -608,6 +625,9 @@ class Icecube2Synpro(Icecube2):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-synpro'
 
+    def check_carry(self):
+        self.require_carry(True)
+
     def syn(self):
         return "synpro"
 
@@ -626,6 +646,9 @@ class Icecube2LSE(Icecube2):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-lse'
 
+    def check_carry(self):
+        self.require_carry(True)
+
     def syn(self):
         return "lse"
 
@@ -643,6 +666,9 @@ class Icecube2Yosys(Icecube2):
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'icecube2-yosys'
+
+    def check_carry(self):
+        self.require_carry(True)
 
     def syn(self):
         return "yosys-synpro"
@@ -668,12 +694,18 @@ class Radiant(Toolchain):
         Toolchain.__init__(self)
         self.radiantdir = Radiant.RADIANTDIR_DEFAULT
 
+    def check_carry(self):
+        raise Exception('required')
+
     def run(self):
+        self.check_carry()
+
         # acceptable for either device
         assert (self.device, self.package) in [('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')]
-        # FIXME: strategy doesn't seem to actually do anything
-        # any value can be passed in, and valid values seem to get ignored
-        #assert self.strategy in ['default', 'Quick', 'Timing', 'Area']
+
+        # FIXME: strategy isn't being set correctly
+        # https://github.com/SymbiFlow/fpga-tool-perf/issues/14
+        # assert self.strategy in ['default', 'Quick', 'Timing', 'Area']
 
         with Timed(self, 'bit-all'):
             env = os.environ.copy()
@@ -724,6 +756,9 @@ class RadiantLSE(Radiant):
         Radiant.__init__(self)
         self.toolchain = 'radiant-lse'
 
+    def check_carry(self):
+        self.require_carry(True)
+
     def syn(self):
         return "lse"
 
@@ -733,6 +768,9 @@ class RadiantSynpro(Radiant):
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'radiant-synpro'
+
+    def check_carry(self):
+        self.require_carry(True)
 
     def syn(self):
         return "synplify"
@@ -744,6 +782,9 @@ class RadiantYosys(Radiant):
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'radiant-yosys'
+
+    def check_carry(self):
+        self.require_carry(False)
 
     def syn(self):
         return "yosys-synpro"
@@ -757,6 +798,7 @@ def print_stats(t):
     print('  Project: %s' % t.project_name)
     print('  Toolchain: %s' % t.toolchain)
     print('  Strategy: %s' % t.strategy)
+    print('  Carry: %s' % (t.carry,))
     if t.seed:
         print('  Seed: 0x%08X (%u)' % (t.seed, t.seed))
     else:
@@ -782,7 +824,7 @@ toolchains = {
         #'radiant': VPR,
         }
 
-def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy="default", seed=None, pcf=None):
+def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy="default", seed=None, pcf=None, carry=None):
     assert family == 'ice40'
     assert device is not None
     assert package is not None
@@ -795,6 +837,7 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     t.verbose = verbose
     t.strategy = strategy
     t.seed = seed
+    t.carry = carry
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
 
@@ -860,6 +903,12 @@ def get_project(name):
     with open(project_fn, 'r') as f:
         return json.load(f)
 
+def add_bool_arg(parser, yes_arg, default=False, **kwargs):
+    dashed = yes_arg.replace('--', '')
+    dest = dashed.replace('-', '_')
+    parser.add_argument(yes_arg, dest=dest, action='store_true', default=default, **kwargs)
+    parser.add_argument('--no-' + dashed, dest=dest, action='store_false', **kwargs)
+
 def main():
     import argparse
 
@@ -874,6 +923,7 @@ def main():
     parser.add_argument('--device', default='hx8k', help='Device within family')
     parser.add_argument('--package', default=None, help='Device package')
     parser.add_argument('--strategy', default='default', help='Optimization strategy')
+    add_bool_arg(parser, '--carry', default=None, help='Force carry / no carry (default: use tool default)') 
     parser.add_argument('--toolchain', help='Tools to use', choices=get_toolchains())
     parser.add_argument('--list-toolchains', action='store_true', help='')
     parser.add_argument('--project', help='Source code to run on', choices=get_projects())
@@ -914,7 +964,7 @@ def main():
             sys.exit(1)
 
         seed = int(args.seed, 0) if args.seed else None
-        run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, seed=seed, verbose=args.verbose, pcf=args.pcf)
+        run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, pcf=args.pcf, carry=args.carry, seed=seed, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
