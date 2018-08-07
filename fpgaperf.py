@@ -106,6 +106,12 @@ class Toolchain:
             ret += '_' + op
         return ret
 
+    def ycarry(self):
+        if self.carry:
+            return ""
+        else:
+            return " -nocarry"
+
     def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None, data=None):
         self.family = family
         self.device = device
@@ -249,7 +255,7 @@ class Arachne(Toolchain):
         self.toolchain = 'arachne'
 
     def yosys(self):
-        yscript = "synth_ice40 -top %s -blif my.blif" % self.top
+        yscript = "synth_ice40 -top %s%s -blif my.blif" % (self.top, self.ycarry())
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
 
     def device_simple(self):
@@ -258,7 +264,7 @@ class Arachne(Toolchain):
         return self.device[2:]
 
     def run(self):
-        self.require_carry(True)
+        self.carry = True if self.carry is None else self.carry
 
         with Timed(self, 'bit-all'):
             self.yosys()
@@ -320,7 +326,7 @@ class Nextpnr(Toolchain):
         self.toolchain = 'nextpnr'
 
     def yosys(self):
-        yscript = "synth_ice40 -top %s -nocarry ; write_json my.json" % self.top
+        yscript = "synth_ice40 -top %s%s ; write_json my.json" % (self.top, self.ycarry())
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
 
     def device_simple(self):
@@ -329,16 +335,8 @@ class Nextpnr(Toolchain):
         return self.device[2:]
 
     def run(self):
-        self.require_carry(False)
+        self.carry = True if self.carry is None else self.carry
 
-        '''
-         - Run `yosys blinky.ys` in `ice40/` to synthesise the blinky design and  produce `blinky.json`.
-            $ cat blinky.ys
-            read_verilog blinky.v
-            synth_ice40 -top blinky -nocarry
-            write_json blinky.json
-         - To place-and-route the blinky using nextpnr, run `./nextpnr-ice40 --hx1k --json ice40/blinky.json --pcf ice40/blinky.pcf --asc blinky.asc`
-        '''
         with Timed(self, 'bit-all'):
             self.yosys()
 
@@ -401,7 +399,7 @@ class VPR(Toolchain):
         self.toolchain = 'vpr'
 
     def yosys(self):
-        yscript = "synth_ice40 -top %s -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % self.top
+        yscript = "synth_ice40 -top %s%s; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param my.eblif" % (self.top, self.ycarry())
         self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
 
     def sfad_dir(self):
@@ -419,6 +417,7 @@ class VPR(Toolchain):
         return os.getenv("VPR", 'vpr')
 
     def run(self):
+        # as of 2018-08-06 think carry doesn't work
         self.require_carry(False)
 
         self.sfad_build = self.sfad_build()
