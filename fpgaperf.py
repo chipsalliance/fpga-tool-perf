@@ -9,6 +9,7 @@ import re
 import shutil
 import sys
 import glob
+import datetime
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -72,6 +73,8 @@ class Toolchain:
         self._strategy = None
         self._carry = None
         self.seed = None
+        self.build = None
+        self.date = datetime.datetime.utcnow()
 
         self.family = None
         self.device = None
@@ -207,6 +210,7 @@ class Toolchain:
         out_dir = self.out_dir
         resources = self.resources()
         max_freq = self.max_freq()
+        date_str = self.date.replace(microsecond=0).isoformat()
         j = {
             'design': self.design(),
             'family': self.family,
@@ -217,6 +221,8 @@ class Toolchain:
             'pcf': os.path.basename(self.pcf) if self.pcf else None,
             'carry': self.carry,
             'seed': self.seed,
+            'build': self.build,
+            'date': date_str,
 
             'toolchain': self.toolchain,
             'strategy': self.strategy,
@@ -236,11 +242,12 @@ class Toolchain:
 
         # write .csv for easy import
         with open(out_dir + '/meta.csv', 'w') as csv:
-            csv.write('Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+            nonestr = lambda x: x if x is not None else ''
+
+            csv.write('Build,Date,Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
             pcf_str = os.path.basename(self.pcf) if self.pcf else ''
             seed_str = '%08X' % self.seed if self.seed else ''
-            strategy_str = self.strategy if self.strategy else ''
-            fields = [self.family, self.device, self.package, self.project_name, self.toolchain, strategy_str, pcf_str, str(self.carry), seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
+            fields = [nonestr(self.build), date_str, self.family, self.device, self.package, self.project_name, self.toolchain, nonestr(self.strategy), pcf_str, str(self.carry), seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
             fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
             csv.write(','.join(fields) + '\n')
             csv.close()
@@ -849,7 +856,7 @@ toolchains = {
         #'radiant': VPR,
         }
 
-def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy="default", seed=None, pcf=None, carry=None):
+def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy="default", seed=None, pcf=None, carry=None, build=None):
     assert family == 'ice40'
     assert device is not None
     assert package is not None
@@ -865,6 +872,7 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     t.carry = carry
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
+    t.build = build
 
     t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix, data=project.get('data', None))
 
@@ -959,6 +967,7 @@ def main():
     parser.add_argument('--out-dir', default=None, help='Output directory')
     parser.add_argument('--out-prefix', default=None, help='Auto named directory prefix (default: build)')
     parser.add_argument('--pcf', default=None, help='')
+    parser.add_argument('--build', default=None, help='Build number')
     args = parser.parse_args()
 
     if args.list_toolchains:
@@ -989,7 +998,7 @@ def main():
             sys.exit(1)
 
         seed = int(args.seed, 0) if args.seed else None
-        run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, pcf=args.pcf, carry=args.carry, seed=seed, verbose=args.verbose)
+        run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, pcf=args.pcf, carry=args.carry, seed=seed, build=args.build, verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
