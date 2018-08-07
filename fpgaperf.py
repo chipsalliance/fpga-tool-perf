@@ -723,7 +723,7 @@ class Radiant(Toolchain):
     carries = None
     # FIXME: strategy isn't being set correctly
     # https://github.com/SymbiFlow/fpga-tool-perf/issues/14
-    strategies = ('default', 'Quick', 'Timing', 'Area')
+    strategies = ('Timing', 'Quick', 'Area')
 
     RADIANTDIR_DEFAULT = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
 

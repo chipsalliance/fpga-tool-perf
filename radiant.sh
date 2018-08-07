@@ -1,7 +1,7 @@
 syn=synpro
 #syn=lse
 PRJNAME=my
-strategy=default
+strategy=Timing
 radiantdir="${RADIANTDIR:-/opt/lscc/radiant/1.0}"
 top="${TOP:-top}"
 
