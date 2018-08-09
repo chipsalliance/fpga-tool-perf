@@ -29,7 +29,7 @@ class TestCase(unittest.TestCase):
         with open('icetime.txt', 'r') as f:
             m = fpgaperf.icetime_parse(f)
         assert 'max_freq' in m
-        assert abs(m['max_freq'] - 52.16e6) < 1.0
+        assert abs(m['max_freq'] - 132.94e6) < 1.0
 
     def test_yosys_ver(self):
         v = fpgaperf.yosys_ver()

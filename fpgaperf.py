@@ -15,6 +15,9 @@ import datetime
 root_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = root_dir + '/project'
 
+class NotAvailable:
+    pass
+
 class Timed():
     def __init__(self, t, name):
         self.t = t
@@ -484,6 +487,8 @@ class VPR(Toolchain):
         if sfad_build:
             return sfad_build
 
+        if not os.path.exists(self.sfad_dir()):
+            raise Exception("Missing SFAD dir: %s" % self.sfad_dir())
         return self.sfad_dir() + "/ice40/build/ice40-top-routing-virt-" + self.device
 
     @staticmethod
@@ -649,7 +654,10 @@ class Icecube2(Toolchain):
             env["ICECUBEDIR"] = self.icecubedir
             #env["ICEDEV"] = 'hx8k-ct256'
             env["ICEDEV"] = self.device + '-' + self.package
-            self.cmd(root_dir + "/icecubed.sh", "--syn %s --strategy %s" % (self.syn(), self.strategy), env=env)
+            args = "--syn %s" % (self.syn(),)
+            if self.strategy:
+                args += " --strategy %s" % (self.strategy,)
+            self.cmd(root_dir + "/icecubed.sh", args, env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
@@ -677,11 +685,18 @@ class Icecube2(Toolchain):
         assert 0
 
     def versions(self):
-        with open(self.out_dir + '/my.asc') as ascf:
-            return {
-                'yosys': yosys_ver(),
-                'icecube2': Icecube2.asc_ver(ascf),
-                }
+        # FIXME: see if can get from tool
+        asc_ver = None
+        try:
+            with open(self.out_dir + '/my.asc') as ascf:
+                asc_ver = Icecube2.asc_ver(ascf)
+        except FileNotFoundError:
+            pass
+                
+        return {
+            'yosys': yosys_ver(),
+            'icecube2': asc_ver,
+            }
 
 
 class Icecube2Synpro(Icecube2):
@@ -769,7 +784,10 @@ class Radiant(Toolchain):
             env["RADIANTDIR"] = self.radiantdir
             env["RADDEV"] = self.device + '-' + self.package
             syn = self.syn()
-            self.cmd(root_dir + "/radiant.sh", "--syn %s --strategy %s" % (syn, self.strategy), env=env)
+            args = "--syn %s" % (syn,)
+            if self.strategy:
+                args +=  "--strategy %s" % self.strategy
+            self.cmd(root_dir + "/radiant.sh", args, env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
