@@ -400,8 +400,8 @@ class Nextpnr(Toolchain):
 
     def yosys(self):
         self.yscript([
-            "synth_ice40 -top %s",
-            "write_json my.json" % (self.top,),
+            "synth_ice40 -top %s" % (self.top,),
+            "write_json my.json",
             ])
 
     def device_simple(self):
