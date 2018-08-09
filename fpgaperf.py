@@ -876,7 +876,7 @@ toolchains = {
         #'radiant': VPR,
         }
 
-def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy="default", seed=None, pcf=None, carry=None, build=None):
+def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy=None, seed=None, pcf=None, carry=None, build=None):
     assert family == 'ice40'
     assert device is not None
     assert package is not None
