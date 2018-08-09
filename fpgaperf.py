@@ -786,7 +786,7 @@ class Radiant(Toolchain):
             syn = self.syn()
             args = "--syn %s" % (syn,)
             if self.strategy:
-                args +=  "--strategy %s" % self.strategy
+                args +=  " --strategy %s" % self.strategy
             self.cmd(root_dir + "/radiant.sh", args, env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
