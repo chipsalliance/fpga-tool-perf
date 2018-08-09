@@ -19,8 +19,8 @@ cd $SFAD_DIR/ice40/tests/blink || cd $SFAD_DIR/tests/ice40/blink
 # hx1k (about 3 min on carbon x1)
 echo "Building hx1k XML"
 time make BOARD=icestick dist-clean rr_graph.real.xml &>icestick.txt
-# hx8k (about 15 min on carbon x1)
-echo "Building hx8k XML"
+# lp8k (about 15 min on carbon x1)
+echo "Building lp8k XML"
 time make BOARD=tinyfpga-b2 dist-clean rr_graph.real.xml &>tinyfpga-b2.txt
 
 # up5k
