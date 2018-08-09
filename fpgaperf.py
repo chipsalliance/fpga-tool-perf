@@ -194,6 +194,11 @@ class Toolchain:
     def cmd(self, cmd, argstr, env=None):
         print("Running: %s %s" % (cmd, argstr))
         self.cmds.append('%s %s' % (cmd, argstr))
+
+        # Use this to checkpoint various stages
+        # If a command fails, we'll have everything up to it
+        self.write_metadata(all=False)
+
         cmd_base = os.path.basename(cmd)
         with open("%s/%s.txt" % (self.out_dir, cmd_base), "w") as f:
             f.write("Running: %s %s\n\n" % (cmd_base, argstr))
@@ -206,10 +211,19 @@ class Toolchain:
                 cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd_base)
             subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir, env=env)
 
-    def write_metadata(self):
+    def write_metadata(self, all=True):
         out_dir = self.out_dir
-        resources = self.resources()
-        max_freq = self.max_freq()
+
+        # If an intermediate write, tolerate missing resource tally
+        try:
+            resources = self.resources()
+            max_freq = self.max_freq()
+        except FileNotFoundError:
+            if all:
+                raise
+            resources = dict([(x, None) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')])
+            max_freq = None
+
         date_str = self.date.replace(microsecond=0).isoformat()
         j = {
             'design': self.design(),
@@ -247,7 +261,9 @@ class Toolchain:
             csv.write('Build,Date,Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
             pcf_str = os.path.basename(self.pcf) if self.pcf else ''
             seed_str = '%08X' % self.seed if self.seed else ''
-            fields = [nonestr(self.build), date_str, self.family, self.device, self.package, self.project_name, self.toolchain, nonestr(self.strategy), pcf_str, str(self.carry), seed_str, '%0.1f' % (max_freq/1e6), '%0.1f' % self.runtimes['bit-all']]
+            runtime_str = '%0.1f' % self.runtimes['bit-all'] if 'bit-all' in self.runtimes else ''
+            freq_str = '%0.1f' % (max_freq/1e6) if max_freq is not None else ''
+            fields = [nonestr(self.build), date_str, self.family, self.device, self.package, self.project_name, self.toolchain, nonestr(self.strategy), pcf_str, str(self.carry), seed_str, freq_str, runtime_str]
             fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
             csv.write(','.join(fields) + '\n')
             csv.close()
@@ -277,6 +293,10 @@ def icetime_parse(f):
     return ret
 
 def icebox_stat(fn, out_dir):
+    fn_full = os.path.join(out_dir, fn)
+    if not os.path.exists(fn_full):
+        raise FileNotFoundError(fn_full)
+
     subprocess.check_call("icebox_stat %s >icebox_stat.txt" % fn, shell=True, cwd=out_dir)
     '''
     DFFs:     22
