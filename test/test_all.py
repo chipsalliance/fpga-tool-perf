@@ -13,7 +13,8 @@ def def_devpack(toolchain):
         device = 'up5k'
         package = 'uwg30'
     else:
-        # FIXME: change to hx8k, ct256
+        # tinyfpga b2
+        # XXX: change to hx8k, ct256?
         device = 'lp8k'
         package = 'cm81'
     return device, package
