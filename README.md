@@ -53,15 +53,15 @@ Ubuntu 16.04 with some testing on Debian Buster/Sid
 #### v0.0.1
 
 Versions:
-  * [arachne-pnr](https//github.com/cseed/arachne-pnr.git): git 5d830dd
-  * [fpga-tool-perf](git@github.com:SymbiFlow/fpga-tool-perf.git): git v0.0.1
+  * [arachne-pnr](https://github.com/cseed/arachne-pnr.git): git 5d830dd
+  * [fpga-tool-perf](https://github.com/SymbiFlow/fpga-tool-perf.git): git v0.0.1
   * [iCEcube2](http://www.latticesemi.com/iCEcube2): release 2017.08.27940
   * [icestorm](https://github.com/elmsfu/icestorm.git) : git 542e9ef
     * Waiting on some PRs as of this writing
-  * [nextpnr](FIXME Aug 1): git 7da64ee
+  * [nextpnr](https://github.com/YosysHQ/nextpnr.git): git 7da64ee
   * [Radiant](http://www.latticesemi.com/latticeradiant): release 1.0.0.350.6
   * [symbiflow-arch-defs](https://github.com/SymbiFlow/symbiflow-arch-defs.git): git 8232130
-  * [vpr](git@github.com:SymbiFlow/vtr-verilog-to-routing.git): git vpr-7.0.5+ice40-v0.0.0
+  * [vpr](https://github.com/SymbiFlow/vtr-verilog-to-routing.git): git vpr-7.0.5+ice40-v0.0.0
   * [yosys](https://github.com/YosysHQ/yosys.git): git e275692e
 
 ## Running
