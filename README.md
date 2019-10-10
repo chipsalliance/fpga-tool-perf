@@ -9,6 +9,7 @@ $ git submodule init
 $ git submodule update
 ```
 You'll need the following tools in your path:
+* vivado
 * yosys
 * vpr
 * arachne-pnr
@@ -70,6 +71,10 @@ Quick start example:
 ```
 $ python3 fpgaperf.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256"
 ```
+or
+```
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "a35ti" --package "csg324-1L" --pcf project/arty.xdc
+```
 
 Use --help to see all argument options:
 ```
@@ -103,6 +108,7 @@ Supported toolchains can be queried as follows:
 ```
 $ python3 fpgaperf.py  --list-toolchains
 Supported toolchains:
+vivado
 arachne
 icecube2-lse
 icecube2-synpro
