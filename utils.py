@@ -1,6 +1,6 @@
 import time
 
-class Timed():
+class Timed:
     def __init__(self, t, name):
         self.t = t
         self.name = name

@@ -11,12 +11,12 @@ import datetime
 from utils import Timed
 
 class Toolchain:
+    '''A toolchain takes in verilog files and produces a .bitstream'''
     # List of supported carry modes
     # Default to first item
     carries = None
     strategies = None
 
-    '''A toolchain takes in verilog files and produces a .bitstream'''
     def __init__(self, rootdir):
         self.rootdir = rootdir
         self.runtimes = collections.OrderedDict()
