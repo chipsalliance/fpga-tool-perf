@@ -136,6 +136,7 @@ class Vivado(Toolchain):
 class VivadoYosys(Vivado):
     '''Vivado PnR + Yosys synthesis'''
     carries = (False, False)
+
     def __init__(self, rootdir):
         Vivado.__init__(self, rootdir)
         self.synthtool = 'yosys'
