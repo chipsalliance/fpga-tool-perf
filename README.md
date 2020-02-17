@@ -76,6 +76,15 @@ or
 $ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "a35ti" --package "csg324-1L" --pcf project/arty.xdc
 ```
 
+For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
+
+```
+# Yosys -> Vivado
+$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --family "xc7" --device "z020" --package "clg400-1" --pcf project/oneblink-zybo-z7.xdc
+# Pure Vivado
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "z020" --package "clg400-1" --pcf project/oneblink-zybo-z7.xdc
+```
+
 Use --help to see all argument options:
 ```
 $ python3 fpgaperf.py --help
