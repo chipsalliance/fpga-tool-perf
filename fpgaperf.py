@@ -19,6 +19,7 @@ from utils import Timed
 from icestorm import Nextpnr
 from icestorm import Arachne
 from vivado import Vivado
+from vivado import VivadoYosys
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -466,6 +467,7 @@ def print_stats(t):
 
 toolchains = {
         'vivado' : Vivado,
+        'vivado-yosys' : VivadoYosys,
         'arachne': Arachne,
         'vpr': VPR,
         'nextpnr': Nextpnr,

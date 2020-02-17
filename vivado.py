@@ -21,6 +21,7 @@ class Vivado(Toolchain):
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
         self.toolchain = 'vivado'
+        self.synthtool = 'vivado'
         self.files = []
         self.edam = None
         self.backend = None
@@ -39,7 +40,10 @@ class Vivado(Toolchain):
                 'files' : self.files,
                 'name' : self.project_name,
                 'toplevel' : self.top,
-                'tool_options' : {'vivado' : {'part' : chip}}
+                'tool_options' : {'vivado' :
+                    {'part' : chip,
+                     'synth': self.synthtool,
+                    }}
             }
 
             self.backend = edalize.get_edatool('vivado')(edam=self.edam, work_root=self.out_dir)
@@ -60,9 +64,8 @@ class Vivado(Toolchain):
         # FIXME: this should be read from timing report
         return 0.0
 
-    def vivado_resources(self):
-        report_path = self.out_dir + "/" + self.project_name + ".runs/impl_1/top_utilization_placed.rpt"
-        with open(report_path, 'r') as fp:
+    def vivado_resources(self, report_file):
+        with open(report_file, 'r') as fp:
             report_data = fp.read()
             report_data = report_data.split('\n\n')
             report = dict()
@@ -85,7 +88,7 @@ class Vivado(Toolchain):
 
         return report
 
-    def resources(self):
+    def resources(self, report_file=None):
         lut = 0
         dff = 0
         carry = 0
@@ -93,7 +96,10 @@ class Vivado(Toolchain):
         pll = 0
         bram = 0
 
-        report = self.vivado_resources()
+        if report_file is None:
+            report_file = self.out_dir + "/" + self.project_name + ".runs/impl_1/top_utilization_placed.rpt"
+
+        report = self.vivado_resources(report_file)
 
         for prim in report['primitives']:
             if prim[2] == 'Flop & Latch':
@@ -127,3 +133,25 @@ class Vivado(Toolchain):
     def versions(self):
         return self.backend.get_version()
 
+class VivadoYosys(Vivado):
+    '''Vivado PnR + Yosys synthesis'''
+    carries = (False, False)
+    def __init__(self, rootdir):
+        Vivado.__init__(self, rootdir)
+        self.synthtool = 'yosys'
+        self.toolchain = 'yosys-vivado'
+
+    @staticmethod
+    def yosys_ver():
+        # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
+        return subprocess.check_output("yosys -V", shell=True, universal_newlines=True).strip()
+
+    def resources(self):
+        report_file = self.out_dir + "/top_utilization_placed.rpt"
+        return super(VivadoYosys, self).resources(report_file)
+
+    def versions(self):
+        return {
+                'yosys' : self.yosys_ver(),
+                'vivado': super(VivadoYosys, self).versions()
+               }
