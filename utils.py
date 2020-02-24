@@ -1,5 +1,6 @@
 import time
 
+
 class Timed:
     def __init__(self, t, name):
         self.t = t
@@ -12,5 +13,3 @@ class Timed:
     def __exit__(self, type, value, traceback):
         end = time.time()
         self.t.add_runtime(self.name, end - self.start)
-
-

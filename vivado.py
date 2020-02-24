@@ -14,6 +14,7 @@ import edalize
 from toolchain import Toolchain
 from utils import Timed
 
+
 class Vivado(Toolchain):
     '''Vivado toolchain (synth and PnR)'''
     carries = (False, False)
@@ -28,25 +29,40 @@ class Vivado(Toolchain):
 
     def run(self):
         with Timed(self, 'bitstream'):
-            os.makedirs(self.out_dir, exist_ok = True)
+            os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:
-                self.files.append({'name' : os.path.realpath(f), 'file_type': 'verilogSource'})
+                self.files.append(
+                    {
+                        'name': os.path.realpath(f),
+                        'file_type': 'verilogSource'
+                    }
+                )
 
-            self.files.append({'name' : os.path.realpath(self.pcf), 'file_type': 'xdc'})
+            self.files.append(
+                {
+                    'name': os.path.realpath(self.pcf),
+                    'file_type': 'xdc'
+                }
+            )
 
             chip = self.family + self.device + self.package
 
             self.edam = {
-                'files' : self.files,
-                'name' : self.project_name,
-                'toplevel' : self.top,
-                'tool_options' : {'vivado' :
-                    {'part' : chip,
-                     'synth': self.synthtool,
-                    }}
+                'files': self.files,
+                'name': self.project_name,
+                'toplevel': self.top,
+                'tool_options':
+                    {
+                        'vivado': {
+                            'part': chip,
+                            'synth': self.synthtool,
+                        }
+                    }
             }
 
-            self.backend = edalize.get_edatool('vivado')(edam=self.edam, work_root=self.out_dir)
+            self.backend = edalize.get_edatool('vivado')(
+                edam=self.edam, work_root=self.out_dir
+            )
             self.backend.configure("")
             self.backend.build()
 
@@ -58,7 +74,7 @@ class Vivado(Toolchain):
     def check_env():
         return {
             'vivado': have_exec('vivado'),
-            }
+        }
 
     def max_freq(self):
         # FIXME: this should be read from timing report
@@ -79,12 +95,18 @@ class Vivado(Toolchain):
                 if d.startswith('+--'):
                     if section is not None:
                         # cleanup the table
-                        d = re.sub(r'\+-.*-\+\n','', d)
-                        d = re.sub(r'\+-.*-\+$','', d)
-                        d = re.sub(r'^\|\s+','', d, flags=re.M)
-                        d = re.sub(r'\s\|\n','\n', d)
+                        d = re.sub(r'\+-.*-\+\n', '', d)
+                        d = re.sub(r'\+-.*-\+$', '', d)
+                        d = re.sub(r'^\|\s+', '', d, flags=re.M)
+                        d = re.sub(r'\s\|\n', '\n', d)
 
-                        report[section.lower()] = asciitable.read(d, delimiter='|', guess=False, comment=r'(\+.*)|(\*.*)', numpy=False)
+                        report[section.lower()] = asciitable.read(
+                            d,
+                            delimiter='|',
+                            guess=False,
+                            comment=r'(\+.*)|(\*.*)',
+                            numpy=False
+                        )
 
         return report
 
@@ -120,18 +142,19 @@ class Vivado(Toolchain):
                 bram += prim[1]
 
         ret = {
-            "LUT" : str(lut),
-            "DFF" : str(dff),
-            "BRAM" : str(bram),
-            "CARRY" : str(carry),
-            "GLB" : "unsupported",
-            "PLL" : str(pll),
-            "IOB" : str(iob),
-            }
+            "LUT": str(lut),
+            "DFF": str(dff),
+            "BRAM": str(bram),
+            "CARRY": str(carry),
+            "GLB": "unsupported",
+            "PLL": str(pll),
+            "IOB": str(iob),
+        }
         return ret
 
     def versions(self):
         return self.backend.get_version()
+
 
 class VivadoYosys(Vivado):
     '''Vivado PnR + Yosys synthesis'''
@@ -145,7 +168,9 @@ class VivadoYosys(Vivado):
     @staticmethod
     def yosys_ver():
         # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
-        return subprocess.check_output("yosys -V", shell=True, universal_newlines=True).strip()
+        return subprocess.check_output(
+            "yosys -V", shell=True, universal_newlines=True
+        ).strip()
 
     def resources(self):
         report_file = self.out_dir + "/top_utilization_placed.rpt"
@@ -153,6 +178,6 @@ class VivadoYosys(Vivado):
 
     def versions(self):
         return {
-                'yosys' : self.yosys_ver(),
-                'vivado': super(VivadoYosys, self).versions()
-               }
+            'yosys': self.yosys_ver(),
+            'vivado': super(VivadoYosys, self).versions()
+        }
