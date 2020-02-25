@@ -7,3 +7,6 @@ vpr_stdout.log
 # verilog parser
 parser.out
 parsetab.py
+__pycache__
+*.py[cod]
+*$py.class

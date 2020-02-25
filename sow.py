@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 def run(fin, fout, verbose=False):
     row = fin.readline().strip()
     seedpos = row.split(',').index('Seed')
@@ -32,17 +33,17 @@ def run(fin, fout, verbose=False):
             maxstate.append(max([v[i] for v in vs]))
         lines_out.append(list(k) + ['min'] + minstate)
         lines_out.append(list(k) + ['max'] + maxstate)
-    
+
     print('%u lines in => %u lines out' % (nlines, len(lines_out)))
     for l in sorted(lines_out):
         fout.write(','.join(l) + '\n')
+
 
 def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description=
-        'Process multiple .csv seed rows into min/max rows'
+        description='Process multiple .csv seed rows into min/max rows'
     )
 
     parser.add_argument('--verbose', action='store_true', help='')
@@ -51,6 +52,7 @@ def main():
     args = parser.parse_args()
 
     run(open(args.fn_in, 'r'), open(args.fn_out, 'w'), verbose=args.verbose)
+
 
 if __name__ == '__main__':
     main()

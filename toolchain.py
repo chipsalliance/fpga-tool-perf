@@ -10,6 +10,7 @@ import glob
 import datetime
 from utils import Timed
 
+
 class Toolchain:
     '''A toolchain takes in verilog files and produces a .bitstream'''
     # List of supported carry modes
@@ -47,6 +48,7 @@ class Toolchain:
 
     def optstr(self):
         ret = ''
+
         def add(s):
             nonlocal ret
 
@@ -59,11 +61,11 @@ class Toolchain:
             add('pcf')
         # omit carry if not explicitly given?
         if self.carry is not None:
-            add('carry-%c' % ('y' if self.carry else 'n',))
+            add('carry-%c' % ('y' if self.carry else 'n', ))
         if self.strategy:
             add(self.strategy)
         if self.seed:
-            add('seed-%08X' % (self.seed,))
+            add('seed-%08X' % (self.seed, ))
         return ret
 
     def add_runtime(self, name, dt):
@@ -82,7 +84,9 @@ class Toolchain:
 
     @carry.setter
     def carry(self, value):
-        assert value is None or value in self.carries, 'Carry modes supported: %s, got: %s' % (self.carries, value)
+        assert value is None or value in self.carries, 'Carry modes supported: %s, got: %s' % (
+            self.carries, value
+        )
         self._carry = value
 
     def ycarry(self):
@@ -115,12 +119,27 @@ class Toolchain:
     @strategy.setter
     def strategy(self, value):
         if self.strategies is None:
-            assert value is None, "Strategies not supported, got %s" % (value,)
+            assert value is None, "Strategies not supported, got %s" % (
+                value,
+            )
         else:
-            assert value is None or value in self.strategies, 'Strategies supported: %s, got: %s' % (self.strategies, value)
+            assert value is None or value in self.strategies, 'Strategies supported: %s, got: %s' % (
+                self.strategies, value
+            )
         self._strategy = value
 
-    def project(self, name, family, device, package, srcs, top, out_dir=None, out_prefix=None, data=None):
+    def project(
+        self,
+        name,
+        family,
+        device,
+        package,
+        srcs,
+        top,
+        out_dir=None,
+        out_prefix=None,
+        data=None
+    ):
         self.family = family
         self.device = device
         self.package = package
@@ -161,12 +180,20 @@ class Toolchain:
             f.write("Running: %s %s\n\n" % (cmd_base, argstr))
         with Timed(self, cmd_base):
             if self.verbose:
-                cmdstr = "(%s %s) |&tee -a %s.txt; (exit $PIPESTATUS )" % (cmd, argstr, cmd)
+                cmdstr = "(%s %s) |&tee -a %s.txt; (exit $PIPESTATUS )" % (
+                    cmd, argstr, cmd
+                )
                 print("Running: %s" % cmdstr)
                 print("  cwd: %s" % self.out_dir)
             else:
                 cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd_base)
-            subprocess.check_call(cmdstr, shell=True, executable='bash', cwd=self.out_dir, env=env)
+            subprocess.check_call(
+                cmdstr,
+                shell=True,
+                executable='bash',
+                cwd=self.out_dir,
+                env=env
+            )
 
     def write_metadata(self, all=True):
         out_dir = self.out_dir
@@ -178,7 +205,12 @@ class Toolchain:
         except FileNotFoundError:
             if all:
                 raise
-            resources = dict([(x, None) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')])
+            resources = dict(
+                [
+                    (x, None) for x in
+                    ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
+                ]
+            )
             max_freq = None
 
         date_str = self.date.replace(microsecond=0).isoformat()
@@ -194,20 +226,18 @@ class Toolchain:
             'seed': self.seed,
             'build': self.build,
             'date': date_str,
-
             'toolchain': self.toolchain,
             'strategy': self.strategy,
 
             # canonicalize
             'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
             'top': self.top,
-
             "runtime": self.runtimes,
             "max_freq": max_freq,
             "resources": resources,
             "verions": self.versions(),
             "cmds": self.cmds,
-            }
+        }
         with open(out_dir + '/meta.json', 'w') as f:
             json.dump(j, f, sort_keys=True, indent=4)
 
@@ -215,19 +245,42 @@ class Toolchain:
         with open(out_dir + '/meta.csv', 'w') as csv:
             nonestr = lambda x: x if x is not None else ''
 
-            csv.write('Build,Date,Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n')
+            csv.write(
+                'Build,Date,Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n'
+            )
             pcf_str = os.path.basename(self.pcf) if self.pcf else ''
             seed_str = '%08X' % self.seed if self.seed else ''
-            runtime_str = '%0.1f' % self.runtimes['bit-all'] if 'bit-all' in self.runtimes else ''
-            freq_str = '%0.1f' % (max_freq/1e6) if max_freq is not None else ''
-            fields = [nonestr(self.build), date_str, self.family, self.device, self.package, self.project_name, self.toolchain, nonestr(self.strategy), pcf_str, str(self.carry), seed_str, freq_str, runtime_str]
-            fields += [str(resources[x]) for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')]
+            runtime_str = '%0.1f' % self.runtimes[
+                'bit-all'] if 'bit-all' in self.runtimes else ''
+            freq_str = '%0.1f' % (
+                max_freq / 1e6
+            ) if max_freq is not None else ''
+            fields = [
+                nonestr(self.build), date_str, self.family, self.device,
+                self.package, self.project_name, self.toolchain,
+                nonestr(self.strategy), pcf_str,
+                str(self.carry), seed_str, freq_str, runtime_str
+            ]
+            fields += [
+                str(resources[x])
+                for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
+            ]
             csv.write(','.join(fields) + '\n')
             csv.close()
 
         # Provide some context when comparing runtimes against systems
-        subprocess.check_call('uname -a >uname.txt', shell=True, executable='bash', cwd=self.out_dir)
-        subprocess.check_call('lscpu >lscpu.txt', shell=True, executable='bash', cwd=self.out_dir)
+        subprocess.check_call(
+            'uname -a >uname.txt',
+            shell=True,
+            executable='bash',
+            cwd=self.out_dir
+        )
+        subprocess.check_call(
+            'lscpu >lscpu.txt',
+            shell=True,
+            executable='bash',
+            cwd=self.out_dir
+        )
 
     @staticmethod
     def seedable():

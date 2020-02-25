@@ -14,8 +14,8 @@ import edalize
 from toolchain import Toolchain
 from utils import Timed
 
-class Icestorm(Toolchain):
 
+class Icestorm(Toolchain):
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
         self.files = []
@@ -23,11 +23,15 @@ class Icestorm(Toolchain):
         self.backend = None
 
     def resources(self):
-        return self.icebox_stat(self.backend, self.out_dir + "/" + self.project_name + ".stat")
+        return self.icebox_stat(
+            self.backend, self.out_dir + "/" + self.project_name + ".stat"
+        )
 
     def yosys_ver(self):
         # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
-        return subprocess.check_output("yosys -V", shell=True, universal_newlines=True).strip()
+        return subprocess.check_output(
+            "yosys -V", shell=True, universal_newlines=True
+        ).strip()
 
     def device_simple(self):
         # hx8k => 8k
@@ -58,8 +62,7 @@ class Icestorm(Toolchain):
         return ret
 
     def icetime_parse(self, f):
-        ret = {
-            }
+        ret = {}
         for l in f:
             # Total path delay: 8.05 ns (124.28 MHz)
             m = re.match(r'Total path delay: .*s \((.*) (.*)\)', l)
@@ -74,29 +77,46 @@ class Icestorm(Toolchain):
 
     def run(self, pnr, args):
         with Timed(self, 'bit-all'):
-            os.makedirs(self.out_dir, exist_ok = True)
+            os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:
-                self.files.append({'name' : os.path.realpath(f), 'file_type': 'verilogSource'})
+                self.files.append(
+                    {
+                        'name': os.path.realpath(f),
+                        'file_type': 'verilogSource'
+                    }
+                )
 
             if self.pcf is not None:
-                self.files.append({'name' : os.path.realpath(self.pcf), 'file_type': 'PCF'})
-
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.pcf),
+                        'file_type': 'PCF'
+                    }
+                )
 
             self.edam = {
-                    'files' : self.files,
-                    'name' : self.project_name,
-                    'toplevel' : self.top,
-                    'tool_options' : {'icestorm' : {'nextpnr_options': args.split(),
-                                                    'arachne_pnr_options': args.split(),
-                                                    'pnr' : pnr,
-                                                    'part' : self.device}
-                                     }
+                'files': self.files,
+                'name': self.project_name,
+                'toplevel': self.top,
+                'tool_options':
+                    {
+                        'icestorm':
+                            {
+                                'nextpnr_options': args.split(),
+                                'arachne_pnr_options': args.split(),
+                                'pnr': pnr,
+                                'part': self.device
+                            }
                     }
+            }
 
-            self.backend = edalize.get_edatool('icestorm')(edam=self.edam, work_root=self.out_dir)
+            self.backend = edalize.get_edatool('icestorm')(
+                edam=self.edam, work_root=self.out_dir
+            )
             self.backend.configure("")
             self.backend.build()
             self.backend.build_main('timing')
+
 
 class Nextpnr(Icestorm):
     '''Nextpnr PnR + Yosys synthesis'''
@@ -111,7 +131,7 @@ class Nextpnr(Icestorm):
         args += " --" + self.device
         args += " --package " + self.package
         if self.seed:
-            args += " --seed %u" % (self.seed,)
+            args += " --seed %u" % (self.seed, )
 
         if self.pcf is None:
             args += ' --pcf-allow-unconstrained'
@@ -125,13 +145,15 @@ class Nextpnr(Icestorm):
         $ echo $?
         1
         '''
-        return subprocess.check_output("nextpnr-ice40 -V || true", shell=True, universal_newlines=True).strip()
+        return subprocess.check_output(
+            "nextpnr-ice40 -V || true", shell=True, universal_newlines=True
+        ).strip()
 
     def versions(self):
         return {
             'yosys': self.yosys_ver(),
             'nextpnr-ice40': self.nextpnr_version(),
-            }
+        }
 
     @staticmethod
     def seedable():
@@ -140,11 +162,12 @@ class Nextpnr(Icestorm):
     @staticmethod
     def check_env():
         return {
-            'yosys':            have_exec('yosys'),
-            'nextpnr-ice40':    have_exec('nextpnr-ice40'),
-            'icepack':          have_exec('icepack'),
-            'icetime':          have_exec('icetime'),
-            }
+            'yosys': have_exec('yosys'),
+            'nextpnr-ice40': have_exec('nextpnr-ice40'),
+            'icepack': have_exec('icepack'),
+            'icetime': have_exec('icetime'),
+        }
+
 
 class Arachne(Icestorm):
     '''Arachne PnR + Yosys synthesis'''
@@ -170,13 +193,15 @@ class Arachne(Icestorm):
         $ arachne-pnr -v
         arachne-pnr 0.1+203+0 (git sha1 7e135ed, g++ 4.8.4-2ubuntu1~14.04.3 -O2)
         '''
-        return subprocess.check_output("arachne-pnr -v", shell=True, universal_newlines=True).strip()
+        return subprocess.check_output(
+            "arachne-pnr -v", shell=True, universal_newlines=True
+        ).strip()
 
     def versions(self):
         return {
             'yosys': self.yosys_ver(),
             'arachne': self.arachne_version(),
-            }
+        }
 
     @staticmethod
     def seedable():
@@ -185,9 +210,8 @@ class Arachne(Icestorm):
     @staticmethod
     def check_env():
         return {
-            'yosys':        have_exec('yosys'),
-            'arachne-pnr':  have_exec('arachne-pnr'),
-            'icepack':      have_exec('icepack'),
-            'icetime':      have_exec('icetime'),
-            }
-
+            'yosys': have_exec('yosys'),
+            'arachne-pnr': have_exec('arachne-pnr'),
+            'icepack': have_exec('icepack'),
+            'icetime': have_exec('icetime'),
+        }

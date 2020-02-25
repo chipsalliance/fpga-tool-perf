@@ -8,6 +8,7 @@ import fpgaperf
 import re
 import random
 
+
 def def_devpack(toolchain):
     if 'radiant' in toolchain:
         device = 'up5k'
@@ -18,6 +19,7 @@ def def_devpack(toolchain):
         device = 'lp8k'
         package = 'cm81'
     return device, package
+
 
 class TestCase(unittest.TestCase):
     def setUp(self):
@@ -58,7 +60,14 @@ class TestCase(unittest.TestCase):
         '''Try each toolchain'''
         for toolchain in fpgaperf.toolchains.keys():
             device, package = def_devpack(toolchain)
-            fpgaperf.run(family='ice40', device=device, package=package, toolchain=toolchain, project=fpgaperf.get_project('oneblink'), verbose=self.verbose)
+            fpgaperf.run(
+                family='ice40',
+                device=device,
+                package=package,
+                toolchain=toolchain,
+                project=fpgaperf.get_project('oneblink'),
+                verbose=self.verbose
+            )
 
     def test_pcf(self):
         '''Try each toolchain with a pcf'''
@@ -68,7 +77,15 @@ class TestCase(unittest.TestCase):
                 pcf = fpgaperf.root_dir + '/project/FIXME.pcf'
             else:
                 pcf = fpgaperf.root_dir + '/project/oneblink_lp8k-cm81.pcf'
-            fpgaperf.run(family='ice40', device=device, package=package, toolchain=toolchain, project=fpgaperf.get_project('oneblink'), pcf=pcf, verbose=self.verbose)
+            fpgaperf.run(
+                family='ice40',
+                device=device,
+                package=package,
+                toolchain=toolchain,
+                project=fpgaperf.get_project('oneblink'),
+                pcf=pcf,
+                verbose=self.verbose
+            )
 
     def test_seed(self):
         '''Try seeding, where possible'''
@@ -76,7 +93,16 @@ class TestCase(unittest.TestCase):
         for toolchain in fpgaperf.get_seedable():
             seed = random.randint(1, 0x7FFFFFFF)
             device, package = def_devpack(toolchain)
-            fpgaperf.run(family='ice40', device=device, package=package, toolchain=toolchain, project=fpgaperf.get_project('oneblink'), seed=seed, verbose=self.verbose)
+            fpgaperf.run(
+                family='ice40',
+                device=device,
+                package=package,
+                toolchain=toolchain,
+                project=fpgaperf.get_project('oneblink'),
+                seed=seed,
+                verbose=self.verbose
+            )
+
 
 if __name__ == '__main__':
     unittest.main()

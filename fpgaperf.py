@@ -25,8 +25,10 @@ from vivado import VivadoYosys
 root_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = root_dir + '/project'
 
+
 class NotAvailable:
     pass
+
 
 # https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 def which(program):
@@ -45,26 +47,30 @@ def which(program):
 
     return None
 
+
 def have_exec(mybin):
     return which(mybin) != None
 
-# couldn't get icestorm version
-# filed https://github.com/cliffordwolf/icestorm/issues/163
 
 class VPR(Toolchain):
     '''VPR using Yosys for synthesis'''
     # as of 2018-08-06 think carry doesn't work
-    carries = (False,)
+    carries = (False, )
 
     def __init__(self):
         Toolchain.__init__(self)
         self.toolchain = 'vpr'
 
     def yosys(self):
-        self.yscript(["synth_ice40 -vpr -top %s -blif my.eblif" % (self.top,)])
+        self.yscript(
+            ["synth_ice40 -vpr -top %s -blif my.eblif" % (self.top, )]
+        )
 
     def sfad_dir(self):
-        return os.getenv("SFAD_DIR", os.getenv("HOME") + "/symbiflow-arch-defs")
+        return os.getenv(
+            "SFAD_DIR",
+            os.getenv("HOME") + "/symbiflow-arch-defs"
+        )
 
     def sfad_build(self):
         sfad_build = os.getenv("SFAD_BUILD", None)
@@ -73,7 +79,8 @@ class VPR(Toolchain):
 
         if not os.path.exists(self.sfad_dir()):
             raise Exception("Missing SFAD dir: %s" % self.sfad_dir())
-        return self.sfad_dir() + "/ice40/build/ice40-top-routing-virt-" + self.device
+        return self.sfad_dir(
+        ) + "/ice40/build/ice40-top-routing-virt-" + self.device
 
     @staticmethod
     def vpr_bin():
@@ -102,9 +109,16 @@ class VPR(Toolchain):
             if self.pcf:
                 #io_place_file = self.out_dir + '/io.place'
                 #create_ioplace = 'python3 ' + self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
-                create_ioplace = self.sfad_dir() + '/ice40/utils/ice40_create_ioplace.py'
-                map_file = self.sfad_dir() + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (self.device, self.package)
-                self.cmd(create_ioplace, '--pcf %s --blif %s --map %s --output %s' % (self.pcf, "my.eblif", map_file, 'io.place'))
+                create_ioplace = self.sfad_dir(
+                ) + '/ice40/utils/ice40_create_ioplace.py'
+                map_file = self.sfad_dir(
+                ) + '/ice40/devices/layouts/icebox/%s.%s.pinmap.csv' % (
+                    self.device, self.package
+                )
+                self.cmd(
+                    create_ioplace, '--pcf %s --blif %s --map %s --output %s' %
+                    (self.pcf, "my.eblif", map_file, 'io.place')
+                )
                 optstr += ' --fix_pins io.place'
             if self.seed:
                 optstr += ' --seed %d' % self.seed
@@ -114,7 +128,7 @@ class VPR(Toolchain):
             for phase_args in (" --pack --place", " --route"):
                 self.cmd(self.vpr_bin(), optstr + phase_args)
 
-            self.cmd("icebox_hlc2asc", "%s.hlc > my.asc" % (self.top,))
+            self.cmd("icebox_hlc2asc", "%s.hlc > my.asc" % (self.top, ))
             self.cmd("icepack", "my.asc my.bin")
 
         self.cmd("icetime", "-tmd " + self.device + " my.asc")
@@ -184,7 +198,9 @@ class VPR(Toolchain):
         vtr-users@googlegroups.com
         This is free open source code under MIT license.
         '''
-        out = subprocess.check_output("vpr --version", shell=True, universal_newlines=True).strip()
+        out = subprocess.check_output(
+            "vpr --version", shell=True, universal_newlines=True
+        ).strip()
         version = None
         revision = None
         for l in out.split('\n'):
@@ -201,7 +217,7 @@ class VPR(Toolchain):
         return {
             'yosys': yosys_ver(),
             'vpr': VPR.vpr_version(),
-            }
+        }
 
     @staticmethod
     def seedable():
@@ -210,12 +226,12 @@ class VPR(Toolchain):
     @staticmethod
     def check_env():
         return {
-            'yosys':            have_exec('yosys'),
-            'vpr':              have_exec(VPR.vpr_bin()),
-            'icebox_hlc2asc':   have_exec('icebox_hlc2asc'),
-            'icepack':          have_exec('icepack'),
-            'icetime':          have_exec('icetime'),
-            }
+            'yosys': have_exec('yosys'),
+            'vpr': have_exec(VPR.vpr_bin()),
+            'icebox_hlc2asc': have_exec('icebox_hlc2asc'),
+            'icepack': have_exec('icepack'),
+            'icetime': have_exec('icetime'),
+        }
 
 
 # no seed support?
@@ -238,14 +254,14 @@ class Icecube2(Toolchain):
             env["ICECUBEDIR"] = self.icecubedir
             #env["ICEDEV"] = 'hx8k-ct256'
             env["ICEDEV"] = self.device + '-' + self.package
-            args = "--syn %s" % (self.syn(),)
+            args = "--syn %s" % (self.syn(), )
             if self.strategy:
-                args += " --strategy %s" % (self.strategy,)
+                args += " --strategy %s" % (self.strategy, )
             self.cmd(root_dir + "/icecubed.sh", args, env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
 
-        self.cmd("icetime", "-tmd %s my.asc" % (self.device,))
+        self.cmd("icetime", "-tmd %s my.asc" % (self.device, ))
 
     def max_freq(self):
         with open(self.out_dir + '/icetime.txt') as f:
@@ -276,16 +292,16 @@ class Icecube2(Toolchain):
                 asc_ver = Icecube2.asc_ver(ascf)
         except FileNotFoundError:
             pass
-                
+
         return {
             'yosys': yosys_ver(),
             'icecube2': asc_ver,
-            }
+        }
 
 
 class Icecube2Synpro(Icecube2):
     '''Lattice Icecube2 using Synplify for synthesis'''
-    carries = (True,)
+    carries = (True, )
 
     def __init__(self):
         Icecube2.__init__(self)
@@ -297,14 +313,14 @@ class Icecube2Synpro(Icecube2):
     @staticmethod
     def check_env():
         return {
-            'ICECUBEDIR':       os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
-            'icetime':          have_exec('icetime'),
-            }
+            'ICECUBEDIR': os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
+            'icetime': have_exec('icetime'),
+        }
 
 
 class Icecube2LSE(Icecube2):
     '''Lattice Icecube2 using LSE for synthesis'''
-    carries = (True,)
+    carries = (True, )
 
     def __init__(self):
         Icecube2.__init__(self)
@@ -316,9 +332,9 @@ class Icecube2LSE(Icecube2):
     @staticmethod
     def check_env():
         return {
-            'ICECUBEDIR':       os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
-            'icetime':          have_exec('icetime'),
-            }
+            'ICECUBEDIR': os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
+            'icetime': have_exec('icetime'),
+        }
 
 
 class Icecube2Yosys(Icecube2):
@@ -335,10 +351,10 @@ class Icecube2Yosys(Icecube2):
     @staticmethod
     def check_env():
         return {
-            'yosys':            have_exec('yosys'),
-            'ICECUBEDIR':       os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
-            'icetime':          have_exec('icetime'),
-            }
+            'yosys': have_exec('yosys'),
+            'ICECUBEDIR': os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
+            'icetime': have_exec('icetime'),
+        }
 
 
 # .asc version field just says "DiamondNG"
@@ -359,7 +375,9 @@ class Radiant(Toolchain):
 
     def run(self):
         # acceptable for either device
-        assert (self.device, self.package) in [('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')]
+        assert (self.device, self.package) in [
+            ('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')
+        ]
 
         with Timed(self, 'bit-all'):
             env = os.environ.copy()
@@ -368,9 +386,9 @@ class Radiant(Toolchain):
             env["RADIANTDIR"] = self.radiantdir
             env["RADDEV"] = self.device + '-' + self.package
             syn = self.syn()
-            args = "--syn %s" % (syn,)
+            args = "--syn %s" % (syn, )
             if self.strategy:
-                args +=  " --strategy %s" % self.strategy
+                args += " --strategy %s" % self.strategy
             self.cmd(root_dir + "/radiant.sh", args, env=env)
 
             self.cmd("iceunpack", "my.bin my.asc")
@@ -396,20 +414,20 @@ class Radiant(Toolchain):
         return {
             'yosys': yosys_ver(),
             'radiant': self.radiant_ver(),
-            }
+        }
 
     @staticmethod
     def check_env():
         return {
-            'RADIANTDIR':       os.path.exists(Radiant.RADIANTDIR_DEFAULT),
-            'iceunpack':        have_exec('iceunpack'),
-            'icetime':          have_exec('icetime'),
-            }
+            'RADIANTDIR': os.path.exists(Radiant.RADIANTDIR_DEFAULT),
+            'iceunpack': have_exec('iceunpack'),
+            'icetime': have_exec('icetime'),
+        }
 
 
 class RadiantLSE(Radiant):
     '''Lattice Radiant using LSE for synthesis'''
-    carries = (True,)
+    carries = (True, )
 
     def __init__(self):
         Radiant.__init__(self)
@@ -421,7 +439,7 @@ class RadiantLSE(Radiant):
 
 class RadiantSynpro(Radiant):
     '''Lattice Radiant using Synplify for synthesis'''
-    carries = (True,)
+    carries = (True, )
 
     def __init__(self):
         Radiant.__init__(self)
@@ -452,7 +470,7 @@ def print_stats(t):
     print('  Project: %s' % t.project_name)
     print('  Toolchain: %s' % t.toolchain)
     print('  Strategy: %s' % t.strategy)
-    print('  Carry: %s' % (t.carry,))
+    print('  Carry: %s' % (t.carry, ))
     if t.seed:
         print('  Seed: 0x%08X (%u)' % (t.seed, t.seed))
     else:
@@ -460,27 +478,43 @@ def print_stats(t):
     print('Timing:')
     for k, v in t.runtimes.items():
         print('  % -16s %0.3f' % (k + ':', v))
-    print('Max frequency: %0.3f MHz' % (t.max_freq() / 1e6,))
+    print('Max frequency: %0.3f MHz' % (t.max_freq() / 1e6, ))
     print('Resource utilization')
     for k, v in sorted(t.resources().items()):
         print('  %- 20s %s' % (k + ':', v))
 
-toolchains = {
-        'vivado' : Vivado,
-        'vivado-yosys' : VivadoYosys,
-        'arachne': Arachne,
-        'vpr': VPR,
-        'nextpnr': Nextpnr,
-        'icecube2-synpro':  Icecube2Synpro,
-        'icecube2-lse':     Icecube2LSE,
-        'icecube2-yosys':   Icecube2Yosys,
-        'radiant-synpro':   RadiantSynpro,
-        'radiant-lse':      RadiantLSE,
-        #'radiant-yosys':    RadiantYosys,
-        #'radiant': VPR,
-        }
 
-def run(family, device, package, toolchain, project, out_dir=None, out_prefix=None, verbose=False, strategy=None, seed=None, pcf=None, carry=None, build=None):
+toolchains = {
+    'vivado': Vivado,
+    'vivado-yosys': VivadoYosys,
+    'arachne': Arachne,
+    'vpr': VPR,
+    'nextpnr': Nextpnr,
+    'icecube2-synpro': Icecube2Synpro,
+    'icecube2-lse': Icecube2LSE,
+    'icecube2-yosys': Icecube2Yosys,
+    'radiant-synpro': RadiantSynpro,
+    'radiant-lse': RadiantLSE,
+    #'radiant-yosys':    RadiantYosys,
+    #'radiant': VPR,
+}
+
+
+def run(
+    family,
+    device,
+    package,
+    toolchain,
+    project,
+    out_dir=None,
+    out_prefix=None,
+    verbose=False,
+    strategy=None,
+    seed=None,
+    pcf=None,
+    carry=None,
+    build=None
+):
     assert family == 'ice40' or family == 'xc7'
     assert device is not None
     assert package is not None
@@ -498,29 +532,49 @@ def run(family, device, package, toolchain, project, out_dir=None, out_prefix=No
     t.pcf = os.path.realpath(pcf) if pcf else None
     t.build = build
 
-    t.project(project['name'], family, device, package, project['srcs'], project['top'], out_dir=out_dir, out_prefix=out_prefix, data=project.get('data', None))
+    t.project(
+        project['name'],
+        family,
+        device,
+        package,
+        project['srcs'],
+        project['top'],
+        out_dir=out_dir,
+        out_prefix=out_prefix,
+        data=project.get('data', None)
+    )
 
     t.run()
     print_stats(t)
     t.write_metadata()
 
+
 def get_toolchains():
     '''Query all supported toolchains'''
     return sorted(toolchains.keys())
+
 
 def list_toolchains():
     '''Print all supported toolchains'''
     for t in get_toolchains():
         print(t)
 
+
 def get_projects():
     '''Query all supported projects'''
-    return sorted([re.match('/.*/(.*)[.]json', fn).group(1) for fn in glob.glob(project_dir + '/*.json')])
+    return sorted(
+        [
+            re.match('/.*/(.*)[.]json', fn).group(1)
+            for fn in glob.glob(project_dir + '/*.json')
+        ]
+    )
+
 
 def list_projects():
     '''Print all supported projects'''
     for project in get_projects():
         print(project)
+
 
 def get_seedable():
     '''Query toolchains that support --seed'''
@@ -530,10 +584,12 @@ def get_seedable():
             ret.append(t)
     return ret
 
+
 def list_seedable():
     '''Print toolchains that support --seed'''
     for t in get_seedable():
         print(t)
+
 
 def check_env(to_check=None):
     '''For each tool, print dependencies and if they are met'''
@@ -547,6 +603,7 @@ def check_env(to_check=None):
         for k, v in tc.check_env().items():
             print('  %s: %s' % (k, v))
 
+
 def env_ready():
     '''Return true if every tool can be ran'''
     for tc in toolchains.values():
@@ -555,16 +612,23 @@ def env_ready():
                 return False
     return True
 
+
 def get_project(name):
     project_fn = project_dir + '/' + name + '.json'
     with open(project_fn, 'r') as f:
         return json.load(f)
 
+
 def add_bool_arg(parser, yes_arg, default=False, **kwargs):
     dashed = yes_arg.replace('--', '')
     dest = dashed.replace('-', '_')
-    parser.add_argument(yes_arg, dest=dest, action='store_true', default=default, **kwargs)
-    parser.add_argument('--no-' + dashed, dest=dest, action='store_false', **kwargs)
+    parser.add_argument(
+        yes_arg, dest=dest, action='store_true', default=default, **kwargs
+    )
+    parser.add_argument(
+        '--no-' + dashed, dest=dest, action='store_false', **kwargs
+    )
+
 
 def main():
     import argparse
@@ -577,19 +641,44 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='')
     parser.add_argument('--overwrite', action='store_true', help='')
     parser.add_argument('--family', default='ice40', help='Device family')
-    parser.add_argument('--device', default='hx8k', help='Device within family')
+    parser.add_argument(
+        '--device', default='hx8k', help='Device within family'
+    )
     parser.add_argument('--package', default=None, help='Device package')
-    parser.add_argument('--strategy', default=None, help='Optimization strategy')
-    add_bool_arg(parser, '--carry', default=None, help='Force carry / no carry (default: use tool default)') 
-    parser.add_argument('--toolchain', help='Tools to use', choices=get_toolchains())
+    parser.add_argument(
+        '--strategy', default=None, help='Optimization strategy'
+    )
+    add_bool_arg(
+        parser,
+        '--carry',
+        default=None,
+        help='Force carry / no carry (default: use tool default)'
+    )
+    parser.add_argument(
+        '--toolchain', help='Tools to use', choices=get_toolchains()
+    )
     parser.add_argument('--list-toolchains', action='store_true', help='')
-    parser.add_argument('--project', help='Source code to run on', choices=get_projects())
+    parser.add_argument(
+        '--project', help='Source code to run on', choices=get_projects()
+    )
     parser.add_argument('--list-projects', action='store_true', help='')
-    parser.add_argument('--seed', default=None, help='31 bit seed number to use, possibly directly mapped to PnR tool')
+    parser.add_argument(
+        '--seed',
+        default=None,
+        help='31 bit seed number to use, possibly directly mapped to PnR tool'
+    )
     parser.add_argument('--list-seedable', action='store_true', help='')
-    parser.add_argument('--check-env', action='store_true', help='Check if environment is present')
+    parser.add_argument(
+        '--check-env',
+        action='store_true',
+        help='Check if environment is present'
+    )
     parser.add_argument('--out-dir', default=None, help='Output directory')
-    parser.add_argument('--out-prefix', default=None, help='Auto named directory prefix (default: build)')
+    parser.add_argument(
+        '--out-prefix',
+        default=None,
+        help='Auto named directory prefix (default: build)'
+    )
     parser.add_argument('--pcf', default=None, help='')
     parser.add_argument('--build', default=None, help='Build number')
     args = parser.parse_args()
@@ -622,7 +711,22 @@ def main():
             sys.exit(1)
 
         seed = int(args.seed, 0) if args.seed else None
-        run(args.family, args.device, args.package, args.toolchain, get_project(args.project), out_dir=args.out_dir, out_prefix=args.out_prefix, strategy=args.strategy, pcf=args.pcf, carry=args.carry, seed=seed, build=args.build, verbose=args.verbose)
+        run(
+            args.family,
+            args.device,
+            args.package,
+            args.toolchain,
+            get_project(args.project),
+            out_dir=args.out_dir,
+            out_prefix=args.out_prefix,
+            strategy=args.strategy,
+            pcf=args.pcf,
+            carry=args.carry,
+            seed=seed,
+            build=args.build,
+            verbose=args.verbose
+        )
+
 
 if __name__ == '__main__':
     main()
