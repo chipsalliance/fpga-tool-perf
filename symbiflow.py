@@ -201,6 +201,10 @@ class VPR(Toolchain):
             iob = iob + res['outpad']
         if 'inpad' in res:
             iob = iob + res['inpad']
+        if 'BRAM' in res:
+            bram = res['BRAM']
+        if 'PLLE2_ADV' in res:
+            pll = res['PLLE2_ADV']
 
         ret = {
             "LUT": str(lut),
