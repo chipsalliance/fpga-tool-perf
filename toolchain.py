@@ -136,26 +136,23 @@ class Toolchain:
 
     def project(
         self,
-        name,
+        project,
         family,
         device,
         package,
-        srcs,
-        top,
         out_dir=None,
         out_prefix=None,
-        data=None
     ):
         self.family = family
         self.device = device
         self.package = package
 
-        self.project_name = name
-        self.srcs = self.canonicalize(srcs)
+        self.project_name = project['name']
+        self.srcs = self.canonicalize(project['srcs'])
         for src in self.srcs:
             if not os.path.exists(src):
                 raise ValueError("Missing source file %s" % src)
-        self.top = top
+        self.top = project['top']
 
         out_prefix = out_prefix or 'build'
         if not os.path.exists(out_prefix):
@@ -167,6 +164,7 @@ class Toolchain:
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
         print('Writing to %s' % out_dir)
+        data = project.get('data', None)
         if data:
             for f in data:
                 dst = os.path.join(out_dir, os.path.basename(f))

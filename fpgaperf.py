@@ -356,15 +356,12 @@ def run(
     t.build = build
 
     t.project(
-        project['name'],
+        project,
         family,
         device,
         package,
-        project['srcs'],
-        project['top'],
         out_dir=out_dir,
         out_prefix=out_prefix,
-        data=project.get('data', None)
     )
 
     t.run()
