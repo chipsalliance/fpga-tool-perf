@@ -25,6 +25,8 @@ class Toolchain:
         self.verbose = False
         self.cmds = []
         self.pcf = None
+        self.sdc = None
+        self.xdc = None
         self._strategy = None
         self._carry = None
         self.seed = None
@@ -59,6 +61,10 @@ class Toolchain:
 
         if self.pcf:
             add('pcf')
+        if self.sdc:
+            add('sdc')
+        if self.xdc:
+            add('xdc')
         # omit carry if not explicitly given?
         if self.carry is not None:
             add('carry-%c' % ('y' if self.carry else 'n', ))
@@ -222,6 +228,8 @@ class Toolchain:
             'project': self.project_name,
             'optstr': self.optstr(),
             'pcf': os.path.basename(self.pcf) if self.pcf else None,
+            'sdc': os.path.basename(self.sdc) if self.sdc else None,
+            'xdc': os.path.basename(self.xdc) if self.xdc else None,
             'carry': self.carry,
             'seed': self.seed,
             'build': self.build,
@@ -246,9 +254,11 @@ class Toolchain:
             nonestr = lambda x: x if x is not None else ''
 
             csv.write(
-                'Build,Date,Family,Device,Package,Project,Toolchain,Strategy,pcf,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n'
+                'Build,Date,Family,Device,Package,Project,Toolchain,Strategy,pcf,sdc,xdc,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n'
             )
             pcf_str = os.path.basename(self.pcf) if self.pcf else ''
+            sdc_str = os.path.basename(self.sdc) if self.sdc else ''
+            xdc_str = os.path.basename(self.xdc) if self.xdc else ''
             seed_str = '%08X' % self.seed if self.seed else ''
             runtime_str = '%0.1f' % self.runtimes[
                 'bit-all'] if 'bit-all' in self.runtimes else ''
@@ -258,7 +268,7 @@ class Toolchain:
             fields = [
                 nonestr(self.build), date_str, self.family, self.device,
                 self.package, self.project_name, self.toolchain,
-                nonestr(self.strategy), pcf_str,
+                nonestr(self.strategy), pcf_str, sdc_str, xdc_str,
                 str(self.carry), seed_str, freq_str, runtime_str
             ]
             fields += [

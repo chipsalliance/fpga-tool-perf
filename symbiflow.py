@@ -38,11 +38,25 @@ class VPR(Toolchain):
                 )
 
             if self.pcf:
-                print("Adding pcf file", self.pcf)
                 self.files.append(
                     {
                         'name': os.path.realpath(self.pcf),
+                        'file_type': 'PCF'
+                    }
+                )
+            if self.sdc:
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.sdc),
                         'file_type': 'SDC'
+                    }
+                )
+
+            if self.xdc:
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.xdc),
+                        'file_type': 'xdc'
                     }
                 )
 
