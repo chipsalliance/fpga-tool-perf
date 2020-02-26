@@ -26,7 +26,6 @@ class VPR(Toolchain):
 
     def run(self):
         with Timed(self, 'bit-all'):
-            shutil.rmtree(self.out_dir, ignore_errors=True)
             os.makedirs(self.out_dir, exist_ok=True)
 
             for f in self.srcs:
@@ -73,6 +72,7 @@ class VPR(Toolchain):
                                 'part': chip,
                                 'package': self.package,
                                 'vendor': 'xilinx',
+                                'builddir': '.'
                             }
                     }
             }
@@ -159,7 +159,7 @@ class VPR(Toolchain):
           SR_GND       : 24
         (...)
         """
-        pack_logfile = self.out_dir + "/build/pack.log"
+        pack_logfile = self.out_dir + "/pack.log"
         resources = {}
         with open(pack_logfile, 'r') as fp:
             processing = False
