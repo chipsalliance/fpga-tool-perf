@@ -331,6 +331,8 @@ def run(
     strategy=None,
     seed=None,
     pcf=None,
+    sdc=None,
+    xdc=None,
     carry=None,
     build=None
 ):
@@ -349,18 +351,17 @@ def run(
     t.carry = carry
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
+    t.sdc = os.path.realpath(sdc) if sdc else None
+    t.xdc = os.path.realpath(xdc) if sdc else None
     t.build = build
 
     t.project(
-        project['name'],
+        project,
         family,
         device,
         package,
-        project['srcs'],
-        project['top'],
         out_dir=out_dir,
         out_prefix=out_prefix,
-        data=project.get('data', None)
     )
 
     t.run()
@@ -499,6 +500,8 @@ def main():
         help='Auto named directory prefix (default: build)'
     )
     parser.add_argument('--pcf', default=None, help='')
+    parser.add_argument('--sdc', default=None, help='')
+    parser.add_argument('--xdc', default=None, help='')
     parser.add_argument('--build', default=None, help='Build number')
     args = parser.parse_args()
 
@@ -540,6 +543,8 @@ def main():
             out_prefix=args.out_prefix,
             strategy=args.strategy,
             pcf=args.pcf,
+            sdc=args.sdc,
+            xdc=args.xdc,
             carry=args.carry,
             seed=seed,
             build=args.build,

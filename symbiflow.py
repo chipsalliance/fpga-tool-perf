@@ -26,7 +26,6 @@ class VPR(Toolchain):
 
     def run(self):
         with Timed(self, 'bit-all'):
-            shutil.rmtree(self.out_dir, ignore_errors=True)
             os.makedirs(self.out_dir, exist_ok=True)
 
             for f in self.srcs:
@@ -38,11 +37,25 @@ class VPR(Toolchain):
                 )
 
             if self.pcf:
-                print("Adding pcf file", self.pcf)
                 self.files.append(
                     {
                         'name': os.path.realpath(self.pcf),
+                        'file_type': 'PCF'
+                    }
+                )
+            if self.sdc:
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.sdc),
                         'file_type': 'SDC'
+                    }
+                )
+
+            if self.xdc:
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.xdc),
+                        'file_type': 'xdc'
                     }
                 )
 
@@ -59,6 +72,7 @@ class VPR(Toolchain):
                                 'part': chip,
                                 'package': self.package,
                                 'vendor': 'xilinx',
+                                'builddir': '.'
                             }
                     }
             }
@@ -145,7 +159,7 @@ class VPR(Toolchain):
           SR_GND       : 24
         (...)
         """
-        pack_logfile = self.out_dir + "/build/pack.log"
+        pack_logfile = self.out_dir + "/pack.log"
         resources = {}
         with open(pack_logfile, 'r') as fp:
             processing = False
@@ -187,6 +201,10 @@ class VPR(Toolchain):
             iob = iob + res['outpad']
         if 'inpad' in res:
             iob = iob + res['inpad']
+        if 'BRAM' in res:
+            bram = res['BRAM']
+        if 'PLLE2_ADV' in res:
+            pll = res['PLLE2_ADV']
 
         ret = {
             "LUT": str(lut),
