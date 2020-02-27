@@ -51,13 +51,15 @@ class Vivado(Toolchain):
                 'files': self.files,
                 'name': self.project_name,
                 'toplevel': self.top,
-                'parameters' : {
-                    'VIVADO' : {
-                        'paramtype' : 'vlogdefine',
-                        'datatype' : 'int',
-                        'default' : 1,
+                'parameters':
+                    {
+                        'VIVADO':
+                            {
+                                'paramtype': 'vlogdefine',
+                                'datatype': 'int',
+                                'default': 1,
+                            },
                     },
-                },
                 'tool_options':
                     {
                         'vivado': {
