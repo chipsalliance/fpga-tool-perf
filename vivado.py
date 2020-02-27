@@ -171,7 +171,8 @@ class Vivado(Toolchain):
             if prim[2] == 'CarryLogic':
                 carry += int(prim[1])
             if prim[2] == 'IO':
-                iob += int(prim[1])
+                if prim[0].startswith('OBUF') or prim[0].startswith('IBUF'):
+                    iob += int(prim[1])
             if prim[2] == 'LUT':
                 lut += int(prim[1])
 
