@@ -83,52 +83,28 @@ class VPR(Toolchain):
             self.backend.build()
 
     def max_freq(self):
-        # FIXME
-        return 0.0
 
-    """
-    @staticmethod
-    def resource_parse(f):
-        '''
-        abanonded in favor of icebox_stat
-        although maybe would be good to compare results?
+        freqs = {}
+        route_log = self.out_dir + '/route.log'
+        processing = False
 
-        Resource usage...
-            Netlist      0    blocks of type: EMPTY
-            Architecture 0    blocks of type: EMPTY
-            Netlist      4    blocks of type: BLK_TL-PLB
-            Architecture 960    blocks of type: BLK_TL-PLB
-            Netlist      0    blocks of type: BLK_TL-RAM
-            Architecture 32    blocks of type: BLK_TL-RAM
-            Netlist      2    blocks of type: BLK_TL-PIO
-            Architecture 256    blocks of type: BLK_TL-PIO
+        with open(route_log, 'r') as fp:
+            for l in fp:
 
-        Device Utilization: 0.00 (target 1.00)
-            Block Utilization: 0.00 Type: EMPTY
-            Block Utilization: 0.00 Type: BLK_TL-PLB
-            Block Utilization: 0.00 Type: BLK_TL-RAM
-            Block Utilization: 0.01 Type: BLK_TL-PIO
-        '''
-        def waitfor(s):
-            while True:
-                l = f.readline()
-                if not l:
-                    raise Exception("EOF")
-                if s.find(s) >= 0:
-                    return
-        waitfor('Resource usage...')
-        while True:
-            l = f.readline().strip()
-            if not l:
-                break
-            # Netlist      2    blocks of type: BLK_TL-PIO
-            # Architecture 256    blocks of type: BLK_TL-PIO
-            parts = l.split()
-            if parts[0] != 'Netlist':
-                continue
+                if l == "Intra-domain critical path delays (CPDs):\n":
+                    processing = True
+                    continue
 
-        waitfor('Device Utilization: ')
-    """
+                if processing is True:
+                    if len(l.strip('\n')) == 0:
+                        processing = False
+                        continue
+
+                    fields = l.split(':')
+                    group = fields[0].split()[0]
+                    freqs[group] = 1e9 / float(fields[1].split()[0].strip())
+
+        return freqs
 
     def get_vpr_resources(self):
         """
