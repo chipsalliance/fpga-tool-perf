@@ -84,8 +84,41 @@ class Vivado(Toolchain):
         }
 
     def max_freq(self):
-        # FIXME: this should be read from timing report
-        return 0.0
+        processing = False
+
+        group = ""
+        delay = ""
+        freq = 0
+        freqs = {}
+
+        report_file = self.out_dir + "/" + self.project_name + ".runs/impl_1/top_timing_summary_routed.rpt"
+
+        with open(report_file, 'r') as fp:
+            for l in fp:
+
+                if l == "Max Delay Paths\n":
+                    processing = True
+
+                if processing is True:
+                    fields = l.split()
+                    if len(fields) > 1 and fields[1].startswith('----'):
+                        processing = False
+                        # check if this is a timing we want
+                        if group not in requirement.split():
+                            continue
+                        freqs[group] = freq
+
+                    data = l.split(':')
+                    if len(data) > 1:
+                        if data[0].strip() == 'Data Path Delay':
+                            delay = data[1].split()[0].strip('ns')
+                            freq = 1e9 / float(delay)
+                        if data[0].strip() == 'Path Group':
+                            group = data[1].strip()
+                        if data[0].strip() == 'Requirement':
+                            requirement = data[1].strip()
+
+        return freqs
 
     def vivado_resources(self, report_file):
         with open(report_file, 'r') as fp:

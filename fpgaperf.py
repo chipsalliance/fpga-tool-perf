@@ -297,7 +297,15 @@ def print_stats(t):
     print('Timing:')
     for k, v in t.runtimes.items():
         print('  % -16s %0.3f' % (k + ':', v))
-    print('Max frequency: %0.3f MHz' % (t.max_freq() / 1e6, ))
+    max_freq = t.max_freq()
+    if type(max_freq) is float:
+        print('Max frequency: %0.3f MHz' % (max_freq / 1e6, ))
+    elif type(max_freq) is dict:
+        for cd in max_freq:
+            print(
+                'Max frequency in clock domain', cd,
+                '%0.3f MHz' % (max_freq[cd] / 1e6)
+            )
     print('Resource utilization')
     for k, v in sorted(t.resources().items()):
         print('  %- 20s %s' % (k + ':', v))

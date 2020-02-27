@@ -247,35 +247,6 @@ class Toolchain:
         with open(out_dir + '/meta.json', 'w') as f:
             json.dump(j, f, sort_keys=True, indent=4)
 
-        # write .csv for easy import
-        with open(out_dir + '/meta.csv', 'w') as csv:
-            nonestr = lambda x: x if x is not None else ''
-
-            csv.write(
-                'Build,Date,Family,Device,Package,Project,Toolchain,Strategy,pcf,sdc,xdc,Carry,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB\n'
-            )
-            pcf_str = os.path.basename(self.pcf) if self.pcf else ''
-            sdc_str = os.path.basename(self.sdc) if self.sdc else ''
-            xdc_str = os.path.basename(self.xdc) if self.xdc else ''
-            seed_str = '%08X' % self.seed if self.seed else ''
-            runtime_str = '%0.1f' % self.runtimes[
-                'bit-all'] if 'bit-all' in self.runtimes else ''
-            freq_str = '%0.1f' % (
-                max_freq / 1e6
-            ) if max_freq is not None else ''
-            fields = [
-                nonestr(self.build), date_str, self.family, self.device,
-                self.package, self.project_name, self.toolchain,
-                nonestr(self.strategy), pcf_str, sdc_str, xdc_str,
-                str(self.carry), seed_str, freq_str, runtime_str
-            ]
-            fields += [
-                str(resources[x])
-                for x in ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
-            ]
-            csv.write(','.join(fields) + '\n')
-            csv.close()
-
         # Provide some context when comparing runtimes against systems
         subprocess.check_call(
             'uname -a >uname.txt',
