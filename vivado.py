@@ -182,7 +182,8 @@ class Vivado(Toolchain):
 
         for prim in report['memory']:
             if prim[0] == 'Block RAM Tile':
-                bram += prim[1]
+                # Vivado reports RAMB36. Multiply it by 2 to get RAMB18
+                bram += prim[1] * 2
 
         ret = {
             "LUT": str(lut),
