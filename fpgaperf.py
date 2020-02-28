@@ -10,8 +10,8 @@ import shutil
 import sys
 import glob
 import datetime
-import asciitable
 import edalize
+from terminaltables import AsciiTable
 
 from toolchain import Toolchain
 from utils import Timed
@@ -282,33 +282,63 @@ class RadiantYosys(Radiant):
 
 
 def print_stats(t):
-    print('Design %s' % t.design())
-    print('  Family: %s' % t.family)
-    print('  Device: %s' % t.device)
-    print('  Package: %s' % t.package)
-    print('  Project: %s' % t.project_name)
-    print('  Toolchain: %s' % t.toolchain)
-    print('  Strategy: %s' % t.strategy)
-    print('  Carry: %s' % (t.carry, ))
+    def print_section_header(title):
+        print('')
+        print('===============================')
+        print(title)
+        print('===============================')
+        print('')
+
+    print_section_header('Setting')
+
+    table_data = [
+        ['Settings', 'Value'],
+        ['Design', t.design()],
+        ['Family', t.family],
+        ['Device', t.device],
+        ['Package', t.package],
+        ['Project', t.project_name],
+        ['Toolchain', t.toolchain],
+        ['Strategy', t.strategy],
+        ['Carry', t.carry],
+    ]
+
     if t.seed:
-        print('  Seed: 0x%08X (%u)' % (t.seed, t.seed))
+        table_data.append(['Seed', ('0x%08X (%u)' % (t.seed, t.seed))])
     else:
-        print('  Seed: default')
-    print('Timing:')
-    for k, v in t.runtimes.items():
-        print('  % -16s %0.3f' % (k + ':', v))
+        table_data.append(['Seed', 'default'])
+
+    table = AsciiTable(table_data)
+    print(table.table)
+
+    print_section_header('Clocks')
     max_freq = t.max_freq()
+    table_data = [['Clock domain', 'Actual freq']]
     if type(max_freq) is float:
-        print('Max frequency: %0.3f MHz' % (max_freq / 1e6, ))
+        table_data.append(['Design', ("%0.3f MHz" % (max_freq / 1e6))])
     elif type(max_freq) is dict:
         for cd in max_freq:
-            print(
-                'Max frequency in clock domain', cd,
-                '%0.3f MHz' % (max_freq[cd] / 1e6)
-            )
-    print('Resource utilization')
+            table_data.append([cd, ("%0.3f MHz" % (max_freq[cd] / 1e6))])
+
+    table = AsciiTable(table_data)
+    print(table.table)
+
+    print_section_header('Toolchain Resource Usage')
+    table_data = [['Stage', 'Run Time (seconds)']]
+    for k, v in t.runtimes.items():
+        table_data.append([k, ("%0.3f" % v)])
+
+    table = AsciiTable(table_data)
+    print(table.table)
+
+    print_section_header('FPGA resource utilization')
+    table_data = [['Resource', 'Used']]
+
     for k, v in sorted(t.resources().items()):
-        print('  %- 20s %s' % (k + ':', v))
+        table_data.append([k, v])
+
+    table = AsciiTable(table_data)
+    print(table.table)
 
 
 toolchains = {
