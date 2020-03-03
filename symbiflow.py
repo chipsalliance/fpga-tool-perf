@@ -177,8 +177,10 @@ class VPR(Toolchain):
             iob = iob + res['outpad']
         if 'inpad' in res:
             iob = iob + res['inpad']
-        if 'BRAM' in res:
-            bram = res['BRAM']
+        if 'RAMB18E1_Y0' in res:
+            bram += res['RAMB18E1_Y0']
+        if 'RAMB18E1_Y1' in res:
+            bram += res['RAMB18E1_Y1']
         if 'PLLE2_ADV' in res:
             pll = res['PLLE2_ADV']
 
