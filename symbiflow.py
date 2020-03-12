@@ -25,7 +25,7 @@ class VPR(Toolchain):
         self.files = []
 
     def run(self):
-        with Timed(self, 'bit-all'):
+        with Timed(self, 'prepare'):
             os.makedirs(self.out_dir, exist_ok=True)
 
             for f in self.srcs:
@@ -80,7 +80,18 @@ class VPR(Toolchain):
                 edam=self.edam, work_root=self.out_dir
             )
             self.backend.configure("")
-            self.backend.build()
+        with Timed(self, 'synthesis'):
+            self.backend.build_main(self.top + '.eblif')
+        with Timed(self, 'pack'):
+            self.backend.build_main(self.top + '.net')
+        with Timed(self, 'place'):
+            self.backend.build_main(self.top + '.place')
+        with Timed(self, 'route'):
+            self.backend.build_main(self.top + '.route')
+        with Timed(self, 'fasm'):
+            self.backend.build_main(self.top + '.fasm')
+        with Timed(self, 'bitstream'):
+            self.backend.build_main(self.top + '.bit')
 
     def max_freq(self):
 
