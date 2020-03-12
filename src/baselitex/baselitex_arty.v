@@ -6268,6 +6268,8 @@ always @(*) begin
 		end
 	endcase
 end
+assign eth_rx_clk = eth_clocks_rx;
+assign eth_tx_clk = eth_clocks_tx;
 assign soc_reset0 = (soc_reset_storage | soc_reset1);
 assign eth_rst_n = (~soc_reset0);
 assign soc_counter_done = (soc_counter == 9'd256);
@@ -13422,8 +13424,11 @@ PLLE2_ADV #(
 	.LOCKED(soc_pll_locked)
 );
 
+wire clk100_ibuf;
+IBUF clkbuf(.I(clk100), .O(clk100_ibuf));
+
 BUFG BUFG(
-	.I(clk100),
+	.I(clk100_ibuf),
 	.O(soc_clk100bg)
 );
 
@@ -13449,18 +13454,11 @@ BUFG BUFG_4(
 
 BUFG BUFG_5(
 	.I(soc_pll_clk100),
-	.O(eth_ref_clk)
+	.O(eth_ref_clk_obuf)
 );
 
-BUFG BUFG_6(
-	.I(eth_clocks_tx),
-	.O(eth_tx_clk)
-);
-
-BUFG BUFG_7(
-	.I(eth_clocks_rx),
-	.O(eth_rx_clk)
-);
+wire eth_ref_clk_obuf;
+OBUF clk_eth_buf(.I(eth_ref_clk_obuf), .O(eth_ref_clk));
 
 (* LOC="IDELAYCTRL_X1Y0" *)
 IDELAYCTRL IDELAYCTRL(
