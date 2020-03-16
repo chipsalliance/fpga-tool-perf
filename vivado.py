@@ -124,15 +124,13 @@ class Vivado(Toolchain):
             'vivado': have_exec('vivado'),
         }
 
-    def max_freq(self):
+    def get_max_freq(self, report_file):
         processing = False
 
         group = ""
         delay = ""
         freq = 0
         freqs = {}
-
-        report_file = self.out_dir + "/" + self.project_name + ".runs/impl_1/top_timing_summary_routed.rpt"
         path_type = None
 
         with open(report_file, 'r') as fp:
@@ -185,6 +183,10 @@ class Vivado(Toolchain):
                             if path_type != ptype.split()[0]:
                                 path_type = ptype.split()[0]
         return freqs
+
+    def max_freq(self):
+        report_file = self.out_dir + "/" + self.project_name + '.runs/impl_1/top_timing_summary_routed.rpt'
+        return self.get_max_freq(report_file)
 
     def vivado_resources(self, report_file):
         with open(report_file, 'r') as fp:
@@ -283,6 +285,10 @@ class VivadoYosys(Vivado):
     def resources(self):
         report_file = self.out_dir + "/top_utilization_placed.rpt"
         return super(VivadoYosys, self).resources(report_file)
+
+    def max_freq(self):
+        report_file = self.out_dir + "/top_timing_summary_routed.rpt"
+        return super(VivadoYosys, self).get_max_freq(report_file)
 
     def versions(self):
         return {
