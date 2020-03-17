@@ -93,11 +93,12 @@ class VPR(Toolchain):
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.top + '.bit')
 
-    def get_critical_paths(self, report, clocks):
+    def get_critical_paths(self, clocks, timing):
 
+        report = self.out_dir + '/report_timing.{}.rpt'.format(timing)
         processing = False
         in_block = False
-        critical_paths = dict()
+        critical_paths = None
         with open(report, 'r') as fp:
             for l in fp:
                 l = l.strip('\n')
@@ -114,13 +115,21 @@ class VPR(Toolchain):
                     if l.startswith('clock') and not l.startswith(
                         ('clock source latency', 'clock uncertainty')):
                         clock = l.split()[1]
-                        if clock in clocks and clock not in critical_paths:
-                            critical_paths[clock] = dict()
-                            critical_paths[clock]['requested'] = float(
-                                l.split()[-1]
-                            )
+                        if clock in clocks:
+                            if critical_paths is None:
+                                critical_paths = dict()
+
+                            if clock not in critical_paths:
+                                critical_paths[clock] = dict()
+                                critical_paths[clock]['requested'] = float(
+                                    l.split()[-1]
+                                )
 
                     if l.startswith('slack'):
+                        if critical_paths is None:
+                            in_block = False
+                            processing = False
+                            continue
                         if clock in clocks and not 'met' in critical_paths[
                                 clock]:
                             critical_paths[clock]['met'] = '(MET)' in l
@@ -137,7 +146,6 @@ class VPR(Toolchain):
         freqs = dict()
         clocks = dict()
         route_log = self.out_dir + '/route.log'
-        timing_setup_rpt = self.out_dir + '/report_timing.setup.rpt'
 
         processing = False
 
@@ -158,11 +166,26 @@ class VPR(Toolchain):
                     freqs[group] = 1e9 / float(fields[1].split()[0].strip())
 
         for clk in freqs:
-            criticals = self.get_critical_paths(timing_setup_rpt, clk)
+            criticals = self.get_critical_paths(clk, 'setup')
             clocks[clk] = dict()
             clocks[clk]['actual'] = freqs[clk]
-            clocks[clk]['requested'] = 1e9 / criticals[clk]['requested']
-            clocks[clk]['met'] = criticals[clk]['met']
+            if criticals is not None:
+                clocks[clk]['requested'] = 1e9 / criticals[clk]['requested']
+                clocks[clk]['met'] = criticals[clk]['met']
+                clocks[clk]['setup_violation'] = criticals[clk]['violation']
+            criticals = self.get_critical_paths(clk, 'hold')
+            if criticals is not None:
+                clocks[clk]['hold_violation'] = criticals[clk]['violation']
+                if 'requested' not in clocks[clk]:
+                    clocks[clk]['requested'
+                                ] = 1e9 / criticals[clk]['requested']
+                if 'met' not in clocks[clk]:
+                    clocks[clk]['met'] = criticals[clk]['met']
+            for v in ['requested', 'setup_violation', 'hold_violation']:
+                if v not in clocks[clk]:
+                    clocks[clk][v] = 0.0
+            if 'met' not in clocks[clk]:
+                clocks[clk]['met'] = 'unknown'
 
         return clocks
 
