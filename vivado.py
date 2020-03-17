@@ -28,6 +28,34 @@ class Vivado(Toolchain):
         self.backend = None
 
     def run(self):
+        def get_runtimes(logfile):
+            def get_seconds(time_str):
+                time = time_str.split(':')
+                seconds = 3600 * int(time[0])
+                seconds += 60 * int(time[1])
+                seconds += int(time[2])
+                return seconds
+
+            log = dict()
+            commands = list()
+            with open(logfile, 'r') as fp:
+                for l in fp:
+                    l = l.strip('\n')
+                    if l.startswith("Command"):
+                        command = l.split()[1]
+                        commands.append(command)
+                    if l.startswith(tuple(commands)):
+                        cpu = False
+                        elapsed = False
+                        time_re = re.match(
+                            ".*cpu = ([0-9:]+).*elapsed = ([0-9:]+)", str(l)
+                        )
+                        if time_re is not None:
+                            l = l.split()
+                            command = l[0].strip(':')
+                            log[command] = get_seconds(time_re.groups()[1])
+            return log
+
         with Timed(self, 'bitstream'):
             os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:
@@ -74,6 +102,17 @@ class Vivado(Toolchain):
             )
             self.backend.configure("")
             self.backend.build()
+        runs_dir = self.out_dir + "/" + self.project_name + ".runs"
+        synth_times = get_runtimes(runs_dir + '/synth_1/runme.log')
+        impl_times = get_runtimes(runs_dir + '/impl_1/runme.log')
+        total_runtime = 0
+        for t in synth_times:
+            self.add_runtime(t, synth_times[t], parent='logs')
+            total_runtime += float(synth_times[t])
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t], parent='logs')
+            total_runtime += float(impl_times[t])
+        self.add_runtime('total', total_runtime, parent='logs')
 
     @staticmethod
     def seedable():

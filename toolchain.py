@@ -74,8 +74,16 @@ class Toolchain:
             add('seed-%08X' % (self.seed, ))
         return ret
 
-    def add_runtime(self, name, dt):
-        self.runtimes[name] = dt
+    def add_runtime(self, name, dt, parent=None):
+        if parent is None:
+            self.runtimes[name] = dt
+        else:
+            assert (parent not in self.runtimes) or (
+                type(self.runtimes[parent]) is collections.OrderedDict
+            )
+            if parent not in self.runtimes:
+                self.runtimes[parent] = collections.OrderedDict()
+            self.runtimes[parent][name] = dt
 
     def design(self):
         ret = self.family + '-' + self.device + '-' + self.package + '_' + self.toolchain + '_' + self.project_name

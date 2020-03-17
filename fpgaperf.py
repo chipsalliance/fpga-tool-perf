@@ -326,7 +326,12 @@ def print_stats(t):
     print_section_header('Toolchain Resource Usage')
     table_data = [['Stage', 'Run Time (seconds)']]
     for k, v in t.runtimes.items():
-        table_data.append([k, ("%0.3f" % v)])
+        if type(v) is collections.OrderedDict:
+            table_data.append([k, ""])
+            for k1, v1 in v.items():
+                table_data.append(["    " + k1, ("%0.3f" % v1)])
+        else:
+            table_data.append([k, ("%0.3f" % v)])
 
     table = AsciiTable(table_data)
     print(table.table)
