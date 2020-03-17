@@ -313,12 +313,15 @@ def print_stats(t):
 
     print_section_header('Clocks')
     max_freq = t.max_freq()
-    table_data = [['Clock domain', 'Actual freq']]
+    table_data = [['Clock domain', 'Actual freq', 'Requested freq', 'Met?']]
     if type(max_freq) is float:
         table_data.append(['Design', ("%0.3f MHz" % (max_freq / 1e6))])
     elif type(max_freq) is dict:
         for cd in max_freq:
-            table_data.append([cd, ("%0.3f MHz" % (max_freq[cd] / 1e6))])
+            actual = "%0.3f MHz" % (max_freq[cd]['actual'] / 1e6)
+            requested = "%0.3f MHz" % (max_freq[cd]['requested'] / 1e6)
+            met = max_freq[cd]['met']
+            table_data.append([cd, actual, requested, met])
 
     table = AsciiTable(table_data)
     print(table.table)

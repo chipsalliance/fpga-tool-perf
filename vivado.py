@@ -147,7 +147,10 @@ class Vivado(Toolchain):
                         # check if this is a timing we want
                         if group not in requirement.split():
                             continue
-                        freqs[group] = freq
+                        freqs[group] = dict()
+                        freqs[group]['actual'] = freq
+                        freqs[group]['requested'] = requested_freq
+                        freqs[group]['met'] = freq >= requested_freq
 
                     data = l.split(':')
                     if len(data) > 1:
@@ -158,6 +161,9 @@ class Vivado(Toolchain):
                             group = data[1].strip()
                         if data[0].strip() == 'Requirement':
                             requirement = data[1].strip()
+                            requested_freq = 1e9 / float(
+                                requirement.split()[0].strip('ns')
+                            )
 
         return freqs
 
