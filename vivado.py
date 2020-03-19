@@ -133,11 +133,18 @@ class Vivado(Toolchain):
         freqs = {}
 
         report_file = self.out_dir + "/" + self.project_name + ".runs/impl_1/top_timing_summary_routed.rpt"
+        path_type = None
 
         with open(report_file, 'r') as fp:
             for l in fp:
 
-                if l == "Max Delay Paths\n":
+                if l.startswith("Slack"):
+                    if '(MET)' in l:
+                        violation = 0.0
+                    else:
+                        violation = float(
+                            l.split(':')[1].split()[0].strip().strip('ns')
+                        )
                     processing = True
 
                 if processing is True:
@@ -147,10 +154,19 @@ class Vivado(Toolchain):
                         # check if this is a timing we want
                         if group not in requirement.split():
                             continue
-                        freqs[group] = dict()
-                        freqs[group]['actual'] = freq
-                        freqs[group]['requested'] = requested_freq
-                        freqs[group]['met'] = freq >= requested_freq
+                        if group not in freqs:
+                            freqs[group] = dict()
+                            freqs[group]['actual'] = freq
+                            freqs[group]['requested'] = requested_freq
+                            freqs[group]['met'] = freq >= requested_freq
+                            freqs[group]['{}_violation'.format(
+                                path_type.lower()
+                            )] = violation
+                            path_type = None
+                        if path_type is not None:
+                            freqs[group]['{}_violation'.format(
+                                path_type.lower()
+                            )] = violation
 
                     data = l.split(':')
                     if len(data) > 1:
@@ -161,10 +177,13 @@ class Vivado(Toolchain):
                             group = data[1].strip()
                         if data[0].strip() == 'Requirement':
                             requirement = data[1].strip()
-                            requested_freq = 1e9 / float(
-                                requirement.split()[0].strip('ns')
-                            )
-
+                            r = float(requirement.split()[0].strip('ns'))
+                            if r != 0.0:
+                                requested_freq = 1e9 / r
+                        if data[0].strip() == 'Path Type':
+                            ptype = data[1].strip()
+                            if path_type != ptype.split()[0]:
+                                path_type = ptype.split()[0]
         return freqs
 
     def vivado_resources(self, report_file):
