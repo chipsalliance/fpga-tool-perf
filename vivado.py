@@ -28,6 +28,34 @@ class Vivado(Toolchain):
         self.backend = None
 
     def run(self):
+        def get_runtimes(logfile):
+            def get_seconds(time_str):
+                time = time_str.split(':')
+                seconds = 3600 * int(time[0])
+                seconds += 60 * int(time[1])
+                seconds += int(time[2])
+                return seconds
+
+            log = dict()
+            commands = list()
+            with open(logfile, 'r') as fp:
+                for l in fp:
+                    l = l.strip('\n')
+                    if l.startswith("Command"):
+                        command = l.split()[1]
+                        commands.append(command)
+                    if l.startswith(tuple(commands)):
+                        cpu = False
+                        elapsed = False
+                        time_re = re.match(
+                            ".*cpu = ([0-9:]+).*elapsed = ([0-9:]+)", str(l)
+                        )
+                        if time_re is not None:
+                            l = l.split()
+                            command = l[0].strip(':')
+                            log[command] = get_seconds(time_re.groups()[1])
+            return log
+
         with Timed(self, 'bitstream'):
             os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:
@@ -51,6 +79,15 @@ class Vivado(Toolchain):
                 'files': self.files,
                 'name': self.project_name,
                 'toplevel': self.top,
+                'parameters':
+                    {
+                        'VIVADO':
+                            {
+                                'paramtype': 'vlogdefine',
+                                'datatype': 'int',
+                                'default': 1,
+                            },
+                    },
                 'tool_options':
                     {
                         'vivado': {
@@ -65,6 +102,17 @@ class Vivado(Toolchain):
             )
             self.backend.configure("")
             self.backend.build()
+        runs_dir = self.out_dir + "/" + self.project_name + ".runs"
+        synth_times = get_runtimes(runs_dir + '/synth_1/runme.log')
+        impl_times = get_runtimes(runs_dir + '/impl_1/runme.log')
+        total_runtime = 0
+        for t in synth_times:
+            self.add_runtime(t, synth_times[t], parent='logs')
+            total_runtime += float(synth_times[t])
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t], parent='logs')
+            total_runtime += float(impl_times[t])
+        self.add_runtime('total', total_runtime, parent='logs')
 
     @staticmethod
     def seedable():
@@ -76,9 +124,69 @@ class Vivado(Toolchain):
             'vivado': have_exec('vivado'),
         }
 
+    def get_max_freq(self, report_file):
+        processing = False
+
+        group = ""
+        delay = ""
+        freq = 0
+        freqs = {}
+        path_type = None
+
+        with open(report_file, 'r') as fp:
+            for l in fp:
+
+                if l.startswith("Slack"):
+                    if '(MET)' in l:
+                        violation = 0.0
+                    else:
+                        violation = float(
+                            l.split(':')[1].split()[0].strip().strip('ns')
+                        )
+                    processing = True
+
+                if processing is True:
+                    fields = l.split()
+                    if len(fields) > 1 and fields[1].startswith('----'):
+                        processing = False
+                        # check if this is a timing we want
+                        if group not in requirement.split():
+                            continue
+                        if group not in freqs:
+                            freqs[group] = dict()
+                            freqs[group]['actual'] = freq
+                            freqs[group]['requested'] = requested_freq
+                            freqs[group]['met'] = freq >= requested_freq
+                            freqs[group]['{}_violation'.format(
+                                path_type.lower()
+                            )] = violation
+                            path_type = None
+                        if path_type is not None:
+                            freqs[group]['{}_violation'.format(
+                                path_type.lower()
+                            )] = violation
+
+                    data = l.split(':')
+                    if len(data) > 1:
+                        if data[0].strip() == 'Data Path Delay':
+                            delay = data[1].split()[0].strip('ns')
+                            freq = 1e9 / float(delay)
+                        if data[0].strip() == 'Path Group':
+                            group = data[1].strip()
+                        if data[0].strip() == 'Requirement':
+                            requirement = data[1].strip()
+                            r = float(requirement.split()[0].strip('ns'))
+                            if r != 0.0:
+                                requested_freq = 1e9 / r
+                        if data[0].strip() == 'Path Type':
+                            ptype = data[1].strip()
+                            if path_type != ptype.split()[0]:
+                                path_type = ptype.split()[0]
+        return freqs
+
     def max_freq(self):
-        # FIXME: this should be read from timing report
-        return 0.0
+        report_file = self.out_dir + "/" + self.project_name + '.runs/impl_1/top_timing_summary_routed.rpt'
+        return self.get_max_freq(report_file)
 
     def vivado_resources(self, report_file):
         with open(report_file, 'r') as fp:
@@ -129,7 +237,8 @@ class Vivado(Toolchain):
             if prim[2] == 'CarryLogic':
                 carry += int(prim[1])
             if prim[2] == 'IO':
-                iob += int(prim[1])
+                if prim[0].startswith('OBUF') or prim[0].startswith('IBUF'):
+                    iob += int(prim[1])
             if prim[2] == 'LUT':
                 lut += int(prim[1])
 
@@ -139,7 +248,8 @@ class Vivado(Toolchain):
 
         for prim in report['memory']:
             if prim[0] == 'Block RAM Tile':
-                bram += prim[1]
+                # Vivado reports RAMB36. Multiply it by 2 to get RAMB18
+                bram += prim[1] * 2
 
         ret = {
             "LUT": str(lut),
@@ -175,6 +285,10 @@ class VivadoYosys(Vivado):
     def resources(self):
         report_file = self.out_dir + "/top_utilization_placed.rpt"
         return super(VivadoYosys, self).resources(report_file)
+
+    def max_freq(self):
+        report_file = self.out_dir + "/top_timing_summary_routed.rpt"
+        return super(VivadoYosys, self).get_max_freq(report_file)
 
     def versions(self):
         return {

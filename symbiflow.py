@@ -25,7 +25,7 @@ class VPR(Toolchain):
         self.files = []
 
     def run(self):
-        with Timed(self, 'bit-all'):
+        with Timed(self, 'prepare'):
             os.makedirs(self.out_dir, exist_ok=True)
 
             for f in self.srcs:
@@ -80,55 +80,114 @@ class VPR(Toolchain):
                 edam=self.edam, work_root=self.out_dir
             )
             self.backend.configure("")
-            self.backend.build()
+        with Timed(self, 'synthesis'):
+            self.backend.build_main(self.top + '.eblif')
+        with Timed(self, 'pack'):
+            self.backend.build_main(self.top + '.net')
+        with Timed(self, 'place'):
+            self.backend.build_main(self.top + '.place')
+        with Timed(self, 'route'):
+            self.backend.build_main(self.top + '.route')
+        with Timed(self, 'fasm'):
+            self.backend.build_main(self.top + '.fasm')
+        with Timed(self, 'bitstream'):
+            self.backend.build_main(self.top + '.bit')
+
+    def get_critical_paths(self, clocks, timing):
+
+        report = self.out_dir + '/report_timing.{}.rpt'.format(timing)
+        processing = False
+        in_block = False
+        critical_paths = None
+        with open(report, 'r') as fp:
+            for l in fp:
+                l = l.strip('\n')
+                if l.startswith('#Path'):
+                    in_block = True
+                    continue
+
+                if in_block is True:
+                    if l.startswith('data arrival time'):
+                        processing = True
+                        continue
+
+                if processing is True:
+                    if l.startswith('clock') and not l.startswith(
+                        ('clock source latency', 'clock uncertainty')):
+                        clock = l.split()[1]
+                        if clock in clocks:
+                            if critical_paths is None:
+                                critical_paths = dict()
+
+                            if clock not in critical_paths:
+                                critical_paths[clock] = dict()
+                                critical_paths[clock]['requested'] = float(
+                                    l.split()[-1]
+                                )
+
+                    if l.startswith('slack'):
+                        if critical_paths is None:
+                            in_block = False
+                            processing = False
+                            continue
+                        if clock in clocks and not 'met' in critical_paths[
+                                clock]:
+                            critical_paths[clock]['met'] = '(MET)' in l
+                            critical_paths[clock]['violation'] = float(
+                                l.split()[-1]
+                            ) if not critical_paths[clock]['met'] else 0.0
+                        in_block = False
+                        processing = False
+
+        return critical_paths
 
     def max_freq(self):
-        # FIXME
-        return 0.0
 
-    """
-    @staticmethod
-    def resource_parse(f):
-        '''
-        abanonded in favor of icebox_stat
-        although maybe would be good to compare results?
+        freqs = dict()
+        clocks = dict()
+        route_log = self.out_dir + '/route.log'
 
-        Resource usage...
-            Netlist      0    blocks of type: EMPTY
-            Architecture 0    blocks of type: EMPTY
-            Netlist      4    blocks of type: BLK_TL-PLB
-            Architecture 960    blocks of type: BLK_TL-PLB
-            Netlist      0    blocks of type: BLK_TL-RAM
-            Architecture 32    blocks of type: BLK_TL-RAM
-            Netlist      2    blocks of type: BLK_TL-PIO
-            Architecture 256    blocks of type: BLK_TL-PIO
+        processing = False
 
-        Device Utilization: 0.00 (target 1.00)
-            Block Utilization: 0.00 Type: EMPTY
-            Block Utilization: 0.00 Type: BLK_TL-PLB
-            Block Utilization: 0.00 Type: BLK_TL-RAM
-            Block Utilization: 0.01 Type: BLK_TL-PIO
-        '''
-        def waitfor(s):
-            while True:
-                l = f.readline()
-                if not l:
-                    raise Exception("EOF")
-                if s.find(s) >= 0:
-                    return
-        waitfor('Resource usage...')
-        while True:
-            l = f.readline().strip()
-            if not l:
-                break
-            # Netlist      2    blocks of type: BLK_TL-PIO
-            # Architecture 256    blocks of type: BLK_TL-PIO
-            parts = l.split()
-            if parts[0] != 'Netlist':
-                continue
+        with open(route_log, 'r') as fp:
+            for l in fp:
 
-        waitfor('Device Utilization: ')
-    """
+                if l == "Intra-domain critical path delays (CPDs):\n":
+                    processing = True
+                    continue
+
+                if processing is True:
+                    if len(l.strip('\n')) == 0:
+                        processing = False
+                        continue
+
+                    fields = l.split(':')
+                    group = fields[0].split()[0]
+                    freqs[group] = 1e9 / float(fields[1].split()[0].strip())
+
+        for clk in freqs:
+            criticals = self.get_critical_paths(clk, 'setup')
+            clocks[clk] = dict()
+            clocks[clk]['actual'] = freqs[clk]
+            if criticals is not None:
+                clocks[clk]['requested'] = 1e9 / criticals[clk]['requested']
+                clocks[clk]['met'] = criticals[clk]['met']
+                clocks[clk]['setup_violation'] = criticals[clk]['violation']
+            criticals = self.get_critical_paths(clk, 'hold')
+            if criticals is not None:
+                clocks[clk]['hold_violation'] = criticals[clk]['violation']
+                if 'requested' not in clocks[clk]:
+                    clocks[clk]['requested'
+                                ] = 1e9 / criticals[clk]['requested']
+                if 'met' not in clocks[clk]:
+                    clocks[clk]['met'] = criticals[clk]['met']
+            for v in ['requested', 'setup_violation', 'hold_violation']:
+                if v not in clocks[clk]:
+                    clocks[clk][v] = 0.0
+            if 'met' not in clocks[clk]:
+                clocks[clk]['met'] = 'unknown'
+
+        return clocks
 
     def get_vpr_resources(self):
         """
@@ -201,8 +260,10 @@ class VPR(Toolchain):
             iob = iob + res['outpad']
         if 'inpad' in res:
             iob = iob + res['inpad']
-        if 'BRAM' in res:
-            bram = res['BRAM']
+        if 'RAMB18E1_Y0' in res:
+            bram += res['RAMB18E1_Y0']
+        if 'RAMB18E1_Y1' in res:
+            bram += res['RAMB18E1_Y1']
         if 'PLLE2_ADV' in res:
             pll = res['PLLE2_ADV']
 

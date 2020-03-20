@@ -37,6 +37,12 @@ module top(
 	output [3:0] led
 );
 
+`ifdef VIVADO
+`define PLL_PHASE 90
+`else
+`define PLL_PHASE 90000
+`endif
+
 wire [3:0] led;
 
 assign led[0] = idelayctl_rdy;
@@ -13398,7 +13404,7 @@ PLLE2_ADV #(
 	.CLKOUT1_DIVIDE(3'd5),
 	.CLKOUT1_PHASE(1'd0),
 	.CLKOUT2_DIVIDE(3'd5),
-	.CLKOUT2_PHASE(90000),
+	.CLKOUT2_PHASE(`PLL_PHASE),
 	.CLKOUT3_DIVIDE(3'd6),
 	.CLKOUT3_PHASE(1'd0),
 	.CLKOUT4_DIVIDE(6'd48),
@@ -13418,8 +13424,11 @@ PLLE2_ADV #(
 	.LOCKED(soc_pll_locked)
 );
 
+wire clk100_ibuf;
+IBUF clkbuf(.I(clk100), .O(clk100_ibuf));
+
 BUFG BUFG(
-	.I(clk100),
+	.I(clk100_ibuf),
 	.O(soc_clk100bg)
 );
 
@@ -13445,8 +13454,11 @@ BUFG BUFG_4(
 
 BUFG BUFG_5(
 	.I(soc_pll_clk100),
-	.O(eth_ref_clk)
+	.O(eth_ref_clk_obuf)
 );
+
+wire eth_ref_clk_obuf;
+OBUF clk_eth_buf(.I(eth_ref_clk_obuf), .O(eth_ref_clk));
 
 (* LOC="IDELAYCTRL_X1Y0" *)
 IDELAYCTRL IDELAYCTRL(
