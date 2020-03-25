@@ -2,6 +2,7 @@
 
 device="hx8k"
 package="ct256"
+family=
 pcf=
 dry=
 aproject=
@@ -11,13 +12,16 @@ onfail=true
 out_prefix=build
 
 usage() {
-    echo "Exhaustively try project-toolchain combinations, seeding if possible"
+    echo "Exhaustively try project-toolchain combinations"
     echo "usage: exaust.sh [args]"
     echo "--device <device>         device (default: hx8k)"
     echo "--package <package>       device package (default: ct256)"
+    echo "--family <family>         device family"
     echo "--project <project>       run given project only (default: all)"
     echo "--toolchain <toolchain>   run given toolchain only (default: all)"
     echo "--pcf <pcf>               pin constraint file (default: none)"
+    echo "--sdc <xdc>               constraint file (default: none)"
+    echo "--xdc <xdc>               constraint file (default: none)"
     echo "--out-prefix <dir>        output directory prefix (default: build)"
     echo "--dry                     print commands, don't invoke"
     echo "--fail                    fail on error"
@@ -37,11 +41,27 @@ while [[ $# -gt 0 ]]; do
         shift
         shift
         ;;
+    --family)
+        family=$2
+        shift
+        shift
+        ;;
     --pcf)
         pcf=$2
         shift
         shift
         ;;
+    --sdc)
+        sdc=$2
+        shift
+        shift
+        ;;
+    --xdc)
+        xdc=$2
+        shift
+        shift
+        ;;
+
     --dry)
         dry=echo
         shift
@@ -85,7 +105,7 @@ set -x
 set -e
 
 function run2() {
-    $dry python3 fpgaperf.py --toolchain $toolchain --project "$project" --device "$device" --package "$package" --seed "$seed" $pcf_arg --out-prefix "$out_prefix" $verbose || $onfail
+    $dry python3 fpgaperf.py --toolchain $toolchain --project "$project" --device "$device" --family "$family" --package "$package" $pcf_arg $sdc_arg $xdc_arg --out-prefix "$out_prefix" $verbose || $onfail
 }
 
 function run() {
@@ -98,16 +118,20 @@ function run() {
         pcf_arg="--pcf $pcf"
     fi
 
-    if [[ $(python3 fpgaperf.py --list-seedable) = *"$toolchain"* ]]; then
-        for seed in 1 10 100 1000 10000 100000 1000000 10000000 100000000 1000000000 ; do
-            # some of these may fail pnr
-            run2 --seed $seed
-        done
+    if [ "$sdc" = "" ] ; then
+        sdc_arg=""
     else
-        # some of these may fail pnr
-        seed=
-        run2
+        sdc_arg="--sdc $sdc"
     fi
+
+    if [ "$xdc" = "" ] ; then
+        xdc_arg=""
+    else
+        xdc_arg="--xdc $xdc"
+    fi
+
+    run2
+
     # make ^C easier
     sleep 0.1
 }
