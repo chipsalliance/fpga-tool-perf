@@ -155,5 +155,5 @@ function exhaustive() {
 
 mkdir -p $out_prefix
 exhaustive
-cd $out_prefix && ../csv.sh
+cd $out_prefix && ../json.sh
 
