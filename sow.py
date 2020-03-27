@@ -1,49 +1,48 @@
 #!/usr/bin/env python3
 
+import json
+
+merged_dict = {}
+
+class display(object):
+    """Display HTML representation of multiple objects"""
+    template = """<div style="float: left; padding: 10px;">
+    <p style='font-family:"Courier New", Courier, monospace'>{0}</p>{1}
+    </div>"""
+    def __init__(self, *args):
+        self.args = args
+
+    def _repr_html_(self):
+        return '\n'.join(self.template.format(a, eval(a)._repr_html_())
+                                                    for a in self.args)
+                                
+    def __repr__(self):
+        return '\n\n'.join(a + '\n' + repr(eval(a))
+                                for a in self.args)
+
+def merge(a, b, path=None):
+    "merges b into a"
+    if path is None: path = []
+    for key in b:
+        if key in a:
+            a[key].append(b[key])
+        else:
+            a[key] = [b[key]]
+    return a
 
 def run(fin, fout, verbose=False):
-    row = fin.readline().strip()
-    seedpos = row.split(',').index('Seed')
-    fout.write(row + '\n')
+    jsons = fin.read().split()
+    for js in jsons:
+        input_dict = json.load(open(js))
+        merge(merged_dict, input_dict)
 
-    lines_raw = {}
-    nlines = 0
-    # Aggregate when all that differs is the seed
-    #Family,Device,Package,Project,Toolchain,Strategy,Seed,Freq (MHz),Build (sec),#LUT,#DFF,#BRAM,#CARRY,#GLB,#PLL,#IOB
-    for l in fin:
-        nlines += 1
-        parts = l.strip().split(',')
-        # key: Family,Device,Package,Project,Toolchain,Strategy
-        key = parts[0:seedpos]
-        lines_raw.setdefault(tuple(key), []).append(parts)
-
-    # Now aggregate any keys that appear twice (multiple seeds
-    lines_out = []
-    for k, vs in lines_raw.items():
-        if len(vs) == 1:
-            lines_out.append(vs[0])
-            continue
-        # Create two lines: one min line and one max line
-        # Resources are a bit misleading...oh well
-        minstate = []
-        maxstate = []
-        cols = len(vs[0])
-        for i in xrange(seedpos + 1, cols):
-            minstate.append(min([v[i] for v in vs]))
-            maxstate.append(max([v[i] for v in vs]))
-        lines_out.append(list(k) + ['min'] + minstate)
-        lines_out.append(list(k) + ['max'] + maxstate)
-
-    print('%u lines in => %u lines out' % (nlines, len(lines_out)))
-    for l in sorted(lines_out):
-        fout.write(','.join(l) + '\n')
-
+    json.dump(merged_dict, fout)
 
 def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description='Process multiple .csv seed rows into min/max rows'
+        description='Process multiple .json seed rows into min/max rows'
     )
 
     parser.add_argument('--verbose', action='store_true', help='')
