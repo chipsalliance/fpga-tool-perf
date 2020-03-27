@@ -1,0 +1,12 @@
+Name: Test of the USB3 IP Core from Daisho on a Xilinx device
+Short Name: daisho
+URL: https://github.com/enjoy-digital/daisho
+License: BSD-2-Clause
+
+Description:
+This package is used as a testbench for the fpga-tool-perf project, to test performance and quality of results of different vendor and open source toolchains.
+
+Local Modifications:
+Use OBUFT instead of conditional assign to avoid inferring to _TBUF_.
+Removal of unused variables.
+Changed extension of .vh files to .v.
