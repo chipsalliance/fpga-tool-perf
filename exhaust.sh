@@ -112,6 +112,41 @@ function run() {
     toolchain=$1
     project=$2
 
+    if [ "$family" = "ice40" ] ; then
+        echo "$family family currently not supported by exhaust.sh"
+        exit 1
+    fi
+
+    if [ "$toolchain" != vivado ] && [ "$toolchain" != vpr ] ; then
+        echo "Currently testing only vivado and vpr toolchains,  not $toolchain"
+        return
+    fi
+
+    if [ "$pcf" = "" ] ; then
+        if [ "$family" = "xc7" ] ; then
+            if [[ "$device" == "z010" ]] ; then
+                if [ "$project" = "oneblink" ] ; then
+                    pcf="project/oneblink-zybo-z7.xdc"
+                else
+                    echo "Combination $toolchain/$family/$device/$project doesn't have PCF file defined"
+                    return 0
+                fi
+            elif [[ "$device" == "a35t"* ]] ; then
+                if [ "$project" = "oneblink" ] ; then
+                    pcf="project/oneblink-arty.xdc"
+                elif [ "$project" = "litex-linux" ] ; then
+                    if [ "$toolchain" = "vivado" ] ; then
+                        pcf="src/baselitex/baselitex_arty_vivado.xdc"
+                    else
+                        pcf="src/baselitex/baselitex_arty.xdc"
+                    fi
+                else
+                    pcf="src/baselitex/arty.sdc"
+                fi
+            fi
+        fi
+    fi
+
     if [ "$pcf" = "" ] ; then
         pcf_arg=""
     else
