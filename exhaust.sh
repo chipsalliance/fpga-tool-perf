@@ -19,9 +19,6 @@ usage() {
     echo "--family <family>         device family"
     echo "--project <project>       run given project only (default: all)"
     echo "--toolchain <toolchain>   run given toolchain only (default: all)"
-    echo "--pcf <pcf>               pin constraint file (default: none)"
-    echo "--sdc <xdc>               constraint file (default: none)"
-    echo "--xdc <xdc>               constraint file (default: none)"
     echo "--out-prefix <dir>        output directory prefix (default: build)"
     echo "--dry                     print commands, don't invoke"
     echo "--fail                    fail on error"
@@ -46,22 +43,6 @@ while [[ $# -gt 0 ]]; do
         shift
         shift
         ;;
-    --pcf)
-        pcf=$2
-        shift
-        shift
-        ;;
-    --sdc)
-        sdc=$2
-        shift
-        shift
-        ;;
-    --xdc)
-        xdc=$2
-        shift
-        shift
-        ;;
-
     --dry)
         dry=echo
         shift
@@ -122,28 +103,35 @@ function run() {
         return
     fi
 
-    if [ "$pcf" = "" ] ; then
-        if [ "$family" = "xc7" ] ; then
-            if [[ "$device" == "z010" ]] ; then
-                if [ "$project" = "oneblink" ] ; then
+    if [ "$family" = "xc7" ] ; then
+        if [[ "$device" == "z010" ]] ; then
+            if [ "$project" = "oneblink" ] ; then
+                if [ "$toolchain" = "vivado" ] ; then
                     pcf="project/oneblink-zybo-z7.xdc"
-                else
-                    echo "Combination $toolchain/$family/$device/$project doesn't have PCF file defined"
-                    return 0
                 fi
-            elif [[ "$device" == "a35t"* ]] ; then
-                if [ "$project" = "oneblink" ] ; then
-                    pcf="project/oneblink-arty.xdc"
-                elif [ "$project" = "litex-linux" ] ; then
-                    if [ "$toolchain" = "vivado" ] ; then
-                        pcf="src/baselitex/baselitex_arty_vivado.xdc"
-                    else
-                        pcf="src/baselitex/baselitex_arty.xdc"
-                    fi
-                else
-                    pcf="src/baselitex/arty.sdc"
-                fi
+            else
+                echo "Combination $toolchain/$family/$device/$project doesn't have PCF file defined"
+                return 0
             fi
+        elif [[ "$device" == "a35t" ]] ; then
+            if [ "$project" = "oneblink" ] ; then
+                if [ "$toolchain" = "vivado" ] ; then
+                    pcf="project/oneblink-arty.xdc"
+                fi
+            elif [ "$project" = "litex-linux" ] ; then
+                if [ "$toolchain" = "vivado" ] ; then
+                    pcf="src/baselitex/baselitex_arty_vivado.xdc"
+                else
+                    pcf="src/baselitex/arty.pcf"
+                    sdc="src/baselitex/arty.sdc"
+                    xdc="src/baselitex/baselitex_arty.xdc"
+                fi
+            else
+                pcf="src/baselitex/arty.sdc"
+            fi
+        else
+            echo "Device $device not supported"
+            exit 1
         fi
     fi
 
