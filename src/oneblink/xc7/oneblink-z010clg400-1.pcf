@@ -1,0 +1,3 @@
+# 150MHz clk
+set_io clk K17
+set_io out M14

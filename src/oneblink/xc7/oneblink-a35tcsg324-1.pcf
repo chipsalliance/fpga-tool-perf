@@ -1,0 +1,3 @@
+# arty 100 MHz CLK
+set_io clk E3
+set_io out T10
