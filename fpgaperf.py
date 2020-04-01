@@ -25,6 +25,7 @@ from symbiflow import VPR
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = root_dir + '/project'
+src_dir = root_dir + '/src'
 
 
 class NotAvailable:
@@ -385,9 +386,6 @@ def run(
     verbose=False,
     strategy=None,
     seed=None,
-    pcf=None,
-    sdc=None,
-    xdc=None,
     carry=None,
     build=None
 ):
@@ -404,6 +402,17 @@ def run(
     t.strategy = strategy
     t.seed = seed
     t.carry = carry
+
+    #print("TJUR out_dir: " + out_dir)
+    # Contraint files shall be in their directories
+    pcf = get_pcf(project, family, device,
+                  package, toolchain)
+    sdc = get_sdc(project, family, device,
+                  package, toolchain)
+    xdc = get_xdc(project, family, device,
+                  package, toolchain)
+
+
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
     t.sdc = os.path.realpath(sdc) if sdc else None
@@ -411,7 +420,7 @@ def run(
     t.build = build
 
     t.project(
-        project,
+        get_project(project),
         family,
         device,
         package,
@@ -487,6 +496,29 @@ def env_ready():
                 return False
     return True
 
+def get_constraint(project, family, device, package, toolchain, extension):
+    path = src_dir + '/'   \
+           + project + '/' \
+           + family + '/'  \
+           + device + package + '/' \
+           + toolchain + '.' + extension
+    if(os.path.exists(path)):
+        return path
+    else:
+        return None
+
+
+def get_pcf(project, family, device, package, toolchain):
+    return get_constraint(project, family, device, package, toolchain, 'pcf')
+
+
+def get_sdc(project, family, device, package, toolchain):
+    return get_constraint(project, family, device, package, toolchain, 'sdc')
+
+
+def get_xdc(project, family, device, package, toolchain):
+    return get_constraint(project, family, device, package, toolchain, 'xdc')
+
 
 def get_project(name):
     project_fn = project_dir + '/' + name + '.json'
@@ -554,9 +586,6 @@ def main():
         default=None,
         help='Auto named directory prefix (default: build)'
     )
-    parser.add_argument('--pcf', default=None, help='')
-    parser.add_argument('--sdc', default=None, help='')
-    parser.add_argument('--xdc', default=None, help='')
     parser.add_argument('--build', default=None, help='Build number')
     args = parser.parse_args()
 
@@ -593,13 +622,10 @@ def main():
             args.device,
             args.package,
             args.toolchain,
-            get_project(args.project),
+            args.project,
             out_dir=args.out_dir,
             out_prefix=args.out_prefix,
             strategy=args.strategy,
-            pcf=args.pcf,
-            sdc=args.sdc,
-            xdc=args.xdc,
             carry=args.carry,
             seed=seed,
             build=args.build,
