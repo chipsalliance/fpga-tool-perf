@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module toplevel(
-    input   io_J3,
-    input   io_H16,
+    input   clk,
+    input   jtag_clk,
     input   io_G15,
     output  io_G16,
     input   io_F15,
@@ -17,18 +17,18 @@ module toplevel(
   wire io_mainClk;
   wire io_jtag_tck;
 
-  assign io_mainClk = io_J3;
+  assign io_mainClk = clk;
   /*
   SB_GB mainClkBuffer (
-    .USER_SIGNAL_TO_GLOBAL_BUFFER (io_J3),
+    .USER_SIGNAL_TO_GLOBAL_BUFFER (clk),
     .GLOBAL_BUFFER_OUTPUT ( io_mainClk)
   );
   */
 
-  assign io_jtag_tck = io_H16;
+  assign io_jtag_tck = jtag_clk;
   /*
   SB_GB jtagClkBuffer (
-    .USER_SIGNAL_TO_GLOBAL_BUFFER (io_H16),
+    .USER_SIGNAL_TO_GLOBAL_BUFFER (jtag_clk),
     .GLOBAL_BUFFER_OUTPUT ( io_jtag_tck)
   );
   */

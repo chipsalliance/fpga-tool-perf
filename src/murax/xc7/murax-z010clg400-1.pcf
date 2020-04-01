@@ -1,0 +1,17 @@
+set_io clk  H16
+set_io jtag_clk K17
+set_io io_G15 E17
+set_io io_G16 E18
+set_io io_F15 F16
+set_io io_B12 F19
+set_io io_B10 G17
+set_io io_led[0] G19
+set_io io_led[1] H15
+set_io io_led[2] J20
+set_io io_led[3] K14
+set_io io_led[4] K16
+set_io io_led[5] K19
+set_io io_led[6] L14
+set_io io_led[7] L19
+
+
