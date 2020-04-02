@@ -1,11 +1,11 @@
 {
     "srcs": [
-        "src/picorv32/picosoc/picosoc.v",
-        "src/picorv32/picorv32.v",
-        "src/picorv32/picosoc/spimemio.v",
-        "src/picorv32/picosoc/simpleuart.v",
-        "src/picorv32/picosoc/hx8kdemo.v"
-        ],
+        "third_party/picorv32/picosoc/picosoc.v",
+        "third_party/picorv32/picorv32.v",
+        "third_party/picorv32/picosoc/spimemio.v",
+        "third_party/picorv32/picosoc/simpleuart.v",
+        "third_party/picorv32/picosoc/hx8kdemo.v"
+    ],
     "top": "hx8kdemo",
     "name": "picosoc-hx8kdemo"
 }

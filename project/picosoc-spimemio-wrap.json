@@ -1,8 +1,8 @@
 {
     "srcs": [
-        "src/picorv32/picosoc/spimemio.v",
-        "src/picosoc_spimemio_wrap.v"
-        ],
+        "third_party/picorv32/picosoc/spimemio.v",
+        "src/picosoc_spimemio/picosoc_spimemio_wrap.v"
+    ],
     "top": "top",
     "name": "picosoc-spimemio-wrap"
 }

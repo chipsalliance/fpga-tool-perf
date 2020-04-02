@@ -2,7 +2,7 @@
     "srcs": [
         "src/baselitex/VexRiscv_Linux.v",
         "src/baselitex/baselitex_arty.v"
-        ],
+    ],
     "top": "top",
     "name": "litex-linux",
     "data": [

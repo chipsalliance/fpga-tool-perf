@@ -1,8 +1,8 @@
 {
     "srcs": [
-        "src/picorv32/picosoc/simpleuart.v",
-        "src/picosoc_simpleuart_wrap.v"
-        ],
+        "third_party/picorv32/picosoc/simpleuart.v",
+        "src/picosoc_simpleuart/picosoc_simpleuart_wrap.v"
+    ],
     "top": "top",
     "name": "picosoc-simpleuart-wrap"
 }
