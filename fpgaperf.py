@@ -443,16 +443,20 @@ def list_toolchains():
     for t in get_toolchains():
         print(t)
 
-
-def get_projects():
-    '''Query all supported projects'''
+def matching_pattern(path, pattern):
     return sorted(
         [
-            re.match('/.*/(.*)[.]json', fn).group(1)
-            for fn in glob.glob(project_dir + '/*.json')
+            re.match(pattern, fn).group(1)
+            for fn in glob.glob(path)
         ]
     )
 
+def get_projects():
+    '''Query all supported projects'''
+    return matching_pattern(
+        project_dir + '/*.json',
+        '/.*/(.*)[.]json'
+    )
 
 def list_projects():
     '''Print all supported projects'''
