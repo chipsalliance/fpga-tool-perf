@@ -500,7 +500,7 @@ def get_constraint(project, family, device, package, toolchain, extension):
     path = src_dir + '/'   \
            + project + '/' \
            + family + '/'  \
-           + device + package + '/' \
+           + device + '_' + package + '/' \
            + toolchain + '.' + extension
     if(os.path.exists(path)):
         return path
