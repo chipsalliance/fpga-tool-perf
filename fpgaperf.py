@@ -403,8 +403,7 @@ def run(
     t.seed = seed
     t.carry = carry
 
-    #print("TJUR out_dir: " + out_dir)
-    # Contraint files shall be in their directories
+    # Constraint files shall be in their directories
     pcf = get_pcf(project, family, device,
                   package, toolchain)
     sdc = get_sdc(project, family, device,
@@ -500,12 +499,9 @@ def env_ready():
                 return False
     return True
 
+
 def get_constraint(project, family, device, package, toolchain, extension):
-    path = src_dir + '/'   \
-           + project + '/' \
-           + family + '/'  \
-           + device + '_' + package + '/' \
-           + toolchain + '.' + extension
+    path = os.path.join(src_dir, project, family, "{}_{}".format(device, package), "{}.{}".format(toolchain, extension))
     if(os.path.exists(path)):
         return path
     else:

@@ -74,7 +74,7 @@ def main():
                     for package in user_selected(args.package) or get_packages(project, family, device):
                         # Only run a test if PCF constraint file is present
                         # the other (SDC, XDC) files are optional
-                        if(get_pcf(project, family, device, package, toolchain) is not None):
+                        if get_pcf(project, family, device, package, toolchain) is not None:
                             run(
                                 family,
                                 device,
