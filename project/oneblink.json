@@ -1,6 +1,6 @@
 {
     "srcs": [
-        "src/oneblink.v"
+        "src/oneblink/oneblink.v"
         ],
     "top": "top",
     "name": "oneblink"
