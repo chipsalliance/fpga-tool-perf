@@ -1,9 +1,16 @@
-[submodule "src/picorv32"]
-	path = src/picorv32
+[submodule "third_party/picorv32"]
+	path = third_party/picorv32
 	url = https://github.com/cliffordwolf/picorv32.git
-[submodule "src/up5k-demos"]
-	path = src/up5k-demos
+[submodule "third_party/up5k-demos"]
+	path = third_party/up5k-demos
 	url = https://github.com/daveshah1/up5k-demos.git
-[submodule "src/VexRiscv-verilog"]
-	path = src/vexriscv-verilog
+[submodule "third_party/vexriscv-verilog"]
+	path = third_party/vexriscv-verilog
 	url = https://github.com/m-labs/VexRiscv-verilog
+[submodule "third_party/fasm"]
+	path = third_party/fasm
+	url = https://github.com/SymbiFlow/fasm.git
+[submodule "third_party/edalize"]
+	path = third_party/edalize
+	url = https://github.com/SymbiFlow/edalize.git
+	branch = symbiflow
