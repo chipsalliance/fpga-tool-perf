@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import json
+
 from fpgaperf import *
 import sow
 
@@ -89,10 +91,15 @@ def main():
                             )
 
     # Combine results of all the tests
+    # Combine results of all tests
     print('Merging results')
     merged_dict = {}
 
-    get_reports(args.out_prefix)
+    for report in get_reports(args.out_prefix):
+        sow.merge(merged_dict, json.load(open(report, 'r')))
+
+    fout = open('all.json', 'w')
+    json.dump(merged_dict, fout)
 
 if __name__ == '__main__':
     main()
