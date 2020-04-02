@@ -1,21 +1,44 @@
 #!/usr/bin/env python3
 
 from fpgaperf import *
+import sow
 
-families = [
-    'xc7'
-]
+# to find data files
+root_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = root_dir + '/src'
 
-devices = [
-    'a35t',
-    'z010'
-]
 
-packages = [
-    'cpg236-1',
-    'csg324-1',
-    'clg400-1'
-]
+def get_families(project):
+    return matching_pattern(
+        src_dir + '/' + project + '/*/',
+        '.*\/(.*)\/$'
+    )
+
+
+def get_devices(project, family):
+    return matching_pattern(
+        src_dir + '/' + project + '/' + family + '/*/',
+        '.*\/([^/_]*)(?:_?)(?:[^/_]*)\/$'
+    )
+
+
+def get_packages(project, family, device):
+    return matching_pattern(
+        src_dir + '/' + project + '/' + family + '/' + device + '*/',
+        '.*\/(?:[^/_]*' + device + ')(?:_?)([^/_]*)\/$'
+    )
+
+
+def get_reports(out_prefix):
+    return matching_pattern(
+        root_dir + '/' + out_prefix + '/*/meta.json',
+        '(.*)'
+    )
+
+
+def user_selected(option):
+    return [option] if option else None
+
 
 def main():
     import argparse
@@ -23,11 +46,11 @@ def main():
         description=
         'Exhaustively try project-toolchain combinations'
     )
-    parser.add_argument('--family', default='all', help='device family')
-    parser.add_argument('--device', default='all', help='device')
-    parser.add_argument('--package', default='all', help='device package')
-    parser.add_argument('--project', default='all', help='run given project only (default: all)')
-    parser.add_argument('--toolchain', default='all', help='run given toolchain only (default: all)')
+    parser.add_argument('--family', default=None, help='device family')
+    parser.add_argument('--device', default=None, help='device')
+    parser.add_argument('--package', default=None, help='device package')
+    parser.add_argument('--project', default=None, help='run given project only (default: all)')
+    parser.add_argument('--toolchain', default=None, help='run given toolchain only (default: all)')
     parser.add_argument('--out-prefix', default='build', help='output directory prefix (default: build)')
     parser.add_argument('--dry', action='store_true', help='print commands, don\'t invoke')
     parser.add_argument('--fail', action='store_true', help='fail on error')
@@ -36,39 +59,19 @@ def main():
 
     print('Running exhaustive project-toolchain search')
 
-    if(args.project != "all"):
-        # Only specified project
-        selected_projects = [args.project]
-    else:
-        # All projects
-        selected_projects = get_projects()
+    # Always check if given option was overriden by user's argument
+    # if not - run all available tests
+    for project in user_selected(args.project) or get_projects():
 
-    if(args.toolchain != "all"):
-        selected_toolchains = [args.toolchain]
-    else:
-        selected_toolchains = get_toolchains()
+        for toolchain in user_selected(args.toolchain) or get_toolchains():
 
-    if(args.family != "all"):
-        selected_families = [args.familes]
-    else:
-        selected_families = families
+            for family in user_selected(args.family) or get_families(project):
 
-    if(args.device != "all"):
-        selected_devices = [args.device]
-    else:
-        selected_devices = devices
+                for device in user_selected(args.device) or get_devices(project, family):
 
-    if(args.package != "all"):
-        selected_packages = [args.package]
-    else:
-        selected_packages = packages
-
-
-    for project in selected_projects:
-        for toolchain in selected_toolchains:
-            for family in selected_families:
-                for device in selected_devices:
-                    for package in selected_packages:
+                    for package in user_selected(args.package) or get_packages(project, family, device):
+                        # Only run a test if PCF constraint file is present
+                        # the other (SDC, XDC) files are optional
                         if(get_pcf(project, family, device, package, toolchain) is not None):
                             run(
                                 family,
@@ -83,7 +86,13 @@ def main():
                                 None, #seed
                                 None, #build
                                 args.verbose
-                                )
+                            )
+
+    # Combine results of all the tests
+    print('Merging results')
+    merged_dict = {}
+
+    get_reports(args.out_prefix)
 
 if __name__ == '__main__':
     main()
