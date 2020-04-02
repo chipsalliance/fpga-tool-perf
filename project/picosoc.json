@@ -1,10 +1,11 @@
 {
     "srcs": [
-        "third_party/picorv32/picosoc/picosoc.v",
         "third_party/picorv32/picorv32.v",
         "third_party/picorv32/picosoc/spimemio.v",
         "third_party/picorv32/picosoc/simpleuart.v",
-        "src/picosoc_wrap.v"
+        "src/picosoc/picosoc_wrap.v",
+        "src/picosoc/picosoc_noflash.v",
+        "src/picosoc/progmem.v"
     ],
     "top": "top",
     "name": "picosoc-wrap"
