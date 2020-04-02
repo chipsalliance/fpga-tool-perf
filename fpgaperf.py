@@ -415,7 +415,7 @@ def run(
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
     t.sdc = os.path.realpath(sdc) if sdc else None
-    t.xdc = os.path.realpath(xdc) if sdc else None
+    t.xdc = os.path.realpath(xdc) if xdc else None
     t.build = build
 
     t.project(
