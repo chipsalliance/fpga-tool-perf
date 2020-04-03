@@ -125,8 +125,8 @@ def main():
     for report in get_reports(args.out_prefix):
         sow.merge(merged_dict, json.load(open(report, 'r')))
 
-    fout = open('all.json', 'w')
-    json.dump(merged_dict, fout)
+    fout = open('{}/all.json'.format(args.out_prefix), 'w')
+    json.dump(merged_dict, fout, indent=4, sort_keys=True)
 
 
 if __name__ == '__main__':
