@@ -69,7 +69,7 @@ class Vivado(Toolchain):
 
             self.files.append(
                 {
-                    'name': os.path.realpath(self.pcf),
+                    'name': os.path.realpath(self.xdc),
                     'file_type': 'xdc'
                 }
             )

@@ -74,21 +74,24 @@ def main():
                     for package in user_selected(args.package) or get_packages(project, family, device):
                         # Only run a test if PCF constraint file is present
                         # the other (SDC, XDC) files are optional
-                        if get_pcf(project, family, device, package, toolchain) is not None:
-                            run(
-                                family,
-                                device,
-                                package,
-                                toolchain,
-                                project,
-                                None, #out_dir
-                                args.out_prefix,
-                                None, #strategy
-                                None, #carry
-                                None, #seed
-                                None, #build
-                                args.verbose
-                            )
+                        # Exception: Vivado takes XDC only
+                        if ((toolchain == "vivado"
+                           and (get_xdc(project, family, device, package, toolchain) is not None))
+                            or  get_pcf(project, family, device, package, toolchain) is not None):
+                                run(
+                                    family,
+                                    device,
+                                    package,
+                                    toolchain,
+                                    project,
+                                    None, #out_dir
+                                    args.out_prefix,
+                                    None, #strategy
+                                    None, #carry
+                                    None, #seed
+                                    None, #build
+                                    args.verbose
+                                )
 
     # Combine results of all the tests
     # Combine results of all tests
