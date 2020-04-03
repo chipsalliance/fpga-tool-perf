@@ -1,2 +1,4 @@
 terminaltables
 asciitable
+simplejson
+progressbar

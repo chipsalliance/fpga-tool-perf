@@ -33,4 +33,7 @@ PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "
 format: ${PYTHON_SRCS}
 	yapf -i $?
 
-.PHONY: all env format run-all
+clean:
+	rm -rf build/
+
+.PHONY: all env build-tools format run-all clean
