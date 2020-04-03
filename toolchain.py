@@ -143,13 +143,13 @@ class Toolchain:
         self._strategy = value
 
     def project(
-        self,
-        project,
-        family,
-        device,
-        package,
-        out_dir=None,
-        out_prefix=None,
+            self,
+            project,
+            family,
+            device,
+            package,
+            out_dir=None,
+            out_prefix=None,
     ):
         self.family = family
         self.device = device

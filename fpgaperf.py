@@ -376,18 +376,18 @@ toolchains = {
 
 
 def run(
-    family,
-    device,
-    package,
-    toolchain,
-    project,
-    out_dir=None,
-    out_prefix=None,
-    verbose=False,
-    strategy=None,
-    seed=None,
-    carry=None,
-    build=None
+        family,
+        device,
+        package,
+        toolchain,
+        project,
+        out_dir=None,
+        out_prefix=None,
+        verbose=False,
+        strategy=None,
+        seed=None,
+        carry=None,
+        build=None
 ):
     assert family == 'ice40' or family == 'xc7'
     assert device is not None
@@ -404,13 +404,9 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
-    pcf = get_pcf(project, family, device,
-                  package, toolchain)
-    sdc = get_sdc(project, family, device,
-                  package, toolchain)
-    xdc = get_xdc(project, family, device,
-                  package, toolchain)
-
+    pcf = get_pcf(project, family, device, package, toolchain)
+    sdc = get_sdc(project, family, device, package, toolchain)
+    xdc = get_xdc(project, family, device, package, toolchain)
 
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
@@ -442,20 +438,15 @@ def list_toolchains():
     for t in get_toolchains():
         print(t)
 
+
 def matching_pattern(path, pattern):
-    return sorted(
-        [
-            re.match(pattern, fn).group(1)
-            for fn in glob.glob(path)
-        ]
-    )
+    return sorted([re.match(pattern, fn).group(1) for fn in glob.glob(path)])
+
 
 def get_projects():
     '''Query all supported projects'''
-    return matching_pattern(
-        project_dir + '/*.json',
-        '/.*/(.*)[.]json'
-    )
+    return matching_pattern(project_dir + '/*.json', '/.*/(.*)[.]json')
+
 
 def list_projects():
     '''Print all supported projects'''
@@ -501,11 +492,28 @@ def env_ready():
 
 
 def get_constraint(project, family, device, package, toolchain, extension):
-    path = os.path.join(src_dir, project, family, "{}_{}".format(device, package), "{}.{}".format(toolchain, extension))
-    if(os.path.exists(path)):
+    path = os.path.join(
+        src_dir, project, family, "{}_{}".format(device, package),
+        "{}.{}".format(toolchain, extension)
+    )
+    if (os.path.exists(path)):
         return path
     else:
         return None
+
+
+def get_constraints(project, family, device, package, toolchain):
+    """ Gets all types of possible constraints."""
+
+    ALLOWED_CONSTRAINTS = ['pcf', 'sdc', 'xdc']
+
+    constraints = {}
+    for constraint in ALLOWED_CONSTRAINTS:
+        constraints[constraint] = get_constraint(
+            project, family, device, package, toolchain, constraint
+        )
+
+    return constraints
 
 
 def get_pcf(project, family, device, package, toolchain):
