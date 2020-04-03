@@ -4,6 +4,7 @@ import json
 import os
 import glob
 import multiprocessing as mp
+from contextlib import redirect_stdout
 
 from fpgaperf import *
 import sow
@@ -72,21 +73,24 @@ def iter_options(args):
 
 def worker(arglist):
     out_prefix, verbose, project, family, device, package, board, toolchain = arglist
-    run(
-        family,
-        device,
-        package,
-        board,
-        toolchain,
-        project,
-        None,  #out_dir
-        out_prefix,
-        None,  #strategy
-        None,  #carry
-        None,  #seed
-        None,  #build
-        verbose
-    )
+    # We don't want output of all subprocesses here
+    # Log files for each build will be placed in build directory
+    with redirect_stdout(open(os.devnull, 'w')):
+        run(
+            family,
+            device,
+            package,
+            board,
+            toolchain,
+            project,
+            None,  #out_dir
+            out_prefix,
+            None,  #strategy
+            None,  #carry
+            None,  #seed
+            None,  #build
+            verbose
+        )
 
 
 def main():
