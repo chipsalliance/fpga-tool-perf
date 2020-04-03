@@ -73,25 +73,30 @@ $ python3 fpgaperf.py --toolchain arachne --project oneblink --device "hx8k" --p
 ```
 or
 ```
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "a35ti" --package "csg324-1L" --pcf project/arty.xdc
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "a35ti" --package "csg324-1L"
 ```
 
 For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
 
 ```
 # Yosys -> Vivado
-$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --family "xc7" --device "z020" --package "clg400-1" --pcf project/oneblink-zybo-z7.xdc
+$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --family "xc7" --device "z020" --package "clg400-1"
 # Pure Vivado
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "z020" --package "clg400-1" --pcf project/oneblink-zybo-z7.xdc
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "z020" --package "clg400-1"
 ```
 
 Use --help to see all argument options:
 ```
 $ python3 fpgaperf.py --help
 usage: fpgaperf.py [-h] [--verbose] [--overwrite] [--family FAMILY]
-               [--device DEVICE] [--package PACKAGE] [--strategy STRATEGY]
-               [--toolchain TOOLCHAIN] [--list-toolchains] [--project PROJECT]
-               [--seed SEED] [--out-dir OUT_DIR] [--pcf PCF]
+                   [--device DEVICE] [--package PACKAGE] [--strategy STRATEGY]
+                   [--carry] [--no-carry]
+                   [--toolchain {arachne,icecube2-lse,icecube2-synpro,icecube2-yosys,nextpnr,radiant-lse,radiant-synpro,vivado,vivado-yosys,vpr}]
+                   [--list-toolchains]
+                   [--project {baselitex,ibex,murax,oneblink,picorv32,picosoc,picosoc_hx8kdemo,picosoc_simpleuart,picosoc_spimemio,vexriscv}]
+                   [--list-projects] [--seed SEED] [--list-seedable]
+                   [--check-env] [--out-dir OUT_DIR] [--out-prefix OUT_PREFIX]
+                   [--build BUILD]
 
 Analyze FPGA tool performance (MHz, resources, runtime, etc)
 
@@ -103,28 +108,37 @@ optional arguments:
   --device DEVICE       Device within family
   --package PACKAGE     Device package
   --strategy STRATEGY   Optimization strategy
-  --toolchain TOOLCHAIN
+  --carry               Force carry / no carry (default: use tool default)
+  --no-carry            Force carry / no carry (default: use tool default)
+  --toolchain {arachne,icecube2-lse,icecube2-synpro,icecube2-yosys,nextpnr,radiant-lse,radiant-synpro,vivado,vivado-yosys,vpr}
                         Tools to use
   --list-toolchains
-  --project PROJECT     Source code to run on
-  --seed SEED           32 bit seed number to use, possibly directly mapped
-                        to PnR tool
+  --project {baselitex,ibex,murax,oneblink,picorv32,picosoc,picosoc_hx8kdemo,picosoc_simpleuart,picosoc_spimemio,vexriscv}
+                        Source code to run on
+  --list-projects
+  --seed SEED           31 bit seed number to use, possibly directly mapped to
+                        PnR tool
+  --list-seedable
+  --check-env           Check if environment is present
   --out-dir OUT_DIR     Output directory
-  --pcf PCF
+  --out-prefix OUT_PREFIX
+                        Auto named directory prefix (default: build)
+  --build BUILD         Build number
 ```
 
 Supported toolchains can be queried as follows:
 ```
 $ python3 fpgaperf.py  --list-toolchains
 Supported toolchains:
-vivado
 arachne
 icecube2-lse
 icecube2-synpro
 icecube2-yosys
+nextpnr
 radiant-lse
 radiant-synpro
-nextpnr
+vivado
+vivado-yosys
 vpr
 ```
 
@@ -143,53 +157,55 @@ vpr
 Supported projects can be queried as follows:
 ```
 $ python3 fpgaperf.py  --list-projects
+baselitex
+ibex
+murax
 oneblink
-picorv32-wrap
-picosoc-hx8kdemo
-picosoc-simpleuart-wrap
-picosoc-spimemio-wrap
-picosoc-wrap
-vexriscv-verilog
+picorv32
+picosoc
+picosoc_hx8kdemo
+picosoc_simpleuart
+picosoc_spimemio
+vexriscv
 ```
 
-Use exhaust.sh to automatically try project-toolchain permutations:
+Use exhaust.py to automatically try project-toolchain permutations:
 ```
-$ ./exhaust.sh -h
-Exhaustively try project-toolchain combinations, seeding if possible
-usage: exaust.sh [args]
---device <device>         device (default: hx8k)
---package <package>       device package (default: ct256)
---project <project>       run given project only (default: all)
---toolchain <toolchain>   run given toolchain only (default: all)
---pcf <pcf>               pin constraint file (default: none)
---dry                     print commands, don't invoke
---verbose                 verbose output
+$ python3 exhaust.py --help
+usage: exhaust.py [-h] [--family FAMILY] [--device DEVICE] [--package PACKAGE]
+                  [--project PROJECT] [--toolchain TOOLCHAIN]
+                  [--out-prefix OUT_PREFIX] [--dry] [--fail] [--verbose]
+
+Exhaustively try project-toolchain combinations
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --family FAMILY       device family
+  --device DEVICE       device
+  --package PACKAGE     device package
+  --project PROJECT     run given project only (default: all)
+  --toolchain TOOLCHAIN
+                        run given toolchain only (default: all)
+  --out-prefix OUT_PREFIX
+                        output directory prefix (default: build)
+  --dry                 print commands, don't invoke
+  --fail                fail on error
+  --verbose             verbose output
 ```
 
-For example:
+When executed without arguments, exhaust.py will try every project-toolchain-device
+permutation. Only permutations with existing constraint files will be built:
 ```
-$ ./exhaust.sh --device hx8k --package ct256
-```
-
-Its also possible to run against a single toolchain and/or project:
-```
-$ ./exhaust.sh --device hx8k --package cm81 --project oneblink --toolchain nextpnr --pcf project/oneblink_lp8k-cm81.pcf
+$ python3 exhaust.py
 ```
 
-See build directory for output. Note in particular [build/all.csv](build/all.csv)
-
-There is also [build/sow.csv](build/sow.csv) (a seed pun), which has seed
-results processed into min/max rows
-
-Since pcf files are project specific, you can't easily use exaust.sh by itself
-to test all configurations. If you want to do this, use pcf_test.sh:
-
+Its also possible to run a test against a single toolchain and/or project and/or device:
 ```
-$ ./pcf_test.sh  -h
-Exhaustively run all projects with valid .pcf
-usage: pcf_test.sh
---out-prefix <dir>        output directory prefix (default: build)
+$ python3 exhaust.py --device hx8k --package cm81 --project oneblink --toolchain nextpnr
 ```
+
+See build directory for output. Note in particular [build/all.json](build/all.json)
+
 
 ## Development
 
