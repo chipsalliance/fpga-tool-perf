@@ -4,6 +4,8 @@ import json
 import os
 import glob
 import multiprocessing as mp
+import progressbar as pb
+import time
 from contextlib import redirect_stdout
 
 from fpgaperf import *
@@ -150,8 +152,14 @@ def main():
                 tasks.append(task)
                 break
 
-    with mp.Pool(mp.cpu_count()) as pool:
-        pool.map(worker, tasks)
+    jobs = mp.Pool(mp.cpu_count()).map_async(worker, tasks)
+    widget = ['Exhaust progress: ', pb.SimpleProgress(), pb.Bar()]
+    bar = pb.ProgressBar(widgets=widget, maxval=len(tasks)).start()
+
+    while not jobs.ready():
+        bar.update(len(tasks) - jobs._number_left)
+        time.sleep(1)
+    bar.update(len(tasks))
 
     # Combine results of all tests
     print('Merging results')
