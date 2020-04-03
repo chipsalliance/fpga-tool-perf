@@ -3,6 +3,7 @@ import os
 from toolchain import Toolchain
 from utils import Timed
 
+
 # no seed support?
 class Icecube2(Toolchain):
     '''Lattice Icecube2 based toolchains'''
@@ -124,5 +125,3 @@ class Icecube2Yosys(Icecube2):
             'ICECUBEDIR': os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
             'icetime': have_exec('icetime'),
         }
-
-

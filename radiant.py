@@ -3,6 +3,7 @@ import os
 from toolchain import Toolchain
 from utils import Timed
 
+
 # .asc version field just says "DiamondNG"
 # guess that was the code name...
 # no seed support? -n just does more passes
@@ -106,5 +107,3 @@ class RadiantYosys(Radiant):
 
     def syn(self):
         return "yosys-synpro"
-
-
