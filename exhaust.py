@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import multiprocessing as mp
 
 from fpgaperf import *
 import sow
@@ -54,6 +55,24 @@ def iter_options(args):
                         yield project, family, device, package, toolchain
 
 
+def worker(arglist):
+    out_prefix, verbose, project, family, device, package, toolchain = arglist
+    run(
+        family,
+        device,
+        package,
+        toolchain,
+        project,
+        None,  #out_dir
+        out_prefix,
+        None,  #strategy
+        None,  #carry
+        None,  #seed
+        None,  #build
+        verbose
+    )
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(
@@ -88,6 +107,8 @@ def main():
 
     print('Running exhaustive project-toolchain search')
 
+    tasks = []
+
     # Always check if given option was overriden by user's argument
     # if not - run all available tests
     for project, family, device, package, toolchain in iter_options(args):
@@ -100,22 +121,15 @@ def main():
 
         for mandatory_constraint in MANDATORY_CONSTRAINTS[toolchain]:
             if constraints[mandatory_constraint] is not None:
-                run(
-                    family,
-                    device,
-                    package,
-                    toolchain,
-                    project,
-                    None,  #out_dir
-                    args.out_prefix,
-                    None,  #strategy
-                    None,  #carry
-                    None,  #seed
-                    None,  #build
-                    args.verbose
+                task = (
+                    args.out_prefix, args.verbose, project, family, device,
+                    package, toolchain
                 )
-
+                tasks.append(task)
                 break
+
+    with mp.Pool(mp.cpu_count()) as pool:
+        pool.map(worker, tasks)
 
     # Combine results of all the tests
     # Combine results of all tests
