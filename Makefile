@@ -26,7 +26,7 @@ build-tools:
 	cd third_party/yosys-plugins && export PATH=${PWD}/third_party/yosys:${PATH} && $(MAKE)
 
 run-all:
-	${IN_ENV} ./exhaust.py
+	./exhaust.py
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 
