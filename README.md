@@ -36,6 +36,17 @@ Variables you may need to set:
     Default: system path? I've always set this to binary
     ie: export VPR=~/vtr/vpr/vpr
 
+Once all the required environmental variables are set, run the following:
+
+```
+$ source settings.sh
+```
+
+To prepare the python environment, run the following target:
+
+```
+$ make env
+```
 
 To use VPR you'll need to create architecture XML files
 As of this writing [symbiflow-arch-defs dd77600](https://github.com/SymbiFlow/symbiflow-arch-defs/tree/dd77600)
