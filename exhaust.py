@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import json
+import os
+import glob
 import multiprocessing as mp
 
 from fpgaperf import *
@@ -17,21 +19,32 @@ src_dir = root_dir + '/src'
 
 
 def get_families(project):
-    return matching_pattern(src_dir + '/' + project + '/*/', '.*\/(.*)\/$')
+    return matching_pattern(
+        os.path.join(src_dir, project, '*/'), '.*\/(.*)\/$'
+    )
 
 
 def get_devices(project, family):
     return matching_pattern(
-        src_dir + '/' + project + '/' + family + '/*/',
+        os.path.join(src_dir, project, family, '*/'),
         '.*\/([^/_]*)(?:_?)(?:[^/_]*)\/$'
     )
 
 
 def get_packages(project, family, device):
     return matching_pattern(
-        src_dir + '/' + project + '/' + family + '/' + device + '*/',
+        os.path.join(src_dir, project, family, "{}*/".format(device)),
         '.*\/(?:[^/_]*' + device + ')(?:_?)([^/_]*)\/$'
     )
+
+
+def get_boards(project, family, device, package):
+    boards = glob.glob(
+        os.path.join(
+            src_dir, project, family, "{}_{}/*".format(device, package)
+        )
+    )
+    return sorted([board.split('/')[-1] for board in boards])
 
 
 def get_reports(out_prefix):
@@ -52,15 +65,18 @@ def iter_options(args):
                         project, family)):
                     for package in user_selected(args.package) or get_packages(
                             project, family, device):
-                        yield project, family, device, package, toolchain
+                        for board in user_selected(args.board) or get_boards(
+                                project, family, device, package):
+                            yield project, family, device, package, board, toolchain
 
 
 def worker(arglist):
-    out_prefix, verbose, project, family, device, package, toolchain = arglist
+    out_prefix, verbose, project, family, device, package, board, toolchain = arglist
     run(
         family,
         device,
         package,
+        board,
         toolchain,
         project,
         None,  #out_dir
@@ -81,6 +97,7 @@ def main():
     parser.add_argument('--family', default=None, help='device family')
     parser.add_argument('--device', default=None, help='device')
     parser.add_argument('--package', default=None, help='device package')
+    parser.add_argument('--board', default=None, help='target board')
     parser.add_argument(
         '--project',
         default=None,
@@ -111,9 +128,10 @@ def main():
 
     # Always check if given option was overriden by user's argument
     # if not - run all available tests
-    for project, family, device, package, toolchain in iter_options(args):
+    for project, family, device, package, board, toolchain in iter_options(args
+                                                                           ):
         constraints = get_constraints(
-            project, family, device, package, toolchain
+            project, family, device, package, board, toolchain
         )
 
         if toolchain not in MANDATORY_CONSTRAINTS.keys():
@@ -123,7 +141,7 @@ def main():
             if constraints[mandatory_constraint] is not None:
                 task = (
                     args.out_prefix, args.verbose, project, family, device,
-                    package, toolchain
+                    package, board, toolchain
                 )
                 tasks.append(task)
                 break

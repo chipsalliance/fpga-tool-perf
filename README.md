@@ -80,20 +80,20 @@ Versions:
 
 Quick start example:
 ```
-$ python3 fpgaperf.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256"
+$ python3 fpgaperf.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256" --board "breakout"
 ```
 or
 ```
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "a35ti" --package "csg324-1L"
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "a35t" --package "csg324-1" --board "basys3"
 ```
 
 For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
 
 ```
 # Yosys -> Vivado
-$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --family "xc7" --device "z020" --package "clg400-1"
+$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --family "xc7" --device "z020" --package "clg400-1" --board "basys3"
 # Pure Vivado
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "z020" --package "clg400-1"
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "z020" --package "clg400-1" --board "basys3"
 ```
 
 Use --help to see all argument options:
@@ -183,7 +183,7 @@ vexriscv
 Use exhaust.py to automatically try project-toolchain permutations:
 ```
 $ python3 exhaust.py --help
-usage: exhaust.py [-h] [--family FAMILY] [--device DEVICE] [--package PACKAGE]
+usage: exhaust.py [-h] [--family FAMILY] [--device DEVICE] [--package PACKAGE] [--board BOARD]
                   [--project PROJECT] [--toolchain TOOLCHAIN]
                   [--out-prefix OUT_PREFIX] [--dry] [--fail] [--verbose]
 
@@ -194,6 +194,7 @@ optional arguments:
   --family FAMILY       device family
   --device DEVICE       device
   --package PACKAGE     device package
+  --package BOARD       target board
   --project PROJECT     run given project only (default: all)
   --toolchain TOOLCHAIN
                         run given toolchain only (default: all)

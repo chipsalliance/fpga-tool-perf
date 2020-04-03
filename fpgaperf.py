@@ -156,6 +156,7 @@ def run(
     family,
     device,
     package,
+    board,
     toolchain,
     project,
     out_dir=None,
@@ -169,6 +170,7 @@ def run(
     assert family == 'ice40' or family == 'xc7'
     assert device is not None
     assert package is not None
+    assert board is not None
     assert toolchain is not None
     assert project is not None
     # some toolchains use signed 32 bit
@@ -181,9 +183,9 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
-    pcf = get_pcf(project, family, device, package, toolchain)
-    sdc = get_sdc(project, family, device, package, toolchain)
-    xdc = get_xdc(project, family, device, package, toolchain)
+    pcf = get_pcf(project, family, device, package, board, toolchain)
+    sdc = get_sdc(project, family, device, package, board, toolchain)
+    xdc = get_xdc(project, family, device, package, board, toolchain)
 
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
@@ -268,9 +270,11 @@ def env_ready():
     return True
 
 
-def get_constraint(project, family, device, package, toolchain, extension):
+def get_constraint(
+    project, family, device, package, board, toolchain, extension
+):
     path = os.path.join(
-        src_dir, project, family, "{}_{}".format(device, package),
+        src_dir, project, family, "{}_{}".format(device, package), board,
         "{}.{}".format(toolchain, extension)
     )
     if (os.path.exists(path)):
@@ -279,7 +283,7 @@ def get_constraint(project, family, device, package, toolchain, extension):
         return None
 
 
-def get_constraints(project, family, device, package, toolchain):
+def get_constraints(project, family, device, package, board, toolchain):
     """ Gets all types of possible constraints."""
 
     ALLOWED_CONSTRAINTS = ['pcf', 'sdc', 'xdc']
@@ -287,22 +291,28 @@ def get_constraints(project, family, device, package, toolchain):
     constraints = {}
     for constraint in ALLOWED_CONSTRAINTS:
         constraints[constraint] = get_constraint(
-            project, family, device, package, toolchain, constraint
+            project, family, device, package, board, toolchain, constraint
         )
 
     return constraints
 
 
-def get_pcf(project, family, device, package, toolchain):
-    return get_constraint(project, family, device, package, toolchain, 'pcf')
+def get_pcf(project, family, device, package, board, toolchain):
+    return get_constraint(
+        project, family, device, package, board, toolchain, 'pcf'
+    )
 
 
-def get_sdc(project, family, device, package, toolchain):
-    return get_constraint(project, family, device, package, toolchain, 'sdc')
+def get_sdc(project, family, device, package, board, toolchain):
+    return get_constraint(
+        project, family, device, package, board, toolchain, 'sdc'
+    )
 
 
-def get_xdc(project, family, device, package, toolchain):
-    return get_constraint(project, family, device, package, toolchain, 'xdc')
+def get_xdc(project, family, device, package, board, toolchain):
+    return get_constraint(
+        project, family, device, package, board, toolchain, 'xdc'
+    )
 
 
 def get_project(name):
@@ -337,6 +347,7 @@ def main():
         '--device', default='hx8k', help='Device within family'
     )
     parser.add_argument('--package', default=None, help='Device package')
+    parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
         '--strategy', default=None, help='Optimization strategy'
     )
@@ -390,6 +401,8 @@ def main():
             argument_errors.append('--device argument required')
         if args.package is None:
             argument_errors.append('--package argument required')
+        if args.board is None:
+            argument_errors.append('--board argument required')
         if args.toolchain is None:
             argument_errors.append('--toolchain argument required')
         if args.project is None:
@@ -406,6 +419,7 @@ def main():
             args.family,
             args.device,
             args.package,
+            args.board,
             args.toolchain,
             args.project,
             out_dir=args.out_dir,
