@@ -23,9 +23,6 @@
  *
  */
 
-`define PICORV32_REGS picosoc_regs
-`endif
-
 module picosoc_noflash (
 	input clk,
 	input resetn,
