@@ -13,6 +13,15 @@ env:
 	# Install requirements
 	$(IN_ENV) pip install -r requirements.txt
 
+build-tools:
+	git submodule update --init --recursive
+	# Build VtR
+	+cd third_party/vtr && $(MAKE)
+	# Build Yosys
+	+cd third_party/yosys && $(MAKE)
+	# Build Yosys plugins
+	+cd third_party/yosys-plugins && export PATH=$(shell pwd)/third_party/yosys:${PATH} $(MAKE)
+
 run-all:
 	${IN_ENV} ./exhaust.py
 
