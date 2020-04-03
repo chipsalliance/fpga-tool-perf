@@ -1,5 +1,8 @@
 SHELL = bash
 
+PWD = $(shell pwd)
+YOSYS_PREFIX = ${PWD}/third_party/yosys/install
+
 all: format
 
 IN_ENV = if [ -e env/bin/activate ]; then . env/bin/activate; fi; source utils/environment.python.sh;
@@ -16,11 +19,11 @@ env:
 build-tools:
 	git submodule update --init --recursive
 	# Build VtR
-	+cd third_party/vtr && $(MAKE)
+	cd third_party/vtr && $(MAKE) -j`nproc`
 	# Build Yosys
-	+cd third_party/yosys && $(MAKE)
+	cd third_party/yosys && PREFIX=${YOSYS_PREFIX} $(MAKE) -j`nproc` && PREFIX=${YOSYS_PREFIX} $(MAKE) install
 	# Build Yosys plugins
-	+cd third_party/yosys-plugins && export PATH=$(shell pwd)/third_party/yosys:${PATH} $(MAKE)
+	cd third_party/yosys-plugins && export PATH=${PWD}/third_party/yosys:${PATH} && $(MAKE)
 
 run-all:
 	${IN_ENV} ./exhaust.py
