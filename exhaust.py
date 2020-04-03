@@ -48,8 +48,8 @@ def iter_options(args):
     for project in user_selected(args.project) or get_projects():
         for toolchain in user_selected(args.toolchain) or get_toolchains():
             for family in user_selected(args.family) or get_families(project):
-                for device in user_selected(args.device) or get_devices(
-                        project, family):
+                for device in user_selected(args.device) or set(get_devices(
+                        project, family)):
                     for package in user_selected(args.package) or get_packages(
                             project, family, device):
                         yield project, family, device, package, toolchain
@@ -131,7 +131,6 @@ def main():
     with mp.Pool(mp.cpu_count()) as pool:
         pool.map(worker, tasks)
 
-    # Combine results of all the tests
     # Combine results of all tests
     print('Merging results')
     merged_dict = {}
