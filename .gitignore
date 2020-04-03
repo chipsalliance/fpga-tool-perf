@@ -1,12 +1,21 @@
+# build
 build
 /build.*
 
-# tool crap
 # vpr
 vpr_stdout.log
+
+#vivado
+vivado.*
+
 # verilog parser
 parser.out
 parsetab.py
+
+# python related
 __pycache__
 *.py[cod]
 *$py.class
+
+# environment
+env
