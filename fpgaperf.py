@@ -275,7 +275,7 @@ def get_constraint(
     project, family, device, package, board, toolchain, extension
 ):
     path = os.path.join(
-        src_dir, project, family, "{}_{}".format(device, package), board,
+        src_dir, project, family, device, package, board,
         "{}.{}".format(toolchain, extension)
     )
     if (os.path.exists(path)):
