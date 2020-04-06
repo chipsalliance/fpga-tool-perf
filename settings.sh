@@ -2,8 +2,6 @@
 
 export FPGA_TOOL_PERF_DIR=`pwd`
 
-export PATH=$(getconf PATH)
-
 set_tool_path () {
     local TOOL=$1
     local TOOL_PATH=$2
