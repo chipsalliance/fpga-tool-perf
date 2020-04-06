@@ -198,6 +198,7 @@ def run(
         family,
         device,
         package,
+        board,
         out_dir=out_dir,
         out_prefix=out_prefix,
     )

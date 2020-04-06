@@ -36,6 +36,7 @@ class Toolchain:
         self.family = None
         self.device = None
         self.package = None
+        self.board = None
 
         self.project_name = None
         self.srcs = None
@@ -86,7 +87,7 @@ class Toolchain:
             self.runtimes[parent][name] = dt
 
     def design(self):
-        ret = self.family + '-' + self.device + '-' + self.package + '_' + self.toolchain + '_' + self.project_name
+        ret = self.family + '-' + self.device + '-' + self.package + '-' + self.board + '_' + self.toolchain + '_' + self.project_name
         op = self.optstr()
         if op:
             ret += '_' + op
@@ -148,12 +149,14 @@ class Toolchain:
         family,
         device,
         package,
+        board,
         out_dir=None,
         out_prefix=None,
     ):
         self.family = family
         self.device = device
         self.package = package
+        self.board = board
 
         self.project_name = project['name']
         self.srcs = self.canonicalize(project['srcs'])
@@ -231,6 +234,7 @@ class Toolchain:
             'family': self.family,
             'device': self.device,
             'package': self.package,
+            'board': self.board,
             'project': self.project_name,
             'optstr': self.optstr(),
             'pcf': os.path.basename(self.pcf) if self.pcf else None,
