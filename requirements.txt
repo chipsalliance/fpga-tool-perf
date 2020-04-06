@@ -2,3 +2,4 @@ terminaltables
 asciitable
 simplejson
 progressbar
+colorclass

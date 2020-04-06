@@ -6,7 +6,10 @@ import glob
 import multiprocessing as mp
 import progressbar as pb
 import time
+import re
 from contextlib import redirect_stdout
+from terminaltables import SingleTable
+from colorclass import Color
 
 from fpgaperf import *
 import sow
@@ -54,6 +57,35 @@ def get_reports(out_prefix):
     return matching_pattern(
         root_dir + '/' + out_prefix + '/*/meta.json', '(.*)'
     )
+
+def get_builds(out_prefix):
+    return matching_pattern(
+        root_dir + '/' + out_prefix + '/*/', '.*\/(.*)\/$'
+    )
+
+
+def print_table(out_prefix):
+    builds = get_builds(out_prefix)
+    table_data = [['Family', 'Device', 'Package', 'Board', 'Toolchain', 'Project', 'Result']]
+    passed = failed = 0
+    for b in builds:
+        # Split directory name into columns
+        pattern = '([^-]*)-([^-]*)-([^_]*)-([^_]*)_([^_]*)_([^_]*)_.*'
+        row = list(re.match(pattern, b).groups())
+        # Check if metadata was generated
+        # It is created for successful builds only
+        if(os.path.exists(root_dir + '/' + out_prefix + '/' + b + '/meta.json')):
+            row.append(Color('{autogreen}passed{/autogreen}'))
+            passed += 1
+        else:
+            row.append(Color('{autored}failed{/autored}'))
+            failed += 1
+        table_data.append(row)
+    table_data.append([Color('{autogreen}Passed:{/autogreen}'), passed,
+                       Color('{autored}Failed:{/autored}'), failed])
+    table = SingleTable(table_data)
+    table.inner_footing_row_border = True
+    print(table.table)
 
 
 def user_selected(option):
@@ -170,6 +202,9 @@ def main():
 
     fout = open('{}/all.json'.format(args.out_prefix), 'w')
     json.dump(merged_dict, fout, indent=4, sort_keys=True)
+
+    # Print summary table
+    print_table(args.out_prefix)
 
 
 if __name__ == '__main__':
