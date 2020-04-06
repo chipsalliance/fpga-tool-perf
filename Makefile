@@ -1,7 +1,7 @@
 SHELL = bash
 
 PWD = $(shell pwd)
-YOSYS_PREFIX = ${PWD}/third_party/yosys/install
+INSTALL_DIR = ${PWD}/third_party/install
 
 all: format
 
@@ -19,14 +19,14 @@ env:
 build-tools:
 	git submodule update --init --recursive
 	# Build VtR
-	cd third_party/vtr && $(MAKE) -j`nproc`
+	cd third_party/vtr && CMAKE_PARAMS="-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" $(MAKE) -j`nproc`
 	# Build Yosys
-	cd third_party/yosys && PREFIX=${YOSYS_PREFIX} $(MAKE) -j`nproc` && PREFIX=${YOSYS_PREFIX} $(MAKE) install
+	cd third_party/yosys && PREFIX=${INSTALL_DIR} $(MAKE) -j`nproc` && PREFIX=${INSTALL_DIR} $(MAKE) install
 	# Build Yosys plugins
-	cd third_party/yosys-plugins && export PATH=${PWD}/third_party/yosys:${PATH} && $(MAKE)
+	cd third_party/yosys-plugins && export PATH=${INSTALL_DIR}/bin:${PATH} && $(MAKE)
 
 run-all:
-	./exhaust.py
+	${IN_ENV} ./exhaust.py
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 

@@ -5,7 +5,7 @@ build
 # vpr
 vpr_stdout.log
 
-#vivado
+# vivado
 vivado.*
 
 # verilog parser
@@ -19,3 +19,6 @@ __pycache__
 
 # environment
 env
+
+# install files
+third_party/install

@@ -24,7 +24,6 @@ set_tool_path () {
 }
 
 # Checking that required commands and environmental variables are set
-set_tool_path VPR third_party/vtr/build/vpr no
-set_tool_path GENFASM third_party/vtr/build/util/fasm no
-set_tool_path YOSYS third_party/yosys no
+set_tool_path VPR third_party/install/bin no
+set_tool_path YOSYS third_party/install/bin no
 set_tool_path SYMBIFLOW third_party/symbiflow/bin yes
