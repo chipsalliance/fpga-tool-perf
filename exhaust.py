@@ -93,7 +93,7 @@ def get_builds(out_prefix):
     )
 
 
-def print_summary_table(out_prefix):
+def print_summary_table(out_prefix, total_tasks):
     """Prints a summary table of the outcome of each test."""
     builds = get_builds(out_prefix)
     table_data = [
@@ -118,10 +118,12 @@ def print_summary_table(out_prefix):
             row.append(Color('{autored}failed{/autored}'))
             failed += 1
         table_data.append(row)
+
     table_data.append(
         [
             Color('{autogreen}Passed:{/autogreen}'), passed,
-            Color('{autored}Failed:{/autored}'), failed
+            Color('{autored}Failed:{/autored}'), failed, '', '',
+            '{}%'.format(int(passed / total_tasks * 100))
         ]
     )
     table = SingleTable(table_data)
@@ -271,7 +273,7 @@ def main():
     fout = open('{}/all.json'.format(args.out_prefix), 'w')
     json.dump(merged_dict, fout, indent=4, sort_keys=True)
 
-    print_summary_table(args.out_prefix)
+    print_summary_table(args.out_prefix, len(tasks))
 
 
 if __name__ == '__main__':
