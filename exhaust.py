@@ -25,12 +25,31 @@ src_dir = root_dir + '/src'
 
 
 def get_families(project):
+    """Returns all the FPGA families related to a project.
+
+    Example:
+        - project content:
+            src/oneblink/xc7
+            src/oneblink/ice40
+
+        - return value: ['xc7', 'ice40']
+    """
     return matching_pattern(
         os.path.join(src_dir, project, '*/'), '.*\/(.*)\/$'
     )
 
 
 def get_devices(project, family):
+    """Returns all the FPGA devices related to a project and
+    an FPGA family.
+
+    Example:
+        - FPGA family content:
+            src/oneblink/xc7/a35t_csg324-1
+            src/oneblink/xc7/z010_clg400-1
+
+        - return value: ['a35t', 'z010']
+    """
     return matching_pattern(
         os.path.join(src_dir, project, family, '*/'),
         '.*\/([^/_]*)(?:_?)(?:[^/_]*)\/$'
@@ -38,6 +57,16 @@ def get_devices(project, family):
 
 
 def get_packages(project, family, device):
+    """Returns all the device packages related to a project,
+    an FPGA family and a device.
+
+    Example:
+        - FPGA family content:
+            src/oneblink/xc7/a35t_csg324-1
+            src/oneblink/xc7/a35t_cpg236-1
+
+        - return value: ['csg324-1', 'cpg236-1']
+    """
     return matching_pattern(
         os.path.join(src_dir, project, family, "{}*/".format(device)),
         '.*\/(?:[^/_]*' + device + ')(?:_?)([^/_]*)\/$'
@@ -45,6 +74,15 @@ def get_packages(project, family, device):
 
 
 def get_boards(project, family, device, package):
+    """Returns all the boards related to a project, an FPGA family,
+    a device and a package.
+
+    Example:
+        - device and package content:
+            src/oneblink/xc7/a35t_csg324-1/arty
+
+        - return value: ['arty']
+    """
     boards = glob.glob(
         os.path.join(
             src_dir, project, family, "{}_{}/*".format(device, package)
@@ -54,35 +92,50 @@ def get_boards(project, family, device, package):
 
 
 def get_reports(out_prefix):
+    """Returns all the reports from all the build runs."""
     return matching_pattern(
-        root_dir + '/' + out_prefix + '/*/meta.json', '(.*)'
+        os.path.join(root_dir, out_prefix, '/*/meta.json'), '(.*)'
     )
+
 
 def get_builds(out_prefix):
+    """Returns all the paths of all the builds in the build directory."""
     return matching_pattern(
-        root_dir + '/' + out_prefix + '/*/', '.*\/(.*)\/$'
+        os.path.join(root_dir, out_prefix, '/*/'), '.*\/(.*)\/$'
     )
 
 
-def print_table(out_prefix):
+def print_summary_table(out_prefix):
+    """Prints a summary table of the outcome of each test."""
     builds = get_builds(out_prefix)
-    table_data = [['Family', 'Device', 'Package', 'Board', 'Toolchain', 'Project', 'Result']]
+    table_data = [
+        [
+            'Family', 'Device', 'Package', 'Board', 'Toolchain', 'Project',
+            'Result'
+        ]
+    ]
     passed = failed = 0
-    for b in builds:
+    for build in builds:
         # Split directory name into columns
+        # Example: xc7_a35t_csg326_arty_vpr_oneblink
         pattern = '([^-]*)-([^-]*)-([^_]*)-([^_]*)_([^_]*)_([^_]*)_.*'
-        row = list(re.match(pattern, b).groups())
+        row = list(re.match(pattern, build).groups())
         # Check if metadata was generated
         # It is created for successful builds only
-        if(os.path.exists(root_dir + '/' + out_prefix + '/' + b + '/meta.json')):
+        if os.path.exists(os.path.join(root_dir, out_prefix, build,
+                                       '/meta.json')):
             row.append(Color('{autogreen}passed{/autogreen}'))
             passed += 1
         else:
             row.append(Color('{autored}failed{/autored}'))
             failed += 1
         table_data.append(row)
-    table_data.append([Color('{autogreen}Passed:{/autogreen}'), passed,
-                       Color('{autored}Failed:{/autored}'), failed])
+    table_data.append(
+        [
+            Color('{autogreen}Passed:{/autogreen}'), passed,
+            Color('{autored}Failed:{/autored}'), failed
+        ]
+    )
     table = SingleTable(table_data)
     table.inner_footing_row_border = True
     print(table.table)
@@ -185,7 +238,7 @@ def main():
                 break
 
     jobs = mp.Pool(mp.cpu_count()).map_async(worker, tasks)
-    widget = ['Exhaust progress: ', pb.SimpleProgress(), pb.Bar()]
+    widget = ['Exhaust progress:\n', pb.SimpleProgress(), pb.Bar()]
     bar = pb.ProgressBar(widgets=widget, maxval=len(tasks)).start()
 
     while not jobs.ready():
@@ -203,8 +256,7 @@ def main():
     fout = open('{}/all.json'.format(args.out_prefix), 'w')
     json.dump(merged_dict, fout, indent=4, sort_keys=True)
 
-    # Print summary table
-    print_table(args.out_prefix)
+    print_summary_table(args.out_prefix)
 
 
 if __name__ == '__main__':
