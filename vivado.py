@@ -10,6 +10,7 @@ import glob
 import datetime
 import asciitable
 import edalize
+import glob
 
 from toolchain import Toolchain
 from utils import Timed
@@ -68,7 +69,7 @@ class Vivado(Toolchain):
 
             self.files.append(
                 {
-                    'name': os.path.realpath(self.pcf),
+                    'name': os.path.realpath(self.xdc),
                     'file_type': 'xdc'
                 }
             )
@@ -185,7 +186,8 @@ class Vivado(Toolchain):
         return freqs
 
     def max_freq(self):
-        report_file = self.out_dir + "/" + self.project_name + '.runs/impl_1/top_timing_summary_routed.rpt'
+        report_file_pattern = self.out_dir + "/" + self.project_name + '.runs/impl_1/*_timing_summary_routed.rpt'
+        report_file = glob.glob(report_file_pattern).pop()
         return self.get_max_freq(report_file)
 
     def vivado_resources(self, report_file):
@@ -227,7 +229,8 @@ class Vivado(Toolchain):
         bram = 0
 
         if report_file is None:
-            report_file = self.out_dir + "/" + self.project_name + ".runs/impl_1/top_utilization_placed.rpt"
+            report_file_pattern = self.out_dir + "/" + self.project_name + ".runs/impl_1/*_utilization_placed.rpt"
+            report_file = glob.glob(report_file_pattern).pop()
 
         report = self.vivado_resources(report_file)
 
@@ -283,11 +286,13 @@ class VivadoYosys(Vivado):
         ).strip()
 
     def resources(self):
-        report_file = self.out_dir + "/top_utilization_placed.rpt"
+        report_file_pattern = self.out_dir + "/*_utilization_placed.rpt"
+        report_file = glob.glob(report_file_pattern).pop()
         return super(VivadoYosys, self).resources(report_file)
 
     def max_freq(self):
-        report_file = self.out_dir + "/top_timing_summary_routed.rpt"
+        report_file_pattern = self.out_dir + "/*_timing_summary_routed.rpt"
+        report_file = glob.glob(report_file_pattern).pop()
         return super(VivadoYosys, self).get_max_freq(report_file)
 
     def versions(self):

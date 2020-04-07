@@ -21,10 +21,16 @@ from icestorm import Arachne
 from vivado import Vivado
 from vivado import VivadoYosys
 from symbiflow import VPR
+from radiant import RadiantSynpro
+from radiant import RadiantLSE
+from icecube import Icecube2Synpro
+from icecube import Icecube2LSE
+from icecube import Icecube2Yosys
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = root_dir + '/project'
+src_dir = root_dir + '/src'
 
 
 class NotAvailable:
@@ -51,234 +57,6 @@ def which(program):
 
 def have_exec(mybin):
     return which(mybin) != None
-
-
-# no seed support?
-class Icecube2(Toolchain):
-    '''Lattice Icecube2 based toolchains'''
-    carries = None
-
-    ICECUBEDIR_DEFAULT = os.getenv("ICECUBEDIR", "/opt/lscc/iCEcube2.2017.08")
-
-    def __init__(self):
-        Toolchain.__init__(self)
-        self.icecubedir = self.ICECUBEDIR_DEFAULT
-
-    def run(self):
-        with Timed(self, 'bit-all'):
-            print('top: %s' % self.top)
-            env = os.environ.copy()
-            env["SRCS"] = ' '.join(self.srcs)
-            env["TOP"] = self.top
-            env["ICECUBEDIR"] = self.icecubedir
-            #env["ICEDEV"] = 'hx8k-ct256'
-            env["ICEDEV"] = self.device + '-' + self.package
-            args = "--syn %s" % (self.syn(), )
-            if self.strategy:
-                args += " --strategy %s" % (self.strategy, )
-            self.cmd(root_dir + "/icecubed.sh", args, env=env)
-
-            self.cmd("iceunpack", "my.bin my.asc")
-
-        self.cmd("icetime", "-tmd %s my.asc" % (self.device, ))
-
-    def max_freq(self):
-        with open(self.out_dir + '/icetime.txt') as f:
-            return icetime_parse(f)['max_freq']
-
-    def resources(self):
-        return icebox_stat("my.asc", self.out_dir)
-
-    @staticmethod
-    def asc_ver(f):
-        '''
-        .comment
-        Lattice
-        iCEcube2 2017.08.27940
-        Part: iCE40HX1K-TQ144
-        Date: Jun 27 2018 13:22:06
-        '''
-        for l in f:
-            if l.find('iCEcube2') == 0:
-                return l.split()[1].strip()
-        assert 0
-
-    def versions(self):
-        # FIXME: see if can get from tool
-        asc_ver = None
-        try:
-            with open(self.out_dir + '/my.asc') as ascf:
-                asc_ver = Icecube2.asc_ver(ascf)
-        except FileNotFoundError:
-            pass
-
-        return {
-            'yosys': yosys_ver(),
-            'icecube2': asc_ver,
-        }
-
-
-class Icecube2Synpro(Icecube2):
-    '''Lattice Icecube2 using Synplify for synthesis'''
-    carries = (True, )
-
-    def __init__(self):
-        Icecube2.__init__(self)
-        self.toolchain = 'icecube2-synpro'
-
-    def syn(self):
-        return "synpro"
-
-    @staticmethod
-    def check_env():
-        return {
-            'ICECUBEDIR': os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
-            'icetime': have_exec('icetime'),
-        }
-
-
-class Icecube2LSE(Icecube2):
-    '''Lattice Icecube2 using LSE for synthesis'''
-    carries = (True, )
-
-    def __init__(self):
-        Icecube2.__init__(self)
-        self.toolchain = 'icecube2-lse'
-
-    def syn(self):
-        return "lse"
-
-    @staticmethod
-    def check_env():
-        return {
-            'ICECUBEDIR': os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
-            'icetime': have_exec('icetime'),
-        }
-
-
-class Icecube2Yosys(Icecube2):
-    '''Lattice Icecube2 using Yosys for synthesis'''
-    carries = (True, False)
-
-    def __init__(self):
-        Icecube2.__init__(self)
-        self.toolchain = 'icecube2-yosys'
-
-    def syn(self):
-        return "yosys-synpro"
-
-    @staticmethod
-    def check_env():
-        return {
-            'yosys': have_exec('yosys'),
-            'ICECUBEDIR': os.path.exists(Icecube2.ICECUBEDIR_DEFAULT),
-            'icetime': have_exec('icetime'),
-        }
-
-
-# .asc version field just says "DiamondNG"
-# guess that was the code name...
-# no seed support? -n just does more passes
-class Radiant(Toolchain):
-    '''Lattice Radiant based toolchains'''
-    carries = None
-    # FIXME: strategy isn't being set correctly
-    # https://github.com/SymbiFlow/fpga-tool-perf/issues/14
-    strategies = ('Timing', 'Quick', 'Area')
-
-    RADIANTDIR_DEFAULT = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
-
-    def __init__(self):
-        Toolchain.__init__(self)
-        self.radiantdir = Radiant.RADIANTDIR_DEFAULT
-
-    def run(self):
-        # acceptable for either device
-        assert (self.device, self.package) in [
-            ('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')
-        ]
-
-        with Timed(self, 'bit-all'):
-            env = os.environ.copy()
-            env["SRCS"] = ' '.join(self.srcs)
-            env["TOP"] = self.top
-            env["RADIANTDIR"] = self.radiantdir
-            env["RADDEV"] = self.device + '-' + self.package
-            syn = self.syn()
-            args = "--syn %s" % (syn, )
-            if self.strategy:
-                args += " --strategy %s" % self.strategy
-            self.cmd(root_dir + "/radiant.sh", args, env=env)
-
-            self.cmd("iceunpack", "my.bin my.asc")
-
-        self.cmd("icetime", "-tmd up5k my.asc")
-
-    def max_freq(self):
-        with open(self.out_dir + '/icetime.txt') as f:
-            return icetime_parse(f)['max_freq']
-
-    def resources(self):
-        return icebox_stat("my.asc", self.out_dir)
-
-    def radiant_ver(self):
-        # a lot of places where this is, but not sure whats authoritative
-        for l in open(self.radiantdir + '/data/ispsys.ini'):
-            # ./data/ispsys.ini:19:ProductType=1.0.0.350.6
-            if l.find('ProductType') == 0:
-                return l.split('=')[1].strip()
-        assert 0
-
-    def versions(self):
-        return {
-            'yosys': yosys_ver(),
-            'radiant': self.radiant_ver(),
-        }
-
-    @staticmethod
-    def check_env():
-        return {
-            'RADIANTDIR': os.path.exists(Radiant.RADIANTDIR_DEFAULT),
-            'iceunpack': have_exec('iceunpack'),
-            'icetime': have_exec('icetime'),
-        }
-
-
-class RadiantLSE(Radiant):
-    '''Lattice Radiant using LSE for synthesis'''
-    carries = (True, )
-
-    def __init__(self):
-        Radiant.__init__(self)
-        self.toolchain = 'radiant-lse'
-
-    def syn(self):
-        return "lse"
-
-
-class RadiantSynpro(Radiant):
-    '''Lattice Radiant using Synplify for synthesis'''
-    carries = (True, )
-
-    def __init__(self):
-        Radiant.__init__(self)
-        self.toolchain = 'radiant-synpro'
-
-    def syn(self):
-        return "synplify"
-
-
-# @E: CG389 :"/home/mcmaster/.../impl/impl.v":18:4:18:7|Reference to undefined module SB_LUT4
-# didn't look into importing edif
-class RadiantYosys(Radiant):
-    carries = (True, False)
-
-    def __init__(self):
-        Radiant.__init__(self)
-        self.toolchain = 'radiant-yosys'
-
-    def syn(self):
-        return "yosys-synpro"
 
 
 def print_stats(t):
@@ -378,6 +156,7 @@ def run(
     family,
     device,
     package,
+    board,
     toolchain,
     project,
     out_dir=None,
@@ -385,15 +164,13 @@ def run(
     verbose=False,
     strategy=None,
     seed=None,
-    pcf=None,
-    sdc=None,
-    xdc=None,
     carry=None,
     build=None
 ):
     assert family == 'ice40' or family == 'xc7'
     assert device is not None
     assert package is not None
+    assert board is not None
     assert toolchain is not None
     assert project is not None
     # some toolchains use signed 32 bit
@@ -404,17 +181,24 @@ def run(
     t.strategy = strategy
     t.seed = seed
     t.carry = carry
+
+    # Constraint files shall be in their directories
+    pcf = get_pcf(project, family, device, package, board, toolchain)
+    sdc = get_sdc(project, family, device, package, board, toolchain)
+    xdc = get_xdc(project, family, device, package, board, toolchain)
+
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
     t.sdc = os.path.realpath(sdc) if sdc else None
-    t.xdc = os.path.realpath(xdc) if sdc else None
+    t.xdc = os.path.realpath(xdc) if xdc else None
     t.build = build
 
     t.project(
-        project,
+        get_project(project),
         family,
         device,
         package,
+        board,
         out_dir=out_dir,
         out_prefix=out_prefix,
     )
@@ -435,14 +219,13 @@ def list_toolchains():
         print(t)
 
 
+def matching_pattern(path, pattern):
+    return sorted([re.match(pattern, fn).group(1) for fn in glob.glob(path)])
+
+
 def get_projects():
     '''Query all supported projects'''
-    return sorted(
-        [
-            re.match('/.*/(.*)[.]json', fn).group(1)
-            for fn in glob.glob(project_dir + '/*.json')
-        ]
-    )
+    return matching_pattern(project_dir + '/*.json', '/.*/(.*)[.]json')
 
 
 def list_projects():
@@ -488,6 +271,36 @@ def env_ready():
     return True
 
 
+def get_constraint(
+    project, family, device, package, board, toolchain, extension
+):
+    constraint = "_".join((family, device, package, board)
+                          ) + ".{}".format(extension)
+    path = os.path.join(src_dir, project, 'constr', toolchain, constraint)
+    if (os.path.exists(path)):
+        return path
+    else:
+        return None
+
+
+def get_pcf(project, family, device, package, board, toolchain):
+    return get_constraint(
+        project, family, device, package, board, toolchain, 'pcf'
+    )
+
+
+def get_sdc(project, family, device, package, board, toolchain):
+    return get_constraint(
+        project, family, device, package, board, toolchain, 'sdc'
+    )
+
+
+def get_xdc(project, family, device, package, board, toolchain):
+    return get_constraint(
+        project, family, device, package, board, toolchain, 'xdc'
+    )
+
+
 def get_project(name):
     project_fn = project_dir + '/' + name + '.json'
     with open(project_fn, 'r') as f:
@@ -515,11 +328,10 @@ def main():
 
     parser.add_argument('--verbose', action='store_true', help='')
     parser.add_argument('--overwrite', action='store_true', help='')
-    parser.add_argument('--family', default='ice40', help='Device family')
-    parser.add_argument(
-        '--device', default='hx8k', help='Device within family'
-    )
-    parser.add_argument('--package', default=None, help='Device package')
+    parser.add_argument('--family', default=None, help='FPGA family')
+    parser.add_argument('--device', default=None, help='FPGA Device')
+    parser.add_argument('--package', default=None, help='FPGA Package')
+    parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
         '--strategy', default=None, help='Optimization strategy'
     )
@@ -554,9 +366,6 @@ def main():
         default=None,
         help='Auto named directory prefix (default: build)'
     )
-    parser.add_argument('--pcf', default=None, help='')
-    parser.add_argument('--sdc', default=None, help='')
-    parser.add_argument('--xdc', default=None, help='')
     parser.add_argument('--build', default=None, help='Build number')
     args = parser.parse_args()
 
@@ -576,6 +385,8 @@ def main():
             argument_errors.append('--device argument required')
         if args.package is None:
             argument_errors.append('--package argument required')
+        if args.board is None:
+            argument_errors.append('--board argument required')
         if args.toolchain is None:
             argument_errors.append('--toolchain argument required')
         if args.project is None:
@@ -592,14 +403,12 @@ def main():
             args.family,
             args.device,
             args.package,
+            args.board,
             args.toolchain,
-            get_project(args.project),
+            args.project,
             out_dir=args.out_dir,
             out_prefix=args.out_prefix,
             strategy=args.strategy,
-            pcf=args.pcf,
-            sdc=args.sdc,
-            xdc=args.xdc,
             carry=args.carry,
             seed=seed,
             build=args.build,

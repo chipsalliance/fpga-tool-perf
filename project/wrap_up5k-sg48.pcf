@@ -1,4 +1,0 @@
-set_io stb 39
-set_io di 40
-set_io do 41
-set_io clk 44

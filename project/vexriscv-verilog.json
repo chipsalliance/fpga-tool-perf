@@ -1,9 +1,0 @@
-{
-    "srcs": [
-        "src/vexriscv-verilog/VexRiscv.v",
-        "src/vexriscv-verilog_wrap.v"
-        ],
-    "top": "top",
-    "name": "vexriscv-verilog"
-}
-

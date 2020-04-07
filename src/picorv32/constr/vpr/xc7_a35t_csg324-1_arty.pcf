@@ -1,0 +1,5 @@
+# arty 100 MHz CLK
+set_io clk E3
+set_io stb T10
+set_io di A10
+set_io do T9

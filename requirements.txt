@@ -1,0 +1,8 @@
+terminaltables
+asciitable
+simplejson
+progressbar
+colorclass
+lxml
+python-constraint
+intervaltree

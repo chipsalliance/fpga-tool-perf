@@ -1,14 +1,5 @@
 import os
 import subprocess
-import time
-import collections
-import json
-import re
-import shutil
-import sys
-import glob
-import datetime
-import asciitable
 import edalize
 
 from toolchain import Toolchain
