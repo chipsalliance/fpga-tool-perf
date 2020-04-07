@@ -36,6 +36,7 @@ class Toolchain:
         self.family = None
         self.device = None
         self.package = None
+        self.part = None
         self.board = None
 
         self.project_name = None
@@ -87,7 +88,10 @@ class Toolchain:
             self.runtimes[parent][name] = dt
 
     def design(self):
-        ret = self.family + '-' + self.device + '-' + self.package + '-' + self.board + '_' + self.toolchain + '_' + self.project_name
+        ret = "{}_{}_{}_{}_{}".format(
+            self.project_name, self.toolchain, self.family, self.part,
+            self.board
+        )
         op = self.optstr()
         if op:
             ret += '_' + op
@@ -156,6 +160,7 @@ class Toolchain:
         self.family = family
         self.device = device
         self.package = package
+        self.part = "".join((device, package))
         self.board = board
 
         self.project_name = project['name']

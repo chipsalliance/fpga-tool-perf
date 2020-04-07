@@ -274,28 +274,13 @@ def env_ready():
 def get_constraint(
     project, family, device, package, board, toolchain, extension
 ):
-    path = os.path.join(
-        src_dir, project, family, device, package, board,
-        "{}.{}".format(toolchain, extension)
-    )
+    constraint = "_".join((family, device, package, board)
+                          ) + ".{}".format(extension)
+    path = os.path.join(src_dir, project, 'constr', toolchain, constraint)
     if (os.path.exists(path)):
         return path
     else:
         return None
-
-
-def get_constraints(project, family, device, package, board, toolchain):
-    """ Gets all types of possible constraints."""
-
-    ALLOWED_CONSTRAINTS = ['pcf', 'sdc', 'xdc']
-
-    constraints = {}
-    for constraint in ALLOWED_CONSTRAINTS:
-        constraints[constraint] = get_constraint(
-            project, family, device, package, board, toolchain, constraint
-        )
-
-    return constraints
 
 
 def get_pcf(project, family, device, package, board, toolchain):
@@ -343,11 +328,9 @@ def main():
 
     parser.add_argument('--verbose', action='store_true', help='')
     parser.add_argument('--overwrite', action='store_true', help='')
-    parser.add_argument('--family', default='ice40', help='Device family')
-    parser.add_argument(
-        '--device', default='hx8k', help='Device within family'
-    )
-    parser.add_argument('--package', default=None, help='Device package')
+    parser.add_argument('--family', default=None, help='FPGA family')
+    parser.add_argument('--device', default=None, help='FPGA Device')
+    parser.add_argument('--package', default=None, help='FPGA Package')
     parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
         '--strategy', default=None, help='Optimization strategy'
