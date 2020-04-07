@@ -1,0 +1,26 @@
+{
+    "srcs": [
+	"third_party/vexriscv-verilog/VexRiscv_Lite.v",
+	"third_party/litepcie/litepcie/phy/xilinx_s7_gen2_x1/pcie_s7_support.v",
+	"third_party/litepcie/litepcie/phy/xilinx_s7_gen2_x1/pcie_pipe_clock.v",
+	"third_party/litepcie/litepcie/phy/xilinx_s7_gen2_x1/pcie_s7.xci",
+	"src/netv2-pcie/top.v"
+
+        ],
+    "top": "top",
+    "name": "netv2-pcie",
+    "data": [
+        "src/netv2-pcie/mem.init",
+        "src/netv2-pcie/mem_1.init",
+        "src/netv2-pcie/mem_2.init",
+        "src/netv2-pcie/edid_mem.init"
+    ],
+    "clocks": {
+        "clk50": 20.0
+    },
+    "vendors": {
+        "xilinx": ["netv2"]
+    },
+    "required_toolchains": ["vivado"]
+
+}
