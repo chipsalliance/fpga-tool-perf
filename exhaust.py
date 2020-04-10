@@ -19,6 +19,7 @@ MANDATORY_CONSTRAINTS = {
     "vivado": "xdc",
     "vpr": "pcf",
     "vivado-yosys": "xdc",
+    "nextpnr": "xdc",
 }
 
 # to find data files
