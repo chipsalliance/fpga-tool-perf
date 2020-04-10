@@ -16,11 +16,12 @@ from terminaltables import AsciiTable
 from toolchain import Toolchain
 from utils import Timed
 
-from icestorm import Nextpnr
+from icestorm import NextpnrIcestorm
 from icestorm import Arachne
 from vivado import Vivado
 from vivado import VivadoYosys
 from symbiflow import VPR
+from symbiflow import Nextpnr
 from radiant import RadiantSynpro
 from radiant import RadiantLSE
 from icecube import Icecube2Synpro
