@@ -323,6 +323,7 @@ class VPR(Toolchain):
             'vpr': have_exec(VPR.vpr_bin()),
         }
 
+
 class Nextpnr(Toolchain):
     '''nextpnr using Yosys for synthesis'''
     carries = (False, )
@@ -354,14 +355,16 @@ class Nextpnr(Toolchain):
 
             chip = self.family + self.device
 
-            chipdb = os.path.join(self.rootdir, 'third_party', 'install', 'share', 'nextpnr', '{}{}.bin'.format(self.family, self.part))
+            chipdb = os.path.join(
+                self.rootdir, 'third_party', 'install', 'share', 'nextpnr',
+                '{}{}.bin'.format(self.family, self.part)
+            )
             self.files.append(
-                    {
-
-                        'name': os.path.realpath(chipdb),
-                        'file_type': 'bba'
-                    }
-                )
+                {
+                    'name': os.path.realpath(chipdb),
+                    'file_type': 'bba'
+                }
+            )
 
             self.edam = {
                 'files': self.files,
@@ -432,13 +435,13 @@ class Nextpnr(Toolchain):
             pll = res['PLLE2_ADV']
 
         ret = {
-            "LUT": "NA", #str(lut),
-            "DFF": "NA", #str(dff),
-            "BRAM": "NA", #str(bram),
-            "CARRY": "NA", #str(carry),
+            "LUT": "NA",  #str(lut),
+            "DFF": "NA",  #str(dff),
+            "BRAM": "NA",  #str(bram),
+            "CARRY": "NA",  #str(carry),
             "GLB": "unsupported",
-            "PLL": "NA", #str(pll),
-            "IOB": "NA", #str(iob),
+            "PLL": "NA",  #str(pll),
+            "IOB": "NA",  #str(iob),
         }
         return ret
 
