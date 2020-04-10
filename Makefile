@@ -3,6 +3,8 @@ SHELL = bash
 PWD = $(shell pwd)
 INSTALL_DIR = ${PWD}/third_party/install
 
+NEXTPNR_DEVICES = xc7a35tcsg324-1
+
 all: format
 
 conda:

@@ -20,3 +20,6 @@
 [submodule "third_party/prjxray"]
 	path = third_party/prjxray
 	url = https://github.com/SymbiFlow/prjxray.git
+[submodule "third_party/nextpnr"]
+	path = third_party/nextpnr
+	url = https://github.com/daveshah1/nextpnr-xilinx.git
