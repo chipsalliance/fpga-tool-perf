@@ -134,6 +134,8 @@ class VPR(Toolchain):
         return critical_paths
 
     def max_freq(self):
+        def safe_division_by_zero(n, d):
+            return n / d if d else 0.0
 
         freqs = dict()
         clocks = dict()
@@ -155,22 +157,27 @@ class VPR(Toolchain):
 
                     fields = l.split(':')
                     group = fields[0].split()[0]
-                    freqs[group] = 1e9 / float(fields[1].split()[0].strip())
+                    freqs[group] = safe_division_by_zero(
+                        1e9, float(fields[1].split()[0].strip())
+                    )
 
         for clk in freqs:
             criticals = self.get_critical_paths(clk, 'setup')
             clocks[clk] = dict()
             clocks[clk]['actual'] = freqs[clk]
             if criticals is not None:
-                clocks[clk]['requested'] = 1e9 / criticals[clk]['requested']
+                clocks[clk]['requested'] = safe_division_by_zero(
+                    1e9, criticals[clk]['requested']
+                )
                 clocks[clk]['met'] = criticals[clk]['met']
                 clocks[clk]['setup_violation'] = criticals[clk]['violation']
             criticals = self.get_critical_paths(clk, 'hold')
             if criticals is not None:
                 clocks[clk]['hold_violation'] = criticals[clk]['violation']
                 if 'requested' not in clocks[clk]:
-                    clocks[clk]['requested'
-                                ] = 1e9 / criticals[clk]['requested']
+                    clocks[clk]['requested'] = safe_division_by_zero(
+                        1e9, criticals[clk]['requested']
+                    )
                 if 'met' not in clocks[clk]:
                     clocks[clk]['met'] = criticals[clk]['met']
             for v in ['requested', 'setup_violation', 'hold_violation']:
@@ -240,7 +247,7 @@ class VPR(Toolchain):
         pll = 0
         bram = 0
 
-        res = self.get_vpr_resources()
+        res = self.get_resources()
 
         if 'lut' in res:
             lut = res['lut']
