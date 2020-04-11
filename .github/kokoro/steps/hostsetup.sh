@@ -79,11 +79,5 @@ echo "----------------------------------------"
 	echo " Configuring virtual environment"
 	echo "----------------------------------------"
 	make env
-	cd build
 	echo "----------------------------------------"
-
-	echo
-	echo " Setting up basic conda environment"
-	echo "----------------------------------------"
-	${BUILD_TOOL} build-tools
 )
