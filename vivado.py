@@ -299,7 +299,9 @@ class VivadoYosys(Vivado):
         commands = list()
         with open(logfile, 'r') as fp:
             for l in fp:
-                time_re = re.match(".*CPU: user ([0-9]+\.[0-9]+)s", str(l))
+                time_re = re.match(
+                   ".*CPU: user ([0-9]+\.[0-9]+)s", str(l)
+                )
                 if time_re:
                     l = l.split()
                     log['synth'] = float(time_re.groups()[0])
