@@ -18,6 +18,7 @@ import sow
 MANDATORY_CONSTRAINTS = {
     "vivado": "xdc",
     "vpr": "pcf",
+    "vivado-yosys": "xdc",
 }
 
 # to find data files
@@ -69,7 +70,7 @@ def print_summary_table(out_prefix, total_tasks):
             '{}%'.format(int(passed / total_tasks * 100))
         ]
     )
-    table = SingleTable(table_data)
+    table = AsciiTable(table_data)
     table.inner_footing_row_border = True
     print(table.table)
 
@@ -199,6 +200,8 @@ def main():
                 package, board, toolchain
             )
             tasks.append(task)
+
+    assert len(tasks), "No tasks to run!"
 
     jobs = mp.Pool(mp.cpu_count()).map_async(worker, tasks)
     widget = ['Exhaust progress: ', pb.SimpleProgress(), pb.Bar()]

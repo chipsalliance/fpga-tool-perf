@@ -113,7 +113,7 @@ def print_stats(t):
     table = AsciiTable(table_data)
     print(table.table)
 
-    print_section_header('Toolchain Resource Usage')
+    print_section_header('Toolchain Run-Times')
     table_data = [['Stage', 'Run Time (seconds)']]
     for k, v in t.runtimes.items():
         if type(v) is collections.OrderedDict:
