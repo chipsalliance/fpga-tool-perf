@@ -176,10 +176,20 @@ def main():
     parser = argparse.ArgumentParser(
         description='Exhaustively try project-toolchain combinations'
     )
-    parser.add_argument('--family', default=None, help='device family')
-    parser.add_argument('--device', default=None, help='FPGA device')
-    parser.add_argument('--package', default=None, help='FPGA package')
-    parser.add_argument('--board', default=None, help='target board')
+    parser.add_argument(
+        '--family', default=None, help='device family: e.g. --family xc7'
+    )
+    parser.add_argument(
+        '--device', default=None, help='FPGA device: e.g. --device a35t'
+    )
+    parser.add_argument(
+        '--package',
+        default=None,
+        help='FPGA package: e.g. --package csg324-1'
+    )
+    parser.add_argument(
+        '--board', default=None, help='target board: e.g. --board arty'
+    )
     parser.add_argument(
         '--project',
         default=None,
