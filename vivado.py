@@ -69,7 +69,6 @@ class Vivado(Toolchain):
             total_runtime += float(impl_times[t])
         self.add_runtime('total', total_runtime, parent='logs')
 
-
     def run(self):
 
         with Timed(self, 'bitstream'):
@@ -296,9 +295,7 @@ class VivadoYosys(Vivado):
         commands = list()
         with open(logfile, 'r') as fp:
             for l in fp:
-                time_re = re.match(
-                   ".*CPU: user ([0-9]+\.[0-9]+)s", str(l)
-                )
+                time_re = re.match(".*CPU: user ([0-9]+\.[0-9]+)s", str(l))
                 if time_re:
                     l = l.split()
                     log['synth'] = float(time_re.groups()[0])
@@ -309,7 +306,9 @@ class VivadoYosys(Vivado):
 
     def add_runtimes(self):
 
-        synth_times = self.get_yosys_runtimes(os.path.join(self.out_dir, 'yosys.log'))
+        synth_times = self.get_yosys_runtimes(
+            os.path.join(self.out_dir, 'yosys.log')
+        )
 
         runs_dir = os.path.join(self.out_dir, self.project_name + ".runs")
         impl_times = self.get_vivado_runtimes(runs_dir + '/impl_1/runme.log')
