@@ -70,7 +70,7 @@ def print_summary_table(out_prefix, total_tasks):
             '{}%'.format(int(passed / total_tasks * 100))
         ]
     )
-    table = SingleTable(table_data)
+    table = AsciiTable(table_data)
     table.inner_footing_row_border = True
     print(table.table)
 
