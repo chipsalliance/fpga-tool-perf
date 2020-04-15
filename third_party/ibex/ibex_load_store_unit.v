@@ -1,3 +1,8 @@
+// Copyright lowRISC contributors.
+// Copyright 2018 ETH Zurich and University of Bologna, see also CREDITS.md.
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
+
 module ibex_load_store_unit (
 	clk_i,
 	rst_ni,

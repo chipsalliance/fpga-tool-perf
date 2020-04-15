@@ -1,75 +1,32 @@
-module ibex_if_stage (
-	clk_i,
-	rst_ni,
-	boot_addr_i,
-	req_i,
-	instr_req_o,
-	instr_addr_o,
-	instr_gnt_i,
-	instr_rvalid_i,
-	instr_rdata_i,
-	instr_err_i,
-	instr_pmp_err_i,
-	instr_valid_id_o,
-	instr_new_id_o,
-	instr_rdata_id_o,
-	instr_rdata_alu_id_o,
-	instr_rdata_c_id_o,
-	instr_is_compressed_id_o,
-	instr_fetch_err_o,
-	illegal_c_insn_id_o,
-	pc_if_o,
-	pc_id_o,
-	instr_valid_clear_i,
-	pc_set_i,
-	pc_mux_i,
-	exc_pc_mux_i,
-	exc_cause,
-	jump_target_ex_i,
-	csr_mepc_i,
-	csr_depc_i,
-	csr_mtvec_i,
-	csr_mtvec_init_o,
-	id_in_ready_i,
-	if_busy_o,
-	perf_imiss_o
+// Copyright lowRISC contributors.
+// Copyright 2018 ETH Zurich and University of Bologna, see also CREDITS.md.
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
+
+module ibex_alu (
+	operator_i,
+	operand_a_i,
+	operand_b_i,
+	multdiv_operand_a_i,
+	multdiv_operand_b_i,
+	multdiv_sel_i,
+	adder_result_o,
+	adder_result_ext_o,
+	result_o,
+	comparison_result_o,
+	is_equal_result_o
 );
-	parameter [31:0] DmHaltAddr = 32'h1A110800;
-	parameter [31:0] DmExceptionAddr = 32'h1A110808;
-	input wire clk_i;
-	input wire rst_ni;
-	input wire [31:0] boot_addr_i;
-	input wire req_i;
-	output wire instr_req_o;
-	output wire [31:0] instr_addr_o;
-	input wire instr_gnt_i;
-	input wire instr_rvalid_i;
-	input wire [31:0] instr_rdata_i;
-	input wire instr_err_i;
-	input wire instr_pmp_err_i;
-	output reg instr_valid_id_o;
-	output reg instr_new_id_o;
-	output reg [31:0] instr_rdata_id_o;
-	output reg [31:0] instr_rdata_alu_id_o;
-	output reg [15:0] instr_rdata_c_id_o;
-	output reg instr_is_compressed_id_o;
-	output reg instr_fetch_err_o;
-	output reg illegal_c_insn_id_o;
-	output wire [31:0] pc_if_o;
-	output reg [31:0] pc_id_o;
-	input wire instr_valid_clear_i;
-	input wire pc_set_i;
-	input wire [2:0] pc_mux_i;
-	input wire [1:0] exc_pc_mux_i;
-	input wire [5:0] exc_cause;
-	input wire [31:0] jump_target_ex_i;
-	input wire [31:0] csr_mepc_i;
-	input wire [31:0] csr_depc_i;
-	input wire [31:0] csr_mtvec_i;
-	output wire csr_mtvec_init_o;
-	input wire id_in_ready_i;
-	output wire if_busy_o;
-	output wire perf_imiss_o;
+	input wire [4:0] operator_i;
+	input wire [31:0] operand_a_i;
+	input wire [31:0] operand_b_i;
+	input wire [32:0] multdiv_operand_a_i;
+	input wire [32:0] multdiv_operand_b_i;
+	input wire multdiv_sel_i;
+	output wire [31:0] adder_result_o;
+	output wire [33:0] adder_result_ext_o;
+	output reg [31:0] result_o;
+	output wire comparison_result_o;
+	output wire is_equal_result_o;
 	parameter [31:0] PMP_MAX_REGIONS = 16;
 	parameter [31:0] PMP_CFG_W = 8;
 	parameter [31:0] PMP_I = 0;
@@ -314,138 +271,99 @@ module ibex_if_stage (
 	localparam [5:0] EXC_CAUSE_IRQ_TIMER_M = {1'b1, 5'd07};
 	localparam [5:0] EXC_CAUSE_IRQ_EXTERNAL_M = {1'b1, 5'd11};
 	localparam [5:0] EXC_CAUSE_IRQ_NM = {1'b1, 5'd31};
-	reg offset_in_init_d;
-	reg offset_in_init_q;
-	reg have_instr;
-	wire prefetch_busy;
-	reg branch_req;
-	reg [31:0] fetch_addr_n;
-	wire fetch_valid;
-	reg fetch_ready;
-	wire [31:0] fetch_rdata;
-	wire [31:0] fetch_addr;
-	wire fetch_err;
-	reg [31:0] exc_pc;
-	wire [5:0] irq_id;
-	wire unused_irq_bit;
-	wire if_id_pipe_reg_we;
-	wire [7:0] unused_boot_addr;
-	wire [7:0] unused_csr_mtvec;
-	assign unused_boot_addr = boot_addr_i[7:0];
-	assign unused_csr_mtvec = csr_mtvec_i[7:0];
-	assign irq_id = exc_cause;
-	assign unused_irq_bit = irq_id[5];
-	always @(*) begin : exc_pc_mux
-		case (exc_pc_mux_i)
-			EXC_PC_EXC: exc_pc = {csr_mtvec_i[31:8], 8'h00};
-			EXC_PC_IRQ: exc_pc = {csr_mtvec_i[31:8], 1'b0, irq_id[4:0], 2'b00};
-			EXC_PC_DBD: exc_pc = DmHaltAddr;
-			EXC_PC_DBG_EXC: exc_pc = DmExceptionAddr;
-			default: exc_pc = {csr_mtvec_i[31:8], 8'h00};
-		endcase
-	end
-	always @(*) begin : fetch_addr_mux
-		case (pc_mux_i)
-			PC_BOOT: fetch_addr_n = {boot_addr_i[31:8], 8'h80};
-			PC_JUMP: fetch_addr_n = jump_target_ex_i;
-			PC_EXC: fetch_addr_n = exc_pc;
-			PC_ERET: fetch_addr_n = csr_mepc_i;
-			PC_DRET: fetch_addr_n = csr_depc_i;
-			default: fetch_addr_n = {boot_addr_i[31:8], 8'h80};
-		endcase
-	end
-	assign csr_mtvec_init_o = ((pc_mux_i == PC_BOOT) & pc_set_i);
-	ibex_prefetch_buffer prefetch_buffer_i(
-		.clk_i(clk_i),
-		.rst_ni(rst_ni),
-		.req_i(req_i),
-		.branch_i(branch_req),
-		.addr_i({fetch_addr_n[31:1], 1'b0}),
-		.ready_i(fetch_ready),
-		.valid_o(fetch_valid),
-		.rdata_o(fetch_rdata),
-		.addr_o(fetch_addr),
-		.err_o(fetch_err),
-		.instr_req_o(instr_req_o),
-		.instr_addr_o(instr_addr_o),
-		.instr_gnt_i(instr_gnt_i),
-		.instr_rvalid_i(instr_rvalid_i),
-		.instr_rdata_i(instr_rdata_i),
-		.instr_err_i(instr_err_i),
-		.instr_pmp_err_i(instr_pmp_err_i),
-		.busy_o(prefetch_busy)
-	);
-	always @(posedge clk_i or negedge rst_ni)
-		if (!rst_ni)
-			offset_in_init_q <= 1'b1;
-		else
-			offset_in_init_q <= offset_in_init_d;
+	wire [31:0] operand_a_rev;
+	wire [32:0] operand_b_neg;
+	generate
+		genvar gen_rev_operand_a_k;
+		for (gen_rev_operand_a_k = 0; (gen_rev_operand_a_k < 32); gen_rev_operand_a_k = (gen_rev_operand_a_k + 1)) begin : gen_rev_operand_a
+			assign operand_a_rev[gen_rev_operand_a_k] = operand_a_i[(31 - gen_rev_operand_a_k)];
+		end
+	endgenerate
+	reg adder_op_b_negate;
+	wire [32:0] adder_in_a;
+	wire [32:0] adder_in_b;
+	wire [31:0] adder_result;
 	always @(*) begin
-		offset_in_init_d = offset_in_init_q;
-		fetch_ready = 1'b0;
-		branch_req = 1'b0;
-		have_instr = 1'b0;
-		if (offset_in_init_q) begin
-			if (req_i) begin
-				branch_req = 1'b1;
-				offset_in_init_d = 1'b0;
-			end
-		end
-		else if (fetch_valid) begin
-			have_instr = 1'b1;
-			if ((req_i && if_id_pipe_reg_we)) begin
-				fetch_ready = 1'b1;
-				offset_in_init_d = 1'b0;
-			end
-		end
-		if (pc_set_i) begin
-			have_instr = 1'b0;
-			branch_req = 1'b1;
-			offset_in_init_d = 1'b0;
-		end
+		adder_op_b_negate = 1'b0;
+		case (operator_i)
+			ALU_SUB, ALU_EQ, ALU_NE, ALU_GE, ALU_GEU, ALU_LT, ALU_LTU, ALU_SLT, ALU_SLTU: adder_op_b_negate = 1'b1;
+			default:
+				;
+		endcase
 	end
-	assign pc_if_o = fetch_addr;
-	assign if_busy_o = prefetch_busy;
-	assign perf_imiss_o = (~fetch_valid | branch_req);
-	wire [31:0] instr_decompressed;
-	wire illegal_c_insn;
-	wire instr_is_compressed_int;
-	ibex_compressed_decoder compressed_decoder_i(
-		.clk_i(clk_i),
-		.rst_ni(rst_ni),
-		.valid_i(fetch_valid),
-		.instr_i(fetch_rdata),
-		.instr_o(instr_decompressed),
-		.is_compressed_o(instr_is_compressed_int),
-		.illegal_instr_o(illegal_c_insn)
-	);
-	assign if_id_pipe_reg_we = (have_instr & id_in_ready_i);
-	always @(posedge clk_i or negedge rst_ni) begin : if_id_pipeline_regs
-		if (!rst_ni) begin
-			instr_new_id_o <= 1'b0;
-			instr_valid_id_o <= 1'b0;
-			instr_rdata_id_o <= 1'sb0;
-			instr_rdata_alu_id_o <= 1'sb0;
-			instr_fetch_err_o <= 1'sb0;
-			instr_rdata_c_id_o <= 1'sb0;
-			instr_is_compressed_id_o <= 1'b0;
-			illegal_c_insn_id_o <= 1'b0;
-			pc_id_o <= 1'sb0;
+	assign adder_in_a = (multdiv_sel_i ? multdiv_operand_a_i : {operand_a_i, 1'b1});
+	assign operand_b_neg = ({operand_b_i, 1'b0} ^ {33 {adder_op_b_negate}});
+	assign adder_in_b = (multdiv_sel_i ? multdiv_operand_b_i : operand_b_neg);
+	assign adder_result_ext_o = ($unsigned(adder_in_a) + $unsigned(adder_in_b));
+	assign adder_result = adder_result_ext_o[32:1];
+	assign adder_result_o = adder_result;
+	wire shift_left;
+	wire shift_arithmetic;
+	wire [4:0] shift_amt;
+	wire [31:0] shift_op_a;
+	wire [31:0] shift_result;
+	wire [31:0] shift_right_result;
+	wire [31:0] shift_left_result;
+	assign shift_amt = operand_b_i[4:0];
+	assign shift_left = (operator_i == ALU_SLL);
+	assign shift_arithmetic = (operator_i == ALU_SRA);
+	assign shift_op_a = (shift_left ? operand_a_rev : operand_a_i);
+	wire [32:0] shift_op_a_32;
+	assign shift_op_a_32 = {(shift_arithmetic & shift_op_a[31]), shift_op_a};
+	wire signed [32:0] shift_right_result_signed;
+	wire [32:0] shift_right_result_ext;
+	assign shift_right_result_signed = ($signed(shift_op_a_32) >>> shift_amt[4:0]);
+	assign shift_right_result_ext = $unsigned(shift_right_result_signed);
+	assign shift_right_result = shift_right_result_ext[31:0];
+	generate
+		genvar gen_rev_shift_right_result_j;
+		for (gen_rev_shift_right_result_j = 0; (gen_rev_shift_right_result_j < 32); gen_rev_shift_right_result_j = (gen_rev_shift_right_result_j + 1)) begin : gen_rev_shift_right_result
+			assign shift_left_result[gen_rev_shift_right_result_j] = shift_right_result[(31 - gen_rev_shift_right_result_j)];
 		end
-		else begin
-			instr_new_id_o <= if_id_pipe_reg_we;
-			if (if_id_pipe_reg_we) begin
-				instr_valid_id_o <= 1'b1;
-				instr_rdata_id_o <= instr_decompressed;
-				instr_rdata_alu_id_o <= instr_decompressed;
-				instr_fetch_err_o <= fetch_err;
-				instr_rdata_c_id_o <= fetch_rdata[15:0];
-				instr_is_compressed_id_o <= instr_is_compressed_int;
-				illegal_c_insn_id_o <= illegal_c_insn;
-				pc_id_o <= pc_if_o;
-			end
-			else if (instr_valid_clear_i)
-				instr_valid_id_o <= 1'b0;
-		end
+	endgenerate
+	assign shift_result = (shift_left ? shift_left_result : shift_right_result);
+	wire is_equal;
+	reg is_greater_equal;
+	reg cmp_signed;
+	always @(*) begin
+		cmp_signed = 1'b0;
+		case (operator_i)
+			ALU_GE, ALU_LT, ALU_SLT: cmp_signed = 1'b1;
+			default:
+				;
+		endcase
+	end
+	assign is_equal = (adder_result == 32'b0);
+	assign is_equal_result_o = is_equal;
+	always @(*)
+		if (((operand_a_i[31] ^ operand_b_i[31]) == 1'b0))
+			is_greater_equal = (adder_result[31] == 1'b0);
+		else
+			is_greater_equal = (operand_a_i[31] ^ cmp_signed);
+	reg cmp_result;
+	always @(*) begin
+		cmp_result = is_equal;
+		case (operator_i)
+			ALU_EQ: cmp_result = is_equal;
+			ALU_NE: cmp_result = ~is_equal;
+			ALU_GE, ALU_GEU: cmp_result = is_greater_equal;
+			ALU_LT, ALU_LTU, ALU_SLT, ALU_SLTU: cmp_result = ~is_greater_equal;
+			default:
+				;
+		endcase
+	end
+	assign comparison_result_o = cmp_result;
+	always @(*) begin
+		result_o = 1'sb0;
+		case (operator_i)
+			ALU_AND: result_o = (operand_a_i & operand_b_i);
+			ALU_OR: result_o = (operand_a_i | operand_b_i);
+			ALU_XOR: result_o = (operand_a_i ^ operand_b_i);
+			ALU_ADD, ALU_SUB: result_o = adder_result;
+			ALU_SLL, ALU_SRL, ALU_SRA: result_o = shift_result;
+			ALU_EQ, ALU_NE, ALU_GE, ALU_GEU, ALU_LT, ALU_LTU, ALU_SLT, ALU_SLTU: result_o = {31'h0, cmp_result};
+			default:
+				;
+		endcase
 	end
 endmodule

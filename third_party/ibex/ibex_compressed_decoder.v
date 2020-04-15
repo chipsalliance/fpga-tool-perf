@@ -1,43 +1,24 @@
-module ibex_multdiv_fast (
+// Copyright lowRISC contributors.
+// Copyright 2018 ETH Zurich and University of Bologna, see also CREDITS.md.
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
+
+module ibex_compressed_decoder (
 	clk_i,
 	rst_ni,
-	mult_en_i,
-	div_en_i,
-	operator_i,
-	signed_mode_i,
-	op_a_i,
-	op_b_i,
-	alu_adder_ext_i,
-	alu_adder_i,
-	equal_to_zero,
-	alu_operand_a_o,
-	alu_operand_b_o,
-	multdiv_result_o,
-	valid_o
+	valid_i,
+	instr_i,
+	instr_o,
+	is_compressed_o,
+	illegal_instr_o
 );
-	localparam [2:0] MD_IDLE = 0;
-	localparam [2:0] MD_ABS_A = 1;
-	localparam [2:0] MD_ABS_B = 2;
-	localparam [2:0] MD_COMP = 3;
-	localparam [2:0] MD_LAST = 4;
-	localparam [2:0] MD_CHANGE_SIGN = 5;
-	localparam [2:0] MD_FINISH = 6;
-	parameter SingleCycleMultiply = 0;
 	input wire clk_i;
 	input wire rst_ni;
-	input wire mult_en_i;
-	input wire div_en_i;
-	input wire [1:0] operator_i;
-	input wire [1:0] signed_mode_i;
-	input wire [31:0] op_a_i;
-	input wire [31:0] op_b_i;
-	input wire [33:0] alu_adder_ext_i;
-	input wire [31:0] alu_adder_i;
-	input wire equal_to_zero;
-	output reg [32:0] alu_operand_a_o;
-	output reg [32:0] alu_operand_b_o;
-	output wire [31:0] multdiv_result_o;
-	output wire valid_o;
+	input wire valid_i;
+	input wire [31:0] instr_i;
+	output reg [31:0] instr_o;
+	output wire is_compressed_o;
+	output reg illegal_instr_o;
 	parameter [31:0] PMP_MAX_REGIONS = 16;
 	parameter [31:0] PMP_CFG_W = 8;
 	parameter [31:0] PMP_I = 0;
@@ -282,308 +263,94 @@ module ibex_multdiv_fast (
 	localparam [5:0] EXC_CAUSE_IRQ_TIMER_M = {1'b1, 5'd07};
 	localparam [5:0] EXC_CAUSE_IRQ_EXTERNAL_M = {1'b1, 5'd11};
 	localparam [5:0] EXC_CAUSE_IRQ_NM = {1'b1, 5'd31};
-	wire signed [34:0] mac_res_signed;
-	wire [34:0] mac_res_ext;
-	reg [33:0] accum;
-	reg sign_a;
-	reg sign_b;
-	reg mult_valid;
-	wire signed_mult;
-	reg [33:0] mac_res_q;
-	reg [33:0] mac_res_d;
-	wire [33:0] mac_res;
-	reg [33:0] op_remainder_d;
-	wire div_sign_a;
-	wire div_sign_b;
-	reg is_greater_equal;
-	wire div_change_sign;
-	wire rem_change_sign;
-	wire [31:0] one_shift;
-	reg [31:0] op_denominator_q;
-	reg [31:0] op_numerator_q;
-	reg [31:0] op_quotient_q;
-	reg [31:0] op_denominator_d;
-	reg [31:0] op_numerator_d;
-	reg [31:0] op_quotient_d;
-	wire [31:0] next_remainder;
-	wire [32:0] next_quotient;
-	wire [32:0] res_adder_h;
-	reg div_valid;
-	reg [4:0] div_counter_q;
-	reg [4:0] div_counter_d;
-	reg [2:0] md_state_q;
-	reg [2:0] md_state_d;
-	always @(posedge clk_i or negedge rst_ni)
-		if (!rst_ni) begin
-			mac_res_q <= 1'sb0;
-			div_counter_q <= 1'sb0;
-			md_state_q <= MD_IDLE;
-			op_denominator_q <= 1'sb0;
-			op_numerator_q <= 1'sb0;
-			op_quotient_q <= 1'sb0;
-		end
-		else begin
-			if (div_en_i) begin
-				div_counter_q <= div_counter_d;
-				op_denominator_q <= op_denominator_d;
-				op_numerator_q <= op_numerator_d;
-				op_quotient_q <= op_quotient_d;
-				md_state_q <= md_state_d;
-			end
-			case (1'b1)
-				mult_en_i: mac_res_q <= mac_res_d;
-				div_en_i: mac_res_q <= op_remainder_d;
-				default: mac_res_q <= mac_res_q;
-			endcase
-		end
-	assign signed_mult = (signed_mode_i != 2'b00);
-	assign multdiv_result_o = (div_en_i ? mac_res_q[31:0] : mac_res_d[31:0]);
-	generate
-		if (SingleCycleMultiply) begin : gen_multiv_single_cycle
-			reg [0:0] mult_state_q;
-			reg [0:0] mult_state_d;
-			wire signed [33:0] mult1_res;
-			wire signed [33:0] mult2_res;
-			wire signed [33:0] mult3_res;
-			wire [15:0] mult1_op_a;
-			wire [15:0] mult1_op_b;
-			wire [15:0] mult2_op_a;
-			wire [15:0] mult2_op_b;
-			reg [15:0] mult3_op_a;
-			reg [15:0] mult3_op_b;
-			wire mult1_sign_a;
-			wire mult1_sign_b;
-			wire mult2_sign_a;
-			wire mult2_sign_b;
-			reg mult3_sign_a;
-			reg mult3_sign_b;
-			reg [33:0] summand1;
-			reg [33:0] summand2;
-			reg [33:0] summand3;
-			assign mult1_res = ($signed({mult1_sign_a, mult1_op_a}) * $signed({mult1_sign_b, mult1_op_b}));
-			assign mult2_res = ($signed({mult2_sign_a, mult2_op_a}) * $signed({mult2_sign_b, mult2_op_b}));
-			assign mult3_res = ($signed({mult3_sign_a, mult3_op_a}) * $signed({mult3_sign_b, mult3_op_b}));
-			assign mac_res_signed = (($signed(summand1) + $signed(summand2)) + $signed(summand3));
-			assign mac_res_ext = $unsigned(mac_res_signed);
-			assign mac_res = mac_res_ext[33:0];
-			always @(*) sign_a = (signed_mode_i[0] & op_a_i[31]);
-			always @(*) sign_b = (signed_mode_i[1] & op_b_i[31]);
-			assign mult1_sign_a = 1'b0;
-			assign mult1_sign_b = 1'b0;
-			assign mult1_op_a = op_a_i[15:0];
-			assign mult1_op_b = op_b_i[15:0];
-			assign mult2_sign_a = 1'b0;
-			assign mult2_sign_b = sign_b;
-			assign mult2_op_a = op_a_i[15:0];
-			assign mult2_op_b = op_b_i[31:16];
-			always @(*) accum[17:0] = mac_res_q[33:16];
-			always @(*) accum[33:18] = {16 {(signed_mult & mac_res_q[33])}};
-			localparam MULL = 1'b0;
-			localparam MULH = 1'b1;
-			always @(*) begin
-				mult3_sign_a = sign_a;
-				mult3_sign_b = 1'b0;
-				mult3_op_a = op_a_i[31:16];
-				mult3_op_b = op_b_i[15:0];
-				summand1 = {18'h0, mult1_res[31:16]};
-				summand2 = mult2_res;
-				summand3 = mult3_res;
-				mac_res_d = {2'b0, mac_res[15:0], mult1_res[15:0]};
-				mult_valid = mult_en_i;
-				mult_state_d = MULL;
-				case (mult_state_q)
-					MULL:
-						if ((operator_i != MD_OP_MULL)) begin
-							mac_res_d = mac_res;
-							mult_valid = 1'b0;
-							mult_state_d = MULH;
-						end
-					MULH: begin
-						mult3_sign_a = sign_a;
-						mult3_sign_b = sign_b;
-						mult3_op_a = op_a_i[31:16];
-						mult3_op_b = op_b_i[31:16];
-						mac_res_d = mac_res;
-						summand1 = 1'sb0;
-						summand2 = accum;
-						summand3 = mult3_res;
-						mult_state_d = MULL;
-						mult_valid = 1'b1;
-					end
-					default: mult_state_d = MULL;
-				endcase
-			end
-			always @(posedge clk_i or negedge rst_ni)
-				if (!rst_ni)
-					mult_state_q <= MULL;
-				else if (mult_en_i)
-					mult_state_q <= mult_state_d;
-		end
-		else begin : gen_multdiv_fast
-			reg [15:0] mult_op_a;
-			reg [15:0] mult_op_b;
-			reg [0:0] mult_state_q;
-			reg [0:0] mult_state_d;
-			assign mac_res_signed = (($signed({sign_a, mult_op_a}) * $signed({sign_b, mult_op_b})) + $signed(accum));
-			assign mac_res_ext = $unsigned(mac_res_signed);
-			assign mac_res = mac_res_ext[33:0];
-			localparam ALBL = 2'd0;
-			localparam ALBH = 2'd1;
-			localparam AHBL = 2'd2;
-			localparam AHBH = 2'd3;
-			always @(*) begin
-				mult_op_a = op_a_i[15:0];
-				mult_op_b = op_b_i[15:0];
-				sign_a = 1'b0;
-				sign_b = 1'b0;
-				accum = mac_res_q;
-				mac_res_d = mac_res;
-				mult_state_d = mult_state_q;
-				mult_valid = 1'b0;
-				case (mult_state_q)
-					ALBL: begin
-						mult_op_a = op_a_i[15:0];
-						mult_op_b = op_b_i[15:0];
-						sign_a = 1'b0;
-						sign_b = 1'b0;
-						accum = 1'sb0;
-						mac_res_d = mac_res;
-						mult_state_d = ALBH;
-					end
-					ALBH: begin
-						mult_op_a = op_a_i[15:0];
-						mult_op_b = op_b_i[31:16];
-						sign_a = 1'b0;
-						sign_b = (signed_mode_i[1] & op_b_i[31]);
-						accum = {18'b0, mac_res_q[31:16]};
-						if ((operator_i == MD_OP_MULL))
-							mac_res_d = {2'b0, mac_res[15:0], mac_res_q[15:0]};
-						else
-							mac_res_d = mac_res;
-						mult_state_d = AHBL;
-					end
-					AHBL: begin
-						mult_op_a = op_a_i[31:16];
-						mult_op_b = op_b_i[15:0];
-						sign_a = (signed_mode_i[0] & op_a_i[31]);
-						sign_b = 1'b0;
-						if ((operator_i == MD_OP_MULL)) begin
-							accum = {18'b0, mac_res_q[31:16]};
-							mac_res_d = {2'b0, mac_res[15:0], mac_res_q[15:0]};
-							mult_valid = 1'b1;
-							mult_state_d = ALBL;
-						end
-						else begin
-							accum = mac_res_q;
-							mac_res_d = mac_res;
-							mult_state_d = AHBH;
-						end
-					end
-					AHBH: begin
-						mult_op_a = op_a_i[31:16];
-						mult_op_b = op_b_i[31:16];
-						sign_a = (signed_mode_i[0] & op_a_i[31]);
-						sign_b = (signed_mode_i[1] & op_b_i[31]);
-						accum[17:0] = mac_res_q[33:16];
-						accum[33:18] = {16 {(signed_mult & mac_res_q[33])}};
-						mac_res_d = mac_res;
-						mult_state_d = ALBL;
-						mult_valid = 1'b1;
-					end
-					default: mult_state_d = ALBL;
-				endcase
-			end
-			always @(posedge clk_i or negedge rst_ni)
-				if (!rst_ni)
-					mult_state_q <= ALBL;
-				else if (mult_en_i)
-					mult_state_q <= mult_state_d;
-		end
-	endgenerate
-	assign res_adder_h = alu_adder_ext_i[33:1];
-	assign next_remainder = (is_greater_equal ? res_adder_h[31:0] : mac_res_q[31:0]);
-	assign next_quotient = (is_greater_equal ? ({1'b0, op_quotient_q} | {1'b0, one_shift}) : {1'b0, op_quotient_q});
-	assign one_shift = ({31'b0, 1'b1} << div_counter_q);
-	always @(*)
-		if (((mac_res_q[31] ^ op_denominator_q[31]) == 1'b0))
-			is_greater_equal = (res_adder_h[31] == 1'b0);
-		else
-			is_greater_equal = mac_res_q[31];
-	assign div_sign_a = (op_a_i[31] & signed_mode_i[0]);
-	assign div_sign_b = (op_b_i[31] & signed_mode_i[1]);
-	assign div_change_sign = (div_sign_a ^ div_sign_b);
-	assign rem_change_sign = div_sign_a;
+	wire unused_valid;
+	assign unused_valid = valid_i;
 	always @(*) begin
-		div_counter_d = (div_counter_q - 5'h1);
-		op_remainder_d = mac_res_q;
-		op_quotient_d = op_quotient_q;
-		md_state_d = md_state_q;
-		op_numerator_d = op_numerator_q;
-		op_denominator_d = op_denominator_q;
-		alu_operand_a_o = {32'h0, 1'b1};
-		alu_operand_b_o = {~op_b_i, 1'b1};
-		div_valid = 1'b0;
-		case (md_state_q)
-			MD_IDLE: begin
-				if ((operator_i == MD_OP_DIV)) begin
-					op_remainder_d = 1'sb1;
-					md_state_d = (equal_to_zero ? MD_FINISH : MD_ABS_A);
-				end
-				else begin
-					op_remainder_d = {2'b0, op_a_i};
-					md_state_d = (equal_to_zero ? MD_FINISH : MD_ABS_A);
-				end
-				alu_operand_a_o = {32'h0, 1'b1};
-				alu_operand_b_o = {~op_b_i, 1'b1};
-				div_counter_d = 5'd31;
-			end
-			MD_ABS_A: begin
-				op_quotient_d = 1'sb0;
-				op_numerator_d = (div_sign_a ? alu_adder_i : op_a_i);
-				md_state_d = MD_ABS_B;
-				div_counter_d = 5'd31;
-				alu_operand_a_o = {32'h0, 1'b1};
-				alu_operand_b_o = {~op_a_i, 1'b1};
-			end
-			MD_ABS_B: begin
-				op_remainder_d = {33'h0, op_numerator_q[31]};
-				op_denominator_d = (div_sign_b ? alu_adder_i : op_b_i);
-				md_state_d = MD_COMP;
-				div_counter_d = 5'd31;
-				alu_operand_a_o = {32'h0, 1'b1};
-				alu_operand_b_o = {~op_b_i, 1'b1};
-			end
-			MD_COMP: begin
-				op_remainder_d = {1'b0, next_remainder[31:0], op_numerator_q[div_counter_d]};
-				op_quotient_d = next_quotient[31:0];
-				md_state_d = ((div_counter_q == 5'd1) ? MD_LAST : MD_COMP);
-				alu_operand_a_o = {mac_res_q[31:0], 1'b1};
-				alu_operand_b_o = {~op_denominator_q[31:0], 1'b1};
-			end
-			MD_LAST: begin
-				if ((operator_i == MD_OP_DIV))
-					op_remainder_d = {1'b0, next_quotient};
-				else
-					op_remainder_d = {2'b0, next_remainder[31:0]};
-				alu_operand_a_o = {mac_res_q[31:0], 1'b1};
-				alu_operand_b_o = {~op_denominator_q[31:0], 1'b1};
-				md_state_d = MD_CHANGE_SIGN;
-			end
-			MD_CHANGE_SIGN: begin
-				md_state_d = MD_FINISH;
-				if ((operator_i == MD_OP_DIV))
-					op_remainder_d = (div_change_sign ? {2'h0, alu_adder_i} : mac_res_q);
-				else
-					op_remainder_d = (rem_change_sign ? {2'h0, alu_adder_i} : mac_res_q);
-				alu_operand_a_o = {32'h0, 1'b1};
-				alu_operand_b_o = {~mac_res_q[31:0], 1'b1};
-			end
-			MD_FINISH: begin
-				md_state_d = MD_IDLE;
-				div_valid = 1'b1;
-			end
-			default: md_state_d = MD_IDLE;
+		instr_o = instr_i;
+		illegal_instr_o = 1'b0;
+		case (instr_i[1:0])
+			2'b00:
+				case (instr_i[15:13])
+					3'b000: begin
+						instr_o = {2'b0, instr_i[10:7], instr_i[12:11], instr_i[5], instr_i[6], 2'b00, 5'h02, 3'b000, 2'b01, instr_i[4:2], OPCODE_OP_IMM};
+						if ((instr_i[12:5] == 8'b0))
+							illegal_instr_o = 1'b1;
+					end
+					3'b010: instr_o = {5'b0, instr_i[5], instr_i[12:10], instr_i[6], 2'b00, 2'b01, instr_i[9:7], 3'b010, 2'b01, instr_i[4:2], OPCODE_LOAD};
+					3'b110: instr_o = {5'b0, instr_i[5], instr_i[12], 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b010, instr_i[11:10], instr_i[6], 2'b00, OPCODE_STORE};
+					3'b001, 3'b011, 3'b100, 3'b101, 3'b111: illegal_instr_o = 1'b1;
+					default: illegal_instr_o = 1'b1;
+				endcase
+			2'b01:
+				case (instr_i[15:13])
+					3'b000: instr_o = {{6 {instr_i[12]}}, instr_i[12], instr_i[6:2], instr_i[11:7], 3'b0, instr_i[11:7], OPCODE_OP_IMM};
+					3'b001, 3'b101: instr_o = {instr_i[12], instr_i[8], instr_i[10:9], instr_i[6], instr_i[7], instr_i[2], instr_i[11], instr_i[5:3], {9 {instr_i[12]}}, 4'b0, ~instr_i[15], OPCODE_JAL};
+					3'b010: instr_o = {{6 {instr_i[12]}}, instr_i[12], instr_i[6:2], 5'b0, 3'b0, instr_i[11:7], OPCODE_OP_IMM};
+					3'b011: begin
+						instr_o = {{15 {instr_i[12]}}, instr_i[6:2], instr_i[11:7], OPCODE_LUI};
+						if ((instr_i[11:7] == 5'h02))
+							instr_o = {{3 {instr_i[12]}}, instr_i[4:3], instr_i[5], instr_i[2], instr_i[6], 4'b0, 5'h02, 3'b000, 5'h02, OPCODE_OP_IMM};
+						if (({instr_i[12], instr_i[6:2]} == 6'b0))
+							illegal_instr_o = 1'b1;
+					end
+					3'b100:
+						case (instr_i[11:10])
+							2'b00, 2'b01: begin
+								instr_o = {1'b0, instr_i[10], 5'b0, instr_i[6:2], 2'b01, instr_i[9:7], 3'b101, 2'b01, instr_i[9:7], OPCODE_OP_IMM};
+								if ((instr_i[12] == 1'b1))
+									illegal_instr_o = 1'b1;
+							end
+							2'b10: instr_o = {{6 {instr_i[12]}}, instr_i[12], instr_i[6:2], 2'b01, instr_i[9:7], 3'b111, 2'b01, instr_i[9:7], OPCODE_OP_IMM};
+							2'b11:
+								case ({instr_i[12], instr_i[6:5]})
+									3'b000: instr_o = {2'b01, 5'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b000, 2'b01, instr_i[9:7], OPCODE_OP};
+									3'b001: instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b100, 2'b01, instr_i[9:7], OPCODE_OP};
+									3'b010: instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b110, 2'b01, instr_i[9:7], OPCODE_OP};
+									3'b011: instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b111, 2'b01, instr_i[9:7], OPCODE_OP};
+									3'b100, 3'b101, 3'b110, 3'b111: illegal_instr_o = 1'b1;
+									default: illegal_instr_o = 1'b1;
+								endcase
+							default: illegal_instr_o = 1'b1;
+						endcase
+					3'b110, 3'b111: instr_o = {{4 {instr_i[12]}}, instr_i[6:5], instr_i[2], 5'b0, 2'b01, instr_i[9:7], 2'b00, instr_i[13], instr_i[11:10], instr_i[4:3], instr_i[12], OPCODE_BRANCH};
+					default: illegal_instr_o = 1'b1;
+				endcase
+			2'b10:
+				case (instr_i[15:13])
+					3'b000: begin
+						instr_o = {7'b0, instr_i[6:2], instr_i[11:7], 3'b001, instr_i[11:7], OPCODE_OP_IMM};
+						if ((instr_i[12] == 1'b1))
+							illegal_instr_o = 1'b1;
+					end
+					3'b010: begin
+						instr_o = {4'b0, instr_i[3:2], instr_i[12], instr_i[6:4], 2'b00, 5'h02, 3'b010, instr_i[11:7], OPCODE_LOAD};
+						if ((instr_i[11:7] == 5'b0))
+							illegal_instr_o = 1'b1;
+					end
+					3'b100:
+						if ((instr_i[12] == 1'b0)) begin
+							if ((instr_i[6:2] != 5'b0))
+								instr_o = {7'b0, instr_i[6:2], 5'b0, 3'b0, instr_i[11:7], OPCODE_OP};
+							else begin
+								instr_o = {12'b0, instr_i[11:7], 3'b0, 5'b0, OPCODE_JALR};
+								if ((instr_i[11:7] == 5'b0))
+									illegal_instr_o = 1'b1;
+							end
+						end
+						else if ((instr_i[6:2] != 5'b0))
+							instr_o = {7'b0, instr_i[6:2], instr_i[11:7], 3'b0, instr_i[11:7], OPCODE_OP};
+						else if ((instr_i[11:7] == 5'b0))
+							instr_o = 32'h00_10_00_73;
+						else
+							instr_o = {12'b0, instr_i[11:7], 3'b000, 5'b00001, OPCODE_JALR};
+					3'b110: instr_o = {4'b0, instr_i[8:7], instr_i[12], instr_i[6:2], 5'h02, 3'b010, instr_i[11:9], 2'b00, OPCODE_STORE};
+					3'b001, 3'b011, 3'b101, 3'b111: illegal_instr_o = 1'b1;
+					default: illegal_instr_o = 1'b1;
+				endcase
+			2'b11:
+				;
+			default: illegal_instr_o = 1'b1;
 		endcase
 	end
-	assign valid_o = (mult_valid | div_valid);
+	assign is_compressed_o = (instr_i[1:0] != 2'b11);
 endmodule

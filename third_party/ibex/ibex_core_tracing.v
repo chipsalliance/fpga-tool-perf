@@ -1,19 +1,78 @@
-module ibex_compressed_decoder (
+// Copyright lowRISC contributors.
+// Copyright 2018 ETH Zurich and University of Bologna, see also CREDITS.md.
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
+
+module ibex_core_tracing (
 	clk_i,
 	rst_ni,
-	valid_i,
-	instr_i,
-	instr_o,
-	is_compressed_o,
-	illegal_instr_o
+	test_en_i,
+	hart_id_i,
+	boot_addr_i,
+	instr_req_o,
+	instr_gnt_i,
+	instr_rvalid_i,
+	instr_addr_o,
+	instr_rdata_i,
+	instr_err_i,
+	data_req_o,
+	data_gnt_i,
+	data_rvalid_i,
+	data_we_o,
+	data_be_o,
+	data_addr_o,
+	data_wdata_o,
+	data_rdata_i,
+	data_err_i,
+	irq_software_i,
+	irq_timer_i,
+	irq_external_i,
+	irq_fast_i,
+	irq_nm_i,
+	debug_req_i,
+	fetch_enable_i,
+	core_sleep_o
 );
+	parameter PMPEnable = 1'b0;
+	parameter [31:0] PMPGranularity = 0;
+	parameter [31:0] PMPNumRegions = 4;
+	parameter [31:0] MHPMCounterNum = 8;
+	parameter [31:0] MHPMCounterWidth = 40;
+	parameter RV32E = 1'b0;
+	parameter RV32M = 1'b1;
+	parameter BranchTargetALU = 1'b0;
+	parameter MultiplierImplementation = "fast";
+	parameter DbgTriggerEn = 1'b0;
+	parameter [31:0] DmHaltAddr = 32'h1A110800;
+	parameter [31:0] DmExceptionAddr = 32'h1A110808;
 	input wire clk_i;
 	input wire rst_ni;
-	input wire valid_i;
-	input wire [31:0] instr_i;
-	output reg [31:0] instr_o;
-	output wire is_compressed_o;
-	output reg illegal_instr_o;
+	input wire test_en_i;
+	input wire [31:0] hart_id_i;
+	input wire [31:0] boot_addr_i;
+	output wire instr_req_o;
+	input wire instr_gnt_i;
+	input wire instr_rvalid_i;
+	output wire [31:0] instr_addr_o;
+	input wire [31:0] instr_rdata_i;
+	input wire instr_err_i;
+	output wire data_req_o;
+	input wire data_gnt_i;
+	input wire data_rvalid_i;
+	output wire data_we_o;
+	output wire [3:0] data_be_o;
+	output wire [31:0] data_addr_o;
+	output wire [31:0] data_wdata_o;
+	input wire [31:0] data_rdata_i;
+	input wire data_err_i;
+	input wire irq_software_i;
+	input wire irq_timer_i;
+	input wire irq_external_i;
+	input wire [14:0] irq_fast_i;
+	input wire irq_nm_i;
+	input wire debug_req_i;
+	input wire fetch_enable_i;
+	output wire core_sleep_o;
 	parameter [31:0] PMP_MAX_REGIONS = 16;
 	parameter [31:0] PMP_CFG_W = 8;
 	parameter [31:0] PMP_I = 0;
@@ -258,94 +317,113 @@ module ibex_compressed_decoder (
 	localparam [5:0] EXC_CAUSE_IRQ_TIMER_M = {1'b1, 5'd07};
 	localparam [5:0] EXC_CAUSE_IRQ_EXTERNAL_M = {1'b1, 5'd11};
 	localparam [5:0] EXC_CAUSE_IRQ_NM = {1'b1, 5'd31};
-	wire unused_valid;
-	assign unused_valid = valid_i;
-	always @(*) begin
-		instr_o = instr_i;
-		illegal_instr_o = 1'b0;
-		case (instr_i[1:0])
-			2'b00:
-				case (instr_i[15:13])
-					3'b000: begin
-						instr_o = {2'b0, instr_i[10:7], instr_i[12:11], instr_i[5], instr_i[6], 2'b00, 5'h02, 3'b000, 2'b01, instr_i[4:2], OPCODE_OP_IMM};
-						if ((instr_i[12:5] == 8'b0))
-							illegal_instr_o = 1'b1;
-					end
-					3'b010: instr_o = {5'b0, instr_i[5], instr_i[12:10], instr_i[6], 2'b00, 2'b01, instr_i[9:7], 3'b010, 2'b01, instr_i[4:2], OPCODE_LOAD};
-					3'b110: instr_o = {5'b0, instr_i[5], instr_i[12], 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b010, instr_i[11:10], instr_i[6], 2'b00, OPCODE_STORE};
-					3'b001, 3'b011, 3'b100, 3'b101, 3'b111: illegal_instr_o = 1'b1;
-					default: illegal_instr_o = 1'b1;
-				endcase
-			2'b01:
-				case (instr_i[15:13])
-					3'b000: instr_o = {{6 {instr_i[12]}}, instr_i[12], instr_i[6:2], instr_i[11:7], 3'b0, instr_i[11:7], OPCODE_OP_IMM};
-					3'b001, 3'b101: instr_o = {instr_i[12], instr_i[8], instr_i[10:9], instr_i[6], instr_i[7], instr_i[2], instr_i[11], instr_i[5:3], {9 {instr_i[12]}}, 4'b0, ~instr_i[15], OPCODE_JAL};
-					3'b010: instr_o = {{6 {instr_i[12]}}, instr_i[12], instr_i[6:2], 5'b0, 3'b0, instr_i[11:7], OPCODE_OP_IMM};
-					3'b011: begin
-						instr_o = {{15 {instr_i[12]}}, instr_i[6:2], instr_i[11:7], OPCODE_LUI};
-						if ((instr_i[11:7] == 5'h02))
-							instr_o = {{3 {instr_i[12]}}, instr_i[4:3], instr_i[5], instr_i[2], instr_i[6], 4'b0, 5'h02, 3'b000, 5'h02, OPCODE_OP_IMM};
-						if (({instr_i[12], instr_i[6:2]} == 6'b0))
-							illegal_instr_o = 1'b1;
-					end
-					3'b100:
-						case (instr_i[11:10])
-							2'b00, 2'b01: begin
-								instr_o = {1'b0, instr_i[10], 5'b0, instr_i[6:2], 2'b01, instr_i[9:7], 3'b101, 2'b01, instr_i[9:7], OPCODE_OP_IMM};
-								if ((instr_i[12] == 1'b1))
-									illegal_instr_o = 1'b1;
-							end
-							2'b10: instr_o = {{6 {instr_i[12]}}, instr_i[12], instr_i[6:2], 2'b01, instr_i[9:7], 3'b111, 2'b01, instr_i[9:7], OPCODE_OP_IMM};
-							2'b11:
-								case ({instr_i[12], instr_i[6:5]})
-									3'b000: instr_o = {2'b01, 5'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b000, 2'b01, instr_i[9:7], OPCODE_OP};
-									3'b001: instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b100, 2'b01, instr_i[9:7], OPCODE_OP};
-									3'b010: instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b110, 2'b01, instr_i[9:7], OPCODE_OP};
-									3'b011: instr_o = {7'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7], 3'b111, 2'b01, instr_i[9:7], OPCODE_OP};
-									3'b100, 3'b101, 3'b110, 3'b111: illegal_instr_o = 1'b1;
-									default: illegal_instr_o = 1'b1;
-								endcase
-							default: illegal_instr_o = 1'b1;
-						endcase
-					3'b110, 3'b111: instr_o = {{4 {instr_i[12]}}, instr_i[6:5], instr_i[2], 5'b0, 2'b01, instr_i[9:7], 2'b00, instr_i[13], instr_i[11:10], instr_i[4:3], instr_i[12], OPCODE_BRANCH};
-					default: illegal_instr_o = 1'b1;
-				endcase
-			2'b10:
-				case (instr_i[15:13])
-					3'b000: begin
-						instr_o = {7'b0, instr_i[6:2], instr_i[11:7], 3'b001, instr_i[11:7], OPCODE_OP_IMM};
-						if ((instr_i[12] == 1'b1))
-							illegal_instr_o = 1'b1;
-					end
-					3'b010: begin
-						instr_o = {4'b0, instr_i[3:2], instr_i[12], instr_i[6:4], 2'b00, 5'h02, 3'b010, instr_i[11:7], OPCODE_LOAD};
-						if ((instr_i[11:7] == 5'b0))
-							illegal_instr_o = 1'b1;
-					end
-					3'b100:
-						if ((instr_i[12] == 1'b0)) begin
-							if ((instr_i[6:2] != 5'b0))
-								instr_o = {7'b0, instr_i[6:2], 5'b0, 3'b0, instr_i[11:7], OPCODE_OP};
-							else begin
-								instr_o = {12'b0, instr_i[11:7], 3'b0, 5'b0, OPCODE_JALR};
-								if ((instr_i[11:7] == 5'b0))
-									illegal_instr_o = 1'b1;
-							end
-						end
-						else if ((instr_i[6:2] != 5'b0))
-							instr_o = {7'b0, instr_i[6:2], instr_i[11:7], 3'b0, instr_i[11:7], OPCODE_OP};
-						else if ((instr_i[11:7] == 5'b0))
-							instr_o = 32'h00_10_00_73;
-						else
-							instr_o = {12'b0, instr_i[11:7], 3'b000, 5'b00001, OPCODE_JALR};
-					3'b110: instr_o = {4'b0, instr_i[8:7], instr_i[12], instr_i[6:2], 5'h02, 3'b010, instr_i[11:9], 2'b00, OPCODE_STORE};
-					3'b001, 3'b011, 3'b101, 3'b111: illegal_instr_o = 1'b1;
-					default: illegal_instr_o = 1'b1;
-				endcase
-			2'b11:
-				;
-			default: illegal_instr_o = 1'b1;
-		endcase
-	end
-	assign is_compressed_o = (instr_i[1:0] != 2'b11);
+	ThisModuleDoesNotExist __sv2v_elab_fatal("Fatal error: RVFI needs to be defined globally.");
+	wire rvfi_valid;
+	wire [63:0] rvfi_order;
+	wire [31:0] rvfi_insn;
+	wire rvfi_trap;
+	wire rvfi_halt;
+	wire rvfi_intr;
+	wire [1:0] rvfi_mode;
+	wire [4:0] rvfi_rs1_addr;
+	wire [4:0] rvfi_rs2_addr;
+	wire [31:0] rvfi_rs1_rdata;
+	wire [31:0] rvfi_rs2_rdata;
+	wire [4:0] rvfi_rd_addr;
+	wire [31:0] rvfi_rd_wdata;
+	wire [31:0] rvfi_pc_rdata;
+	wire [31:0] rvfi_pc_wdata;
+	wire [31:0] rvfi_mem_addr;
+	wire [3:0] rvfi_mem_rmask;
+	wire [3:0] rvfi_mem_wmask;
+	wire [31:0] rvfi_mem_rdata;
+	wire [31:0] rvfi_mem_wdata;
+	ibex_core #(
+		.PMPEnable(PMPEnable),
+		.PMPGranularity(PMPGranularity),
+		.PMPNumRegions(PMPNumRegions),
+		.MHPMCounterNum(MHPMCounterNum),
+		.MHPMCounterWidth(MHPMCounterWidth),
+		.RV32E(RV32E),
+		.RV32M(RV32M),
+		.BranchTargetALU(BranchTargetALU),
+		.DbgTriggerEn(DbgTriggerEn),
+		.MultiplierImplementation(MultiplierImplementation),
+		.DmHaltAddr(DmHaltAddr),
+		.DmExceptionAddr(DmExceptionAddr)
+	) u_ibex_core(
+		.clk_i(clk_i),
+		.rst_ni(rst_ni),
+		.test_en_i(test_en_i),
+		.hart_id_i(hart_id_i),
+		.boot_addr_i(boot_addr_i),
+		.instr_req_o(instr_req_o),
+		.instr_gnt_i(instr_gnt_i),
+		.instr_rvalid_i(instr_rvalid_i),
+		.instr_addr_o(instr_addr_o),
+		.instr_rdata_i(instr_rdata_i),
+		.instr_err_i(instr_err_i),
+		.data_req_o(data_req_o),
+		.data_gnt_i(data_gnt_i),
+		.data_rvalid_i(data_rvalid_i),
+		.data_we_o(data_we_o),
+		.data_be_o(data_be_o),
+		.data_addr_o(data_addr_o),
+		.data_wdata_o(data_wdata_o),
+		.data_rdata_i(data_rdata_i),
+		.data_err_i(data_err_i),
+		.irq_software_i(irq_software_i),
+		.irq_timer_i(irq_timer_i),
+		.irq_external_i(irq_external_i),
+		.irq_fast_i(irq_fast_i),
+		.irq_nm_i(irq_nm_i),
+		.debug_req_i(debug_req_i),
+		.rvfi_valid(rvfi_valid),
+		.rvfi_order(rvfi_order),
+		.rvfi_insn(rvfi_insn),
+		.rvfi_trap(rvfi_trap),
+		.rvfi_halt(rvfi_halt),
+		.rvfi_intr(rvfi_intr),
+		.rvfi_mode(rvfi_mode),
+		.rvfi_rs1_addr(rvfi_rs1_addr),
+		.rvfi_rs2_addr(rvfi_rs2_addr),
+		.rvfi_rs1_rdata(rvfi_rs1_rdata),
+		.rvfi_rs2_rdata(rvfi_rs2_rdata),
+		.rvfi_rd_addr(rvfi_rd_addr),
+		.rvfi_rd_wdata(rvfi_rd_wdata),
+		.rvfi_pc_rdata(rvfi_pc_rdata),
+		.rvfi_pc_wdata(rvfi_pc_wdata),
+		.rvfi_mem_addr(rvfi_mem_addr),
+		.rvfi_mem_rmask(rvfi_mem_rmask),
+		.rvfi_mem_wmask(rvfi_mem_wmask),
+		.rvfi_mem_rdata(rvfi_mem_rdata),
+		.rvfi_mem_wdata(rvfi_mem_wdata),
+		.fetch_enable_i(fetch_enable_i),
+		.core_sleep_o(core_sleep_o)
+	);
+	ibex_tracer u_ibex_tracer(
+		.clk_i(clk_i),
+		.rst_ni(rst_ni),
+		.hart_id_i(hart_id_i),
+		.rvfi_valid(rvfi_valid),
+		.rvfi_order(rvfi_order),
+		.rvfi_insn(rvfi_insn),
+		.rvfi_trap(rvfi_trap),
+		.rvfi_halt(rvfi_halt),
+		.rvfi_intr(rvfi_intr),
+		.rvfi_mode(rvfi_mode),
+		.rvfi_rs1_addr(rvfi_rs1_addr),
+		.rvfi_rs2_addr(rvfi_rs2_addr),
+		.rvfi_rs1_rdata(rvfi_rs1_rdata),
+		.rvfi_rs2_rdata(rvfi_rs2_rdata),
+		.rvfi_rd_addr(rvfi_rd_addr),
+		.rvfi_rd_wdata(rvfi_rd_wdata),
+		.rvfi_pc_rdata(rvfi_pc_rdata),
+		.rvfi_pc_wdata(rvfi_pc_wdata),
+		.rvfi_mem_addr(rvfi_mem_addr),
+		.rvfi_mem_rmask(rvfi_mem_rmask),
+		.rvfi_mem_wmask(rvfi_mem_wmask),
+		.rvfi_mem_rdata(rvfi_mem_rdata),
+		.rvfi_mem_wdata(rvfi_mem_wdata)
+	);
 endmodule
