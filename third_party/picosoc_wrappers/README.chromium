@@ -1,0 +1,11 @@
+Name: PicoSoC - A simple example SoC using PicoRV32
+Short Name: PicoSoC
+URL: https://github.com/cliffordwolf/picorv32/tree/master/picosoc
+Version: 1.0
+License: ISC
+
+Description:
+This package is used as a testbench for the fpga-tool-perf project, to test performance and quality of results of different vendor and open source toolchains.
+
+Local Modifications:
+Modification of the picoRV32 wrapper to allow booting without flash, using a custom verilog-described memory containing the firmware.
