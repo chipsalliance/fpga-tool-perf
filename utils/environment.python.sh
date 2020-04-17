@@ -1,5 +1,5 @@
 # FIXME: fasm should be installed into the running Python environment.
-BASE_DIR=${FPGA_TOOL_PERF_DIR}
+BASE_DIR=$(pwd)
 export PYTHONPATH="${SYMBIFLOW}/python:$BASE_DIR:$BASE_DIR/third_party/fasm:$BASE_DIR/third_party/edalize:$PYTHONPATH"
 
 # Suppress the following warnings;

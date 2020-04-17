@@ -6,3 +6,4 @@ colorclass
 lxml
 python-constraint
 intervaltree
+jinja2

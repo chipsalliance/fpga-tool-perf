@@ -5,14 +5,10 @@ INSTALL_DIR = ${PWD}/third_party/install
 
 all: format
 
-IN_ENV = if [ -e env/bin/activate ]; then . env/bin/activate; fi; source utils/environment.python.sh;
-env:
-	git submodule update --init --recursive
-	virtualenv --python=python3 env
-	# Install fasm from third_party
-	$(IN_ENV) pip install --upgrade -e third_party/fasm
-	# Install edalize from third_party
-	$(IN_ENV) pip install --upgrade -e third_party/edalize
+IN_ENV = if [ -e env/conda/bin/activate ]; then . env/conda/bin/activate; fi;
+conda:
+	mkdir -p env
+	source utils/conda.sh
 	# Install requirements
 	$(IN_ENV) pip install -r requirements.txt
 
@@ -26,7 +22,8 @@ build-tools:
 	cd third_party/yosys-plugins && export PATH=${INSTALL_DIR}/bin:${PATH} && $(MAKE)
 
 run-all:
-	${IN_ENV} ./exhaust.py
+	# TODO: enable other toolchains once full support is complete
+	${IN_ENV} ./exhaust.py --toolchain vivado
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 
