@@ -72,12 +72,12 @@ echo "----------------------------------------"
 
 echo
 echo "========================================"
-echo "Setting up environment env"
+echo "Setting up conda environment"
 echo "----------------------------------------"
 (
 	echo
-	echo " Configuring virtual environment"
+	echo " Configuring conda environment"
 	echo "----------------------------------------"
-	make env
+	make conda
 	echo "----------------------------------------"
 )
