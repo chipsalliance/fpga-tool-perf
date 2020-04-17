@@ -15,7 +15,7 @@ conda:
 
 run-all:
 	# TODO: enable other toolchains once full support is complete
-	${IN_ENV} ./exhaust.py --toolchain vivado
+	${IN_ENV} ./exhaust.py --toolchain vivado-yosys
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 
