@@ -7,19 +7,11 @@ all: format
 
 IN_ENV = if [ -e env/conda/bin/activate ]; then . env/conda/bin/activate; fi;
 conda:
+	git submodule update --init --recursive
 	mkdir -p env
 	source utils/conda.sh
 	# Install requirements
 	$(IN_ENV) pip install -r requirements.txt
-
-build-tools:
-	git submodule update --init --recursive
-	# Build VtR
-	cd third_party/vtr && CMAKE_PARAMS="-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" $(MAKE) -j`nproc`
-	# Build Yosys
-	cd third_party/yosys && PREFIX=${INSTALL_DIR} $(MAKE) -j`nproc` && PREFIX=${INSTALL_DIR} $(MAKE) install
-	# Build Yosys plugins
-	cd third_party/yosys-plugins && export PATH=${INSTALL_DIR}/bin:${PATH} && $(MAKE)
 
 run-all:
 	# TODO: enable other toolchains once full support is complete
