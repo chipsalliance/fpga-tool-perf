@@ -10,10 +10,11 @@ fi
 
 source ${VIVADO_SETTINGS}
 
-if [ -z "${SYMBIFLOW}" ]; then
-    echo "ERROR: SYMBIFLOW install dir not set."
-    return 1
-fi
+# TODO: enable this when integrating symbiflow package
+#if [ -z "${SYMBIFLOW}" ]; then
+#    echo "ERROR: SYMBIFLOW install dir not set."
+#    return 1
+#fi
 
 export PATH=${SYMBIFLOW}/bin:${PATH}
 export XRAY_DATABASE_DIR=$(pwd)/third_party/prjxray-db
