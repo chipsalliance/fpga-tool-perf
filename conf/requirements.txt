@@ -7,3 +7,4 @@ lxml
 python-constraint
 intervaltree
 jinja2
+pytest

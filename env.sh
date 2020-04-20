@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./env/conda/bin/activate
+. ./env/conda/bin/activate fpga-tool-perf-env
 source utils/environment.python.sh
 
 if [ -z "${VIVADO_SETTINGS}" ]; then
@@ -16,6 +16,6 @@ source ${VIVADO_SETTINGS}
 #    return 1
 #fi
 
-export PATH=${SYMBIFLOW}/bin:${PATH}
+#export PATH=${SYMBIFLOW}/bin:${PATH}
 export XRAY_DATABASE_DIR=$(pwd)/third_party/prjxray-db
 export XRAY_FASM2FRAMES=$(pwd)/third_party/prjxray/utils/fasm2frames.py

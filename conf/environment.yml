@@ -1,0 +1,10 @@
+name: fpga-tool-perf-env
+channels:
+  - symbiflow
+dependencies:
+  - yosys
+  - yosys-plugins
+  - vtr
+  - pip
+  - pip:                            # Packages installed from PyPI
+    - -r file:requirements.txt

@@ -18,11 +18,9 @@ export PATH=$CONDA_DIR/bin:${PATH}
     conda config --system --set always_yes yes
     conda config --system --set changeps1 no
     conda update -q conda
-    conda config --system --add channels symbiflow
 
-    conda install -c symbiflow yosys
-    conda install -c symbiflow yosys-plugins
-    conda install -c symbiflow vtr
+    conda env create --file ../conf/environment.yml
+    conda activate fpga-tool-perf-env
 
-    conda info
+    conda info -a
 )
