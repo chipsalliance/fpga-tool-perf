@@ -74,6 +74,8 @@ def print_summary_table(out_prefix, total_tasks):
     table.inner_footing_row_border = True
     print(table.table)
 
+    return failed == 0
+
 
 def get_device_info(constraint):
     """Returns the device information:
@@ -222,7 +224,11 @@ def main():
     fout = open('{}/all.json'.format(args.out_prefix), 'w')
     json.dump(merged_dict, fout, indent=4, sort_keys=True)
 
-    print_summary_table(args.out_prefix, len(tasks))
+    result = print_summary_table(args.out_prefix, len(tasks))
+
+    if not result:
+        print("ERROR: some tests have failed.")
+        exit(1)
 
 
 if __name__ == '__main__':

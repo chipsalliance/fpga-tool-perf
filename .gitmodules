@@ -14,14 +14,9 @@
 	path = third_party/edalize
 	url = https://github.com/SymbiFlow/edalize.git
 	branch = symbiflow
-[submodule "third_party/vtr"]
-	path = third_party/vtr
-	url = https://github.com/SymbiFlow/vtr-verilog-to-routing.git
-	branch = master+wip
-[submodule "third_party/yosys"]
-	path = third_party/yosys
-	url = https://github.com/SymbiFlow/yosys.git
-	branch = master+wip
-[submodule "third_party/yosys-plugins"]
-	path = third_party/yosys-plugins
-	url = https://github.com/SymbiFlow/yosys-symbiflow-plugins.git
+[submodule "third_party/prjxray-db"]
+	path = third_party/prjxray-db
+	url = https://github.com/SymbiFlow/prjxray-db
+[submodule "third_party/prjxray"]
+	path = third_party/prjxray
+	url = https://github.com/SymbiFlow/prjxray.git

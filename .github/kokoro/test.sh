@@ -13,6 +13,7 @@ echo "==========================================="
 echo "Running FPGA perf tool tests (make run-all)"
 echo "-------------------------------------------"
 (
-	make run-all
+    source env.sh
+    make run-all
 )
 echo "-------------------------------------------"
