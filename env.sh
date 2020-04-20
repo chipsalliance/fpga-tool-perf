@@ -5,10 +5,9 @@ source utils/environment.python.sh
 
 if [ -z "${VIVADO_SETTINGS}" ]; then
     echo "WARNING: using default vivado settings"
-    VIVADO_SETTINGS=/opt/Xilinx/Vivado/2017.2/settings64.sh
+    #FIXME: to use the conda xilinx-vivado virtual package when available
+    export VIVADO_SETTINGS=/opt/Xilinx/Vivado/2017.2/settings64.sh
 fi
-
-source ${VIVADO_SETTINGS}
 
 # TODO: enable this when integrating symbiflow package
 #if [ -z "${SYMBIFLOW}" ]; then

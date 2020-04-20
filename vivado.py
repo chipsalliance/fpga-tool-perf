@@ -90,6 +90,8 @@ class Vivado(Toolchain):
 
             chip = self.family + self.device + self.package
 
+            vivado_settings = os.getenv('VIVADO_SETTINGS')
+
             self.edam = {
                 'files': self.files,
                 'name': self.project_name,
@@ -108,6 +110,7 @@ class Vivado(Toolchain):
                         'vivado': {
                             'part': chip,
                             'synth': self.synthtool,
+                            'vivado-settings': vivado_settings,
                         }
                     }
             }
