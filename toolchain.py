@@ -51,30 +51,22 @@ class Toolchain:
         return [os.path.realpath(self.rootdir + '/' + fn) for fn in fns]
 
     def optstr(self):
-        ret = ''
-
-        def add(s):
-            nonlocal ret
-
-            if ret:
-                ret += '_' + s
-            else:
-                ret = s
+        tokens = []
 
         if self.pcf:
-            add('pcf')
+            tokens.append('pcf')
         if self.sdc:
-            add('sdc')
+            tokens.append('sdc')
         if self.xdc:
-            add('xdc')
+            tokens.append('xdc')
         # omit carry if not explicitly given?
         if self.carry is not None:
-            add('carry-%c' % ('y' if self.carry else 'n', ))
+            tokens.append('carry-%c' % ('y' if self.carry else 'n', ))
         if self.strategy:
-            add(self.strategy)
+            tokens.append(self.strategy)
         if self.seed:
-            add('seed-%08X' % (self.seed, ))
-        return ret
+            tokens.append('seed-%08X' % (self.seed, ))
+        return '_'.join(tokens)
 
     def add_runtime(self, name, dt, parent=None):
         if parent is None:
