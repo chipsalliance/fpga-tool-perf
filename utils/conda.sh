@@ -20,6 +20,8 @@ export PATH=$CONDA_DIR/bin:${PATH}
     conda update -q conda
 
     conda env create --file ../conf/environment.yml
+    conda init bash
+    source ~/.bashrc
     conda activate fpga-tool-perf-env
 
     conda info -a
