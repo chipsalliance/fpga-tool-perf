@@ -107,11 +107,12 @@ class Vivado(Toolchain):
                     },
                 'tool_options':
                     {
-                        'vivado': {
-                            'part': chip,
-                            'synth': self.synthtool,
-                            'vivado-settings': vivado_settings,
-                        }
+                        'vivado':
+                            {
+                                'part': chip,
+                                'synth': self.synthtool,
+                                'vivado-settings': vivado_settings,
+                            }
                     }
             }
 
