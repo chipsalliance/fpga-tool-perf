@@ -228,7 +228,7 @@ def main():
 
     if not result:
         print("ERROR: some tests have failed.")
-        exit()
+        exit(1)
 
 
 if __name__ == '__main__':
