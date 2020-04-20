@@ -1,5 +1,8 @@
 name: fpga-tool-perf-env
 channels:
+  - m-labs
+  - conda-forge
+  - pkgw-forge
   - symbiflow
 dependencies:
   - yosys
