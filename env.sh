@@ -3,7 +3,6 @@
 export FPGA_TOOL_PERF_BASE_DIR=$(pwd)
 
 . ./env/conda/bin/activate fpga-tool-perf-env
-source utils/environment.python.sh
 
 if [ -z "${VIVADO_SETTINGS}" ]; then
     echo "WARNING: using default vivado settings"
