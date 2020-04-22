@@ -16,6 +16,7 @@ install: pip install yapf
 script:
   - make format
   - test $(git status --porcelain | wc -l) -eq 0 || { git diff; false; }
+  - source .github/travis/check_license.sh
 
 notifications:
   email: false
