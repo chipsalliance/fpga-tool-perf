@@ -8,4 +8,5 @@ python-constraint
 intervaltree
 jinja2
 pytest
-textx
+-e ../third_party/fasm
+-e ../third_party/edalize
