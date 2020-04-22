@@ -9,10 +9,13 @@ conda:
 	git submodule update --init --recursive
 	mkdir -p env
 	source utils/conda.sh
+	# FIXME: make this dynamic
+	wget "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/4/20200416-002215/symbiflow-arch-defs-install-a321d9d9.tar.xz"
+	tar -xf symbiflow-arch-defs-install-a321d9d9.tar.xz -C env
+	rm symbiflow-arch-defs-install-a321d9d9.tar.xz
 
 run-all:
-	# TODO: enable other toolchains once full support is complete
-	./exhaust.py --toolchain vivado-yosys
+	./exhaust.py
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 
