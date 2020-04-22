@@ -9,7 +9,7 @@ conda:
 	git submodule update --init --recursive
 	mkdir -p env
 	source utils/conda.sh
-	# FIXME: make this dynamic
+	# FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
 	wget "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/4/20200416-002215/symbiflow-arch-defs-install-a321d9d9.tar.xz"
 	tar -xf symbiflow-arch-defs-install-a321d9d9.tar.xz -C env
 	rm symbiflow-arch-defs-install-a321d9d9.tar.xz
