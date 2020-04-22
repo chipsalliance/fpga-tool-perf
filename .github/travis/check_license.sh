@@ -1,12 +1,18 @@
 #!/bin/bash
 
-# Check SPDX in source files
+echo
+echo "==========================="
+echo "Check SPDX identifier"
+echo "==========================="
+echo
+
 ERROR_FILES=""
 FILES_TO_CHECK=`find . \
     -type f \( -name '*.sh' -o -name '*.py' -o -name 'Makefile' \) \
     \( -not -path "*/.*/*" -not -path "*/third_party/*" \)`
 
 for file in $FILES_TO_CHECK; do
+    echo "Checking $file"
     grep -q "SPDX-License-Identifier" $file || ERROR_FILES="$ERROR_FILES $file"
 done
 
@@ -17,7 +23,11 @@ if [ ! -z "$ERROR_FILES" ]; then
     return 1
 fi
 
-# Check LICENSE file exists for third_party software
+echo
+echo "==========================="
+echo "Check third party LICENSE"
+echo "==========================="
+echo
 
 function check_if_submodule {
     for submodule in `git submodule --quiet foreach 'echo $sm_path'`; do
@@ -29,9 +39,11 @@ function check_if_submodule {
 
 THIRD_PARTY_DIRS=`ls -d third_party/*`
 ERROR_NO_LICENSE=""
+
 for dir in $THIRD_PARTY_DIRS; do
     # Checks if we are not in a submodule
     if check_if_submodule $dir; then
+        echo "Checking $dir"
         [ -f $dir/LICENSE ] || ERROR_NO_LICENSE="$ERROR_NO_LICENSE $dir"
     fi
 done
