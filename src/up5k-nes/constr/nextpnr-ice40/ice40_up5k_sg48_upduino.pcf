@@ -1,0 +1,34 @@
+set_io clock_16 31
+set_io LED0 12
+set_io LED1 13
+
+set_io VGA_HS 46
+set_io VGA_VS 2
+set_io VGA_B[3] 47
+set_io VGA_B[2] 45
+set_io VGA_B[1] 48
+set_io VGA_B[0] 3
+set_io VGA_G[3] 4
+set_io VGA_G[2] 44
+set_io VGA_G[1] 6
+set_io VGA_G[0] 9
+set_io VGA_R[3] 11
+set_io VGA_R[2] 18
+set_io VGA_R[1] 19
+set_io VGA_R[0] 21
+
+set_io AUDIO_O 23
+set_io joy_strobe 28
+set_io joy_clock 38
+set_io joy_data 42
+
+set_io flash_sck 15
+set_io flash_csn 16
+set_io flash_mosi 14
+set_io flash_miso 17
+
+set_io buttons[0] 27
+set_io buttons[1] 26
+set_io buttons[2] 25
+set_io buttons[3] 43
+set_io buttons[4] 36
