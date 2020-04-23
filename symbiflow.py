@@ -331,7 +331,7 @@ class VPR(Toolchain):
         }
 
 
-class Nextpnr(Toolchain):
+class NextpnrXilinx(Toolchain):
     '''nextpnr using Yosys for synthesis'''
     carries = (False, )
 
@@ -363,7 +363,8 @@ class Nextpnr(Toolchain):
             chip = self.family + self.device
 
             chipdb = os.path.join(
-                self.rootdir, 'third_party', 'install', 'share', 'nextpnr',
+                self.rootdir, 'env', 'conda', 'pkgs', 'nextpnr-xilinx*',
+                'share', 'nextpnr-xilinx',
                 '{}{}.bin'.format(self.family, self.part)
             )
             self.files.append(
@@ -470,8 +471,8 @@ class Nextpnr(Toolchain):
 
     def versions(self):
         return {
-            'yosys': Nextpnr.yosys_ver(),
-            'vpr': Nextpnr.nextpnr_version(),
+            'yosys': NextpnrXilinx.yosys_ver(),
+            'vpr': NextpnrXilinx.nextpnr_version(),
         }
 
     @staticmethod
@@ -482,5 +483,5 @@ class Nextpnr(Toolchain):
     def check_env():
         return {
             'yosys': have_exec('yosys'),
-            'nextpnr': have_exec(Nextpnr.nextpnr_bin()),
+            'nextpnr': have_exec(NextpnrXilinx.nextpnr_bin()),
         }
