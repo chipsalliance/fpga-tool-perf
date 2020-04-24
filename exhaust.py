@@ -206,6 +206,9 @@ def main():
 
     assert len(tasks), "No tasks to run!"
 
+    if not os.path.exists(args.out_prefix):
+        os.mkdir(args.out_prefix)
+
     with mp.Pool(mp.cpu_count()) as pool:
         for _ in tqdm.tqdm(pool.imap_unordered(worker, tasks),
                            total=len(tasks), unit='test'):
