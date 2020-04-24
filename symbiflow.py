@@ -466,7 +466,10 @@ class NextpnrXilinx(Toolchain):
         nextpnr-xilinx  --version
         '''
         return subprocess.check_output(
-            "nextpnr-xilinx --version", shell=True, universal_newlines=True, stderr=subprocess.STDOUT
+            "nextpnr-xilinx --version",
+            shell=True,
+            universal_newlines=True,
+            stderr=subprocess.STDOUT
         ).strip()
 
     def versions(self):
