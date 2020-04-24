@@ -4,7 +4,6 @@ import json
 import os
 import glob
 import multiprocessing as mp
-import progressbar as pb
 import time
 import re
 import tqdm
