@@ -466,13 +466,13 @@ class NextpnrXilinx(Toolchain):
         nextpnr-xilinx  --version
         '''
         return subprocess.check_output(
-            "nextpnr-xilinx --version", shell=True, universal_newlines=True
+            "nextpnr-xilinx --version", shell=True, universal_newlines=True, stderr=subprocess.STDOUT
         ).strip()
 
     def versions(self):
         return {
             'yosys': NextpnrXilinx.yosys_ver(),
-            'vpr': NextpnrXilinx.nextpnr_version(),
+            'nextpnr-xilinx': NextpnrXilinx.nextpnr_version(),
         }
 
     @staticmethod
