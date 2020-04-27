@@ -4,9 +4,9 @@ import json
 import os
 import glob
 import multiprocessing as mp
-import progressbar as pb
 import time
 import re
+import tqdm
 from contextlib import redirect_stdout
 from terminaltables import SingleTable
 from colorclass import Color
@@ -19,6 +19,7 @@ MANDATORY_CONSTRAINTS = {
     "vivado": "xdc",
     "vpr": "pcf",
     "vivado-yosys": "xdc",
+    "nextpnr": "xdc",
 }
 
 # to find data files
@@ -205,14 +206,13 @@ def main():
 
     assert len(tasks), "No tasks to run!"
 
-    jobs = mp.Pool(mp.cpu_count()).map_async(worker, tasks)
-    widget = ['Exhaust progress: ', pb.SimpleProgress(), pb.Bar()]
-    bar = pb.ProgressBar(widgets=widget, maxval=len(tasks)).start()
+    if not os.path.exists(args.out_prefix):
+        os.mkdir(args.out_prefix)
 
-    while not jobs.ready():
-        bar.update(len(tasks) - jobs._number_left)
-        time.sleep(1)
-    bar.update(len(tasks))
+    with mp.Pool(mp.cpu_count()) as pool:
+        for _ in tqdm.tqdm(pool.imap_unordered(worker, tasks),
+                           total=len(tasks), unit='test'):
+            pass
 
     # Combine results of all tests
     print('Merging results')

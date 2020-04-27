@@ -16,11 +16,12 @@ from terminaltables import AsciiTable
 from toolchain import Toolchain
 from utils import Timed
 
-from icestorm import Nextpnr
+from icestorm import NextpnrIcestorm
 from icestorm import Arachne
 from vivado import Vivado
 from vivado import VivadoYosys
 from symbiflow import VPR
+from symbiflow import NextpnrXilinx
 from radiant import RadiantSynpro
 from radiant import RadiantLSE
 from icecube import Icecube2Synpro
@@ -141,7 +142,7 @@ toolchains = {
     'vivado-yosys': VivadoYosys,
     'arachne': Arachne,
     'vpr': VPR,
-    'nextpnr': Nextpnr,
+    'nextpnr': NextpnrXilinx,
     'icecube2-synpro': Icecube2Synpro,
     'icecube2-lse': Icecube2LSE,
     'icecube2-yosys': Icecube2Yosys,

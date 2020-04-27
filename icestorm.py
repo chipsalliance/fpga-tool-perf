@@ -118,7 +118,7 @@ class Icestorm(Toolchain):
             self.backend.build_main('timing')
 
 
-class Nextpnr(Icestorm):
+class NextpnrIcestorm(Icestorm):
     '''Nextpnr PnR + Yosys synthesis'''
     carries = (True, False)
 

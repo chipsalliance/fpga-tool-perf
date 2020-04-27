@@ -63,7 +63,8 @@ class VPR(Toolchain):
                                 'part': chip,
                                 'package': self.package,
                                 'vendor': 'xilinx',
-                                'builddir': '.'
+                                'builddir': '.',
+                                'pnr': 'vpr'
                             }
                     }
             }
@@ -133,6 +134,8 @@ class VPR(Toolchain):
         return critical_paths
 
     def max_freq(self):
+        def safe_division_by_zero(n, d):
+            return n / d if d else 0.0
 
         freqs = dict()
         clocks = dict()
@@ -154,22 +157,27 @@ class VPR(Toolchain):
 
                     fields = l.split(':')
                     group = fields[0].split()[0]
-                    freqs[group] = 1e9 / float(fields[1].split()[0].strip())
+                    freqs[group] = safe_division_by_zero(
+                        1e9, float(fields[1].split()[0].strip())
+                    )
 
         for clk in freqs:
             criticals = self.get_critical_paths(clk, 'setup')
             clocks[clk] = dict()
             clocks[clk]['actual'] = freqs[clk]
             if criticals is not None:
-                clocks[clk]['requested'] = 1e9 / criticals[clk]['requested']
+                clocks[clk]['requested'] = safe_division_by_zero(
+                    1e9, criticals[clk]['requested']
+                )
                 clocks[clk]['met'] = criticals[clk]['met']
                 clocks[clk]['setup_violation'] = criticals[clk]['violation']
             criticals = self.get_critical_paths(clk, 'hold')
             if criticals is not None:
                 clocks[clk]['hold_violation'] = criticals[clk]['violation']
                 if 'requested' not in clocks[clk]:
-                    clocks[clk]['requested'
-                                ] = 1e9 / criticals[clk]['requested']
+                    clocks[clk]['requested'] = safe_division_by_zero(
+                        1e9, criticals[clk]['requested']
+                    )
                 if 'met' not in clocks[clk]:
                     clocks[clk]['met'] = criticals[clk]['met']
             for v in ['requested', 'setup_violation', 'hold_violation']:
@@ -180,7 +188,7 @@ class VPR(Toolchain):
 
         return clocks
 
-    def get_vpr_resources(self):
+    def get_resources(self):
         """
         pack.log:
         (...)
@@ -239,7 +247,7 @@ class VPR(Toolchain):
         pll = 0
         bram = 0
 
-        res = self.get_vpr_resources()
+        res = self.get_resources()
 
         if 'lut' in res:
             lut = res['lut']
@@ -320,4 +328,163 @@ class VPR(Toolchain):
         return {
             'yosys': have_exec('yosys'),
             'vpr': have_exec(VPR.vpr_bin()),
+        }
+
+
+class NextpnrXilinx(Toolchain):
+    '''nextpnr using Yosys for synthesis'''
+    carries = (False, )
+
+    def __init__(self, rootdir):
+        Toolchain.__init__(self, rootdir)
+        self.toolchain = 'nextpnr'
+        self.files = []
+
+    def run(self):
+        with Timed(self, 'prepare'):
+            os.makedirs(self.out_dir, exist_ok=True)
+
+            for f in self.srcs:
+                self.files.append(
+                    {
+                        'name': os.path.realpath(f),
+                        'file_type': 'verilogSource'
+                    }
+                )
+
+            if self.xdc:
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.xdc),
+                        'file_type': 'xdc'
+                    }
+                )
+
+            chip = self.family + self.device
+
+            chipdb = os.path.join(
+                self.rootdir, 'env', 'conda', 'pkgs', 'nextpnr-xilinx*',
+                'share', 'nextpnr-xilinx',
+                '{}{}.bin'.format(self.family, self.part)
+            )
+            self.files.append(
+                {
+                    'name': os.path.realpath(chipdb),
+                    'file_type': 'bba'
+                }
+            )
+
+            self.edam = {
+                'files': self.files,
+                'name': self.project_name,
+                'toplevel': self.top,
+                'tool_options':
+                    {
+                        'symbiflow':
+                            {
+                                'part': chip,
+                                'package': self.package,
+                                'vendor': 'xilinx',
+                                'builddir': '.',
+                                'pnr': 'nextpnr'
+                            }
+                    }
+            }
+            self.backend = edalize.get_edatool('symbiflow')(
+                edam=self.edam, work_root=self.out_dir
+            )
+            self.backend.configure("")
+        with Timed(self, 'synthesis + implementation'):
+            self.backend.build_main(self.project_name + '.fasm')
+        with Timed(self, 'bitstream'):
+            self.backend.build_main(self.project_name + '.bit')
+
+    def get_critical_paths(self, clocks, timing):
+        #TODO critical paths
+        return None
+
+    def max_freq(self):
+        #TODO max freq
+        clocks = dict()
+
+        return clocks
+
+    def get_resources(self):
+        #TODO resources
+        resources = {}
+
+        return resources
+
+    def resources(self):
+        lut = 0
+        dff = 0
+        carry = 0
+        iob = 0
+        pll = 0
+        bram = 0
+
+        res = self.get_resources()
+
+        if 'lut' in res:
+            lut = res['lut']
+        if 'REG_FDSE_or_FDRE' in res:
+            dff = dff = res['REG_FDSE_or_FDRE']
+        if 'CARRY4_VPR' in res:
+            carry = carry + res['CARRY4_VPR']
+        if 'outpad' in res:
+            iob = iob + res['outpad']
+        if 'inpad' in res:
+            iob = iob + res['inpad']
+        if 'RAMB18E1_Y0' in res:
+            bram += res['RAMB18E1_Y0']
+        if 'RAMB18E1_Y1' in res:
+            bram += res['RAMB18E1_Y1']
+        if 'PLLE2_ADV' in res:
+            pll = res['PLLE2_ADV']
+
+        ret = {
+            "LUT": "NA",  #str(lut),
+            "DFF": "NA",  #str(dff),
+            "BRAM": "NA",  #str(bram),
+            "CARRY": "NA",  #str(carry),
+            "GLB": "unsupported",
+            "PLL": "NA",  #str(pll),
+            "IOB": "NA",  #str(iob),
+        }
+        return ret
+
+    @staticmethod
+    def yosys_ver():
+        # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
+        return subprocess.check_output(
+            "yosys -V", shell=True, universal_newlines=True
+        ).strip()
+
+    @staticmethod
+    def nextpnr_version():
+        '''
+        nextpnr-xilinx  --version
+        '''
+        return subprocess.check_output(
+            "nextpnr-xilinx --version",
+            shell=True,
+            universal_newlines=True,
+            stderr=subprocess.STDOUT
+        ).strip()
+
+    def versions(self):
+        return {
+            'yosys': NextpnrXilinx.yosys_ver(),
+            'nextpnr-xilinx': NextpnrXilinx.nextpnr_version(),
+        }
+
+    @staticmethod
+    def seedable():
+        return True
+
+    @staticmethod
+    def check_env():
+        return {
+            'yosys': have_exec('yosys'),
+            'nextpnr': have_exec(NextpnrXilinx.nextpnr_bin()),
         }

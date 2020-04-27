@@ -1,7 +1,7 @@
 terminaltables
 asciitable
 simplejson
-progressbar
+tqdm
 colorclass
 lxml
 python-constraint
