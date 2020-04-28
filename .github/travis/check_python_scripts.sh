@@ -9,7 +9,7 @@ echo
 ERROR_FILES_SHEBANG=""
 ERROR_FILES_UTF_CODING=""
 FILES_TO_CHECK=`find . \
-    -type f \( -name '*.py' \) \
+    -executable -type f \( -name '*.py' \) \
     \( -not -path "*/.*/*" -not -path "*/third_party/*" -not -path "*/env/*" \)`
 
 for file in $FILES_TO_CHECK; do

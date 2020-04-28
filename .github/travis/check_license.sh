@@ -8,7 +8,7 @@ echo
 
 ERROR_FILES=""
 FILES_TO_CHECK=`find . \
-    -type f \( -name '*.sh' -o -name '*.py' -o -name 'Makefile' \) \
+    -size +0 -type f \( -name '*.sh' -o -name '*.py' -o -name 'Makefile' \) \
     \( -not -path "*/.*/*" -not -path "*/third_party/*" -not -path "*/env/*" -not -path "*/build/*" \)`
 
 for file in $FILES_TO_CHECK; do
@@ -37,7 +37,10 @@ function check_if_submodule {
     done
 }
 
-THIRD_PARTY_DIRS=`ls -d third_party/*`
+THIRD_PARTY_DIRS=""
+if [[ -e third_party ]]; then
+    THIRD_PARTY_DIRS=`ls -d third_party/*`
+fi
 ERROR_NO_LICENSE=""
 
 for dir in $THIRD_PARTY_DIRS; do
