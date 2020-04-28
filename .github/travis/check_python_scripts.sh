@@ -9,12 +9,14 @@ echo
 ERROR_FILES_SHEBANG=""
 ERROR_FILES_UTF_CODING=""
 FILES_TO_CHECK=`find . \
-    -executable -type f \( -name '*.py' \) \
+    -size +0 -type f \( -name '*.py' \) \
     \( -not -path "*/.*/*" -not -path "*/third_party/*" -not -path "*/env/*" \)`
 
 for file in $FILES_TO_CHECK; do
     echo "Checking $file"
-    grep -q "\#\!/usr/bin/env python3" $file || ERROR_FILES_SHEBANG="$ERROR_FILES_SHEBANG $file"
+    if [[ -x $file  ]]; then
+        grep -q "\#\!/usr/bin/env python3" $file || ERROR_FILES_SHEBANG="$ERROR_FILES_SHEBANG $file"
+    fi
     grep -q "\#.*coding: utf-8" $file || ERROR_FILES_UTF_CODING="$ERROR_FILES_UTF_CODING $file"
 done
 
