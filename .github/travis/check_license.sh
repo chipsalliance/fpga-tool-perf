@@ -9,7 +9,7 @@ echo
 ERROR_FILES=""
 FILES_TO_CHECK=`find . \
     -type f \( -name '*.sh' -o -name '*.py' -o -name 'Makefile' \) \
-    \( -not -path "*/.*/*" -not -path "*/third_party/*" \)`
+    \( -not -path "*/.*/*" -not -path "*/third_party/*" -not -path "*/env/*" -not -path "*/build/*" \)`
 
 for file in $FILES_TO_CHECK; do
     echo "Checking $file"
@@ -54,3 +54,17 @@ if [ ! -z "$ERROR_NO_LICENSE" ]; then
     done
     return 1
 fi
+
+echo
+echo "==========================="
+echo "Check AUTHORS"
+echo "==========================="
+echo
+
+if [ ! -f ./AUTHORS ]; then
+    echo "ERROR: no AUTHORS file found."
+    return 1
+else
+    echo "AUTHORS file found"
+fi
+
