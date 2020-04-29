@@ -52,7 +52,7 @@ def print_summary_table(out_prefix, total_tasks):
         ['Project', 'Toolchain', 'Family', 'Part', 'Board', 'Options']
     ]
     passed = failed = 0
-    for build in builds:
+    for build in sorted(builds):
         # Split directory name into columns
         # Example: oneblink_vpr_xc7_a35tcsg326-1_arty_options
         pattern = '([^_]*)_([^_]*)_([^_]*)_([^_]*)_([^_]*)_(.*)'
