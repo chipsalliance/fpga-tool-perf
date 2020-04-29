@@ -13,7 +13,7 @@
 [submodule "third_party/edalize"]
 	path = third_party/edalize
 	url = https://github.com/SymbiFlow/edalize.git
-	branch = symbiflow
+	branch = symbiflow-rebase
 [submodule "third_party/prjxray-db"]
 	path = third_party/prjxray-db
 	url = https://github.com/SymbiFlow/prjxray-db
