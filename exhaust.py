@@ -126,25 +126,38 @@ def iter_options(args):
 
 
 def worker(arglist):
+    def eprint(*args, **kwargs):
+        print(*args, file=sys.stderr, **kwargs)
+
     out_prefix, verbose, project, family, device, package, board, toolchain = arglist
     # We don't want output of all subprocesses here
     # Log files for each build will be placed in build directory
     with redirect_stdout(open(os.devnull, 'w')):
-        run(
-            family,
-            device,
-            package,
-            board,
-            toolchain,
-            project,
-            None,  #out_dir
-            out_prefix,
-            None,  #strategy
-            None,  #carry
-            None,  #seed
-            None,  #build
-            verbose
-        )
+        try:
+            run(
+                family,
+                device,
+                package,
+                board,
+                toolchain,
+                project,
+                None,  #out_dir
+                out_prefix,
+                None,  #strategy
+                None,  #carry
+                None,  #seed
+                None,  #build
+                verbose
+            )
+        except Exception as e:
+            eprint("\n---------------------")
+            eprint(
+                "ERROR: {} {} {}{}{} {} test has failed\n".format(
+                    project, toolchain, family, device, package, board
+                )
+            )
+            eprint("ERROR MESSAGE: ", e)
+            eprint("---------------------\n")
 
 
 def main():
