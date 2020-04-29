@@ -36,9 +36,13 @@ def get_reports(out_prefix):
 
 def get_builds(out_prefix):
     """Returns all the paths of all the builds in the build directory."""
-    return matching_pattern(
-        os.path.join(root_dir, out_prefix, '*/'), '.*\/(.*)\/$'
-    )
+    build_dir = os.path.join(root_dir, out_prefix)
+    builds = []
+    for content in os.listdir(build_dir):
+        if os.path.isdir(os.path.join(build_dir, content)):
+            builds.append(content)
+
+    return builds
 
 
 def print_summary_table(out_prefix, total_tasks):
@@ -48,7 +52,7 @@ def print_summary_table(out_prefix, total_tasks):
         ['Project', 'Toolchain', 'Family', 'Part', 'Board', 'Options']
     ]
     passed = failed = 0
-    for build in builds:
+    for build in sorted(builds):
         # Split directory name into columns
         # Example: oneblink_vpr_xc7_a35tcsg326-1_arty_options
         pattern = '([^_]*)_([^_]*)_([^_]*)_([^_]*)_([^_]*)_(.*)'
@@ -118,6 +122,13 @@ def iter_options(args):
 
         for constraint in os.listdir(constraint_path):
             family, device, package, board = get_device_info(constraint)
+
+            # Check if user selected specific family/device/package/board
+            family = args.family if args.family else family
+            device = args.device if args.device else device
+            package = args.package if args.package else package
+            board = args.board if args.board else board
+
             combinations.add(
                 (project, toolchain, family, device, package, board)
             )
@@ -165,9 +176,20 @@ def main():
     parser = argparse.ArgumentParser(
         description='Exhaustively try project-toolchain combinations'
     )
-    parser.add_argument('--family', default=None, help='device family')
-    parser.add_argument('--part', default=None, help='device part')
-    parser.add_argument('--board', default=None, help='target board')
+    parser.add_argument(
+        '--family', default=None, help='device family: e.g. --family xc7'
+    )
+    parser.add_argument(
+        '--device', default=None, help='FPGA device: e.g. --device a35t'
+    )
+    parser.add_argument(
+        '--package',
+        default=None,
+        help='FPGA package: e.g. --package csg324-1'
+    )
+    parser.add_argument(
+        '--board', default=None, help='target board: e.g. --board arty'
+    )
     parser.add_argument(
         '--project',
         default=None,
