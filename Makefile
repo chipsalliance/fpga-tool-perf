@@ -4,6 +4,8 @@ PWD = $(shell pwd)
 INSTALL_DIR = ${PWD}/third_party/install
 
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
+# FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
+SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/6/20200504-160845/symbiflow-arch-defs-install-3f537c97.tar.xz"
 
 all: format
 
@@ -11,8 +13,7 @@ conda:
 	git submodule update --init --recursive
 	mkdir -p env
 	source utils/conda.sh
-	# FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
-	wget -O ${SYMBIFLOW_ARCHIVE} "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/presubmit/install/96/20200428-024849/symbiflow-arch-defs-install-555b32cb.tar.xz"
+	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env
 	rm ${SYMBIFLOW_ARCHIVE}
 	cd third_party/prjxray && $(MAKE) build -j`nproc`
