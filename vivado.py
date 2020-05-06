@@ -60,14 +60,10 @@ class Vivado(Toolchain):
         runs_dir = self.out_dir + "/" + self.project_name + ".runs"
         synth_times = self.get_vivado_runtimes(runs_dir + '/synth_1/runme.log')
         impl_times = self.get_vivado_runtimes(runs_dir + '/impl_1/runme.log')
-        total_runtime = 0
         for t in synth_times:
-            self.add_runtime(t, synth_times[t], parent='logs')
-            total_runtime += float(synth_times[t])
+            self.add_runtime(t, synth_times[t])
         for t in impl_times:
-            self.add_runtime(t, impl_times[t], parent='logs')
-            total_runtime += float(impl_times[t])
-        self.add_runtime('total', total_runtime, parent='logs')
+            self.add_runtime(t, impl_times[t])
 
     def run(self):
         with Timed(self, 'prepare'):
@@ -120,7 +116,7 @@ class Vivado(Toolchain):
             )
             self.backend.configure("")
 
-        with Timed(self, 'bitstream'):
+        with Timed(self, 'total'):
             self.backend.build()
 
         self.add_runtimes()
@@ -275,8 +271,11 @@ class Vivado(Toolchain):
         }
         return ret
 
-    def versions(self):
+    def vivado_ver(self):
         return self.backend.get_version()
+
+    def versions(self):
+        return {"vivado": self.vivado_ver()}
 
 
 class VivadoYosys(Vivado):
@@ -319,12 +318,12 @@ class VivadoYosys(Vivado):
         impl_times = self.get_vivado_runtimes(runs_dir + '/impl_1/runme.log')
         total_runtime = 0
         for t in synth_times:
-            self.add_runtime(t, synth_times[t], parent='logs')
+            self.add_runtime(t, synth_times[t])
             total_runtime += float(synth_times[t])
         for t in impl_times:
-            self.add_runtime(t, impl_times[t], parent='logs')
+            self.add_runtime(t, impl_times[t])
             total_runtime += float(impl_times[t])
-        self.add_runtime('total', total_runtime, parent='logs')
+        self.add_runtime('total', total_runtime)
 
     def resources(self):
         report_file_pattern = self.out_dir + "/*_utilization_placed.rpt"
@@ -337,7 +336,4 @@ class VivadoYosys(Vivado):
         return super(VivadoYosys, self).get_max_freq(report_file)
 
     def versions(self):
-        return {
-            'yosys': self.yosys_ver(),
-            'vivado': super(VivadoYosys, self).versions()
-        }
+        return {'yosys': self.yosys_ver(), 'vivado': self.vivado_ver()}

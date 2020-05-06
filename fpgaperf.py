@@ -104,7 +104,8 @@ def print_stats(t):
         for cd in max_freq:
             actual = "%0.3f MHz" % (max_freq[cd]['actual'] / 1e6)
             requested = "%0.3f MHz" % (max_freq[cd]['requested'] / 1e6)
-            met = max_freq[cd]['met']
+            met = "unknown" if max_freq[cd]['met'] is None else max_freq[cd][
+                'met']
             s_violation = ("%0.3f ns" % max_freq[cd]['setup_violation'])
             h_violation = ("%0.3f ns" % max_freq[cd]['hold_violation'])
             table_data.append(
@@ -116,13 +117,9 @@ def print_stats(t):
 
     print_section_header('Toolchain Run-Times')
     table_data = [['Stage', 'Run Time (seconds)']]
-    for k, v in t.runtimes.items():
-        if type(v) is collections.OrderedDict:
-            table_data.append([k, ""])
-            for k1, v1 in v.items():
-                table_data.append(["    " + k1, ("%0.3f" % v1)])
-        else:
-            table_data.append([k, ("%0.3f" % v)])
+    for k, v in t.get_runtimes().items():
+        value = "%0.3f" % v if v else "N/A"
+        table_data.append([k, value])
 
     table = AsciiTable(table_data)
     print(table.table)
