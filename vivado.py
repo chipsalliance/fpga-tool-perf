@@ -70,8 +70,7 @@ class Vivado(Toolchain):
         self.add_runtime('total', total_runtime, parent='logs')
 
     def run(self):
-
-        with Timed(self, 'bitstream'):
+        with Timed(self, 'prepare'):
             os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:
                 self.files.append(
@@ -120,9 +119,11 @@ class Vivado(Toolchain):
                 edam=self.edam, work_root=self.out_dir
             )
             self.backend.configure("")
+
+        with Timed(self, 'bitstream'):
             self.backend.build()
 
-            self.add_runtimes()
+        self.add_runtimes()
 
     @staticmethod
     def seedable():
