@@ -7,7 +7,11 @@
     "name": "vexriscv-smp",
     "data": [
         "src/vexriscv-smp/mem.init",
-        "src/vexriscv-smp/mem_1.init"
+        "src/vexriscv-smp/mem_1.init",
+        "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster.v_toplevel_cluster_cpus_0_core_RegFilePlugin_regFile.bin",
+        "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster.v_toplevel_cluster_cpus_1_core_RegFilePlugin_regFile.bin",
+        "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster.v_toplevel_cluster_cpus_2_core_RegFilePlugin_regFile.bin",
+        "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster.v_toplevel_cluster_cpus_3_core_RegFilePlugin_regFile.bin"
     ]
 }
 
