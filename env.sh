@@ -18,3 +18,4 @@ fi
 export PATH=${SYMBIFLOW}/bin:${PATH}
 export XRAY_DATABASE_DIR=${FPGA_TOOL_PERF_BASE_DIR}/third_party/prjxray-db
 export XRAY_FASM2FRAMES=${FPGA_TOOL_PERF_BASE_DIR}/third_party/prjxray/utils/fasm2frames.py
+export XRAY_TOOLS_DIR=${FPGA_TOOL_PERF_BASE_DIR}/third_party/prjxray/build/tools

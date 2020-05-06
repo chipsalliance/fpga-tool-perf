@@ -11,3 +11,4 @@ pytest
 pandas
 -e ../third_party/fasm
 -e ../third_party/edalize
+-e ../third_party/prjxray
