@@ -1,0 +1,13 @@
+{
+    "srcs": [
+        "src/vexriscv-smp/top.v",
+        "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster.v"
+    ],
+    "top": "top",
+    "name": "vexriscv-smp",
+    "data": [
+        "src/vexriscv-smp/mem.init",
+        "src/vexriscv-smp/mem_1.init"
+    ]
+}
+
