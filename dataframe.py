@@ -37,7 +37,7 @@ def get_clock_dataframe(results):
     index = pandas.Index(designs)
     return pandas.DataFrame(
         {
-            'clock_names': clock_names,
+            'clocks': clock_names,
             'clock_actual_frequency': actual_frequency,
             'clock_requested_frequency': requested_frequency,
             'clock_hold_violation': hold_violation,
@@ -75,7 +75,7 @@ def get_general_dataframe(results):
 
     resources_keys = list(resources.keys())
     for key in resources_keys:
-        resources["{}_utilization".format(key)] = resources.pop(key)
+        resources["#{}".format(key)] = resources.pop(key)
 
     # Get versions
     tools = dict()
