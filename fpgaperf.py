@@ -128,7 +128,8 @@ def print_stats(t):
     table_data = [['Resource', 'Used']]
 
     for k, v in sorted(t.resources().items()):
-        table_data.append([k, v])
+        value = v if v else "N/A"
+        table_data.append([k, value])
 
     table = AsciiTable(table_data)
     print(table.table)

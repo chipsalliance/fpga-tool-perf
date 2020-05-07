@@ -272,7 +272,7 @@ class VPR(Toolchain):
             "DFF": str(dff),
             "BRAM": str(bram),
             "CARRY": str(carry),
-            "GLB": "unsupported",
+            "GLB": None,
             "PLL": str(pll),
             "IOB": str(iob),
         }
@@ -447,13 +447,13 @@ class NextpnrXilinx(Toolchain):
             pll = res['PLLE2_ADV']
 
         ret = {
-            "LUT": "NA",  #str(lut),
-            "DFF": "NA",  #str(dff),
-            "BRAM": "NA",  #str(bram),
-            "CARRY": "NA",  #str(carry),
-            "GLB": "unsupported",
-            "PLL": "NA",  #str(pll),
-            "IOB": "NA",  #str(iob),
+            "LUT": None,  #str(lut),
+            "DFF": None,  #str(dff),
+            "BRAM": None,  #str(bram),
+            "CARRY": None,  #str(carry),
+            "GLB": None,
+            "PLL": None,  #str(pll),
+            "IOB": None,  #str(iob),
         }
         return ret
 

@@ -265,7 +265,7 @@ class Vivado(Toolchain):
             "DFF": str(dff),
             "BRAM": str(bram),
             "CARRY": str(carry),
-            "GLB": "unsupported",
+            "GLB": None,
             "PLL": str(pll),
             "IOB": str(iob),
         }
