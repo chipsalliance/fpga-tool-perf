@@ -20,3 +20,6 @@
 [submodule "third_party/prjxray"]
 	path = third_party/prjxray
 	url = https://github.com/SymbiFlow/prjxray.git
+[submodule "third_party/litex_vexriscv_smp"]
+	path = third_party/litex_vexriscv_smp
+	url = https://github.com/enjoy-digital/litex_vexriscv_smp.git
