@@ -447,13 +447,13 @@ class NextpnrXilinx(Toolchain):
             pll = res['PLLE2_ADV']
 
         ret = {
-            "LUT": None,  #str(lut),
-            "DFF": None,  #str(dff),
-            "BRAM": None,  #str(bram),
-            "CARRY": None,  #str(carry),
+            "LUT": None,
+            "DFF": None,
+            "BRAM": None,
+            "CARRY": None,
             "GLB": None,
-            "PLL": None,  #str(pll),
-            "IOB": None,  #str(iob),
+            "PLL": None,
+            "IOB": None,
         }
         return ret
 
