@@ -69,12 +69,20 @@ class Vivado(Toolchain):
         with Timed(self, 'prepare'):
             os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(f),
-                        'file_type': 'verilogSource'
-                    }
-                )
+                if f.endswith(".vhd") or f.endswith(".vhdl"):
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(f),
+                            'file_type': 'vhdlSource'
+                        }
+                    )
+                elif f.endswith(".v"):
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(f),
+                            'file_type': 'verilogSource'
+                        }
+                    )
 
             self.files.append(
                 {
