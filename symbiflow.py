@@ -16,74 +16,75 @@ class VPR(Toolchain):
         self.files = []
 
     def run(self):
-        with Timed(self, 'prepare'):
-            os.makedirs(self.out_dir, exist_ok=True)
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                os.makedirs(self.out_dir, exist_ok=True)
 
-            for f in self.srcs:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(f),
-                        'file_type': 'verilogSource'
-                    }
+                for f in self.srcs:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(f),
+                            'file_type': 'verilogSource'
+                        }
+                    )
+
+                if self.pcf:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(self.pcf),
+                            'file_type': 'PCF'
+                        }
+                    )
+                if self.sdc:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(self.sdc),
+                            'file_type': 'SDC'
+                        }
+                    )
+
+                if self.xdc:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(self.xdc),
+                            'file_type': 'xdc'
+                        }
+                    )
+
+                chip = self.family + self.device
+
+                self.edam = {
+                    'files': self.files,
+                    'name': self.project_name,
+                    'toplevel': self.top,
+                    'tool_options':
+                        {
+                            'symbiflow':
+                                {
+                                    'part': chip,
+                                    'package': self.package,
+                                    'vendor': 'xilinx',
+                                    'builddir': '.',
+                                    'pnr': 'vpr'
+                                }
+                        }
+                }
+                self.backend = edalize.get_edatool('symbiflow')(
+                    edam=self.edam, work_root=self.out_dir
                 )
-
-            if self.pcf:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.pcf),
-                        'file_type': 'PCF'
-                    }
-                )
-            if self.sdc:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.sdc),
-                        'file_type': 'SDC'
-                    }
-                )
-
-            if self.xdc:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.xdc),
-                        'file_type': 'xdc'
-                    }
-                )
-
-            chip = self.family + self.device
-
-            self.edam = {
-                'files': self.files,
-                'name': self.project_name,
-                'toplevel': self.top,
-                'tool_options':
-                    {
-                        'symbiflow':
-                            {
-                                'part': chip,
-                                'package': self.package,
-                                'vendor': 'xilinx',
-                                'builddir': '.',
-                                'pnr': 'vpr'
-                            }
-                    }
-            }
-            self.backend = edalize.get_edatool('symbiflow')(
-                edam=self.edam, work_root=self.out_dir
-            )
-            self.backend.configure("")
-        with Timed(self, 'synthesis'):
-            self.backend.build_main(self.top + '.eblif')
-        with Timed(self, 'pack'):
-            self.backend.build_main(self.top + '.net')
-        with Timed(self, 'place'):
-            self.backend.build_main(self.top + '.place')
-        with Timed(self, 'route'):
-            self.backend.build_main(self.top + '.route')
-        with Timed(self, 'fasm'):
-            self.backend.build_main(self.top + '.fasm')
-        with Timed(self, 'bitstream'):
-            self.backend.build_main(self.top + '.bit')
+                self.backend.configure("")
+            with Timed(self, 'synthesis'):
+                self.backend.build_main(self.top + '.eblif')
+            with Timed(self, 'pack'):
+                self.backend.build_main(self.top + '.net')
+            with Timed(self, 'place'):
+                self.backend.build_main(self.top + '.place')
+            with Timed(self, 'route'):
+                self.backend.build_main(self.top + '.route')
+            with Timed(self, 'fasm'):
+                self.backend.build_main(self.top + '.fasm')
+            with Timed(self, 'bitstream'):
+                self.backend.build_main(self.top + '.bit')
 
     def get_critical_paths(self, clocks, timing):
 
@@ -184,7 +185,7 @@ class VPR(Toolchain):
                 if v not in clocks[clk]:
                     clocks[clk][v] = 0.0
             if 'met' not in clocks[clk]:
-                clocks[clk]['met'] = 'unknown'
+                clocks[clk]['met'] = None
 
         return clocks
 
@@ -271,7 +272,7 @@ class VPR(Toolchain):
             "DFF": str(dff),
             "BRAM": str(bram),
             "CARRY": str(carry),
-            "GLB": "unsupported",
+            "GLB": None,
             "PLL": str(pll),
             "IOB": str(iob),
         }
@@ -341,63 +342,66 @@ class NextpnrXilinx(Toolchain):
         self.files = []
 
     def run(self):
-        with Timed(self, 'prepare'):
-            os.makedirs(self.out_dir, exist_ok=True)
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                os.makedirs(self.out_dir, exist_ok=True)
 
-            for f in self.srcs:
+                for f in self.srcs:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(f),
+                            'file_type': 'verilogSource'
+                        }
+                    )
+
+                if self.xdc:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(self.xdc),
+                            'file_type': 'xdc'
+                        }
+                    )
+
+                chip = self.family + self.device
+
+                chipdb = os.path.join(
+                    self.rootdir, 'env', 'conda', 'pkgs', 'nextpnr-xilinx*',
+                    'share', 'nextpnr-xilinx',
+                    '{}{}.bin'.format(self.family, self.part)
+                )
                 self.files.append(
                     {
-                        'name': os.path.realpath(f),
-                        'file_type': 'verilogSource'
+                        'name': os.path.realpath(chipdb),
+                        'file_type': 'bba'
                     }
                 )
 
-            if self.xdc:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.xdc),
-                        'file_type': 'xdc'
-                    }
-                )
-
-            chip = self.family + self.device
-
-            chipdb = os.path.join(
-                self.rootdir, 'env', 'conda', 'pkgs', 'nextpnr-xilinx*',
-                'share', 'nextpnr-xilinx',
-                '{}{}.bin'.format(self.family, self.part)
-            )
-            self.files.append(
-                {
-                    'name': os.path.realpath(chipdb),
-                    'file_type': 'bba'
+                self.edam = {
+                    'files': self.files,
+                    'name': self.project_name,
+                    'toplevel': self.top,
+                    'tool_options':
+                        {
+                            'symbiflow':
+                                {
+                                    'part': chip,
+                                    'package': self.package,
+                                    'vendor': 'xilinx',
+                                    'builddir': '.',
+                                    'pnr': 'nextpnr'
+                                }
+                        }
                 }
-            )
+                self.backend = edalize.get_edatool('symbiflow')(
+                    edam=self.edam, work_root=self.out_dir
+                )
+                self.backend.configure("")
 
-            self.edam = {
-                'files': self.files,
-                'name': self.project_name,
-                'toplevel': self.top,
-                'tool_options':
-                    {
-                        'symbiflow':
-                            {
-                                'part': chip,
-                                'package': self.package,
-                                'vendor': 'xilinx',
-                                'builddir': '.',
-                                'pnr': 'nextpnr'
-                            }
-                    }
-            }
-            self.backend = edalize.get_edatool('symbiflow')(
-                edam=self.edam, work_root=self.out_dir
-            )
-            self.backend.configure("")
-        with Timed(self, 'synthesis + implementation'):
-            self.backend.build_main(self.project_name + '.fasm')
-        with Timed(self, 'bitstream'):
-            self.backend.build_main(self.project_name + '.bit')
+            with Timed(self, 'fasm'):
+                self.backend.build_main(self.project_name + '.fasm')
+
+            with Timed(self, 'bitstream'):
+                self.backend.build_main(self.project_name + '.bit')
 
     def get_critical_paths(self, clocks, timing):
         #TODO critical paths
@@ -443,13 +447,13 @@ class NextpnrXilinx(Toolchain):
             pll = res['PLLE2_ADV']
 
         ret = {
-            "LUT": "NA",  #str(lut),
-            "DFF": "NA",  #str(dff),
-            "BRAM": "NA",  #str(bram),
-            "CARRY": "NA",  #str(carry),
-            "GLB": "unsupported",
-            "PLL": "NA",  #str(pll),
-            "IOB": "NA",  #str(iob),
+            "LUT": None,
+            "DFF": None,
+            "BRAM": None,
+            "CARRY": None,
+            "GLB": None,
+            "PLL": None,
+            "IOB": None,
         }
         return ret
 

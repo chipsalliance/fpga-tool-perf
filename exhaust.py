@@ -15,6 +15,7 @@ from itertools import product
 from fpgaperf import *
 import sow
 import pandas
+from dataframe import generate_dataframe
 
 MANDATORY_CONSTRAINTS = {
     "vivado": "xdc",
@@ -259,8 +260,10 @@ def main():
 
     with open('{}/all.json'.format(args.out_prefix), 'w') as fout:
         json.dump(merged_dict, fout, indent=4, sort_keys=True)
-        dataframe = pandas.DataFrame(merged_dict)
-        dataframe.to_json('{}/dataframe.json'.format(args.out_prefix))
+
+    dataframe = generate_dataframe(merged_dict)
+    dataframe = dataframe.reset_index(drop=True)
+    dataframe.to_json('{}/dataframe.json'.format(args.out_prefix))
 
     result = print_summary_table(args.out_prefix, len(tasks))
 

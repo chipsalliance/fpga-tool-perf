@@ -207,6 +207,47 @@ class Toolchain:
                 env=env
             )
 
+    def get_runtimes(self):
+        """Returns a standard runtime dictionary.
+
+        Different tools have different names for the various EDA steps and,
+        to generate a uniform data structure, these steps must fall into the correct
+        standard category."""
+
+        RUNTIME_ALIASES = {
+            'prepare': ['prepare'],
+            'synthesis': ['synth_design', 'synth', 'synthesis'],
+            'optimization': ['opt_design'],
+            'packing': ['pack'],
+            'placement': ['place', 'place_design'],
+            'routing': ['route', 'route_design'],
+            'fasm': ['fasm'],
+            'checkpoint': ['open_checkpoint'],
+            'bitstream': ['write_bitstream', 'bitstream'],
+            'reports': ['report_power', 'report_methodology'],
+            'total': ['total'],
+            'nop': ['nop']
+        }
+
+        def get_standard_runtime(runtime):
+            for k, v in RUNTIME_ALIASES.items():
+                for alias in v:
+                    if runtime == alias:
+                        return k
+
+            assert False, "Couldn't find the standard name for {}".format(
+                runtime
+            )
+
+        runtimes = {k: None for k in RUNTIME_ALIASES.keys()}
+
+        for k, v in self.runtimes.items():
+            runtime = get_standard_runtime(k)
+
+            runtimes[runtime] = round(v, 3)
+
+        return runtimes
+
     def write_metadata(self, all=True):
         out_dir = self.out_dir
 
@@ -247,12 +288,15 @@ class Toolchain:
             # canonicalize
             'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
             'top': self.top,
-            "runtime": self.runtimes,
+            "runtime": self.get_runtimes(),
             "max_freq": max_freq,
             "resources": resources,
-            "verions": self.versions(),
+            "versions": self.versions(),
             "cmds": self.cmds,
         }
+
+        print
+
         with open(out_dir + '/meta.json', 'w') as f:
             json.dump(j, f, sort_keys=True, indent=4)
 
