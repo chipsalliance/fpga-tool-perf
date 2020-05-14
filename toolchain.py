@@ -224,7 +224,7 @@ class Toolchain:
             'fasm': ['fasm'],
             'checkpoint': ['open_checkpoint'],
             'bitstream': ['write_bitstream', 'bitstream'],
-            'reports': ['report_power'],
+            'reports': ['report_power', 'report_methodology'],
             'total': ['total'],
             'nop': ['nop']
         }
@@ -243,6 +243,7 @@ class Toolchain:
 
         for k, v in self.runtimes.items():
             runtime = get_standard_runtime(k)
+
             runtimes[runtime] = round(v, 3)
 
         return runtimes
