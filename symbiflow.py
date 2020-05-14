@@ -4,6 +4,7 @@ import edalize
 
 from toolchain import Toolchain
 from utils import Timed
+from tool_parameters import ToolParametersHelper
 
 
 class VPR(Toolchain):
@@ -53,6 +54,8 @@ class VPR(Toolchain):
 
                 chip = self.family + self.device
 
+                tool_params = self.get_tool_params()
+
                 self.edam = {
                     'files': self.files,
                     'name': self.project_name,
@@ -65,7 +68,8 @@ class VPR(Toolchain):
                                     'package': self.package,
                                     'vendor': 'xilinx',
                                     'builddir': '.',
-                                    'pnr': 'vpr'
+                                    'pnr': 'vpr',
+                                    'options': tool_params,
                                 }
                         }
                 }
@@ -85,6 +89,18 @@ class VPR(Toolchain):
                 self.backend.build_main(self.top + '.fasm')
             with Timed(self, 'bitstream'):
                 self.backend.build_main(self.top + '.bit')
+
+    def get_tool_params(self):
+        if self.params_file:
+            opt_helper = ToolParametersHelper('vpr', '--', self.params_file)
+            params = opt_helper.get_all_params_combinations()
+
+            assert len(params) == 1
+            return " ".join(params[0])
+        elif self.params_string:
+            return self.params_string
+        else:
+            return None
 
     def get_critical_paths(self, clocks, timing):
 

@@ -94,10 +94,6 @@ def get_device_info(constraint):
     return full_info.split('_')
 
 
-def user_selected(option):
-    return [option] if option else None
-
-
 def iter_options(args):
     """Returns all the possible combination of:
         - projects,
@@ -112,8 +108,8 @@ def iter_options(args):
     - valid combination: src/oneblink/vpr/xc7_a35t_csg324-1_arty.pcf
     """
 
-    projects = user_selected(args.project) or get_projects()
-    toolchains = user_selected(args.toolchain) or get_toolchains()
+    projects = args.project or get_projects()
+    toolchains = args.toolchain or get_toolchains()
 
     combinations = set()
     for project, toolchain in list(product(projects, toolchains)):
@@ -145,6 +141,10 @@ def worker(arglist):
     out_prefix, verbose, project, family, device, package, board, toolchain = arglist
     # We don't want output of all subprocesses here
     # Log files for each build will be placed in build directory
+
+    #TMP
+    options = "--max_router_iterations 500 --routing_failure_predictor off --router_high_fanout_threshold -1 --constant_net_method route --route_chan_width 500       --router_heap bucket       --clock_modeling route       --place_delta_delay_matrix_calculation_method dijkstra       --place_delay_model delta_override       --router_lookahead connection_box_map       --quick_check_route on       --strict_checks off       --allow_dangling_combinational_nodes on       --disable_errors check_unbuffered_edges:check_route       --congested_routing_iteration_threshold 0.8       --incremental_reroute_delay_ripup off       --base_cost_type delay_normalized_length_bounded       --bb_factor 10       --initial_pres_fac 4.0       --check_rr_graph off"
+
     with redirect_stdout(open(os.devnull, 'w')):
         try:
             run(
@@ -154,6 +154,7 @@ def worker(arglist):
                 board,
                 toolchain,
                 project,
+                options,
                 None,  #out_dir
                 out_prefix,
                 None,  #strategy
@@ -195,11 +196,13 @@ def main():
     parser.add_argument(
         '--project',
         default=None,
+        nargs="+",
         help='run given project only (default: all)'
     )
     parser.add_argument(
         '--toolchain',
         default=None,
+        nargs="+",
         help='run given toolchain only (default: all)'
     )
     parser.add_argument(

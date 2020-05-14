@@ -27,6 +27,8 @@ class Toolchain:
         self.pcf = None
         self.sdc = None
         self.xdc = None
+        self.params_file = None
+        self.params_string = None
         self._strategy = None
         self._carry = None
         self.seed = None
@@ -84,9 +86,14 @@ class Toolchain:
             self.project_name, self.toolchain, self.family, self.part,
             self.board
         )
+
+        if self.build:
+            ret += '_' + self.build
+
         op = self.optstr()
         if op:
             ret += '_' + op
+
         return ret
 
     @property
@@ -146,6 +153,8 @@ class Toolchain:
         device,
         package,
         board,
+        params_file,
+        params_string,
         out_dir=None,
         out_prefix=None,
     ):
@@ -154,6 +163,9 @@ class Toolchain:
         self.package = package
         self.part = "".join((device, package))
         self.board = board
+
+        self.params_file = params_file
+        self.params_string = params_string
 
         self.project_name = project['name']
         self.srcs = self.canonicalize(project['srcs'])
@@ -284,6 +296,7 @@ class Toolchain:
             'date': date_str,
             'toolchain': self.toolchain,
             'strategy': self.strategy,
+            'parameters': self.params_file or self.params_string,
 
             # canonicalize
             'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
