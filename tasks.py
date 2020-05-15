@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2020  The SymbiFlow Authors.
+#
+# Use of this source code is governed by a ISC-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/ISC
+#
+# SPDX-License-Identifier: ISC
 
 import os
 from itertools import product
@@ -19,6 +28,7 @@ def get_device_info(constraint):
 class Tasks:
     """Class to generate and hold the task lists that needs to be run
     exhaustively by FPGA tool perf."""
+
     def __init__(self, src_dir):
         self.src_dir = src_dir
         self.MANDATORY_CONSTRAINTS = {
