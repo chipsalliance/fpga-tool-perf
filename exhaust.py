@@ -3,31 +3,21 @@
 import json
 import os
 import glob
-import multiprocessing as mp
 import time
 import re
-import tqdm
-from contextlib import redirect_stdout
-from terminaltables import SingleTable
+from terminaltables import AsciiTable
 from colorclass import Color
 from itertools import product
 
-from fpgaperf import *
+from fpgaperf import run, matching_pattern
 import sow
 import pandas
 from dataframe import generate_dataframe
+from tasks import Tasks
+from runner import Runner
 
-MANDATORY_CONSTRAINTS = {
-    "vivado": "xdc",
-    "vpr": "pcf",
-    "vivado-yosys": "xdc",
-    "nextpnr": "xdc",
-}
-
-# to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = root_dir + '/src'
-
 
 def get_reports(out_prefix):
     """Returns all the reports from all the build runs."""
@@ -51,13 +41,13 @@ def print_summary_table(out_prefix, total_tasks):
     """Prints a summary table of the outcome of each test."""
     builds = get_builds(out_prefix)
     table_data = [
-        ['Project', 'Toolchain', 'Family', 'Part', 'Board', 'Options']
+        ['Project', 'Toolchain', 'Family', 'Part', 'Board', 'Build N.', 'Options']
     ]
     passed = failed = 0
     for build in sorted(builds):
         # Split directory name into columns
         # Example: oneblink_vpr_xc7_a35tcsg326-1_arty_options
-        pattern = '([^_]*)_([^_]*)_([^_]*)_([^_]*)_([^_]*)_(.*)'
+        pattern = '([^_]*)_([^_]*)_([^_]*)_([^_]*)_([^_]*)_([^_]*)_(.*)'
         row = list(re.match(pattern, build).groups())
         # Check if metadata was generated
         # It is created for successful builds only
@@ -84,114 +74,10 @@ def print_summary_table(out_prefix, total_tasks):
     return failed == 0
 
 
-def get_device_info(constraint):
-    """Returns the device information:
-        - FPGA family
-        - FPGA part
-        - board
-    """
-    full_info = os.path.splitext(constraint)[0]
-    return full_info.split('_')
-
-
-def iter_options(args):
-    """Returns all the possible combination of:
-        - projects,
-        - toolchains,
-        - families,
-        - devices,
-        - packages
-        - boards.
-
-    Example:
-    - path structure:    src/<project>/<toolchain>/<family>_<device>_<package>_<board>.<constraint>
-    - valid combination: src/oneblink/vpr/xc7_a35t_csg324-1_arty.pcf
-    """
-
-    projects = args.project or get_projects()
-    toolchains = args.toolchain or get_toolchains()
-
-    combinations = set()
-    for project, toolchain in list(product(projects, toolchains)):
-        constraint_path = os.path.join(src_dir, project, 'constr', toolchain)
-
-        if not os.path.exists(constraint_path):
-            continue
-
-        for constraint in os.listdir(constraint_path):
-            family, device, package, board = get_device_info(constraint)
-
-            # Check if user selected specific family/device/package/board
-            family = args.family if args.family else family
-            device = args.device if args.device else device
-            package = args.package if args.package else package
-            board = args.board if args.board else board
-
-            combinations.add(
-                (project, toolchain, family, device, package, board)
-            )
-
-    return combinations
-
-
-def worker(arglist):
-    def eprint(*args, **kwargs):
-        print(*args, file=sys.stderr, **kwargs)
-
-    out_prefix, verbose, project, family, device, package, board, toolchain = arglist
-    # We don't want output of all subprocesses here
-    # Log files for each build will be placed in build directory
-
-    #TMP
-    options = "--max_router_iterations 500 --routing_failure_predictor off --router_high_fanout_threshold -1 --constant_net_method route --route_chan_width 500       --router_heap bucket       --clock_modeling route       --place_delta_delay_matrix_calculation_method dijkstra       --place_delay_model delta_override       --router_lookahead connection_box_map       --quick_check_route on       --strict_checks off       --allow_dangling_combinational_nodes on       --disable_errors check_unbuffered_edges:check_route       --congested_routing_iteration_threshold 0.8       --incremental_reroute_delay_ripup off       --base_cost_type delay_normalized_length_bounded       --bb_factor 10       --initial_pres_fac 4.0       --check_rr_graph off"
-
-    with redirect_stdout(open(os.devnull, 'w')):
-        try:
-            run(
-                family,
-                device,
-                package,
-                board,
-                toolchain,
-                project,
-                options,
-                None,  #out_dir
-                out_prefix,
-                None,  #strategy
-                None,  #carry
-                None,  #seed
-                None,  #build
-                verbose
-            )
-        except Exception as e:
-            eprint("\n---------------------")
-            eprint(
-                "ERROR: {} {} {}{}{} {} test has failed\n".format(
-                    project, toolchain, family, device, package, board
-                )
-            )
-            eprint("ERROR MESSAGE: ", e)
-            eprint("---------------------\n")
-
-
 def main():
     import argparse
     parser = argparse.ArgumentParser(
         description='Exhaustively try project-toolchain combinations'
-    )
-    parser.add_argument(
-        '--family', default=None, help='device family: e.g. --family xc7'
-    )
-    parser.add_argument(
-        '--device', default=None, help='FPGA device: e.g. --device a35t'
-    )
-    parser.add_argument(
-        '--package',
-        default=None,
-        help='FPGA package: e.g. --package csg324-1'
-    )
-    parser.add_argument(
-        '--board', default=None, help='target board: e.g. --board arty'
     )
     parser.add_argument(
         '--project',
@@ -210,49 +96,23 @@ def main():
         default='build',
         help='output directory prefix (default: build)'
     )
-    parser.add_argument(
-        '--dry', action='store_true', help='print commands, don\'t invoke'
-    )
     parser.add_argument('--fail', action='store_true', help='fail on error')
     parser.add_argument(
         '--verbose', action='store_true', help='verbose output'
     )
     args = parser.parse_args()
 
-    print('Running exhaustive project-toolchain search')
+    tasks = Tasks(src_dir)
 
-    tasks = []
+    args_dict = {
+            "project": args.project,
+            "toolchain": args.toolchain
+            }
 
-    # Always check if given option was overriden by user's argument
-    # if not - run all available tests
-    combinations = iter_options(args)
-    for project, toolchain, family, device, package, board in combinations:
-        if toolchain not in MANDATORY_CONSTRAINTS.keys():
-            continue
+    task_list = tasks.get_tasks(args_dict)
 
-        mandatory_constraint = MANDATORY_CONSTRAINTS[toolchain]
-        constraint = "_".join((family, device, package, board)
-                              ) + ".{}".format(mandatory_constraint)
-        constraint_path = os.path.join(
-            src_dir, project, 'constr', toolchain, constraint
-        )
-
-        if os.path.exists(constraint_path):
-            task = (
-                args.out_prefix, args.verbose, project, family, device,
-                package, board, toolchain
-            )
-            tasks.append(task)
-
-    assert len(tasks), "No tasks to run!"
-
-    if not os.path.exists(args.out_prefix):
-        os.mkdir(args.out_prefix)
-
-    with mp.Pool(mp.cpu_count()) as pool:
-        for _ in tqdm.tqdm(pool.imap_unordered(worker, tasks),
-                           total=len(tasks), unit='test'):
-            pass
+    runner = Runner(task_list, args.verbose, args.out_prefix)
+    runner.run()
 
     # Combine results of all tests
     print('Merging results')
@@ -268,9 +128,9 @@ def main():
     dataframe = dataframe.reset_index(drop=True)
     dataframe.to_json('{}/dataframe.json'.format(args.out_prefix))
 
-    result = print_summary_table(args.out_prefix, len(tasks))
+    result = print_summary_table(args.out_prefix, len(task_list))
 
-    if not result:
+    if not result and args.fail:
         print("ERROR: some tests have failed.")
         exit(1)
 
