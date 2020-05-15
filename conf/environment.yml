@@ -7,7 +7,7 @@ channels:
 dependencies:
   - yosys
   - yosys-plugins
-  - vtr
+  - vtr=8.0.0.rc2_3864_g0ece2d2c1
   - nextpnr-xilinx
   - pip
   - pip:                            # Packages installed from PyPI
