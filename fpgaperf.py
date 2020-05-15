@@ -336,9 +336,11 @@ def main():
     parser.add_argument('--package', default=None, help='FPGA Package')
     parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
-        '--params_file', default=None, help='Use custom tool parameters')
+        '--params_file', default=None, help='Use custom tool parameters'
+    )
     parser.add_argument(
-        '--params_string', default=None, help='Use custom tool parameters')
+        '--params_string', default=None, help='Use custom tool parameters'
+    )
     parser.add_argument(
         '--strategy', default=None, help='Optimization strategy'
     )

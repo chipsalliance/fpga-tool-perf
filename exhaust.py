@@ -19,6 +19,7 @@ from runner import Runner
 root_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = root_dir + '/src'
 
+
 def get_reports(out_prefix):
     """Returns all the reports from all the build runs."""
     return matching_pattern(
@@ -41,7 +42,10 @@ def print_summary_table(out_prefix, total_tasks):
     """Prints a summary table of the outcome of each test."""
     builds = get_builds(out_prefix)
     table_data = [
-        ['Project', 'Toolchain', 'Family', 'Part', 'Board', 'Build N.', 'Options']
+        [
+            'Project', 'Toolchain', 'Family', 'Part', 'Board', 'Build N.',
+            'Options'
+        ]
     ]
     passed = failed = 0
     for build in sorted(builds):
@@ -104,10 +108,7 @@ def main():
 
     tasks = Tasks(src_dir)
 
-    args_dict = {
-            "project": args.project,
-            "toolchain": args.toolchain
-            }
+    args_dict = {"project": args.project, "toolchain": args.toolchain}
 
     task_list = tasks.get_tasks(args_dict)
 

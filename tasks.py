@@ -5,6 +5,7 @@ from itertools import product
 
 from fpgaperf import get_projects, get_toolchains
 
+
 def get_device_info(constraint):
     """Returns the device information:
         - FPGA family
@@ -14,10 +15,10 @@ def get_device_info(constraint):
     full_info, extension = os.path.splitext(constraint)
     return full_info.split('_') + [extension.lstrip('.')]
 
+
 class Tasks:
     """Class to generate and hold the task lists that needs to be run
     exhaustively by FPGA tool perf."""
-
     def __init__(self, src_dir):
         self.src_dir = src_dir
         self.MANDATORY_CONSTRAINTS = {
@@ -48,7 +49,9 @@ class Tasks:
 
         combinations = set()
         for project, toolchain in list(product(projects, toolchains)):
-            constraint_path = os.path.join(self.src_dir, project, 'constr', toolchain)
+            constraint_path = os.path.join(
+                self.src_dir, project, 'constr', toolchain
+            )
 
             if toolchain not in self.MANDATORY_CONSTRAINTS.keys():
                 continue
@@ -57,7 +60,9 @@ class Tasks:
                 continue
 
             for constraint in os.listdir(constraint_path):
-                family, device, package, board, extension = get_device_info(constraint)
+                family, device, package, board, extension = get_device_info(
+                    constraint
+                )
 
                 if extension not in self.MANDATORY_CONSTRAINTS[toolchain]:
                     continue

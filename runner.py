@@ -6,8 +6,8 @@ from contextlib import redirect_stdout
 
 from fpgaperf import run
 
-class Runner:
 
+class Runner:
     def __init__(self, task_list, verbose, out_prefix, options=[None]):
         self.verbose = verbose
         self.out_prefix = out_prefix
@@ -22,7 +22,9 @@ class Runner:
 
         self.task_list = []
         for idx, option in enumerate(options):
-            self.task_list += add_tuple_to_tasks(task_list, (option, "{:03d}".format(idx)))
+            self.task_list += add_tuple_to_tasks(
+                task_list, (option, "{:03d}".format(idx))
+            )
 
     def worker(self, arglist):
         def eprint(*args, **kwargs):
@@ -66,6 +68,7 @@ class Runner:
             os.mkdir(self.out_prefix)
 
         with Pool(cpu_count()) as pool:
-            for _ in tqdm.tqdm(pool.imap_unordered(self.worker, self.task_list),
+            for _ in tqdm.tqdm(pool.imap_unordered(self.worker,
+                                                   self.task_list),
                                total=len(self.task_list), unit='test'):
                 pass

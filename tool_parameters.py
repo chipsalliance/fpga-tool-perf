@@ -4,13 +4,17 @@ import os
 import json
 import itertools
 
-class ToolParametersHelper:
 
+class ToolParametersHelper:
     def __init__(self, toolchain, params_file='params.json'):
-        self.params_path = os.path.join(os.getcwd(), 'tool_parameters', toolchain, params_file)
+        self.params_path = os.path.join(
+            os.getcwd(), 'tool_parameters', toolchain, params_file
+        )
         self.params = None
 
-        assert os.path.exists(self.params_path), "Parameters file {} does not exist.".format(params_file)
+        assert os.path.exists(
+            self.params_path
+        ), "Parameters file {} does not exist.".format(params_file)
 
         with open(self.params_path, 'r') as params_file:
             self.params = json.load(params_file)
@@ -24,7 +28,9 @@ class ToolParametersHelper:
             param_combinations = []
 
             for value in values:
-                param_combinations.append("{}{} {}".format(param_prefix, param, value))
+                param_combinations.append(
+                    "{}{} {}".format(param_prefix, param, value)
+                )
 
             all_params.append(param_combinations)
 
