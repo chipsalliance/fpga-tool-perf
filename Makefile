@@ -19,7 +19,7 @@ conda:
 	cd third_party/prjxray && $(MAKE) build -j`nproc`
 
 run-all:
-	python3 exhaust.py
+	python3 exhaust.py --fail
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 
