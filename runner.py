@@ -22,7 +22,6 @@ class Runner:
     """Class to create a runner object that, given a list of tasks
     runs all of them parallely.
     """
-
     def __init__(self, task_list, verbose, out_prefix, options=[None]):
         self.verbose = verbose
         self.out_prefix = out_prefix
@@ -46,7 +45,6 @@ class Runner:
 
         This takes, as argument list, the various tasks to perform.
         """
-
         def eprint(*args, **kwargs):
             print(*args, file=sys.stderr, **kwargs)
 
