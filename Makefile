@@ -18,14 +18,21 @@ conda:
 	rm ${SYMBIFLOW_ARCHIVE}
 	cd third_party/prjxray && $(MAKE) build -j`nproc`
 
-run-all:
-	python3 exhaust.py
-	# TMP: Testing multiple options
-	python3 exhaust.py --parameters parameters.json --toolchain vpr --build_type parameters --project blinky
-	# TMP: Testing multiple builds
-	for run in {1..10}; do \
-		python3 exhaust.py --toolchain vpr --project blinky --build_type multiple-samples --build $$run; \
+run-tests:
+	python3 exhaust.py --build_type generic
+
+run-parameters-tests:
+	python3 exhaust.py --parameters parameters.json --toolchain vpr --build_type parameters
+
+run-multiple-samples-tests:
+	for run in {0..10}; do \
+		python3 exhaust.py --build_type multiple-samples --build $$run; \
 	done
+
+run-all:
+	$(MAKE) run-tests
+	$(MAKE) run-parameters-tests
+	$(MAKE) run-multiple-samples-tests
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 
