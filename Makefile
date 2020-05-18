@@ -19,7 +19,7 @@ conda:
 	cd third_party/prjxray && $(MAKE) build -j`nproc`
 
 run-tests:
-	python3 exhaust.py --build_type generic
+	python3 exhaust.py --build_type generic --fail
 
 run-parameters-tests:
 	python3 exhaust.py --parameters parameters.json --toolchain vpr --build_type parameters
