@@ -166,7 +166,8 @@ def run(
     strategy=None,
     seed=None,
     carry=None,
-    build=None
+    build=None,
+    build_type=None,
 ):
     assert family == 'ice40' or family == 'xc7'
     assert device is not None
@@ -193,6 +194,7 @@ def run(
     t.sdc = os.path.realpath(sdc) if sdc else None
     t.xdc = os.path.realpath(xdc) if xdc else None
     t.build = build
+    t.build_type = build_type
 
     t.project(
         get_project(project),
@@ -376,6 +378,7 @@ def main():
         help='Auto named directory prefix (default: build)'
     )
     parser.add_argument('--build', default=None, help='Build number')
+    parser.add_argument('--build_type', default=None, help='Build type')
     args = parser.parse_args()
 
     assert not (args.params_file and args.params_string)
@@ -421,11 +424,12 @@ def main():
             params_string=args.params_string,
             out_dir=args.out_dir,
             out_prefix=args.out_prefix,
+            verbose=args.verbose,
             strategy=args.strategy,
             carry=args.carry,
             seed=seed,
             build=args.build,
-            verbose=args.verbose
+            build_type=args.build_type
         )
 
 

@@ -19,7 +19,13 @@ conda:
 	cd third_party/prjxray && $(MAKE) build -j`nproc`
 
 run-all:
-	python3 exhaust.py --fail
+	python3 exhaust.py
+	# TMP: Testing multiple options
+	python3 exhaust.py --parameters parameters.json --toolchain vpr --build_type parameters --project blinky
+	# TMP: Testing multiple builds
+	for run in {1..10}; do \
+		python3 exhaust.py --toolchain vpr --project blinky --build_type multiple-samples --build $$run; \
+	done
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
 

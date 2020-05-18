@@ -14,7 +14,7 @@ class ToolParametersHelper:
 
         assert os.path.exists(
             self.params_path
-        ), "Parameters file {} does not exist.".format(params_file)
+        ), "Parameters file {} does not exist.".format(self.params_path)
 
         with open(self.params_path, 'r') as params_file:
             self.params = json.load(params_file)

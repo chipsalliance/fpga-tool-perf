@@ -92,7 +92,7 @@ class VPR(Toolchain):
 
     def get_tool_params(self):
         if self.params_file:
-            opt_helper = ToolParametersHelper('vpr', '--', self.params_file)
+            opt_helper = ToolParametersHelper('vpr', self.params_file)
             params = opt_helper.get_all_params_combinations()
 
             assert len(params) == 1

@@ -12,19 +12,37 @@
 import os
 import sys
 import tqdm
+import glob
+import json
+import pandas
 from multiprocessing import Pool, cpu_count
 from contextlib import redirect_stdout
 
 from fpgaperf import run
+from dataframe import generate_dataframe
+import sow
 
 
 class Runner:
     """Class to create a runner object that, given a list of tasks
     runs all of them parallely.
     """
-    def __init__(self, task_list, verbose, out_prefix, options=[None]):
+    def __init__(
+        self,
+        task_list,
+        verbose,
+        out_prefix,
+        root_dir,
+        build_type,
+        build=None,
+        options=[]
+    ):
         self.verbose = verbose
         self.out_prefix = out_prefix
+        self.root_dir = root_dir
+        self.build = int(build) if build else None
+        self.build_type = build_type
+        self.results = dict()
 
         def add_tuple_to_tasks(tasks, tpl):
             new_tasks = []
@@ -36,9 +54,7 @@ class Runner:
 
         self.task_list = []
         for idx, option in enumerate(options):
-            self.task_list += add_tuple_to_tasks(
-                task_list, (option, "{:03d}".format(idx))
-            )
+            self.task_list += add_tuple_to_tasks(task_list, (option, idx))
 
     def worker(self, arglist):
         """Single worker function that is run in the Pool of workers.
@@ -49,6 +65,8 @@ class Runner:
             print(*args, file=sys.stderr, **kwargs)
 
         project, toolchain, family, device, package, board, option, build = arglist
+
+        build = "{:03d}".format(self.build or build)
 
         # We don't want output of all subprocesses here
         # Log files for each build will be placed in build directory
@@ -70,12 +88,15 @@ class Runner:
                     None,  #seed
                     None,  #carry
                     build,
+                    self.build_type,
                 )
             except Exception as e:
                 eprint("\n---------------------")
                 eprint(
-                    "ERROR: {} {} {}{}{} {} test has failed\n".format(
-                        project, toolchain, family, device, package, board
+                    "ERROR: {} {} {}{}{} {} test has failed (build type {}, build nr. {})\n"
+                    .format(
+                        project, toolchain, family, device, package, board,
+                        self.build_type, build
                     )
                 )
                 eprint("ERROR MESSAGE: ", e)
@@ -90,3 +111,32 @@ class Runner:
                                                    self.task_list),
                                total=len(self.task_list), unit='test'):
                 pass
+
+    def get_reports(self):
+        reports = []
+        for filename in glob.iglob(os.path.join(self.root_dir, self.out_prefix,
+                                                '**/meta.json'),
+                                   recursive=True):
+            reports.append(filename)
+
+        return reports
+
+    def collect_results(self):
+        reports = self.get_reports()
+
+        for report in reports:
+            sow.merge(self.results, json.load(open(report, 'r')))
+
+        dataframe = generate_dataframe(self.results)
+        dataframe = dataframe.reset_index(drop=True)
+
+        dataframe_path = os.path.join(
+            self.root_dir, self.out_prefix, 'dataframe.json'
+        )
+        if os.path.exists(dataframe_path):
+            old_dataframe = pandas.read_json(dataframe_path)
+            dataframe = pandas.concat(
+                [old_dataframe, dataframe], ignore_index=True
+            )
+
+        dataframe.to_json(dataframe_path)

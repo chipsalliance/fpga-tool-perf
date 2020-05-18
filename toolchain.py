@@ -33,6 +33,7 @@ class Toolchain:
         self._carry = None
         self.seed = None
         self.build = None
+        self.build_type = None
         self.date = datetime.datetime.utcnow()
 
         self.family = None
@@ -86,6 +87,9 @@ class Toolchain:
             self.project_name, self.toolchain, self.family, self.part,
             self.board
         )
+
+        if self.build_type:
+            ret += '_' + self.build_type
 
         if self.build:
             ret += '_' + self.build
@@ -293,6 +297,7 @@ class Toolchain:
             'carry': self.carry,
             'seed': self.seed,
             'build': self.build,
+            'build_type': self.build_type,
             'date': date_str,
             'toolchain': self.toolchain,
             'strategy': self.strategy,
