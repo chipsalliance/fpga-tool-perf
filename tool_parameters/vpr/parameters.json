@@ -5,7 +5,7 @@
         "routing_failure_predictor": ["off"],
         "router_high_fanout_threshold": [-1],
         "constant_net_method": ["route"],
-        "route_chan_width": [500, 400],
+        "route_chan_width": [500],
         "router_heap": ["bucket"],
         "router_lookahead": ["connection_box_map"],
         "quick_check_route": ["on"],
@@ -18,7 +18,7 @@
         "incremental_reroute_delay_ripup": ["off"],
         "base_cost_type": ["delay_normalized_length_bounded"],
         "bb_factor": [10, 20],
-        "initial_pres_fac": [3.0, 4.0],
+        "initial_pres_fac": [4.0],
         "check_rr_graph": ["off"]
     }
 }
