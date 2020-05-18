@@ -41,6 +41,7 @@ class Runner:
         self.out_prefix = out_prefix
         self.root_dir = root_dir
         self.build = int(build) if build else None
+        self.build_format = "{:03d}"
         self.build_type = build_type
         self.results = dict()
 
@@ -66,7 +67,7 @@ class Runner:
 
         project, toolchain, family, device, package, board, option, build = arglist
 
-        build = "{:03d}".format(self.build or build)
+        build = self.build_format.format(self.build or build)
 
         # We don't want output of all subprocesses here
         # Log files for each build will be placed in build directory
@@ -114,9 +115,14 @@ class Runner:
 
     def get_reports(self):
         reports = []
+        if self.build is not None:
+            metadata_path = '*{}_{}*/meta.json'.format(
+                self.build_type, self.build_format.format(self.build)
+            )
+        else:
+            metadata_path = '*{}*/meta.json'.format(self.build_type)
         for filename in glob.iglob(os.path.join(self.root_dir, self.out_prefix,
-                                                '**/meta.json'),
-                                   recursive=True):
+                                                metadata_path)):
             reports.append(filename)
 
         return reports
@@ -134,7 +140,9 @@ class Runner:
             self.root_dir, self.out_prefix, 'dataframe.json'
         )
         if os.path.exists(dataframe_path):
-            old_dataframe = pandas.read_json(dataframe_path)
+            old_dataframe = pandas.read_json(
+                dataframe_path, convert_dates=False
+            )
             dataframe = pandas.concat(
                 [old_dataframe, dataframe], ignore_index=True
             )
