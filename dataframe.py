@@ -80,7 +80,7 @@ def get_general_dataframe(results):
             resources = {k: [] for k in resource.keys()}
 
         for k, v in resource.items():
-            resources[k].append(v)
+            resources[k].append(int(v))
 
     resources_keys = list(resources.keys())
     for key in resources_keys:
