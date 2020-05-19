@@ -162,7 +162,7 @@ class VPR(Toolchain):
 
         with open(route_log, 'r') as fp:
             for l in fp:
-                if l.startswith("Final critical path:"):
+                if "Final critical path" in l and "Fmax" in l:
                     clk = 'clk'
                     fields = l.split(",")
                     cpd = float(fields[0].split(":")[1].split()[0].strip())
@@ -172,9 +172,9 @@ class VPR(Toolchain):
                     intra_domain_processing = True
                     continue
 
-                if intra_domain_processing is True:
+                if intra_domain_processing:
                     if len(l.strip('\n')) == 0:
-                        processing = False
+                        intra_domain_processing = False
                         continue
 
                     fields = l.split(':')
