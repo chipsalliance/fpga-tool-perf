@@ -125,6 +125,7 @@ def main():
     params_file = args.parameters
     params_strings = [None]
     if params_file:
+        params_strings = []
         assert len(
             args.toolchain
         ) == 1, "A single toolchain can be selected when running multiple params."
