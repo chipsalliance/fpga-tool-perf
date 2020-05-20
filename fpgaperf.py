@@ -158,13 +158,16 @@ def run(
     board,
     toolchain,
     project,
+    params_file=None,
+    params_string=None,
     out_dir=None,
     out_prefix=None,
     verbose=False,
     strategy=None,
     seed=None,
     carry=None,
-    build=None
+    build=None,
+    build_type=None,
 ):
     assert family == 'ice40' or family == 'xc7'
     assert device is not None
@@ -191,6 +194,7 @@ def run(
     t.sdc = os.path.realpath(sdc) if sdc else None
     t.xdc = os.path.realpath(xdc) if xdc else None
     t.build = build
+    t.build_type = build_type
 
     t.project(
         get_project(project),
@@ -198,6 +202,8 @@ def run(
         device,
         package,
         board,
+        params_file,
+        params_string,
         out_dir=out_dir,
         out_prefix=out_prefix,
     )
@@ -332,6 +338,12 @@ def main():
     parser.add_argument('--package', default=None, help='FPGA Package')
     parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
+        '--params_file', default=None, help='Use custom tool parameters'
+    )
+    parser.add_argument(
+        '--params_string', default=None, help='Use custom tool parameters'
+    )
+    parser.add_argument(
         '--strategy', default=None, help='Optimization strategy'
     )
     add_bool_arg(
@@ -366,7 +378,10 @@ def main():
         help='Auto named directory prefix (default: build)'
     )
     parser.add_argument('--build', default=None, help='Build number')
+    parser.add_argument('--build_type', default=None, help='Build type')
     args = parser.parse_args()
+
+    assert not (args.params_file and args.params_string)
 
     if args.list_toolchains:
         list_toolchains()
@@ -405,13 +420,16 @@ def main():
             args.board,
             args.toolchain,
             args.project,
+            params_file=args.params_file,
+            params_string=args.params_string,
             out_dir=args.out_dir,
             out_prefix=args.out_prefix,
+            verbose=args.verbose,
             strategy=args.strategy,
             carry=args.carry,
             seed=seed,
             build=args.build,
-            verbose=args.verbose
+            build_type=args.build_type
         )
 
 

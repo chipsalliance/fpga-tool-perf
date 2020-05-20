@@ -4,6 +4,7 @@ import edalize
 
 from toolchain import Toolchain
 from utils import Timed
+from tool_parameters import ToolParametersHelper
 
 
 class VPR(Toolchain):
@@ -53,6 +54,8 @@ class VPR(Toolchain):
 
                 chip = self.family + self.device
 
+                tool_params = self.get_tool_params()
+
                 self.edam = {
                     'files': self.files,
                     'name': self.project_name,
@@ -65,7 +68,8 @@ class VPR(Toolchain):
                                     'package': self.package,
                                     'vendor': 'xilinx',
                                     'builddir': '.',
-                                    'pnr': 'vpr'
+                                    'pnr': 'vpr',
+                                    'options': tool_params,
                                 }
                         }
                 }
@@ -85,6 +89,18 @@ class VPR(Toolchain):
                 self.backend.build_main(self.top + '.fasm')
             with Timed(self, 'bitstream'):
                 self.backend.build_main(self.top + '.bit')
+
+    def get_tool_params(self):
+        if self.params_file:
+            opt_helper = ToolParametersHelper('vpr', self.params_file)
+            params = opt_helper.get_all_params_combinations()
+
+            assert len(params) == 1
+            return " ".join(params[0])
+        elif self.params_string:
+            return self.params_string
+        else:
+            return None
 
     def get_critical_paths(self, clocks, timing):
 
@@ -142,18 +158,23 @@ class VPR(Toolchain):
         clocks = dict()
         route_log = self.out_dir + '/route.log'
 
-        processing = False
+        intra_domain_processing = False
 
         with open(route_log, 'r') as fp:
             for l in fp:
+                if "Final critical path" in l and "Fmax" in l:
+                    clk = 'clk'
+                    fields = l.split(",")
+                    cpd = float(fields[0].split(":")[1].split()[0].strip())
+                    freqs[clk] = safe_division_by_zero(1e9, cpd)
 
                 if l == "Intra-domain critical path delays (CPDs):\n":
-                    processing = True
+                    intra_domain_processing = True
                     continue
 
-                if processing is True:
+                if intra_domain_processing:
                     if len(l.strip('\n')) == 0:
-                        processing = False
+                        intra_domain_processing = False
                         continue
 
                     fields = l.split(':')
@@ -236,7 +257,10 @@ class VPR(Toolchain):
                     res = l.split(":")
                     restype = res[0].strip()
                     rescount = int(res[1].strip())
-                    resources[restype] = rescount
+                    if restype in resources:
+                        resources[restype] += rescount
+                    else:
+                        resources[restype] = rescount
 
         return resources
 
@@ -250,16 +274,20 @@ class VPR(Toolchain):
 
         res = self.get_resources()
 
-        if 'lut' in res:
-            lut = res['lut']
-        if 'REG_FDSE_or_FDRE' in res:
-            dff = dff = res['REG_FDSE_or_FDRE']
+        for nlut in ['ALUT', 'BLUT', 'CLUT', 'DLUT']:
+            if nlut in res:
+                lut += res[nlut]
+
+        for nff in ['FDRE', 'FDSE', 'FDPE', 'FDCE']:
+            if nff in res:
+                dff += res[nff]
+
         if 'CARRY4_VPR' in res:
-            carry = carry + res['CARRY4_VPR']
+            carry += res['CARRY4_VPR']
         if 'outpad' in res:
-            iob = iob + res['outpad']
+            iob += res['outpad']
         if 'inpad' in res:
-            iob = iob + res['inpad']
+            iob += res['inpad']
         if 'RAMB18E1_Y0' in res:
             bram += res['RAMB18E1_Y0']
         if 'RAMB18E1_Y1' in res:
