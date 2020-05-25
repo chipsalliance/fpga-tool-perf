@@ -5,7 +5,7 @@ channels:
 dependencies:
   - yosys
   - yosys-plugins
-  - vtr=8.0.0.rc2_3864_g0ece2d2c1
+  - vtr
   - nextpnr-xilinx
   - prjxray
   - pip
