@@ -35,7 +35,7 @@ run-all:
 	$(MAKE) run-parameters-tests
 	$(MAKE) run-multiple-samples-tests
 
-PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
+PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
 
 format: ${PYTHON_SRCS}
 	yapf -i $?

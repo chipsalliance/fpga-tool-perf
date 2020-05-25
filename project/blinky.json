@@ -3,6 +3,9 @@
         "src/blinky/blinky.v"
         ],
     "top": "top",
-    "name": "blinky"
+    "name": "blinky",
+    "clocks": {
+        "clk_i": 10.0
+    }
 }
 

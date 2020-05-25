@@ -33,6 +33,7 @@ class Tasks:
         self.MANDATORY_CONSTRAINTS = {
             "vivado": "xdc",
             "vpr": "pcf",
+            "vpr-fasm2bels": "pcf",
             "vivado-yosys": "xdc",
             "nextpnr": "xdc",
         }

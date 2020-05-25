@@ -9,6 +9,9 @@
         "src/baselitex/mem.init",
         "src/baselitex/mem_1.init",
         "src/baselitex/mem_2.init"
-    ]
+    ],
+    "clocks": {
+        "clk100": 10.0
+    }
 }
 

@@ -46,6 +46,7 @@ class Toolchain:
         self.srcs = None
         self.top = None
         self.out_dir = None
+        self.clocks = None
 
         with Timed(self, 'nop'):
             subprocess.check_call("true", shell=True, cwd=self.out_dir)
@@ -178,6 +179,9 @@ class Toolchain:
                 raise ValueError("Missing source file %s" % src)
         self.top = project['top']
 
+        if 'clocks' in project:
+            self.clocks = project['clocks']
+
         out_prefix = out_prefix or 'build'
         if not os.path.exists(out_prefix):
             os.mkdir(out_prefix)
@@ -242,7 +246,8 @@ class Toolchain:
             'bitstream': ['write_bitstream', 'bitstream'],
             'reports': ['report_power', 'report_methodology'],
             'total': ['total'],
-            'nop': ['nop']
+            'nop': ['nop'],
+            'fasm2bels': ['fasm2bels'],
         }
 
         def get_standard_runtime(runtime):

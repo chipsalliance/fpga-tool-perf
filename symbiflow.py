@@ -15,6 +15,22 @@ class VPR(Toolchain):
         Toolchain.__init__(self, rootdir)
         self.toolchain = 'vpr'
         self.files = []
+        self.fasm2bels = False
+        self.dbroot = None
+
+    def run_steps(self):
+        with Timed(self, 'synthesis'):
+            self.backend.build_main(self.top + '.eblif')
+        with Timed(self, 'pack'):
+            self.backend.build_main(self.top + '.net')
+        with Timed(self, 'place'):
+            self.backend.build_main(self.top + '.place')
+        with Timed(self, 'route'):
+            self.backend.build_main(self.top + '.route')
+        with Timed(self, 'fasm'):
+            self.backend.build_main(self.top + '.fasm')
+        with Timed(self, 'bitstream'):
+            self.backend.build_main(self.top + '.bit')
 
     def run(self):
         with Timed(self, 'total'):
@@ -56,6 +72,47 @@ class VPR(Toolchain):
 
                 tool_params = self.get_tool_params()
 
+                if self.fasm2bels:
+                    symbiflow = os.getenv('SYMBIFLOW', None)
+                    assert symbiflow
+
+                    device_aliases = {"a35t": "a50t"}
+
+                    chip_replace = chip
+                    for k, v in device_aliases.items():
+                        chip_replace = chip.replace(k, v)
+
+                    device_path = os.path.join(
+                        symbiflow, 'share', 'symbiflow', 'arch',
+                        '{}_test'.format(chip_replace)
+                    )
+
+                    self.files.append(
+                        {
+                            'name':
+                                os.path.realpath(
+                                    os.path.join(
+                                        device_path, '*rr_graph.real.bin'
+                                    )
+                                ),
+                            'file_type':
+                                'RRGraph'
+                        }
+                    )
+
+                    self.files.append(
+                        {
+                            'name':
+                                os.path.realpath(
+                                    os.path.join(
+                                        device_path, 'vpr_grid_map.csv'
+                                    )
+                                ),
+                            'file_type':
+                                'VPRGrid'
+                        }
+                    )
+
                 self.edam = {
                     'files': self.files,
                     'name': self.project_name,
@@ -70,6 +127,9 @@ class VPR(Toolchain):
                                     'builddir': '.',
                                     'pnr': 'vpr',
                                     'options': tool_params,
+                                    'fasm2bels': self.fasm2bels,
+                                    'dbroot': self.dbroot,
+                                    'clocks': self.clocks,
                                 }
                         }
                 }
@@ -77,18 +137,7 @@ class VPR(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
-            with Timed(self, 'synthesis'):
-                self.backend.build_main(self.top + '.eblif')
-            with Timed(self, 'pack'):
-                self.backend.build_main(self.top + '.net')
-            with Timed(self, 'place'):
-                self.backend.build_main(self.top + '.place')
-            with Timed(self, 'route'):
-                self.backend.build_main(self.top + '.route')
-            with Timed(self, 'fasm'):
-                self.backend.build_main(self.top + '.fasm')
-            with Timed(self, 'bitstream'):
-                self.backend.build_main(self.top + '.bit')
+                self.run_steps()
 
     def get_tool_params(self):
         if self.params_file:
@@ -358,6 +407,98 @@ class VPR(Toolchain):
             'yosys': have_exec('yosys'),
             'vpr': have_exec(VPR.vpr_bin()),
         }
+
+
+class VPRFasm2Bels(VPR):
+    def __init__(self, rootdir):
+        Toolchain.__init__(self, rootdir)
+        self.toolchain = 'vpr-fasm2bels'
+        self.files = []
+        self.fasm2bels = True
+
+        self.dbroot = os.getenv('XRAY_DATABASE_DIR', None)
+
+        assert self.dbroot
+
+    def get_max_freq(self, report_file):
+        processing = False
+
+        group = ""
+        delay = ""
+        freq = 0
+        freqs = {}
+        path_type = None
+
+        with open(report_file, 'r') as fp:
+            for l in fp:
+
+                if l.startswith("Slack"):
+                    if '(MET)' in l:
+                        violation = 0.0
+                    else:
+                        violation = float(
+                            l.split(':')[1].split()[0].strip().strip('ns')
+                        )
+                    processing = True
+
+                if processing is True:
+                    fields = l.split()
+                    if len(fields) > 1 and fields[1].startswith('----'):
+                        processing = False
+                        # check if this is a timing we want
+                        if group not in requirement.split():
+                            continue
+                        if group not in freqs:
+                            freqs[group] = dict()
+                            freqs[group]['actual'] = freq
+                            freqs[group]['requested'] = requested_freq
+                            freqs[group]['met'] = freq >= requested_freq
+                            freqs[group]['{}_violation'.format(
+                                path_type.lower()
+                            )] = violation
+                            path_type = None
+                        if path_type is not None:
+                            freqs[group]['{}_violation'.format(
+                                path_type.lower()
+                            )] = violation
+
+                    data = l.split(':')
+                    if len(data) > 1:
+                        if data[0].strip() == 'Data Path Delay':
+                            delay = data[1].split()[0].strip('ns')
+                            freq = 1e9 / float(delay)
+                        if data[0].strip() == 'Path Group':
+                            group = data[1].strip()
+                        if data[0].strip() == 'Requirement':
+                            requirement = data[1].strip()
+                            r = float(requirement.split()[0].strip('ns'))
+                            if r != 0.0:
+                                requested_freq = 1e9 / r
+                        if data[0].strip() == 'Path Type':
+                            ptype = data[1].strip()
+                            if path_type != ptype.split()[0]:
+                                path_type = ptype.split()[0]
+        return freqs
+
+    def max_freq(self):
+        report_file = os.path.join(self.out_dir, 'timing_summary.rpt')
+        return self.get_max_freq(report_file)
+
+    def run_steps(self):
+        with Timed(self, 'synthesis'):
+            self.backend.build_main(self.top + '.eblif')
+        with Timed(self, 'pack'):
+            self.backend.build_main(self.top + '.net')
+        with Timed(self, 'place'):
+            self.backend.build_main(self.top + '.place')
+        with Timed(self, 'route'):
+            self.backend.build_main(self.top + '.route')
+        with Timed(self, 'fasm'):
+            self.backend.build_main(self.top + '.fasm')
+        with Timed(self, 'bitstream'):
+            self.backend.build_main(self.top + '.bit')
+        with Timed(self, 'fasm2bels'):
+            self.backend.build_main('timing_summary.rpt')
 
 
 class NextpnrXilinx(Toolchain):

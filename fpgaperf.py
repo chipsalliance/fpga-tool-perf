@@ -21,6 +21,7 @@ from icestorm import Arachne
 from vivado import Vivado
 from vivado import VivadoYosys
 from symbiflow import VPR
+from symbiflow import VPRFasm2Bels
 from symbiflow import NextpnrXilinx
 from radiant import RadiantSynpro
 from radiant import RadiantLSE
@@ -30,8 +31,8 @@ from icecube import Icecube2Yosys
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
-project_dir = root_dir + '/project'
-src_dir = root_dir + '/src'
+project_dir = os.path.join(root_dir, 'project')
+src_dir = os.path.join(root_dir, 'src')
 
 
 class NotAvailable:
@@ -140,6 +141,7 @@ toolchains = {
     'vivado-yosys': VivadoYosys,
     'arachne': Arachne,
     'vpr': VPR,
+    'vpr-fasm2bels': VPRFasm2Bels,
     'nextpnr': NextpnrXilinx,
     'icecube2-synpro': Icecube2Synpro,
     'icecube2-lse': Icecube2LSE,
@@ -307,7 +309,7 @@ def get_xdc(project, family, device, package, board, toolchain):
 
 
 def get_project(name):
-    project_fn = project_dir + '/' + name + '.json'
+    project_fn = os.path.join(project_dir, '{}.json'.format(name))
     with open(project_fn, 'r') as f:
         return json.load(f)
 
