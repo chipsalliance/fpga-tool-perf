@@ -18,7 +18,6 @@ conda:
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env
 	rm ${SYMBIFLOW_ARCHIVE}
-	cd third_party/prjxray && $(MAKE) build -j`nproc`
 
 run-tests:
 	python3 exhaust.py --build_type generic --fail
