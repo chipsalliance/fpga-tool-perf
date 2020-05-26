@@ -244,7 +244,7 @@ class Toolchain:
             'fasm': ['fasm'],
             'checkpoint': ['open_checkpoint'],
             'bitstream': ['write_bitstream', 'bitstream'],
-            'reports': ['report_power', 'report_methodology'],
+            'reports': ['report_power', 'report_methodology', 'report_drc'],
             'total': ['total'],
             'nop': ['nop'],
             'fasm2bels': ['fasm2bels'],
