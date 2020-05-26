@@ -11915,7 +11915,7 @@ end
 assign main_sdram_bankmachine7_cmd_buffer_lookahead_wrport_dat_r = memdat_12;
 assign main_sdram_bankmachine7_cmd_buffer_lookahead_rdport_dat_r = storage_9[main_sdram_bankmachine7_cmd_buffer_lookahead_rdport_adr];
 
-VexRiscvLitexSmpCluster VexRiscvLitexSmpCluster(
+VexRiscvLitexSmpCluster_4c VexRiscvLitexSmpCluster_4c(
 	.clk(sys_clk),
 	.debugResetIn((sys_rst | main_basesoc_vexriscvsmp_reset)),
 	.io_clint_ADR(main_basesoc_vexriscvsmp_cbus_adr),
