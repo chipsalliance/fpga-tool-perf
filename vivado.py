@@ -281,7 +281,7 @@ class VivadoYosys(Vivado):
     def max_freq(self):
         report_file_pattern = self.out_dir + "/*_timing_summary_routed.rpt"
         report_file = glob.glob(report_file_pattern).pop()
-        return super(VivadoYosys, self).get_max_freq(report_file)
+        return get_vivado_max_freq(report_file)
 
     def versions(self):
         return {'yosys': self.yosys_ver(), 'vivado': self.vivado_ver()}
