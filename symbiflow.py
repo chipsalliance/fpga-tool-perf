@@ -137,7 +137,8 @@ class VPR(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
-                self.run_steps()
+
+            self.run_steps()
 
     def get_tool_params(self):
         if self.params_file:
