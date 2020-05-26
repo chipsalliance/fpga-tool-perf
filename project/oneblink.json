@@ -3,6 +3,9 @@
         "src/oneblink/oneblink.v"
         ],
     "top": "top",
-    "name": "oneblink"
+    "name": "oneblink",
+    "clocks": {
+        "clk": 10.0
+    }
 }
 
