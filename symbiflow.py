@@ -410,6 +410,20 @@ class VPR(Toolchain):
 
 
 class VPRFasm2Bels(VPR):
+    """This class is used to generate the VPR -> Fasm2bels flow.
+
+    fasm2bels is a tool that, given a bitstream, can reproduce the original netlist
+    and run it through Vivado to get a mean of comparison with the VPR outputs.
+
+    fasm2bels generates two different files:
+        - verilog netlist corresponding to the bitstream
+        - tcl script to force the placement and routing
+
+    It then runs the two generated outputs through Vivado and gets the timing reports.
+
+    NOTE: This flow is purely for verification purposes and is intended for developers only.
+          In addition, this flow makes use of Vivado.
+    """
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
         self.toolchain = 'vpr-fasm2bels'
