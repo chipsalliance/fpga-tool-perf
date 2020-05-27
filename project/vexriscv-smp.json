@@ -13,6 +13,11 @@
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_1_core_RegFilePlugin_regFile.bin",
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_2_core_RegFilePlugin_regFile.bin",
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_3_core_RegFilePlugin_regFile.bin"
-    ]
+    ],
+    "toolchains": {
+        "vivado": {
+            "arty": ["arty.xdc"]
+        }
+    }
 }
 

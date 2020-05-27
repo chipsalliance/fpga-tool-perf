@@ -4,6 +4,14 @@
         "src/vexriscv/vexriscv-verilog_wrap.v"
     ],
     "top": "top",
-    "name": "vexriscv-verilog"
+    "name": "vexriscv-verilog",
+    "toolchains": {
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        },
+        "vpr": {
+            "basys3": ["basys3.pcf"]
+        }
+    }
 }
 

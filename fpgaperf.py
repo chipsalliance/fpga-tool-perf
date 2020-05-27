@@ -154,9 +154,6 @@ toolchains = {
 
 
 def run(
-    family,
-    device,
-    package,
     board,
     toolchain,
     project,
@@ -171,12 +168,21 @@ def run(
     build=None,
     build_type=None,
 ):
-    assert family == 'ice40' or family == 'xc7'
-    assert device is not None
-    assert package is not None
     assert board is not None
     assert toolchain is not None
     assert project is not None
+
+    project_dict = get_project(project)
+    with open(os.path.join(root_dir, 'boards', 'boards.json'), 'r') as boards:
+        boards_info = json.load(boards)
+
+    board_info = boards_info[board]
+    family = board_info['family']
+    device = board_info['device']
+    package = board_info['package']
+
+    assert family == 'ice40' or family == 'xc7'
+
     # some toolchains use signed 32 bit
     assert seed is None or 1 <= seed <= 0x7FFFFFFF
 
@@ -187,9 +193,15 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
-    pcf = get_pcf(project, family, device, package, board, toolchain)
-    sdc = get_sdc(project, family, device, package, board, toolchain)
-    xdc = get_xdc(project, family, device, package, board, toolchain)
+    pcf = get_constraint(
+        project, board, project_dict['toolchains'][toolchain][board], 'pcf'
+    )
+    sdc = get_constraint(
+        project, board, project_dict['toolchains'][toolchain][board], 'sdc'
+    )
+    xdc = get_constraint(
+        project, board, project_dict['toolchains'][toolchain][board], 'xdc'
+    )
 
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
@@ -199,7 +211,7 @@ def run(
     t.build_type = build_type
 
     t.project(
-        get_project(project),
+        project_dict,
         family,
         device,
         package,
@@ -232,7 +244,9 @@ def matching_pattern(path, pattern):
 
 def get_projects():
     '''Query all supported projects'''
-    return matching_pattern(project_dir + '/*.json', '/.*/(.*)[.]json')
+    return matching_pattern(
+        os.path.join(project_dir, '*.json'), '/.*/(.*)[.]json'
+    )
 
 
 def list_projects():
@@ -278,34 +292,19 @@ def env_ready():
     return True
 
 
-def get_constraint(
-    project, family, device, package, board, toolchain, extension
-):
-    constraint = "_".join((family, device, package, board)
-                          ) + ".{}".format(extension)
-    path = os.path.join(src_dir, project, 'constr', toolchain, constraint)
-    if (os.path.exists(path)):
-        return path
-    else:
+def get_constraint(project, board, constr_list, extension):
+    constr_file = [v for v in constr_list if v.endswith(extension)]
+
+    if not constr_file:
         return None
 
+    assert len(constr_file) == 1
 
-def get_pcf(project, family, device, package, board, toolchain):
-    return get_constraint(
-        project, family, device, package, board, toolchain, 'pcf'
-    )
+    path = os.path.join(src_dir, project, 'constr', constr_file[0])
+    if (os.path.exists(path)):
+        return path
 
-
-def get_sdc(project, family, device, package, board, toolchain):
-    return get_constraint(
-        project, family, device, package, board, toolchain, 'sdc'
-    )
-
-
-def get_xdc(project, family, device, package, board, toolchain):
-    return get_constraint(
-        project, family, device, package, board, toolchain, 'xdc'
-    )
+    assert False, "No constraint file found"
 
 
 def get_project(name):
@@ -335,9 +334,6 @@ def main():
 
     parser.add_argument('--verbose', action='store_true', help='')
     parser.add_argument('--overwrite', action='store_true', help='')
-    parser.add_argument('--family', default=None, help='FPGA family')
-    parser.add_argument('--device', default=None, help='FPGA Device')
-    parser.add_argument('--package', default=None, help='FPGA Package')
     parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
         '--params_file', default=None, help='Use custom tool parameters'
@@ -395,12 +391,6 @@ def main():
         check_env(args.toolchain)
     else:
         argument_errors = []
-        if args.family is None:
-            argument_errors.append('--family argument required')
-        if args.device is None:
-            argument_errors.append('--device argument required')
-        if args.package is None:
-            argument_errors.append('--package argument required')
         if args.board is None:
             argument_errors.append('--board argument required')
         if args.toolchain is None:
@@ -416,9 +406,6 @@ def main():
 
         seed = int(args.seed, 0) if args.seed else None
         run(
-            args.family,
-            args.device,
-            args.package,
             args.board,
             args.toolchain,
             args.project,

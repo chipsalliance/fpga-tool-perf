@@ -25,6 +25,17 @@
     "name": "ibex",
     "data": [
         "src/ibex/led.vmem"
-    ]
+    ],
+    "toolchains": {
+        "vpr": {
+            "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
+        },
+        "vivado": {
+            "arty": ["arty-vivado.xdc"]
+        },
+        "vivado-yosys": {
+            "arty": ["arty-vivado.xdc"]
+        }
+    }
 }
 

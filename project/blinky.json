@@ -6,6 +6,17 @@
     "name": "blinky",
     "clocks": {
         "clk_i": 10.0
+    },
+    "toolchains": {
+        "vpr": {
+            "arty": ["arty.pcf"]
+        },
+        "vpr-fasm2bels": {
+            "arty": ["arty.pcf"]
+        },
+        "nextpnr": {
+            "arty": ["arty.xdc"]
+        }
     }
 }
 

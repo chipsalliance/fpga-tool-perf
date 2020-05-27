@@ -25,6 +25,11 @@
 	"third_party/hamsternz-hdmi/src/input_channel.vhd"
         ],
     "top": "hdmi_design",
-    "name": "hamsternz-hdmi"
+    "name": "hamsternz-hdmi",
+	"toolchains": {
+		"vivado": {
+			"nexys": ["nexys.xdc"]
+		}
+	}
 }
 

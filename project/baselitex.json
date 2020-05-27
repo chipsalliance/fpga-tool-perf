@@ -12,6 +12,17 @@
     ],
     "clocks": {
         "clk100": 10.0
+    },
+    "toolchains": {
+        "vivado": {
+            "arty": ["arty-vivado.xdc"]
+        },
+        "vpr": {
+            "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
+        },
+        "vpr-fasm2bels": {
+            "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
+        }
     }
 }
 
