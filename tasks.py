@@ -12,27 +12,19 @@
 import os
 from itertools import product
 
-from fpgaperf import get_projects, get_toolchains
-
-
-def get_device_info(constraint):
-    """Returns the device information:
-        - FPGA family
-        - FPGA part
-        - board
-    """
-    full_info, extension = os.path.splitext(constraint)
-    return full_info.split('_') + [extension.lstrip('.')]
+from fpgaperf import get_projects, get_project, get_toolchains, get_constraint
 
 
 class Tasks:
     """Class to generate and hold the task lists that needs to be run
     exhaustively by FPGA tool perf."""
-    def __init__(self, src_dir):
-        self.src_dir = src_dir
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
+        self.src_dir = os.path.join(root_dir, 'src')
         self.MANDATORY_CONSTRAINTS = {
             "vivado": "xdc",
             "vpr": "pcf",
+            "vpr-fasm2bels": "pcf",
             "vivado-yosys": "xdc",
             "nextpnr": "xdc",
         }
@@ -58,27 +50,26 @@ class Tasks:
 
         combinations = set()
         for project, toolchain in list(product(projects, toolchains)):
-            constraint_path = os.path.join(
-                self.src_dir, project, 'constr', toolchain
-            )
+            project_dict = get_project(project)
+
+            if 'toolchains' in project_dict:
+                toolchains_dict = project_dict['toolchains']
+            else:
+                continue
+
+            if toolchain not in toolchains_dict:
+                continue
 
             if toolchain not in self.MANDATORY_CONSTRAINTS.keys():
                 continue
 
-            if not os.path.exists(constraint_path):
-                continue
-
-            for constraint in os.listdir(constraint_path):
-                family, device, package, board, extension = get_device_info(
-                    constraint
+            for board in toolchains_dict[toolchain]:
+                assert get_constraint(
+                    project, board, toolchains_dict[toolchain][board],
+                    self.MANDATORY_CONSTRAINTS[toolchain]
                 )
 
-                if extension not in self.MANDATORY_CONSTRAINTS[toolchain]:
-                    continue
-
-                combinations.add(
-                    (project, toolchain, family, device, package, board)
-                )
+                combinations.add((project, toolchain, board))
 
         return combinations
 

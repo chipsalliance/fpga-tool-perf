@@ -7,7 +7,7 @@ MULTIPLE_RUN_ITERATIONS ?= 2
 
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
-SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/6/20200504-160845/symbiflow-arch-defs-install-3f537c97.tar.xz"
+SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/presubmit/install/206/20200526-034850/symbiflow-arch-defs-install-97519a47.tar.xz"
 
 all: format
 
@@ -18,7 +18,6 @@ conda:
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env
 	rm ${SYMBIFLOW_ARCHIVE}
-	cd third_party/prjxray && $(MAKE) build -j`nproc`
 
 run-tests:
 	python3 exhaust.py --build_type generic --fail
@@ -36,7 +35,7 @@ run-all:
 	$(MAKE) run-parameters-tests
 	$(MAKE) run-multiple-samples-tests
 
-PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*")
+PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
 
 format: ${PYTHON_SRCS}
 	yapf -i $?

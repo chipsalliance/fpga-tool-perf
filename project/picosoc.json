@@ -8,6 +8,14 @@
         "src/picosoc/progmem.v"
     ],
     "top": "top",
-    "name": "picosoc-wrap"
+    "name": "picosoc-wrap",
+    "toolchains": {
+        "vpr": {
+            "basys3": ["basys3.pcf", "basys3.sdc"]
+        },
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        }
+    }
 }
 

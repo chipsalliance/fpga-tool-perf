@@ -4,6 +4,14 @@
         "src/picosoc-spimemio/picosoc_spimemio_wrap.v"
     ],
     "top": "top",
-    "name": "picosoc-spimemio-wrap"
+    "name": "picosoc-spimemio-wrap",
+    "toolchains": {
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        },
+        "vpr": {
+            "basys3": ["basys3.pcf"]
+        }
+    }
 }
 

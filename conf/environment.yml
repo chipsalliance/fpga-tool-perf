@@ -1,14 +1,13 @@
 name: fpga-tool-perf-env
 channels:
-  - m-labs
   - conda-forge
-  - pkgw-forge
   - symbiflow
 dependencies:
   - yosys
   - yosys-plugins
-  - vtr=8.0.0.rc2_3864_g0ece2d2c1
-  - nextpnr-xilinx=0.0_2803_gda2b6c81
+  - vtr=8.0.0.rc2_3935_g7d6424bb0
+  - nextpnr-xilinx
+  - prjxray
   - pip
   - pip:                            # Packages installed from PyPI
     - -r file:requirements.txt

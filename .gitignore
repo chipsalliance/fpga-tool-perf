@@ -16,6 +16,7 @@ parsetab.py
 __pycache__
 *.py[cod]
 *$py.class
+conf/src
 
 # environment
 env

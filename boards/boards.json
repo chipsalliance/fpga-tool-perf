@@ -1,0 +1,22 @@
+{
+    "arty": {
+        "family": "xc7",
+        "device": "a35t",
+        "package": "csg324-1"
+    },
+    "basys3": {
+        "family": "xc7",
+        "device": "a35t",
+        "package": "cpg236-1"
+    },
+    "zybo": {
+        "family": "xc7",
+        "device": "z010",
+        "package": "clg400-1"
+    },
+    "nexys": {
+        "family": "xc7",
+        "device": "a200t",
+        "package": "fbg484-1"
+    }
+}

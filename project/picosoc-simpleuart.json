@@ -4,6 +4,14 @@
         "src/picosoc-simpleuart/picosoc_simpleuart_wrap.v"
     ],
     "top": "top",
-    "name": "picosoc-simpleuart-wrap"
+    "name": "picosoc-simpleuart-wrap",
+    "toolchains": {
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        },
+        "vpr": {
+            "basys3": ["basys3.pcf"]
+        }
+    }
 }
 

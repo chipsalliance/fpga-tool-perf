@@ -4,6 +4,16 @@
         "src/picorv32/picorv32_wrap.v"
     ],
     "top": "top",
-    "name": "picorv32-wrap"
+    "name": "picorv32-wrap",
+    "toolchains": {
+        "vivado": {
+            "arty": ["arty.xdc"],
+            "zybo": ["zybo.xdc"]
+        },
+        "vpr": {
+            "arty": ["arty.pcf"],
+            "zybo": ["zybo.pcf"]
+        }
+    }
 }
 

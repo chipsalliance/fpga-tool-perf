@@ -3,6 +3,31 @@
         "src/oneblink/oneblink.v"
         ],
     "top": "top",
-    "name": "oneblink"
+    "name": "oneblink",
+    "clocks": {
+        "clk": 10.0
+    },
+    "toolchains": {
+        "vpr": {
+            "arty": ["arty.pcf"],
+            "basys3": ["basys3.pcf"],
+            "zybo": ["zybo.pcf"]
+        },
+        "vpr-fasm2bels": {
+            "arty": ["arty.pcf"],
+            "basys3": ["basys3.pcf"],
+            "zybo": ["zybo.pcf"]
+        },
+        "vivado": {
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
+        },
+        "vivado-yosys": {
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
+        }
+    }
 }
 

@@ -65,7 +65,7 @@ class Runner:
         def eprint(*args, **kwargs):
             print(*args, file=sys.stderr, **kwargs)
 
-        project, toolchain, family, device, package, board, option, build = arglist
+        project, toolchain, board, option, build = arglist
 
         build = self.build_format.format(self.build or build)
 
@@ -74,9 +74,6 @@ class Runner:
         with redirect_stdout(open(os.devnull, 'w')):
             try:
                 run(
-                    family,
-                    device,
-                    package,
                     board,
                     toolchain,
                     project,
@@ -95,10 +92,7 @@ class Runner:
                 eprint("\n---------------------")
                 eprint(
                     "ERROR: {} {} {}{}{} {} test has failed (build type {}, build nr. {})\n"
-                    .format(
-                        project, toolchain, family, device, package, board,
-                        self.build_type, build
-                    )
+                    .format(project, toolchain, board, self.build_type, build)
                 )
                 eprint("ERROR MESSAGE: ", e)
                 eprint("---------------------\n")

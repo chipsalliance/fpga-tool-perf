@@ -10,6 +10,14 @@
         "src/murax/Murax.v_toplevel_system_ram_ram_symbol3.bin"
     ],
     "top": "toplevel",
-    "name": "murax"
+    "name": "murax",
+    "toolchains": {
+        "vpr": {
+            "basys3": ["basys3.pcf", "basys3.sdc"]
+        },
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        }
+    }
 }
 

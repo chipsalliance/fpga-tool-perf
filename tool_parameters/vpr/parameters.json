@@ -8,7 +8,7 @@
         "route_chan_width": [500],
         "router_heap": ["bucket"],
         "router_lookahead": ["connection_box_map"],
-        "quick_check_route": ["on"],
+        "check_route": ["quick"],
         "clock_modeling": ["route"],
         "place_delta_delay_matrix_calculation_method": ["dijkstra"],
         "strict_checks": ["off"],
