@@ -35,6 +35,7 @@ class Runner:
         root_dir,
         build_type,
         build=None,
+        seed=None,
         options=[]
     ):
         self.verbose = verbose
@@ -43,6 +44,7 @@ class Runner:
         self.build = int(build) if build else None
         self.build_format = "{:03d}"
         self.build_type = build_type
+        self.seed = seed
         self.results = dict()
 
         def add_tuple_to_tasks(tasks, tpl):
@@ -83,7 +85,7 @@ class Runner:
                     self.out_prefix,
                     self.verbose,
                     None,  #strategy
-                    None,  #seed
+                    self.seed,
                     None,  #carry
                     build,
                     self.build_type,
