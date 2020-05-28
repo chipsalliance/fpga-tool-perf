@@ -9,27 +9,26 @@
 # SPDX-License-Identifier: ISC
 
 export CONDA_DIR=$(pwd)/env/conda
-export PATH=$CONDA_DIR/bin:${PATH}
 (
-    if [[ ! -e ${CONDA_DIR}/bin/conda ]]; then
-        cd env && \
-        wget --no-verbose --continue https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-        chmod a+x Miniconda3-latest-Linux-x86_64.sh
-        (
-            export HOME=$CONDA_DIR
-            ./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f || exit 1
-        )
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b && rm Miniconda3-latest-Linux-x86_64.sh
 
-        conda config --system --add envs_dirs $CONDA_DIR/envs
-        conda config --system --add pkgs_dirs $CONDA_DIR/pkgs
-    fi
-    conda config --system --set always_yes yes
-    conda config --system --set changeps1 no
+    source $CONDA_DIR/etc/profile.d/conda.sh
+    conda config --system --set always_yes yes --set changeps1 no
+    conda config --add channels conda-forge
+    conda config --add channels symbiflow
     conda update -q conda
 
-    conda env create --file ../conf/environment.yml
-    conda init bash
-    source ~/.bashrc
+    conda install -c symbiflow yosys
+    conda install -c symbiflow yosys-plugins
+    conda install -c symbiflow vtr=8.0.0.rc2_3935_g7d6424bb0
+    conda install -c symbiflow nextpnr-xilinx
+    conda install -c symbiflow prjxray
+    conda install -c symbiflow pip
+
+    conda activate
+    pip install -r conf/requirements.txt
+    conda deactivate
 
     conda info -a
 )
