@@ -462,7 +462,7 @@ class NextpnrXilinx(Toolchain):
 
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
-        self.toolchain = 'nextpnr'
+        self.toolchain = 'nextpnr-xilinx'
         self.files = []
 
     def run(self):

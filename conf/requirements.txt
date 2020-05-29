@@ -9,7 +9,7 @@ intervaltree
 jinja2
 pytest
 pandas
--e git://github.com/SymbiFlow/fasm.git#egg=fasm
--e git://github.com/SymbiFlow/prjxray.git#egg=prjxray
--e git://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
--e git://github.com/antmicro/symbiflow-xc-fasm2bels.git@add-fasm2bels#egg=symbiflow-xc-fasm2bels
+git+https://github.com/SymbiFlow/fasm.git#egg=fasm
+git+https://github.com/antmicro/prjxray.git@add-setup-package#egg=prjxray
+git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
+git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git#egg=symbiflow-xc-fasm2bels

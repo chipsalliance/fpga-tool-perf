@@ -26,7 +26,8 @@ class Tasks:
             "vpr": "pcf",
             "vpr-fasm2bels": "pcf",
             "vivado-yosys": "xdc",
-            "nextpnr": "xdc",
+            "nextpnr-xilinx": "xdc",
+            "nextpnr-ice40": "pcf",
         }
 
         self.tasks = self.iter_options()

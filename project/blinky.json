@@ -14,7 +14,7 @@
         "vpr-fasm2bels": {
             "arty": ["arty.pcf"]
         },
-        "nextpnr": {
+        "nextpnr-xilinx": {
             "arty": ["arty.xdc"]
         }
     }
