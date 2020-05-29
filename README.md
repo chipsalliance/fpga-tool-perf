@@ -2,60 +2,24 @@
 
 Analyze FPGA tool performance (MHz, resources, runtime, etc)
 
-## Setup
+## Setup environment
 
-```
-$ git submodule init
-$ git submodule update
-```
-You'll need the following tools in your path:
-* vivado
-* yosys
-* vpr
-* arachne-pnr
-* icepack
-* icetime
-* icebox_hlc2asc
+FPGA tool perf uses the Anaconda (conda) package manager to install and get all the required tools.
+Currently, the following tools that are available in conda are:
 
-Variables you may need to set:
+- vtr
+- nextpnr-xilinx
+- yosys (+ yosys-plugins)
+- prjxray
 
-`SFAD_DIR`
-    What: symbiflow-arch-defs repository directory
-    Default: ~/symbiflow-arch-defs
+To setup the conda environment, run the following command:
 
-`ICECUBEDIR`
-    What: Lattice iCEcube2 software directory
-    Default: /opt/lscc/iCEcube2.2017.08
-
-`RADIANTDIR`
-    What: Lattice Radiant software directory
-    Default: /opt/lscc/radiant/1.0
-
-`VPR`
-    What: vpr tool to use
-    Default: system path? I've always set this to binary
-    ie: export VPR=~/vtr/vpr/vpr
-
-Once all the required environmental variables are set, run the following:
-
-```
-$ source settings.sh
+```bash
+make conda
 ```
 
-To prepare the python environment, run the following target:
-
-```
-$ make env
-```
-
-To use VPR you'll need to create architecture XML files
-As of this writing [symbiflow-arch-defs dd77600](https://github.com/SymbiFlow/symbiflow-arch-defs/tree/dd77600)
-is known to work
-
-To generate architecture files for vpr:
-```
-$ ./vpr_xml.sh
-```
+FPGA tool perf enables also to run the Vivado EDA tool. The tool is not available in the conda environment and it needs to be installed by the user.
+The user needs also to set the `VIVADO_SETTINGS` environmental variable, which points to the `settings64.sh` file to enable Vivado.
 
 ### Recommended versions
 
@@ -76,66 +40,52 @@ Versions:
   * [vpr](https://github.com/SymbiFlow/vtr-verilog-to-routing.git): git vpr-7.0.5+ice40-v0.0.0
   * [yosys](https://github.com/YosysHQ/yosys.git): git e275692e
 
+## Project structure
+
+This section is to describe the structure of this project to better understand its mechanisms.
+
+- the `project` directory contains all the information relative to a specific test. These information include:
+  - srcs: all the source files needed to run the test
+  - top: top level module name of the design
+  - name: project name
+  - clocks: all the input clocks of the design
+  - toolchains: all the toolchains that are enabled for this project. Moreover, each toolchain has a specific set of available boards with the various constraints files.
+
+- the `src` directory contains all the source files needed to build the test project. It also contains the constraints files relative to the various boards supported.
+- the `boards` directory contains a json file describing all the supported boards in this test suite.
+
 ## Running
 
-Quick start example:
+With the conda environment correctly installed, run the following to activate the environment:
+
+```bash
+source env.sh
 ```
-$ python3 fpgaperf.py --toolchain arachne --project oneblink --device "hx8k" --package "ct256" --board "breakout"
+
+Once the environment settings has been sourced, you are ready to proceed with the tests
+
+### Quick start example
+
 ```
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --board arty
+```
+
 or
+
 ```
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "a35t" --package "csg324-1" --board "basys3"
+$ python3 fpgaperf.py --toolchain vpr --project oneblink --board basys3
 ```
 
 For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
 
 ```
 # Yosys -> Vivado
-$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --family "xc7" --device "z020" --package "clg400-1" --board "basys3"
+$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --board basys3
 # Pure Vivado
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --family "xc7" --device "z020" --package "clg400-1" --board "basys3"
+$ python3 fpgaperf.py --toolchain vivado --project oneblink --board basys3
 ```
 
-Use --help to see all argument options:
-```
-$ python3 fpgaperf.py --help
-usage: fpgaperf.py [-h] [--verbose] [--overwrite] [--family FAMILY]
-                   [--device DEVICE] [--package PACKAGE] [--strategy STRATEGY]
-                   [--carry] [--no-carry]
-                   [--toolchain {arachne,icecube2-lse,icecube2-synpro,icecube2-yosys,nextpnr,radiant-lse,radiant-synpro,vivado,vivado-yosys,vpr}]
-                   [--list-toolchains]
-                   [--project {baselitex,ibex,murax,oneblink,picorv32,picosoc,picosoc_hx8kdemo,picosoc_simpleuart,picosoc_spimemio,vexriscv}]
-                   [--list-projects] [--seed SEED] [--list-seedable]
-                   [--check-env] [--out-dir OUT_DIR] [--out-prefix OUT_PREFIX]
-                   [--build BUILD]
-
-Analyze FPGA tool performance (MHz, resources, runtime, etc)
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --verbose
-  --overwrite
-  --family FAMILY       Device family
-  --device DEVICE       Device within family
-  --package PACKAGE     Device package
-  --strategy STRATEGY   Optimization strategy
-  --carry               Force carry / no carry (default: use tool default)
-  --no-carry            Force carry / no carry (default: use tool default)
-  --toolchain {arachne,icecube2-lse,icecube2-synpro,icecube2-yosys,nextpnr,radiant-lse,radiant-synpro,vivado,vivado-yosys,vpr}
-                        Tools to use
-  --list-toolchains
-  --project {baselitex,ibex,murax,oneblink,picorv32,picosoc,picosoc_hx8kdemo,picosoc_simpleuart,picosoc_spimemio,vexriscv}
-                        Source code to run on
-  --list-projects
-  --seed SEED           31 bit seed number to use, possibly directly mapped to
-                        PnR tool
-  --list-seedable
-  --check-env           Check if environment is present
-  --out-dir OUT_DIR     Output directory
-  --out-prefix OUT_PREFIX
-                        Auto named directory prefix (default: build)
-  --build BUILD         Build number
-```
+Use `--help` to see additional parameters for the `fpgaperf.py` script.
 
 Supported toolchains can be queried as follows:
 ```
@@ -180,40 +130,17 @@ picosoc_spimemio
 vexriscv
 ```
 
-Use exhaust.py to automatically try project-toolchain permutations:
-```
-$ python3 exhaust.py --help
-usage: exhaust.py [-h] [--family FAMILY] [--device DEVICE] [--package PACKAGE] [--board BOARD]
-                  [--project PROJECT] [--toolchain TOOLCHAIN]
-                  [--out-prefix OUT_PREFIX] [--dry] [--fail] [--verbose]
+### Exhaustive build
 
-Exhaustively try project-toolchain combinations
+Use `exhaust.py` to automatically test all projects, toolchain and boards supported
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --family FAMILY       device family
-  --device DEVICE       device
-  --package PACKAGE     device package
-  --package BOARD       target board
-  --project PROJECT     run given project only (default: all)
-  --toolchain TOOLCHAIN
-                        run given toolchain only (default: all)
-  --out-prefix OUT_PREFIX
-                        output directory prefix (default: build)
-  --dry                 print commands, don't invoke
-  --fail                fail on error
-  --verbose             verbose output
-```
-
-When executed without arguments, exhaust.py will try every project-toolchain-device
-permutation. Only permutations with existing constraint files will be built:
 ```
 $ python3 exhaust.py
 ```
 
 Its also possible to run a test against a single toolchain and/or project and/or device:
 ```
-$ python3 exhaust.py --device hx8k --package cm81 --project oneblink --toolchain nextpnr
+$ python3 exhaust.py --project blinky --toolchain nextpnr
 ```
 
 See build directory for output. Note in particular [build/all.json](build/all.json)
