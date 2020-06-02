@@ -15,6 +15,9 @@
         },
         "vivado": {
             "basys3": ["basys3.xdc"]
+        },
+        "vivado-yosys": {
+            "basys3": ["basys3.xdc"]
         }
     }
 }
