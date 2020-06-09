@@ -13,7 +13,7 @@ import edalize
 import glob
 
 from toolchain import Toolchain
-from utils import Timed, get_vivado_max_freq
+from utils import Timed, get_vivado_max_freq, have_exec
 
 
 class Vivado(Toolchain):
@@ -133,7 +133,6 @@ class Vivado(Toolchain):
     def seedable():
         return False
 
-    @staticmethod
     def check_env():
         return {
             'vivado': have_exec('vivado'),
@@ -234,6 +233,13 @@ class VivadoYosys(Vivado):
         Vivado.__init__(self, rootdir)
         self.synthtool = 'yosys'
         self.toolchain = 'yosys-vivado'
+
+    @staticmethod
+    def check_env():
+        return {
+            'yosys': have_exec('yosys'),
+            'vivado': have_exec('vivado'),
+        }
 
     @staticmethod
     def yosys_ver():
