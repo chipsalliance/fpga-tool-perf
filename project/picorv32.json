@@ -13,6 +13,9 @@
         "vpr": {
             "arty": ["arty.pcf"],
             "zybo": ["zybo.pcf"]
+        },
+        "nextpnr-xilinx": {
+            "arty": ["arty-nextpnr.xdc"]
         }
     }
 }

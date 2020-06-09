@@ -1,0 +1,23 @@
+{
+    "srcs": [
+        "src/attosoc/attosoc.v",
+        "src/attosoc/attosoc_top.v"
+    ],
+    "data": [
+        "src/attosoc/firmware.hex"
+    ],
+    "top": "top",
+    "name": "attosoc",
+    "toolchains": {
+        "nextpnr-xilinx": {
+            "arty": ["arty-nextpnr.xdc"]
+        },
+        "vivado": {
+            "arty": ["arty-nextpnr.xdc"]
+        },
+        "vpr": {
+            "arty": ["arty.pcf"]
+        }
+    }
+}
+
