@@ -508,11 +508,21 @@ class NextpnrXilinx(Toolchain):
                         {
                             'symbiflow':
                                 {
-                                    'part': chip,
-                                    'package': self.package,
-                                    'vendor': 'xilinx',
-                                    'builddir': '.',
-                                    'pnr': 'nextpnr'
+                                    'part':
+                                        chip,
+                                    'package':
+                                        self.package,
+                                    'vendor':
+                                        'xilinx',
+                                    'builddir':
+                                        '.',
+                                    'pnr':
+                                        'nextpnr',
+                                    'yosys_synth_options':
+                                        [
+                                            "-flatten", "-nowidelut", "-abc9",
+                                            "-arch xc7"
+                                        ]
                                 }
                         }
                 }
