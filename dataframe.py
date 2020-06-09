@@ -25,7 +25,7 @@ def get_clock_dataframe(results):
 
     for idx, design in enumerate(results['design']):
         clock = results['max_freq'][idx]
-        if clock:
+        if clock and type(clock) is dict:
             for key, value in clock.items():
                 designs.append(design)
                 clock_names.append(key)
@@ -35,9 +35,15 @@ def get_clock_dataframe(results):
                 setup_violation.append(value['setup_violation'])
                 clock_met.append(value['met'])
         else:
+            clock_name = None
+            actual_freq = None
+            if clock and type(clock) is float:
+                clock_name = 'clk'
+                actual_freq = clock
+
             designs.append(design)
-            clock_names.append(None)
-            actual_frequency.append(None)
+            clock_names.append(clock_name)
+            actual_frequency.append(actual_freq)
             requested_frequency.append(None)
             hold_violation.append(None)
             setup_violation.append(None)

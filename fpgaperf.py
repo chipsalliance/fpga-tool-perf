@@ -139,10 +139,10 @@ def print_stats(t):
 toolchains = {
     'vivado': Vivado,
     'vivado-yosys': VivadoYosys,
-    'arachne': Arachne,
     'vpr': VPR,
     'vpr-fasm2bels': VPRFasm2Bels,
-    'nextpnr': NextpnrXilinx,
+    'nextpnr-ice40': NextpnrIcestorm,
+    'nextpnr-xilinx': NextpnrXilinx,
     'icecube2-synpro': Icecube2Synpro,
     'icecube2-lse': Icecube2LSE,
     'icecube2-yosys': Icecube2Yosys,
