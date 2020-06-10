@@ -1,5 +1,7 @@
 import os
+import re
 import subprocess
+
 import edalize
 
 from toolchain import Toolchain
@@ -206,7 +208,7 @@ class VPR(Toolchain):
 
         freqs = dict()
         clocks = dict()
-        route_log = self.out_dir + '/route.log'
+        route_log = os.path.join(self.out_dir, 'route.log')
 
         intra_domain_processing = False
 
@@ -289,7 +291,7 @@ class VPR(Toolchain):
           SR_GND       : 24
         (...)
         """
-        pack_logfile = self.out_dir + "/pack.log"
+        pack_logfile = os.path.join(self.out_dir, "pack.log")
         resources = {}
         with open(pack_logfile, 'r') as fp:
             processing = False
@@ -537,13 +539,34 @@ class NextpnrXilinx(Toolchain):
             with Timed(self, 'bitstream'):
                 self.backend.build_main(self.project_name + '.bit')
 
-    def get_critical_paths(self, clocks, timing):
-        #TODO critical paths
-        return None
-
     def max_freq(self):
-        #TODO max freq
+        """Returns the max frequencies of the implemented design."""
+        def safe_division_by_zero(n, d):
+            return n / d if d else 0.0
+
+        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+
         clocks = dict()
+
+        with open(log_file, "r") as file:
+            in_routing = False
+            for line in file:
+                if "Routing.." in line:
+                    in_routing = True
+
+                if "Max frequency" in line and in_routing:
+                    regex = ".*\'(.*)\': ([0-9]*\.[0-9]*).*"
+                    match = re.match(regex, line)
+                    if match:
+                        clk_name = match.groups()[0]
+                        clk_freq = float(match.groups()[1])
+
+                        clocks[clk_name] = dict()
+                        clocks[clk_name]['actual'] = 1e6 * clk_freq
+                        clocks[clk_name]['requested'] = 0
+                        clocks[clk_name]['met'] = None
+                        clocks[clk_name]['setup_violation'] = 0
+                        clocks[clk_name]['hold_violation'] = 0
 
         return clocks
 
