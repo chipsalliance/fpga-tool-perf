@@ -1,5 +1,7 @@
 import os
+import re
 import subprocess
+
 import edalize
 
 from toolchain import Toolchain
@@ -206,7 +208,7 @@ class VPR(Toolchain):
 
         freqs = dict()
         clocks = dict()
-        route_log = self.out_dir + '/route.log'
+        route_log = os.path.join(self.out_dir, 'route.log')
 
         intra_domain_processing = False
 
@@ -289,7 +291,7 @@ class VPR(Toolchain):
           SR_GND       : 24
         (...)
         """
-        pack_logfile = self.out_dir + "/pack.log"
+        pack_logfile = os.path.join(self.out_dir, "pack.log")
         resources = {}
         with open(pack_logfile, 'r') as fp:
             processing = False
@@ -324,9 +326,8 @@ class VPR(Toolchain):
 
         res = self.get_resources()
 
-        for nlut in ['ALUT', 'BLUT', 'CLUT', 'DLUT']:
-            if nlut in res:
-                lut += res[nlut]
+        if 'lut' in res:
+            lut = res['lut']
 
         for nff in ['FDRE', 'FDSE', 'FDPE', 'FDCE']:
             if nff in res:
@@ -531,25 +532,76 @@ class NextpnrXilinx(Toolchain):
                 )
                 self.backend.configure("")
 
-            with Timed(self, 'fasm'):
-                self.backend.build_main(self.project_name + '.fasm')
+            self.backend.build_main(self.project_name + '.fasm')
 
             with Timed(self, 'bitstream'):
                 self.backend.build_main(self.project_name + '.bit')
 
-    def get_critical_paths(self, clocks, timing):
-        #TODO critical paths
-        return None
+            self.add_runtimes()
 
     def max_freq(self):
-        #TODO max freq
+        """Returns the max frequencies of the implemented design."""
+        def safe_division_by_zero(n, d):
+            return n / d if d else 0.0
+
+        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+
         clocks = dict()
+
+        with open(log_file, "r") as file:
+            in_routing = False
+            for line in file:
+                if "Routing.." in line:
+                    in_routing = True
+
+                if "Max frequency" in line and in_routing:
+                    regex = ".*\'(.*)\': ([0-9]*\.[0-9]*).*"
+                    match = re.match(regex, line)
+                    if match:
+                        clk_name = match.groups()[0]
+                        clk_freq = float(match.groups()[1])
+
+                        clocks[clk_name] = dict()
+                        clocks[clk_name]['actual'] = 1e6 * clk_freq
+                        clocks[clk_name]['requested'] = 0
+                        clocks[clk_name]['met'] = None
+                        clocks[clk_name]['setup_violation'] = 0
+                        clocks[clk_name]['hold_violation'] = 0
 
         return clocks
 
     def get_resources(self):
-        #TODO resources
-        resources = {}
+        """Returns a dictionary with the resources parsed from the nextpnr log file"""
+
+        resources = dict()
+
+        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+
+        with open(log_file, "r") as file:
+            processing = False
+            for line in file:
+                line = line.strip()
+
+                if "Device utilisation" in line:
+                    processing = True
+                    continue
+
+                if not processing:
+                    continue
+                else:
+                    if len(line) == 0:
+                        break
+
+                    res = line.split(":")
+                    res_type = res[1].strip()
+
+                    regex = "([0-9]*)\/.*"
+                    match = re.match(regex, res[2].lstrip())
+
+                    assert match
+
+                    res_count = int(match.groups()[0])
+                    resources[res_type] = res_count
 
         return resources
 
@@ -563,33 +615,98 @@ class NextpnrXilinx(Toolchain):
 
         res = self.get_resources()
 
-        if 'lut' in res:
-            lut = res['lut']
-        if 'REG_FDSE_or_FDRE' in res:
-            dff = dff = res['REG_FDSE_or_FDRE']
-        if 'CARRY4_VPR' in res:
-            carry = carry + res['CARRY4_VPR']
-        if 'outpad' in res:
-            iob = iob + res['outpad']
-        if 'inpad' in res:
-            iob = iob + res['inpad']
-        if 'RAMB18E1_Y0' in res:
-            bram += res['RAMB18E1_Y0']
-        if 'RAMB18E1_Y1' in res:
-            bram += res['RAMB18E1_Y1']
-        if 'PLLE2_ADV' in res:
-            pll = res['PLLE2_ADV']
+        if 'SLICE_LUTX' in res:
+            lut = res['SLICE_LUTX']
+        if 'SLICE_FFX' in res:
+            dff = dff = res['SLICE_FFX']
+        if 'CARRY4' in res:
+            carry = res['CARRY4']
+        if 'PAD' in res:
+            iob = iob + res['PAD']
+        if 'RAMB18E1_RAMB18E1' in res:
+            bram = res['RAMB18E1_RAMB18E1']
+        if 'PLLE2_ADV_PLLE2_ADV' in res:
+            pll = res['PLLE2_ADV_PLLE2_ADV']
 
         ret = {
-            "LUT": None,
-            "DFF": None,
-            "BRAM": None,
-            "CARRY": None,
+            "LUT": lut,
+            "DFF": dff,
+            "BRAM": bram,
+            "CARRY": carry,
             "GLB": None,
-            "PLL": None,
-            "IOB": None,
+            "PLL": pll,
+            "IOB": iob,
         }
         return ret
+
+    def get_yosys_runtimes(self, logfile):
+        log = dict()
+        with open(logfile, 'r') as fp:
+            for l in fp:
+                if 'CPU:' not in l:
+                    continue
+
+                times = l.split(",")[0].lstrip("CPU: ").split(" ")
+                usr_time = times[1].rstrip("s")
+                sys_time = times[3].rstrip("s")
+
+                time = float(usr_time) + float(sys_time)
+                log['synthesis'] = time
+
+                return log
+
+        assert False, "No run time found for yosys."
+
+    def get_nextpnr_runtimes(self, logfile):
+        log = dict()
+
+        placement = 0.0
+        routing = 0.0
+
+        with open(logfile, 'r') as fp:
+            for l in fp:
+                l = l.strip()
+                if len(l) == 0:
+                    continue
+
+                l = l.lstrip("Info: ")
+                heap_placer_string = "HeAP Placer Time: "
+                sa_placer_string = "SA placement time "
+
+                router1_string = "Router1 time "
+                router2_string = "Router2 time "
+
+                if heap_placer_string in l:
+                    time = float(l.lstrip(heap_placer_string).rstrip("s"))
+                    placement += time
+                elif sa_placer_string in l:
+                    time = float(l.lstrip(sa_placer_string).rstrip("s"))
+                    placement += time
+                elif router1_string in l:
+                    time = float(l.lstrip(router1_string).rstrip("s"))
+                    routing += time
+                elif router2_string in l:
+                    time = float(l.lstrip(router2_string).rstrip("s"))
+                    routing += time
+
+        log["place"] = placement
+        log["route"] = routing
+
+        return log
+
+    def add_runtimes(self):
+        """Returns the runtimes of the various steps"""
+
+        yosys_log = os.path.join(self.out_dir, 'yosys.log')
+        nextpnr_log = os.path.join(self.out_dir, 'nextpnr.log')
+
+        synth_times = self.get_yosys_runtimes(yosys_log)
+        impl_times = self.get_nextpnr_runtimes(nextpnr_log)
+
+        for t in synth_times:
+            self.add_runtime(t, synth_times[t])
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t])
 
     @staticmethod
     def yosys_ver():
