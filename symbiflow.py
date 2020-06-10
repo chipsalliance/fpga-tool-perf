@@ -326,9 +326,8 @@ class VPR(Toolchain):
 
         res = self.get_resources()
 
-        for nlut in ['ALUT', 'BLUT', 'CLUT', 'DLUT']:
-            if nlut in res:
-                lut += res[nlut]
+        if 'lut' in res:
+            lut = res['lut']
 
         for nff in ['FDRE', 'FDSE', 'FDPE', 'FDCE']:
             if nff in res:
@@ -571,8 +570,37 @@ class NextpnrXilinx(Toolchain):
         return clocks
 
     def get_resources(self):
-        #TODO resources
-        resources = {}
+        """Returns a dictionary with the resources parsed from the nextpnr log file"""
+
+        resources = dict()
+
+        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+
+        with open(log_file, "r") as file:
+            processing = False
+            for line in file:
+                line = line.strip()
+
+                if "Device utilisation" in line:
+                    processing = True
+                    continue
+
+                if not processing:
+                    continue
+                else:
+                    if len(line) == 0:
+                        break
+
+                    res = line.split(":")
+                    res_type = res[1].strip()
+
+                    regex = "([0-9]*)\/.*"
+                    match = re.match(regex, res[2].lstrip())
+
+                    assert match
+
+                    res_count = int(match.groups()[0])
+                    resources[res_type] = res_count
 
         return resources
 
@@ -586,31 +614,27 @@ class NextpnrXilinx(Toolchain):
 
         res = self.get_resources()
 
-        if 'lut' in res:
-            lut = res['lut']
-        if 'REG_FDSE_or_FDRE' in res:
-            dff = dff = res['REG_FDSE_or_FDRE']
-        if 'CARRY4_VPR' in res:
-            carry = carry + res['CARRY4_VPR']
-        if 'outpad' in res:
-            iob = iob + res['outpad']
-        if 'inpad' in res:
-            iob = iob + res['inpad']
-        if 'RAMB18E1_Y0' in res:
-            bram += res['RAMB18E1_Y0']
-        if 'RAMB18E1_Y1' in res:
-            bram += res['RAMB18E1_Y1']
-        if 'PLLE2_ADV' in res:
-            pll = res['PLLE2_ADV']
+        if 'SLICE_LUTX' in res:
+            lut = res['SLICE_LUTX']
+        if 'SLICE_FFX' in res:
+            dff = dff = res['SLICE_FFX']
+        if 'CARRY4' in res:
+            carry = res['CARRY4']
+        if 'PAD' in res:
+            iob = iob + res['PAD']
+        if 'RAMB18E1_RAMB18E1' in res:
+            bram = res['RAMB18E1_RAMB18E1']
+        if 'PLLE2_ADV_PLLE2_ADV' in res:
+            pll = res['PLLE2_ADV_PLLE2_ADV']
 
         ret = {
-            "LUT": None,
-            "DFF": None,
-            "BRAM": None,
-            "CARRY": None,
+            "LUT": lut,
+            "DFF": dff,
+            "BRAM": bram,
+            "CARRY": carry,
             "GLB": None,
-            "PLL": None,
-            "IOB": None,
+            "PLL": pll,
+            "IOB": iob,
         }
         return ret
 
