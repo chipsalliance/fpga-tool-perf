@@ -532,11 +532,12 @@ class NextpnrXilinx(Toolchain):
                 )
                 self.backend.configure("")
 
-            with Timed(self, 'fasm'):
-                self.backend.build_main(self.project_name + '.fasm')
+            self.backend.build_main(self.project_name + '.fasm')
 
             with Timed(self, 'bitstream'):
                 self.backend.build_main(self.project_name + '.bit')
+
+            self.add_runtimes()
 
     def max_freq(self):
         """Returns the max frequencies of the implemented design."""
@@ -637,6 +638,75 @@ class NextpnrXilinx(Toolchain):
             "IOB": iob,
         }
         return ret
+
+    def get_yosys_runtimes(self, logfile):
+        log = dict()
+        with open(logfile, 'r') as fp:
+            for l in fp:
+                if 'CPU:' not in l:
+                    continue
+
+                times = l.split(",")[0].lstrip("CPU: ").split(" ")
+                usr_time = times[1].rstrip("s")
+                sys_time = times[3].rstrip("s")
+
+                time = float(usr_time) + float(sys_time)
+                log['synthesis'] = time
+
+                return log
+
+        assert False, "No run time found for yosys."
+
+    def get_nextpnr_runtimes(self, logfile):
+        log = dict()
+
+        placement = 0.0
+        routing = 0.0
+
+        with open(logfile, 'r') as fp:
+            for l in fp:
+                l = l.strip()
+                if len(l) == 0:
+                    continue
+
+                l = l.lstrip("Info: ")
+                heap_placer_string = "HeAP Placer Time: "
+                sa_placer_string = "SA placement time "
+
+                router1_string = "Router1 time "
+                router2_string = "Router2 time "
+
+                if heap_placer_string in l:
+                    time = float(l.lstrip(heap_placer_string).rstrip("s"))
+                    placement += time
+                elif sa_placer_string in l:
+                    time = float(l.lstrip(sa_placer_string).rstrip("s"))
+                    placement += time
+                elif router1_string in l:
+                    time = float(l.lstrip(router1_string).rstrip("s"))
+                    routing += time
+                elif router2_string in l:
+                    time = float(l.lstrip(router2_string).rstrip("s"))
+                    routing += time
+
+        log["place"] = placement
+        log["route"] = routing
+
+        return log
+
+    def add_runtimes(self):
+        """Returns the runtimes of the various steps"""
+
+        yosys_log = os.path.join(self.out_dir, 'yosys.log')
+        nextpnr_log = os.path.join(self.out_dir, 'nextpnr.log')
+
+        synth_times = self.get_yosys_runtimes(yosys_log)
+        impl_times = self.get_nextpnr_runtimes(nextpnr_log)
+
+        for t in synth_times:
+            self.add_runtime(t, synth_times[t])
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t])
 
     @staticmethod
     def yosys_ver():
