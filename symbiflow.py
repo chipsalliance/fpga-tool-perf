@@ -640,17 +640,14 @@ class NextpnrXilinx(Toolchain):
         return ret
 
     def get_yosys_runtimes(self, logfile):
+        runtime_re = 'CPU: user (\d+\.\d+)s system (\d+\.\d+)s'
         log = dict()
         with open(logfile, 'r') as fp:
             for l in fp:
-                if 'CPU:' not in l:
+                m = re.search(runtime_re, l)
+                if not m:
                     continue
-
-                times = l.split(",")[0].lstrip("CPU: ").split(" ")
-                usr_time = times[1].rstrip("s")
-                sys_time = times[3].rstrip("s")
-
-                time = float(usr_time) + float(sys_time)
+                time = float(m[1]) + float(m[2])
                 log['synthesis'] = time
 
                 return log
