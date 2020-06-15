@@ -10,7 +10,7 @@ ERROR_FILES_SHEBANG=""
 ERROR_FILES_UTF_CODING=""
 FILES_TO_CHECK=`find . \
     -size +0 -type f \( -name '*.py' \) \
-    \( -not -path "*/.*/*" -not -path "*/third_party/*" -not -path "*/env/*" \)`
+    \( -not -path "*/.*/*" -not -path "*/third_party/*" -not -path "*/env/*" -not -path "*/conf/src/*" \)`
 
 for file in $FILES_TO_CHECK; do
     echo "Checking $file"
