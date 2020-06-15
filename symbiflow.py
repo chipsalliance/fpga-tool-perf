@@ -3,7 +3,7 @@ import subprocess
 import edalize
 
 from toolchain import Toolchain
-from utils import Timed, get_vivado_max_freq
+from utils import Timed, get_vivado_max_freq, have_exec
 from tool_parameters import ToolParametersHelper
 
 
@@ -406,7 +406,7 @@ class VPR(Toolchain):
     def check_env():
         return {
             'yosys': have_exec('yosys'),
-            'vpr': have_exec(VPR.vpr_bin()),
+            'vpr': have_exec('vpr'),
         }
 
 
@@ -614,5 +614,5 @@ class NextpnrXilinx(Toolchain):
     def check_env():
         return {
             'yosys': have_exec('yosys'),
-            'nextpnr': have_exec(NextpnrXilinx.nextpnr_bin()),
+            'nextpnr': have_exec('nextpnr-xilinx'),
         }

@@ -1,5 +1,5 @@
 import time
-
+import os
 
 class Timed:
     def __init__(self, t, name):
@@ -72,3 +72,25 @@ def get_vivado_max_freq(report_file):
                         if path_type != ptype.split()[0]:
                             path_type = ptype.split()[0]
     return freqs
+
+
+    # https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
+def have_exec(mybin):
+    return which(mybin) != None

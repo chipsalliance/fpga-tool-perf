@@ -1,0 +1,13 @@
+#-----------------------------------------------------------
+# Vivado v2017.2 (64-bit)
+# SW Build 1909853 on Thu Jun 15 18:39:10 MDT 2017
+# IP Build 1909766 on Thu Jun 15 19:58:00 MDT 2017
+# Start of session at: Thu Jun 11 12:28:42 2020
+# Process ID: 22887
+# Current directory: /home/student/fpga-tool-perf/bad/oneblink_vivado_xc7_a35tcpg236-1_basys3_justforfun_2_xdc_carry-n
+# Command line: vivado -notrace -mode batch -source oneblink.tcl
+# Log file: /home/student/fpga-tool-perf/bad/oneblink_vivado_xc7_a35tcpg236-1_basys3_justforfun_2_xdc_carry-n/vivado.log
+# Journal file: /home/student/fpga-tool-perf/bad/oneblink_vivado_xc7_a35tcpg236-1_basys3_justforfun_2_xdc_carry-n/vivado.jou
+#-----------------------------------------------------------
+source oneblink.tcl -notrace
+INFO: [Common 17-206] Exiting Vivado at Thu Jun 11 12:28:57 2020...

@@ -39,28 +39,6 @@ class NotAvailable:
     pass
 
 
-# https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-def which(program):
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
-
-
-def have_exec(mybin):
-    return which(mybin) != None
-
-
 def print_stats(t):
     def print_section_header(title):
         print('')
@@ -193,6 +171,7 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
+    print("\nGetting Constraints....")
     pcf = get_constraint(
         project, board, project_dict['toolchains'][toolchain][board], 'pcf'
     )
@@ -210,6 +189,7 @@ def run(
     t.build = build
     t.build_type = build_type
 
+    print("\nStarting Project.......")
     t.project(
         project_dict,
         family,
@@ -222,8 +202,11 @@ def run(
         out_prefix=out_prefix,
     )
 
+    print("\nRunning Project........")
     t.run()
+    print("\nPrinting Stats.........")
     print_stats(t)
+    print("\nWriting Metadata.......")
     t.write_metadata()
 
 
@@ -294,7 +277,7 @@ def env_ready():
 
 def get_constraint(project, board, constr_list, extension):
     constr_file = [v for v in constr_list if v.endswith(extension)]
-
+    
     if not constr_file:
         return None
 
@@ -327,6 +310,7 @@ def add_bool_arg(parser, yes_arg, default=False, **kwargs):
 def main():
     import argparse
 
+    print("Parsing Arguments......")
     parser = argparse.ArgumentParser(
         description=
         'Analyze FPGA tool performance (MHz, resources, runtime, etc)'
@@ -382,12 +366,16 @@ def main():
     assert not (args.params_file and args.params_string)
 
     if args.list_toolchains:
+        print("\nListing Toolchains.....")
         list_toolchains()
     elif args.list_projects:
+        print("\nListing Projects.......")
         list_projects()
     elif args.list_seedable:
+        print("\nListing Seedables......")
         list_seedable()
     elif args.check_env:
+        print("\nChecking Environment...")
         check_env(args.toolchain)
     else:
         argument_errors = []
@@ -403,7 +391,7 @@ def main():
             for e in argument_errors:
                 print('{}: error: {}'.format(sys.argv[0], e))
             sys.exit(1)
-
+        print("\nContinuing.............")
         seed = int(args.seed, 0) if args.seed else None
         run(
             args.board,

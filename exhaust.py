@@ -46,7 +46,7 @@ def print_summary_table(out_prefix, build_type, build_nr=None):
             pattern += '([^_]*)_'
         pattern += '(.*)'
 
-        row = list(re.match(pattern, build).groups())
+        row = list((re.match(pattern, build)).groups())
 
         if build_type != row[5] or (build_nr and int(build_nr) != int(row[6])):
             continue
@@ -79,6 +79,8 @@ def print_summary_table(out_prefix, build_type, build_nr=None):
 
 def main():
     import argparse
+    print("Parsing Arguments........")
+
     parser = argparse.ArgumentParser(
         description='Exhaustively try project-toolchain combinations'
     )
@@ -120,6 +122,7 @@ def main():
 
     args_dict = {"project": args.project, "toolchain": args.toolchain}
 
+    print("\nGetting Tasks............")
     task_list = tasks.get_tasks(args_dict)
 
     params_file = args.parameters
@@ -138,9 +141,12 @@ def main():
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
         args.build, params_strings
     )
+    print("\nRunning Project..........") 
     runner.run()
+    print("\nCollecting Results.......") 
     runner.collect_results()
 
+    print("\nPrinting Summary Table...")
     result = print_summary_table(args.out_prefix, args.build_type, args.build)
 
     if not result and args.fail:

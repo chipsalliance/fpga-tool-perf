@@ -8,8 +8,8 @@ import shutil
 import sys
 import glob
 import datetime
-from utils import Timed
 
+from utils import Timed, get_vivado_max_freq, have_exec
 
 class Toolchain:
     '''A toolchain takes in verilog files and produces a .bitstream'''

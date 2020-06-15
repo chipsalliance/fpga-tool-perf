@@ -1,0 +1,24 @@
+{
+    "srcs": [
+        "src/counter/counter_basys3.v"
+        ],
+    "top": "top",
+    "name": "counter",
+    "clocks": {
+        "clk": 10.0
+    },
+    "toolchains": {
+        "vpr": {
+            "basys3": ["basys3.pcf"]
+        },
+        "vpr-fasm2bels": {
+            "basys3": ["basys3.pcf"]
+        },
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        },
+        "vivado-yosys": {
+            "basys3": ["basys3.xdc"]
+        }
+    }
+}

@@ -1,0 +1,53 @@
+{
+    "board": "basys3",
+    "build": "2",
+    "build_type": "justforfun",
+    "carry": false,
+    "cmds": [],
+    "date": "2020-06-11T18:28:42",
+    "design": "oneblink_vivado_xc7_a35tcpg236-1_basys3_justforfun_2_xdc_carry-n",
+    "device": "a35t",
+    "family": "xc7",
+    "max_freq": {},
+    "optstr": "xdc_carry-n",
+    "package": "cpg236-1",
+    "parameters": null,
+    "pcf": null,
+    "project": "oneblink",
+    "resources": {
+        "BRAM": "0",
+        "CARRY": "6",
+        "DFF": "24",
+        "GLB": null,
+        "IOB": "2",
+        "LUT": "1",
+        "PLL": "0"
+    },
+    "runtime": {
+        "bitstream": 16,
+        "checkpoint": null,
+        "fasm": null,
+        "fasm2bels": null,
+        "nop": 0.003,
+        "optimization": 9,
+        "packing": null,
+        "placement": null,
+        "prepare": 0.131,
+        "reports": null,
+        "routing": 18,
+        "synthesis": 26,
+        "total": 161.048
+    },
+    "sdc": null,
+    "seed": null,
+    "sources": [
+        "./src/oneblink/oneblink.v"
+    ],
+    "strategy": null,
+    "toolchain": "vivado",
+    "top": "top",
+    "versions": {
+        "vivado": "unknown"
+    },
+    "xdc": "basys3.xdc"
+}

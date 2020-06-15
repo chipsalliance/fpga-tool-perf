@@ -1,7 +1,8 @@
 import os
 
 from toolchain import Toolchain
-from utils import Timed
+from utils import Timed, get_vivado_max_freq, have_exec
+
 
 
 # no seed support?
