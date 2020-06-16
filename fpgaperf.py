@@ -171,6 +171,8 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
+    if verbose:
+        print("\nGetting Constraints....")
     pcf = get_constraint(
         project, board, project_dict['toolchains'][toolchain][board], 'pcf'
     )
@@ -188,6 +190,8 @@ def run(
     t.build = build
     t.build_type = build_type
 
+    if verbose:
+        print("\nStarting Project.......")
     t.project(
         project_dict,
         family,
@@ -200,8 +204,13 @@ def run(
         out_prefix=out_prefix,
     )
 
+    if verbose:
+        print("\nRunning Project........")
     t.run()
-    print_stats(t)
+    if verbose:
+        print("\nPrinting Stats.........")
+        print_stats(t)
+        print("\nWriting Metadata.......\n")
     t.write_metadata()
 
 
@@ -356,16 +365,26 @@ def main():
     parser.add_argument('--build', default=None, help='Build number')
     parser.add_argument('--build_type', default=None, help='Build type')
     args = parser.parse_args()
+    if args.verbose:
+        print("Parsing Arguments......")
 
     assert not (args.params_file and args.params_string)
 
     if args.list_toolchains:
+        if args.verbose:
+            print("\nListing Toolchains.....")
         list_toolchains()
     elif args.list_projects:
+        if args.verbose:
+            print("\nListing Projects.......")
         list_projects()
     elif args.list_seedable:
+        if args.verbose:
+            print("\nListing Seedables......")
         list_seedable()
     elif args.check_env:
+        if args.verbose:
+            print("\nChecking Environment...")
         check_env(args.toolchain)
     else:
         argument_errors = []
@@ -381,8 +400,11 @@ def main():
             for e in argument_errors:
                 print('{}: error: {}'.format(sys.argv[0], e))
             sys.exit(1)
-
         seed = int(args.seed, 0) if args.seed else None
+
+        if args.verbose:    
+            print("\nContinuing.............")
+        
         run(
             args.board,
             args.toolchain,
