@@ -10,6 +10,10 @@
             "arty": ["arty.xdc"],
             "zybo": ["zybo.xdc"]
         },
+        "vivado-yosys": {
+            "arty": ["arty.xdc"],
+            "zybo": ["zybo.xdc"]
+        },
         "vpr": {
             "arty": ["arty.pcf"],
             "zybo": ["zybo.pcf"]
