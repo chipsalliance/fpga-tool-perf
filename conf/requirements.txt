@@ -10,6 +10,6 @@ jinja2
 pytest
 pandas
 git+https://github.com/SymbiFlow/fasm.git#egg=fasm
-git+https://github.com/SymbiFlow/prjxray.git#egg=prjxray
+git+https://github.com/antmicro/prjxray.git@temporary-add-utils-package#egg=prjxray
 git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
 git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git#egg=symbiflow-xc-fasm2bels
