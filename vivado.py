@@ -24,6 +24,7 @@ class Vivado(Toolchain):
         Toolchain.__init__(self, rootdir)
         self.toolchain = 'vivado'
         self.synthtool = 'vivado'
+        self.synthoptions = []
         self.files = []
         self.edam = None
         self.backend = None
@@ -115,6 +116,7 @@ class Vivado(Toolchain):
                                 'part': chip,
                                 'synth': self.synthtool,
                                 'vivado-settings': vivado_settings,
+                                'yosys_synth_options': self.synthoptions,
                             }
                     }
             }
@@ -232,6 +234,7 @@ class VivadoYosys(Vivado):
     def __init__(self, rootdir):
         Vivado.__init__(self, rootdir)
         self.synthtool = 'yosys'
+        self.synthoptions = ['-iopad', '-arch xc7', '-abc9', '-flatten']
         self.toolchain = 'yosys-vivado'
 
     @staticmethod

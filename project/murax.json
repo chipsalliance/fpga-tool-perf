@@ -15,6 +15,9 @@
         "vpr": {
             "basys3": ["basys3.pcf", "basys3.sdc"]
         },
+        "vivado-yosys": {
+            "basys3": ["basys3.xdc"]
+        },
         "vivado": {
             "basys3": ["basys3.xdc"]
         }

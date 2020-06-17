@@ -17,6 +17,9 @@
         "vivado": {
             "arty": ["arty-vivado.xdc"]
         },
+        "vivado-yosys": {
+            "arty": ["arty-vivado.xdc"]
+        },
         "vpr": {
             "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
         },
