@@ -1,4 +1,4 @@
-module top (input clk_i, input [3:0] sw, output [11:0] led);
+module top (input clk_i, output [11:0] led);
 
     //assign led = {&sw, |sw, ^sw, ~^sw};
 

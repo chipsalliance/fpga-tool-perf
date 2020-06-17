@@ -10,8 +10,4 @@ set_io led[8] E1
 set_io led[9] G4 
 set_io led[10] H4
 set_io led[11] K2
-set_io sw[0] A8
-set_io sw[1] C11
-set_io sw[2] C10
-set_io sw[3] A10
 set_io clk_i E3

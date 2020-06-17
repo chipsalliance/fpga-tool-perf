@@ -27,6 +27,7 @@ class Tasks:
             "vpr-fasm2bels": "pcf",
             "vivado-yosys": "xdc",
             "nextpnr-xilinx": "xdc",
+            "nextpnr-xilinx-fasm2bels": "xdc",
             "nextpnr-ice40": "pcf",
         }
 
