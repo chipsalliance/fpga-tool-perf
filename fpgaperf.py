@@ -20,9 +20,8 @@ from icestorm import NextpnrIcestorm
 from icestorm import Arachne
 from vivado import Vivado
 from vivado import VivadoYosys
-from symbiflow import VPR
-from symbiflow import VPRFasm2Bels
-from symbiflow import NextpnrXilinx
+from symbiflow import VPR, NextpnrXilinx
+from fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from radiant import RadiantSynpro
 from radiant import RadiantLSE
 from icecube import Icecube2Synpro
@@ -121,6 +120,7 @@ toolchains = {
     'vpr-fasm2bels': VPRFasm2Bels,
     'nextpnr-ice40': NextpnrIcestorm,
     'nextpnr-xilinx': NextpnrXilinx,
+    'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
     'icecube2-synpro': Icecube2Synpro,
     'icecube2-lse': Icecube2LSE,
     'icecube2-yosys': Icecube2Yosys,
