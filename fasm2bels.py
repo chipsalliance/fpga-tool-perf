@@ -37,16 +37,11 @@ class VPRFasm2Bels(VPR):
         return get_vivado_max_freq(report_file)
 
     def run_steps(self):
-        with Timed(self, 'synthesis'):
-            self.backend.build_main(self.top + '.eblif')
-        with Timed(self, 'pack'):
-            self.backend.build_main(self.top + '.net')
-        with Timed(self, 'place'):
-            self.backend.build_main(self.top + '.place')
-        with Timed(self, 'route'):
-            self.backend.build_main(self.top + '.route')
-        with Timed(self, 'fasm'):
-            self.backend.build_main(self.top + '.fasm')
+        self.backend.build_main(self.top + '.eblif')
+        self.backend.build_main(self.top + '.net')
+        self.backend.build_main(self.top + '.place')
+        self.backend.build_main(self.top + '.route')
+        self.backend.build_main(self.top + '.fasm')
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.top + '.bit')
         with Timed(self, 'fasm2bels'):

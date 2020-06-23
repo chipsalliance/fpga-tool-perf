@@ -21,16 +21,11 @@ class VPR(Toolchain):
         self.dbroot = None
 
     def run_steps(self):
-        with Timed(self, 'synthesis'):
-            self.backend.build_main(self.top + '.eblif')
-        with Timed(self, 'pack'):
-            self.backend.build_main(self.top + '.net')
-        with Timed(self, 'place'):
-            self.backend.build_main(self.top + '.place')
-        with Timed(self, 'route'):
-            self.backend.build_main(self.top + '.route')
-        with Timed(self, 'fasm'):
-            self.backend.build_main(self.top + '.fasm')
+        self.backend.build_main(self.top + '.eblif')
+        self.backend.build_main(self.top + '.net')
+        self.backend.build_main(self.top + '.place')
+        self.backend.build_main(self.top + '.route')
+        self.backend.build_main(self.top + '.fasm')
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.top + '.bit')
 
@@ -141,6 +136,7 @@ class VPR(Toolchain):
                 self.backend.configure("")
 
             self.run_steps()
+            self.add_runtimes()
 
     def get_tool_params(self):
         if self.params_file:
@@ -356,6 +352,58 @@ class VPR(Toolchain):
             "IOB": str(iob),
         }
         return ret
+
+    def get_yosys_runtimes(self, logfile):
+        runtime_re = 'CPU: user (\d+\.\d+)s system (\d+\.\d+)s'
+        log = dict()
+        with open(logfile, 'r') as fp:
+            for l in fp:
+                m = re.search(runtime_re, l)
+                if not m:
+                    continue
+                time = float(m[1]) + float(m[2])
+                log['synthesis'] = time
+
+                return log
+
+        assert False, "No run time found for yosys."
+
+    def get_vpr_runtimes(self):
+        def get_step_runtime(step, logfile, position):
+            with open(logfile, 'r') as fp:
+                for l in fp:
+                    l = l.strip()
+                    if '{} took'.format(step) in l:
+                        return float(l.split()[position])
+
+        log = dict()
+
+        pack_log = os.path.join(self.out_dir, 'pack.log')
+        place_log = os.path.join(self.out_dir, 'place.log')
+        route_log = os.path.join(self.out_dir, 'route.log')
+        fasm_log = os.path.join(self.out_dir, 'fasm.log')
+
+        log['pack'] = get_step_runtime('Packing', pack_log, 3)
+        log['place'] = get_step_runtime('Placement', place_log, 3)
+        log['route'] = get_step_runtime('Routing', route_log, 3)
+        # XXX: Need add to genfasm the amount of time it took to create the fasm file.
+        #      For now the whole command execution time is considered
+        log['fasm'] = get_step_runtime('The entire flow of VPR', fasm_log, 6)
+
+        return log
+
+    def add_runtimes(self):
+        """Returns the runtimes of the various steps"""
+
+        yosys_log = os.path.join(self.out_dir, '{}_synth.log'.format(self.top))
+
+        synth_times = self.get_yosys_runtimes(yosys_log)
+        impl_times = self.get_vpr_runtimes()
+
+        for t in synth_times:
+            self.add_runtime(t, synth_times[t])
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t])
 
     @staticmethod
     def yosys_ver():
