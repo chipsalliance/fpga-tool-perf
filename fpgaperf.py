@@ -403,6 +403,7 @@ def main():
         if args.verbose:    
             print("\nContinuing.............")
         seed = int(args.seed, 0) if args.seed else None
+
         run(
             args.board,
             args.toolchain,

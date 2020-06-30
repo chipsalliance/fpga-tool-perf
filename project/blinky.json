@@ -16,6 +16,12 @@
         },
         "nextpnr-xilinx": {
             "arty": ["arty.xdc"]
+        },
+        "vivado": {
+            "arty": ["arty.xdc"]
+        },
+        "vivado-yosys": {
+            "arty": ["arty.xdc"]
         }
     }
 }

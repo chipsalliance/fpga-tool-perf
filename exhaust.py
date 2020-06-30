@@ -148,7 +148,7 @@ def main():
         print("\nRunning Project..........") 
     runner.run()
     if args.verbose:
-        print("\nCollecting Results.......") 
+        print("\nCollecting Results.......")
     runner.collect_results()
 
     if args.verbose:

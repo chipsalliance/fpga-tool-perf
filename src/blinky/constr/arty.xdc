@@ -49,3 +49,5 @@ set_property IOSTANDARD LVCMOS33 [get_ports sw[3]]
 
 set_property LOC E3 [get_ports clk_i]
 set_property IOSTANDARD LVCMOS33 [get_ports clk_i]
+
+create_clock -period 10.0 [get_ports clk_i]
