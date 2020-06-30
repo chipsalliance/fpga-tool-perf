@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<Runs Version="1" Minor="0">
-	<Run Id="synth_1" LaunchDir="/home/student/fpga-tool-perf/bad/oneblink_vivado_xc7_a35tcpg236-1_basys3_justforfun_2_xdc_carry-n/oneblink.runs/synth_1" FlowId="Vivado_Synthesis" FromStepId="vivado" ToStepId="vivado"/>
-</Runs>
-
