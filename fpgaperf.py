@@ -11,6 +11,7 @@ import sys
 import glob
 import datetime
 import edalize
+import logging
 from terminaltables import AsciiTable
 
 from toolchain import Toolchain
@@ -171,8 +172,7 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
-    if verbose:
-        print("\nGetting Constraints....")
+    logging.info("\nGetting Constraints....")
     pcf = get_constraint(
         project, board, project_dict['toolchains'][toolchain][board], 'pcf'
     )
@@ -190,8 +190,7 @@ def run(
     t.build = build
     t.build_type = build_type
 
-    if verbose:
-        print("\nStarting Project.......")
+    logging.info("\nStarting Project.......")
     t.project(
         project_dict,
         family,
@@ -204,13 +203,11 @@ def run(
         out_prefix=out_prefix,
     )
 
-    if verbose:
-        print("\nRunning Project........")
+    logging.info("\nRunning Project........")
     t.run()
-    if verbose:
-        print("\nPrinting Stats.........")
-        print_stats(t)
-        print("\nWriting Metadata.......\n")
+    logging.info("\nPrinting Stats.........")
+    print_stats(t)
+    logging.info("\nWriting Metadata.......\n")
     t.write_metadata()
 
 
@@ -366,25 +363,22 @@ def main():
     parser.add_argument('--build_type', default=None, help='Build type')
     args = parser.parse_args()
     if args.verbose:
-        print("Parsing Arguments......")
+        logging.basicConfig(format='%(message)s', level=logging.INFO)
+    logging.info("Parsing Arguments......")
 
     assert not (args.params_file and args.params_string)
 
     if args.list_toolchains:
-        if args.verbose:
-            print("\nListing Toolchains.....")
+        logging.info("\nListing Toolchains.....")
         list_toolchains()
     elif args.list_projects:
-        if args.verbose:
-            print("\nListing Projects.......")
+        logging.info("\nListing Projects.......")
         list_projects()
     elif args.list_seedable:
-        if args.verbose:
-            print("\nListing Seedables......")
+        logging.info("\nListing Seedables......")
         list_seedable()
     elif args.check_env:
-        if args.verbose:
-            print("\nChecking Environment...")
+        logging.info("\nChecking Environment...")
         check_env(args.toolchain)
     else:
         argument_errors = []
@@ -400,8 +394,7 @@ def main():
             for e in argument_errors:
                 print('{}: error: {}'.format(sys.argv[0], e))
             sys.exit(1)
-        if args.verbose:    
-            print("\nContinuing.............")
+        logging.info("\nContinuing.............")
         seed = int(args.seed, 0) if args.seed else None
 
         run(

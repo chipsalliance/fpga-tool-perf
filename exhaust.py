@@ -6,6 +6,7 @@ import glob
 import time
 import re
 import pathlib
+import logging
 from terminaltables import AsciiTable
 from colorclass import Color
 
@@ -118,14 +119,14 @@ def main():
 
     args = parser.parse_args()
     if args.verbose:
-        print("Parsing Arguments........")
+        logging.basicConfig(format='%(message)s', level=logging.INFO)
+    logging.info("Parsing Arguments........")
 
     tasks = Tasks(src_dir)
 
     args_dict = {"project": args.project, "toolchain": args.toolchain}
 
-    if args.verbose:
-        print("\nGetting Tasks............")
+    logging.info("\nGetting Tasks............")
     task_list = tasks.get_tasks(args_dict)
 
     params_file = args.parameters
@@ -144,15 +145,12 @@ def main():
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
         args.build, params_strings
     )
-    if args.verbose:
-        print("\nRunning Project..........") 
+    logging.info("\nRunning Project..........") 
     runner.run()
-    if args.verbose:
-        print("\nCollecting Results.......")
+    logging.info("\nCollecting Results.......")
     runner.collect_results()
 
-    if args.verbose:
-        print("\nPrinting Summary Table...")
+    logging.info("\nPrinting Summary Table...")
     result = print_summary_table(args.out_prefix, args.build_type, args.build)
 
     if not result and args.fail:
