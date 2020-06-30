@@ -18,5 +18,15 @@
         "family": "xc7",
         "device": "a200t",
         "package": "fbg484-1"
+    },
+    "icebreaker": {
+        "family": "ice40",
+        "device": "up5k",
+        "package": "sg48"
+    },
+    "tinyfpgab2": {
+        "family": "ice40",
+        "device": "lp8k",
+        "package": "cm81"
     }
 }

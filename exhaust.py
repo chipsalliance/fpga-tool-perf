@@ -5,6 +5,7 @@ import os
 import glob
 import time
 import re
+import pathlib
 from terminaltables import AsciiTable
 from colorclass import Color
 
@@ -79,7 +80,6 @@ def print_summary_table(out_prefix, build_type, build_nr=None):
 
 def main():
     import argparse
-    print("Parsing Arguments........")
 
     parser = argparse.ArgumentParser(
         description='Exhaustively try project-toolchain combinations'
@@ -98,8 +98,8 @@ def main():
     )
     parser.add_argument(
         '--out-prefix',
-        default='build',
-        help='output directory prefix (default: build)'
+        default='build/_exhaust-runs',
+        help='output directory prefix (default: build/_exhaust-runs)'
     )
     parser.add_argument(
         '--build_type',
@@ -117,12 +117,15 @@ def main():
     )
 
     args = parser.parse_args()
+    if args.verbose:
+        print("Parsing Arguments........")
 
     tasks = Tasks(src_dir)
 
     args_dict = {"project": args.project, "toolchain": args.toolchain}
 
-    print("\nGetting Tasks............")
+    if args.verbose:
+        print("\nGetting Tasks............")
     task_list = tasks.get_tasks(args_dict)
 
     params_file = args.parameters
@@ -141,12 +144,15 @@ def main():
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
         args.build, params_strings
     )
-    print("\nRunning Project..........") 
+    if args.verbose:
+        print("\nRunning Project..........") 
     runner.run()
-    print("\nCollecting Results.......") 
+    if args.verbose:
+        print("\nCollecting Results.......") 
     runner.collect_results()
 
-    print("\nPrinting Summary Table...")
+    if args.verbose:
+        print("\nPrinting Summary Table...")
     result = print_summary_table(args.out_prefix, args.build_type, args.build)
 
     if not result and args.fail:

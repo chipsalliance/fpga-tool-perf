@@ -117,10 +117,10 @@ def print_stats(t):
 toolchains = {
     'vivado': Vivado,
     'vivado-yosys': VivadoYosys,
-    'arachne': Arachne,
     'vpr': VPR,
     'vpr-fasm2bels': VPRFasm2Bels,
-    'nextpnr': NextpnrXilinx,
+    'nextpnr-ice40': NextpnrIcestorm,
+    'nextpnr-xilinx': NextpnrXilinx,
     'icecube2-synpro': Icecube2Synpro,
     'icecube2-lse': Icecube2LSE,
     'icecube2-yosys': Icecube2Yosys,
@@ -171,7 +171,8 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
-    print("\nGetting Constraints....")
+    if verbose:
+        print("\nGetting Constraints....")
     pcf = get_constraint(
         project, board, project_dict['toolchains'][toolchain][board], 'pcf'
     )
@@ -189,7 +190,8 @@ def run(
     t.build = build
     t.build_type = build_type
 
-    print("\nStarting Project.......")
+    if verbose:
+        print("\nStarting Project.......")
     t.project(
         project_dict,
         family,
@@ -202,11 +204,13 @@ def run(
         out_prefix=out_prefix,
     )
 
-    print("\nRunning Project........")
+    if verbose:
+        print("\nRunning Project........")
     t.run()
-    print("\nPrinting Stats.........")
-    print_stats(t)
-    print("\nWriting Metadata.......")
+    if verbose:
+        print("\nPrinting Stats.........")
+        print_stats(t)
+        print("\nWriting Metadata.......\n")
     t.write_metadata()
 
 
@@ -310,7 +314,6 @@ def add_bool_arg(parser, yes_arg, default=False, **kwargs):
 def main():
     import argparse
 
-    print("Parsing Arguments......")
     parser = argparse.ArgumentParser(
         description=
         'Analyze FPGA tool performance (MHz, resources, runtime, etc)'
@@ -362,20 +365,26 @@ def main():
     parser.add_argument('--build', default=None, help='Build number')
     parser.add_argument('--build_type', default=None, help='Build type')
     args = parser.parse_args()
+    if args.verbose:
+        print("Parsing Arguments......")
 
     assert not (args.params_file and args.params_string)
 
     if args.list_toolchains:
-        print("\nListing Toolchains.....")
+        if args.verbose:
+            print("\nListing Toolchains.....")
         list_toolchains()
     elif args.list_projects:
-        print("\nListing Projects.......")
+        if args.verbose:
+            print("\nListing Projects.......")
         list_projects()
     elif args.list_seedable:
-        print("\nListing Seedables......")
+        if args.verbose:
+            print("\nListing Seedables......")
         list_seedable()
     elif args.check_env:
-        print("\nChecking Environment...")
+        if args.verbose:
+            print("\nChecking Environment...")
         check_env(args.toolchain)
     else:
         argument_errors = []
@@ -391,7 +400,8 @@ def main():
             for e in argument_errors:
                 print('{}: error: {}'.format(sys.argv[0], e))
             sys.exit(1)
-        print("\nContinuing.............")
+        if args.verbose:    
+            print("\nContinuing.............")
         seed = int(args.seed, 0) if args.seed else None
         run(
             args.board,

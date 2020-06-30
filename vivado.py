@@ -133,7 +133,6 @@ class Vivado(Toolchain):
     def seedable():
         return False
 
-    @staticmethod
     def check_env():
         return {
             'vivado': have_exec('vivado'),

@@ -1,10 +1,7 @@
 import os
 
-
-
-
-
-
+class NotAvailable:
+    pass
 
 def main():
     import argparse

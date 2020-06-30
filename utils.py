@@ -74,7 +74,11 @@ def get_vivado_max_freq(report_file):
     return freqs
 
 
-    # https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
+def have_exec(mybin):
+    return which(mybin) != None
+
+
+# https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -90,7 +94,3 @@ def which(program):
                 return exe_file
 
     return None
-
-
-def have_exec(mybin):
-    return which(mybin) != None

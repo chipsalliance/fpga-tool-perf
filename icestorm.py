@@ -77,7 +77,7 @@ class Icestorm(Toolchain):
             return self.icetime_parse(f)['max_freq']
 
     def run(self, pnr, args):
-        with Timed(self, 'bit-all'):
+        with Timed(self, 'total'):
             os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:
                 self.files.append(
@@ -125,7 +125,7 @@ class NextpnrIcestorm(Icestorm):
 
     def __init__(self, rootdir):
         Icestorm.__init__(self, rootdir)
-        self.toolchain = "nextpnr"
+        self.toolchain = "nextpnr-ice40"
 
     def run(self):
         args = ''
@@ -136,18 +136,18 @@ class NextpnrIcestorm(Icestorm):
 
         if self.pcf is None:
             args += ' --pcf-allow-unconstrained'
-        super(Nextpnr, self).run('next', args)
+        super(NextpnrIcestorm, self).run('next', args)
 
     @staticmethod
     def nextpnr_version():
         '''
-        $ nextpnr-ice40 -V
-        nextpnr-ice40 -- Next Generation Place and Route (git sha1 edf7bd0)
-        $ echo $?
-        1
+        nextpnr-ice40  -V
         '''
         return subprocess.check_output(
-            "nextpnr-ice40 -V || true", shell=True, universal_newlines=True
+            "nextpnr-ice40 -V || true",
+            shell=True,
+            universal_newlines=True,
+            stderr=subprocess.STDOUT
         ).strip()
 
     def versions(self):
