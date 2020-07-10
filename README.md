@@ -52,19 +52,19 @@ Once the environment settings has been sourced, you are ready to proceed with th
 
 ### Quick start example
 
-```
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --board arty
+```bash
+python3 fpgaperf.py --toolchain vivado --project oneblink --board arty
 ```
 
 or
 
-```
-$ python3 fpgaperf.py --toolchain vpr --project oneblink --board basys3
+```bash
+python3 fpgaperf.py --toolchain vpr --project oneblink --board basys3
 ```
 
 For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
 
-```
+```bash
 # Yosys -> Vivado
 python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --board basys3
 # Pure Vivado
@@ -74,7 +74,7 @@ python3 fpgaperf.py --toolchain vivado --project oneblink --board basys3
 Use `--help` to see additional parameters for the `fpgaperf.py` script.
 
 Supported toolchains can be queried as follows:
-```
+```bash
 $ python3 fpgaperf.py  --list-toolchains
 icecube2-lse
 icecube2-synpro
@@ -92,7 +92,7 @@ vpr-fasm2bels
 
 You can check if you have the toolchain environments correctly installed as
 follows:
-```
+```bash
 $ python3 fpgaperf.py --check-env --toolchain vpr
 vpr
   yosys: True
@@ -100,7 +100,7 @@ vpr
 ```
 
 Supported projects can be queried as follows:
-```
+```bash
 $ python3 fpgaperf.py  --list-projects
 baselitex
 blinky
@@ -120,20 +120,20 @@ vexriscv-smp
 
 Use `exhaust.py` to automatically test all projects, toolchain and boards supported
 
-```
-$ python3 exhaust.py
+```bash
+python3 exhaust.py
 ```
 
 Its also possible to run a test against a single toolchain and/or project:
-```
-$ python3 exhaust.py --project blinky --toolchain nextpnr-xilinx
+```bash
+python3 exhaust.py --project blinky --toolchain vpr
 ```
 
-See build directory for output. Note in particular [build/all.json](build/all.json)
+See build directory for output. Note in particular `all.json`.
 
 ## Project Structure
 
-This section is to describe the structure of this project to better understand its mechanisms.
+This section describes the structure of this project to better understand its mechanisms.
 
 - the `project` directory contains all the information relative to a specific test. This includes:
   - srcs: all the source files needed to run the test
@@ -150,12 +150,12 @@ This section is to describe the structure of this project to better understand i
 
 ### Wrapper 
 
-wrapper.py creates a simple verilog interface against an arbitrary verilog module. 
+`wrapper.py` creates a simple verilog interface against an arbitrary verilog module. 
 This allows testing arbitrary verilog modules against a standard pin configuration. The rough idea is taken from project x-ray.
 
-Run wrappers.sh to regenerate all wrappers. Requires pyverilog
+Run `wrappers.sh` to regenerate all wrappers. Requires pyverilog
 
-wrapper.py (iverilog based) has the following known limitations:
+`wrapper.py` (iverilog based) has the following known limitations:
  * Bidrectional ports are not supported
  * Spaces inside numbers are not supported (ex: 8' h00 vs 8'h00)
  * Attributes (sometimes?) are not supported (ex: (* LOC="HERE" *) )
@@ -165,8 +165,7 @@ As a result, sometimes the module definition is cropped out to make running the 
 
 ### Project
 
-Projects are .json files in the project directory. Project names shouldn't contain underscores such that they
-are clearly separated from other fields when combined into folder names.
+Projects are .json files in the project directory. Project names shouldn't contain underscores such that they are clearly separated from other fields when combined into folder names.
 
 ### Inserting a New Project into fpga-tool-perf
 
