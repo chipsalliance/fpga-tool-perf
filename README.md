@@ -76,14 +76,9 @@ Use `--help` to see additional parameters for the `fpgaperf.py` script.
 Supported toolchains can be queried as follows:
 ```bash
 $ python3 fpgaperf.py  --list-toolchains
-icecube2-lse
-icecube2-synpro
-icecube2-yosys
 nextpnr-ice40
 nextpnr-xilinx
 nextpnr-xilinx-fasm2bels
-radiant-lse
-radiant-synpro
 vivado
 vivado-yosys
 vpr
@@ -180,13 +175,13 @@ cd counter
 ```
 Add the source (verilog) and data/memory files to this directory. 
 
-Create a `constr` subdirectory, and within it, add the project's `.pcf` (for symbiflow) and `.xdl` (for vivado) files under the name of the board it uses.
+Create a `constr` subdirectory, and within it, add the project's `.pcf` (for symbiflow) and `.xdc` (for vivado) files under the name of the board it uses.
 ```
 mkdir constr
 touch constr/basys3.pcf
-touch constr/basys3.xdl
+touch constr/basys3.xdc
 ```
-If you don't have both the `.pcf` and `.xdl` files, You can look at the other projects for examples of how the `.xdl` and `.pcf` code correspond.
+If you don't have both the `.pcf` and `.xdc` files, You can look at the other projects for examples of how the `.xdc` and `.pcf` code correspond.
 
 #### *Step 2.*
 Within the `project` directory, create a `.json` file under the name of the project. Copy the contents of another project's `.json` file and modify it to match your project's specs. It will look like somthing like this:
@@ -218,9 +213,9 @@ Within the `project` directory, create a `.json` file under the name of the proj
 ```
 
 #### *Step 3.*
-Test it with vpr and vivado. For example:
+Test the newly added project with vpr and vivado. For example:
 ```
 python3 fpgaperf.py --project counter --toolchain vpr --board basys3
 python3 fpgaperf.py --project counter --toolchain vivado --board basys3
 ```
-There may be errors if your `.xdl` or `.pcf` files have the wrong syntax. Debug, modify, and run until it works, and you have successfully added a new project to fpga-tool-perf.
+There may be errors if your `.xdc` or `.pcf` files have the wrong syntax. Debug, modify, and run until it works, and you have successfully added a new project to fpga-tool-perf.
