@@ -4,7 +4,7 @@ Analyze FPGA tool performance (MHz, resources, runtime, etc)
 
 ## Setup environment
 
-fpga-tool-perf uses the Anaconda/Miniconda (conda) package manager to install and get all the required tools.
+fpga-tool-perf uses the Miniconda (conda) package manager to install and get all the required tools.
 Currently, the following tools that are available in conda are:
 
 - vtr
@@ -129,7 +129,7 @@ Its also possible to run a test against a single toolchain and/or project:
 python3 exhaust.py --project blinky --toolchain vpr
 ```
 
-See build directory for output. Note in particular `all.json`.
+See `build` directory for output. Note in particular `all.json`.
 
 ## Project Structure
 
@@ -148,7 +148,7 @@ This section describes the structure of this project to better understand its me
 
 ## Development
 
-### Wrapper 
+### Wrapper
 
 `wrapper.py` creates a simple verilog interface against an arbitrary verilog module. 
 This allows testing arbitrary verilog modules against a standard pin configuration. The rough idea is taken from project x-ray.
