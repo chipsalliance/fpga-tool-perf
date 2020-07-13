@@ -78,6 +78,6 @@ echo "----------------------------------------"
 	echo
 	echo " Configuring conda environment"
 	echo "----------------------------------------"
-	make conda
+	make env
 	echo "----------------------------------------"
 )

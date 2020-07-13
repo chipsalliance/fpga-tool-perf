@@ -12,7 +12,7 @@ fi
 
 if [ -z "${SYMBIFLOW}" ]; then
     echo "WARNING: using default symbiflow dir."
-    export SYMBIFLOW=${FPGA_TOOL_PERF_BASE_DIR}/env/install
+    export SYMBIFLOW=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
 fi
 
 export PATH=${SYMBIFLOW}/bin:${PATH}

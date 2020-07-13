@@ -505,9 +505,11 @@ class NextpnrXilinx(Toolchain):
 
                 chip = self.family + self.device
 
+                conda_dir = os.getenv("CONDA_PREFIX", None)
+                assert conda_dir
+
                 chipdb = os.path.join(
-                    self.rootdir, 'env', 'conda', 'pkgs', 'nextpnr-xilinx*',
-                    'share', 'nextpnr-xilinx',
+                    conda_dir, 'share', 'nextpnr-xilinx',
                     '{}{}.bin'.format(self.family, self.part)
                 )
                 self.files.append(
