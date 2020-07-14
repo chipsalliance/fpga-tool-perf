@@ -5,7 +5,7 @@ import subprocess
 import edalize
 
 from toolchain import Toolchain
-from utils import Timed, get_vivado_max_freq, have_exec
+from utils import Timed, get_vivado_max_freq, have_exec, which
 from tool_parameters import ToolParametersHelper
 
 
@@ -456,6 +456,7 @@ class VPR(Toolchain):
         return {
             'yosys': have_exec('yosys'),
             'vpr': have_exec('vpr'),
+            'prjxray-config': have_exec('prjxray-config')
         }
 
 
@@ -505,11 +506,15 @@ class NextpnrXilinx(Toolchain):
 
                 chip = self.family + self.device
 
-                conda_dir = os.getenv("CONDA_PREFIX", None)
-                assert conda_dir
+                nextpnr_location = which(
+                    program='nextpnr-xilinx', get_dir=True
+                )
+                assert nextpnr_location
+
+                share_dir = os.path.join(nextpnr_location, '..', 'share')
 
                 chipdb = os.path.join(
-                    conda_dir, 'share', 'nextpnr-xilinx',
+                    share_dir, 'nextpnr-xilinx',
                     '{}{}.bin'.format(self.family, self.part)
                 )
                 self.files.append(
@@ -795,4 +800,5 @@ class NextpnrXilinx(Toolchain):
         return {
             'yosys': have_exec('yosys'),
             'nextpnr': have_exec('nextpnr-xilinx'),
+            'prjxray-config': have_exec('prjxray-config'),
         }

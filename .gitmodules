@@ -7,9 +7,6 @@
 [submodule "third_party/vexriscv-verilog"]
 	path = third_party/vexriscv-verilog
 	url = https://github.com/m-labs/VexRiscv-verilog
-[submodule "third_party/prjxray-db"]
-	path = third_party/prjxray-db
-	url = https://github.com/SymbiFlow/prjxray-db
 [submodule "third_party/litex_vexriscv_smp"]
 	path = third_party/litex_vexriscv_smp
 	url = https://github.com/enjoy-digital/litex_vexriscv_smp.git
