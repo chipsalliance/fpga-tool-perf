@@ -16,4 +16,3 @@ if [ -z "${SYMBIFLOW}" ]; then
 fi
 
 export PATH=${SYMBIFLOW}/bin:${PATH}
-export XRAY_DATABASE_DIR=${FPGA_TOOL_PERF_BASE_DIR}/third_party/prjxray-db
