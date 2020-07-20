@@ -1,10 +1,11 @@
 import os
+import subprocess
 
 import edalize
 
 from toolchain import Toolchain
 from symbiflow import VPR, NextpnrXilinx
-from utils import Timed, get_vivado_max_freq
+from utils import Timed, get_vivado_max_freq, which
 
 
 class VPRFasm2Bels(VPR):
@@ -28,7 +29,9 @@ class VPRFasm2Bels(VPR):
         self.files = []
         self.fasm2bels = True
 
-        self.dbroot = os.getenv('XRAY_DATABASE_DIR', None)
+        self.dbroot = subprocess.check_output(
+            'prjxray-config', shell=True
+        ).decode('utf-8').strip()
 
         assert self.dbroot
 
@@ -58,7 +61,9 @@ class NextpnrXilinxFasm2Bels(NextpnrXilinx):
         self.files = []
         self.fasm2bels = True
 
-        self.dbroot = os.getenv('XRAY_DATABASE_DIR', None)
+        self.dbroot = subprocess.check_output(
+            'prjxray-config', shell=True
+        ).decode('utf-8').strip()
 
         assert self.dbroot
 

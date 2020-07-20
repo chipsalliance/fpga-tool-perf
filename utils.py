@@ -80,7 +80,7 @@ def have_exec(mybin):
 
 
 # https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-def which(program):
+def which(program, get_dir=False):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -92,6 +92,9 @@ def which(program):
         for path in os.environ["PATH"].split(os.pathsep):
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
-                return exe_file
+                if get_dir:
+                    return path
+                else:
+                    return exe_file
 
     return None

@@ -7,12 +7,12 @@
 [submodule "third_party/vexriscv-verilog"]
 	path = third_party/vexriscv-verilog
 	url = https://github.com/m-labs/VexRiscv-verilog
-[submodule "third_party/prjxray-db"]
-	path = third_party/prjxray-db
-	url = https://github.com/SymbiFlow/prjxray-db
 [submodule "third_party/litex_vexriscv_smp"]
 	path = third_party/litex_vexriscv_smp
 	url = https://github.com/enjoy-digital/litex_vexriscv_smp.git
 [submodule "third_party/hamsternz-hdmi"]
 	path = third_party/hamsternz-hdmi
 	url = https://github.com/hamsternz/Artix-7-HDMI-processing.git
+[submodule "third_party/make-env"]
+	path = third_party/make-env
+	url = https://github.com/SymbiFlow/make-env.git
