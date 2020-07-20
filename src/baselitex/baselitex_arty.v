@@ -376,13 +376,6 @@ reg soc_netsoc_interface0_wb_sdram_err = 1'd0;
 (* dont_touch = "true" *) wire sys_clk;
 wire sys_rst;
 wire sys4x_clk;
-
-`ifdef VIVADO
-wire sys4x_clkb = ~sys4x_clk;
-`else
-wire sys4x_clkb = sys4x_clk;
-`endif
-
 wire sys4x_dqs_clk;
 wire clk200_clk;
 wire clk200_rst;
@@ -14198,7 +14191,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed0),
 	.RST(sys_rst),
@@ -14274,7 +14271,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed1),
 	.RST(sys_rst),
@@ -14350,7 +14351,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed2),
 	.RST(sys_rst),
@@ -14426,7 +14431,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed3),
 	.RST(sys_rst),
@@ -14502,7 +14511,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed4),
 	.RST(sys_rst),
@@ -14578,7 +14591,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed5),
 	.RST(sys_rst),
@@ -14654,7 +14671,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed6),
 	.RST(sys_rst),
@@ -14730,7 +14751,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed7),
 	.RST(sys_rst),
@@ -14806,7 +14831,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed8),
 	.RST(sys_rst),
@@ -14882,7 +14911,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed9),
 	.RST(sys_rst),
@@ -14958,7 +14991,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed10),
 	.RST(sys_rst),
@@ -15034,7 +15071,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed11),
 	.RST(sys_rst),
@@ -15110,7 +15151,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed12),
 	.RST(sys_rst),
@@ -15186,7 +15231,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed13),
 	.RST(sys_rst),
@@ -15262,7 +15311,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed14),
 	.RST(sys_rst),
@@ -15338,7 +15391,11 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB(sys4x_clkb),
+`ifdef VIVADO
+	.CLKB((~sys4x_clk)),
+`else
+	.CLKB(sys4x_clk),
+`endif
 	.CLKDIV(sys_clk),
 	.DDLY(soc_a7ddrphy_dq_i_delayed15),
 	.RST(sys_rst),
