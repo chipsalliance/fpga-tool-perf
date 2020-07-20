@@ -33,6 +33,12 @@ class VPRFasm2Bels(VPR):
             'prjxray-config', shell=True
         ).decode('utf-8').strip()
 
+        capnp_schema_dir = subprocess.check_output(
+            'capnp-schemas-dir', shell=True
+        ).decode('utf-8').strip()
+
+        self.files.append({'name': capnp_schema_dir, 'file_type': 'capnp'})
+
         assert self.dbroot
 
     def max_freq(self):
@@ -64,6 +70,12 @@ class NextpnrXilinxFasm2Bels(NextpnrXilinx):
         self.dbroot = subprocess.check_output(
             'prjxray-config', shell=True
         ).decode('utf-8').strip()
+
+        capnp_schema_dir = subprocess.check_output(
+            'capnp-schemas-dir', shell=True
+        ).decode('utf-8').strip()
+
+        self.files.append({'name': capnp_schema_dir, 'file_type': 'capnp'})
 
         assert self.dbroot
 
