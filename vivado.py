@@ -234,7 +234,7 @@ class VivadoYosys(Vivado):
     def __init__(self, rootdir):
         Vivado.__init__(self, rootdir)
         self.synthtool = 'yosys'
-        self.synthoptions = ['-iopad', '-arch xc7', '-abc9', '-flatten']
+        self.synthoptions = ['-iopad', '-arch xc7', '-flatten']
         self.toolchain = 'yosys-vivado'
 
     @staticmethod

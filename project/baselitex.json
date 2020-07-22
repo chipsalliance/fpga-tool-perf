@@ -20,6 +20,9 @@
         "vivado-yosys": {
             "arty": ["arty-vivado.xdc"]
         },
+        "nextpnr-xilinx": {
+            "arty": ["arty-nextpnr.xdc"]
+        },
         "vpr": {
             "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
         },
