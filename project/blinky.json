@@ -17,6 +17,9 @@
         "nextpnr-xilinx": {
             "arty": ["arty.xdc"]
         },
+        "nextpnr-xilinx-fasm2bels": {
+            "arty": ["arty.xdc", "arty.pcf"]
+        },
         "vivado": {
             "arty": ["arty.xdc"]
         },

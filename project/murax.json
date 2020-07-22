@@ -15,6 +15,12 @@
         "vpr": {
             "basys3": ["basys3.pcf", "basys3.sdc"]
         },
+        "vpr-fasm2bels": {
+            "basys3": ["basys3.pcf", "basys3.sdc"]
+        },
+        "nextpnr-xilinx": {
+            "basys3": ["basys3-nextpnr.xdc"]
+        },
         "vivado-yosys": {
             "basys3": ["basys3.xdc"]
         },
