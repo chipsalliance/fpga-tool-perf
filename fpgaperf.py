@@ -11,6 +11,7 @@ import sys
 import glob
 import datetime
 import edalize
+import logging
 from terminaltables import AsciiTable
 
 from toolchain import Toolchain
@@ -32,6 +33,8 @@ from icecube import Icecube2Yosys
 root_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.join(root_dir, 'project')
 src_dir = os.path.join(root_dir, 'src')
+
+logger = logging.getLogger(__name__)
 
 
 class NotAvailable:
@@ -150,6 +153,7 @@ def run(
     assert toolchain is not None
     assert project is not None
 
+    logger.debug("Preparing Project")
     project_dict = get_project(project)
     with open(os.path.join(root_dir, 'boards', 'boards.json'), 'r') as boards:
         boards_info = json.load(boards)
@@ -171,6 +175,7 @@ def run(
     t.carry = carry
 
     # Constraint files shall be in their directories
+    logger.debug("Getting Constraints")
     pcf = get_constraint(
         project, board, project_dict['toolchains'][toolchain][board], 'pcf'
     )
@@ -187,7 +192,7 @@ def run(
     t.xdc = os.path.realpath(xdc) if xdc else None
     t.build = build
     t.build_type = build_type
-
+    logger.debug("Running Project")
     t.project(
         project_dict,
         family,
@@ -199,9 +204,10 @@ def run(
         out_dir=out_dir,
         out_prefix=out_prefix,
     )
-
     t.run()
+    logger.debug("Printing Stats")
     print_stats(t)
+    logger.debug("Writing Metadata")
     t.write_metadata()
 
 
@@ -357,15 +363,30 @@ def main():
     parser.add_argument('--build_type', default=None, help='Build type')
     args = parser.parse_args()
 
+    if args.verbose:
+        global logger
+        logger = logging.getLogger('MyLogger')
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(levelname)s: %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+    logger.debug("Parsing Arguments")
+
     assert not (args.params_file and args.params_string)
 
     if args.list_toolchains:
+        logger.debug("Listing Toolchains")
         list_toolchains()
     elif args.list_projects:
+        logger.debug("Listing Projects")
         list_projects()
     elif args.list_seedable:
+        logger.debug("Listing Seedables")
         list_seedable()
     elif args.check_env:
+        logger.debug("Checking Environment")
         check_env(args.toolchain)
     else:
         argument_errors = []

@@ -5,6 +5,7 @@ import os
 import glob
 import time
 import re
+import logging
 from terminaltables import AsciiTable
 from colorclass import Color
 
@@ -14,6 +15,8 @@ from tool_parameters import ToolParametersHelper
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = root_dir + '/src'
+
+logger = logging.getLogger(__name__)
 
 
 def get_builds(out_prefix):
@@ -96,8 +99,8 @@ def main():
     )
     parser.add_argument(
         '--out-prefix',
-        default='build',
-        help='output directory prefix (default: build)'
+        default='build/_exhaust-runs',
+        help='output directory prefix (default: build/_exhaust-runs)'
     )
     parser.add_argument(
         '--build_type',
@@ -115,11 +118,21 @@ def main():
     )
 
     args = parser.parse_args()
+    if args.verbose:
+        global logger
+        logger = logging.getLogger('MyLogger')
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(levelname)s: %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+    logger.debug("Parsing Arguments")
 
     tasks = Tasks(src_dir)
 
     args_dict = {"project": args.project, "toolchain": args.toolchain}
 
+    logger.debug("Getting Tasks")
     task_list = tasks.get_tasks(args_dict)
 
     params_file = args.parameters
@@ -138,9 +151,12 @@ def main():
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
         args.build, params_strings
     )
+    logger.debug("Running Projects")
     runner.run()
+    logger.debug("Collecting Results")
     runner.collect_results()
 
+    logger.debug("Printing Summary Table")
     result = print_summary_table(args.out_prefix, args.build_type, args.build)
 
     if not result and args.fail:
