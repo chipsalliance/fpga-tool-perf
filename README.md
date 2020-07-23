@@ -4,7 +4,7 @@ Analyze FPGA tool performance (MHz, resources, runtime, etc)
 
 ## Setup environment
 
-FPGA tool perf uses the Anaconda (conda) package manager to install and get all the required tools.
+fpga-tool-perf uses the Miniconda (conda) package manager to install and get all the required tools.
 Currently, the following tools that are available in conda are:
 
 - vtr
@@ -18,7 +18,7 @@ To setup the conda environment, run the following command:
 make conda
 ```
 
-FPGA tool perf enables also to run the Vivado EDA tool. The tool is not available in the conda environment and it needs to be installed by the user.
+fpga-tool-perf can also run the Vivado EDA tool. The tool is not available in the conda environment and it needs to be installed by the user.
 The user needs also to set the `VIVADO_SETTINGS` environmental variable, which points to the `settings64.sh` file to enable Vivado.
 
 ### Recommended versions
@@ -40,20 +40,6 @@ Versions:
   * [vpr](https://github.com/SymbiFlow/vtr-verilog-to-routing.git): git vpr-7.0.5+ice40-v0.0.0
   * [yosys](https://github.com/YosysHQ/yosys.git): git e275692e
 
-## Project structure
-
-This section is to describe the structure of this project to better understand its mechanisms.
-
-- the `project` directory contains all the information relative to a specific test. These information include:
-  - srcs: all the source files needed to run the test
-  - top: top level module name of the design
-  - name: project name
-  - clocks: all the input clocks of the design
-  - toolchains: all the toolchains that are enabled for this project. Moreover, each toolchain has a specific set of available boards with the various constraints files.
-
-- the `src` directory contains all the source files needed to build the test project. It also contains the constraints files relative to the various boards supported.
-- the `boards` directory contains a json file describing all the supported boards in this test suite.
-
 ## Running
 
 With the conda environment correctly installed, run the following to activate the environment:
@@ -66,122 +52,170 @@ Once the environment settings has been sourced, you are ready to proceed with th
 
 ### Quick start example
 
-```
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --board arty
+```bash
+python3 fpgaperf.py --toolchain vivado --project oneblink --board arty
 ```
 
 or
 
-```
-$ python3 fpgaperf.py --toolchain vpr --project oneblink --board basys3
+```bash
+python3 fpgaperf.py --toolchain vpr --project oneblink --board basys3
 ```
 
 For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
 
-```
+```bash
 # Yosys -> Vivado
-$ python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --board basys3
+python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --board basys3
 # Pure Vivado
-$ python3 fpgaperf.py --toolchain vivado --project oneblink --board basys3
+python3 fpgaperf.py --toolchain vivado --project oneblink --board basys3
 ```
 
 Use `--help` to see additional parameters for the `fpgaperf.py` script.
 
 Supported toolchains can be queried as follows:
-```
+```bash
 $ python3 fpgaperf.py  --list-toolchains
-Supported toolchains:
-arachne
-icecube2-lse
-icecube2-synpro
-icecube2-yosys
-nextpnr
-radiant-lse
-radiant-synpro
+nextpnr-ice40
+nextpnr-xilinx
+nextpnr-xilinx-fasm2bels
 vivado
 vivado-yosys
 vpr
+vpr-fasm2bels
 ```
 
 You can check if you have the toolchain environments correctly installed as
 follows:
-```
+```bash
 $ python3 fpgaperf.py --check-env --toolchain vpr
 vpr
   yosys: True
   vpr: True
-  icebox_hlc2asc: True
-  icepack: True
-  icetime: True
 ```
 
 Supported projects can be queried as follows:
-```
+```bash
 $ python3 fpgaperf.py  --list-projects
 baselitex
+blinky
+hamsternz-hdmi
 ibex
 murax
 oneblink
 picorv32
 picosoc
-picosoc_hx8kdemo
-picosoc_simpleuart
-picosoc_spimemio
+picosoc-simpleuart
+picosoc-spimemio
 vexriscv
+vexriscv-smp
 ```
 
 ### Exhaustive build
 
 Use `exhaust.py` to automatically test all projects, toolchain and boards supported
 
-```
-$ python3 exhaust.py
-```
-
-Its also possible to run a test against a single toolchain and/or project and/or device:
-```
-$ python3 exhaust.py --project blinky --toolchain nextpnr
+```bash
+python3 exhaust.py
 ```
 
-See build directory for output. Note in particular [build/all.json](build/all.json)
+Its also possible to run a test against a single toolchain and/or project:
+```bash
+python3 exhaust.py --project blinky --toolchain vpr
+```
 
+See `build` directory for output. Note in particular `all.json`.
+
+## Project Structure
+
+This section describes the structure of this project to better understand its mechanisms.
+
+- the `project` directory contains all the information relative to a specific test. This includes:
+  - srcs: all the source files needed to run the test
+  - top: top level module name of the design
+  - name: project name
+  - data: all of the data/memory files needed to run the test
+  - clocks: all the input clocks of the design
+  - toolchains: all the toolchains that are enabled for this project. Moreover, each toolchain has a specific set of available boards with the various constraints files.
+
+- the `src` directory contains all the source files needed to build the test project. It also contains the constraints files relative to the various boards supported.
+- the `boards` directory contains a json file describing all the supported boards in this test suite.
 
 ## Development
 
-### Project
-
-Projects are .json files in the project directory. Copy an existing project to
-suite your needs. Project names shouldn't contain underscores such that they
-are clearly separated from other fields when combined into folder names.
-
 ### Wrapper
 
-wrapper.py creates a simple verilog interface against an arbitrary verilog
-module. This allows testing arbitrary verilog modules against a standard pin
-configuration. The rough idea is taken from project x-ray.
+`wrapper.py` creates a simple verilog interface against an arbitrary verilog module. 
+This allows testing arbitrary verilog modules against a standard pin configuration. The rough idea is taken from project x-ray.
 
-Run wrappers.sh to regenerate all wrappers. Requires pyverilog
+Run `wrappers.sh` to regenerate all wrappers. Requires pyverilog
 
-wrapper.py (iverilog based) has the following known limitations:
+`wrapper.py` (iverilog based) has the following known limitations:
  * Bidrectional ports are not supported
  * Spaces inside numbers are not supported (ex: 8' h00 vs 8'h00)
  * Attributes (sometimes?) are not supported (ex: (* LOC="HERE" *) )
 
-As a result, sometimes the module definition is cropped out to make running the
-tool easier (ex: src/picorv32/picosoc/spimemio.v was cropped to
-src/picosoc_spimemio_def.v).
+As a result, sometimes the module definition is cropped out to make running the tool easier 
+(ex: src/picorv32/picosoc/spimemio.v was cropped to src/picosoc_spimemio_def.v).
 
-### Python
+### Project
 
-If you change the python code, run the test suite in the test directory:
+Projects are .json files in the project directory. Project names shouldn't contain underscores such that they are clearly separated from other fields when combined into folder names.
 
+### Inserting a New Project into fpga-tool-perf
+
+These are the basic steps to inserting an existing project into fpga-tool-perf:
+
+#### *Step 1.*
+Add a folder within `fpga-tool-perf/src` under the name of the project. For example, for the project named counter:
 ```
-python3 run.py
+cd ~/fpga-tool-perf/src
+mkdir counter
+cd counter
+```
+Add the source (verilog) and data/memory files to this directory. 
+
+Create a `constr` subdirectory, and within it, add the project's `.pcf` (for symbiflow) and `.xdc` (for vivado) files under the name of the board it uses.
+```
+mkdir constr
+touch constr/basys3.pcf
+touch constr/basys3.xdc
+```
+If you don't have both the `.pcf` and `.xdc` files, You can look at the other projects for examples of how the `.xdc` and `.pcf` code correspond.
+
+#### *Step 2.*
+Within the `project` directory, create a `.json` file under the name of the project. Copy the contents of another project's `.json` file and modify it to match your project's specs. It will look like somthing like this:
+```json
+{
+    "srcs": [
+        "src/counter/counter.v"
+        ],
+    "top": "top",
+    "name": "counter",
+    "clocks": {
+        "clk": 10.0
+    },
+    "toolchains": {
+        "vpr": {
+            "basys3": ["basys3.pcf"]
+        },
+        "vpr-fasm2bels": {
+            "basys3": ["basys3.pcf"]
+        },
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        },
+        "vivado-yosys": {
+            "basys3": ["basys3.xdc"]
+        }
+    }
+}
 ```
 
-As of this writing it takes about 6 minutes to complete. Note you can also run
-a single test:
+#### *Step 3.*
+Test the newly added project with vpr and vivado. For example:
 ```
-python3 run.py  TestCase.test_env_ready
+python3 fpgaperf.py --project counter --toolchain vpr --board basys3
+python3 fpgaperf.py --project counter --toolchain vivado --board basys3
 ```
-
+There may be errors if your `.xdc` or `.pcf` files have the wrong syntax. Debug, modify, and run until it works, and you have successfully added a new project to fpga-tool-perf.
