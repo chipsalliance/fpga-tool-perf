@@ -11,6 +11,9 @@
     ],
     "top": "toplevel",
     "name": "murax",
+    "clocks": {
+        "io_mainClk": 10.0
+    },
     "toolchains": {
         "vpr": {
             "basys3": ["basys3.pcf", "basys3.sdc"]

@@ -9,8 +9,14 @@
     ],
     "top": "top",
     "name": "picosoc-wrap",
+    "clocks": {
+        "clk": 10.0
+    },
     "toolchains": {
         "vpr": {
+            "basys3": ["basys3.pcf", "basys3.sdc"]
+        },
+        "vpr-fasm2bels": {
             "basys3": ["basys3.pcf", "basys3.sdc"]
         },
         "nextpnr-xilinx": {
