@@ -166,7 +166,7 @@ def run(
     assert family == 'ice40' or family == 'xc7'
 
     # some toolchains use signed 32 bit
-    assert seed is None or 1 <= seed <= 0x7FFFFFFF
+    assert seed is None or 0 <= seed <= 0x7FFFFFFF
 
     t = toolchains[toolchain](root_dir)
     t.verbose = verbose

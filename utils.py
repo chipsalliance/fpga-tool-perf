@@ -98,3 +98,10 @@ def which(program, get_dir=False):
                     return exe_file
 
     return None
+
+
+def safe_get_dict_value(dict, key, default):
+    if key in dict:
+        return dict[key]
+    else:
+        return default

@@ -34,30 +34,16 @@ class Runner:
         out_prefix,
         root_dir,
         build_type,
-        build=None,
-        seed=None,
-        options=[]
+        build_number=0,
     ):
         self.verbose = verbose
         self.out_prefix = out_prefix
         self.root_dir = root_dir
-        self.build = int(build) if build else None
         self.build_format = "{:03d}"
         self.build_type = build_type
-        self.seed = seed
+        self.build_number = build_number
         self.results = dict()
-
-        def add_tuple_to_tasks(tasks, tpl):
-            new_tasks = []
-
-            for task in tasks:
-                new_tasks.append(task + tpl)
-
-            return new_tasks
-
-        self.task_list = []
-        for idx, option in enumerate(options):
-            self.task_list += add_tuple_to_tasks(task_list, (option, idx))
+        self.task_list = task_list
 
     def worker(self, arglist):
         """Single worker function that is run in the Pool of workers.
@@ -67,9 +53,9 @@ class Runner:
         def eprint(*args, **kwargs):
             print(*args, file=sys.stderr, **kwargs)
 
-        project, toolchain, board, option, build = arglist
+        project, toolchain, board, seed, option = arglist
 
-        build = self.build_format.format(self.build or build)
+        build = self.build_format.format(self.build_number)
 
         # We don't want output of all subprocesses here
         # Log files for each build will be placed in build directory
@@ -85,7 +71,7 @@ class Runner:
                     self.out_prefix,
                     self.verbose,
                     None,  #strategy
-                    self.seed,
+                    seed,
                     None,  #carry
                     build,
                     self.build_type,
@@ -111,9 +97,9 @@ class Runner:
 
     def get_reports(self):
         reports = []
-        if self.build is not None:
+        if self.build_number is not None:
             metadata_path = '*{}_{}*/meta.json'.format(
-                self.build_type, self.build_format.format(self.build)
+                self.build_type, self.build_format.format(self.build_number)
             )
         else:
             metadata_path = '*{}*/meta.json'.format(self.build_type)

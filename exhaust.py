@@ -9,6 +9,7 @@ import logging
 from terminaltables import AsciiTable
 from colorclass import Color
 
+from utils import safe_get_dict_value
 from tasks import Tasks
 from runner import Runner
 from tool_parameters import ToolParametersHelper
@@ -108,12 +109,17 @@ def main():
         help=
         'Type of build that is performed (e.g. regression test, multiple options, etc.)'
     )
-    parser.add_argument('--build', default=None, help='Build number')
+    parser.add_argument('--build', default=0, help='Build number')
     parser.add_argument(
         '--parameters', default=None, help='Tool parameters json file'
     )
     parser.add_argument(
         '--seed', default=None, help='Seed to assign when running the tools'
+    )
+    parser.add_argument(
+        '--run_config',
+        default=None,
+        help="Run configuration file in JSON format."
     )
     parser.add_argument('--fail', action='store_true', help='fail on error')
     parser.add_argument(
@@ -121,6 +127,7 @@ def main():
     )
 
     args = parser.parse_args()
+
     if args.verbose:
         global logger
         logger = logging.getLogger('MyLogger')
@@ -133,10 +140,26 @@ def main():
 
     tasks = Tasks(src_dir)
 
-    args_dict = {"project": args.project, "toolchain": args.toolchain}
+    assert args.run_config is None or args.run_config and not (
+        args.project or args.toolchain
+    )
 
-    logger.debug("Getting Tasks")
-    task_list = tasks.get_tasks(args_dict)
+    args_dict = dict()
+    seeds = list()
+    if args.run_config:
+        with open(args.run_config, 'r') as f:
+            run_config = json.load(f)
+            project = safe_get_dict_value(run_config, "project", None)
+            toolchain = safe_get_dict_value(run_config, "toolchain", None)
+            seeds = [
+                int(i) for i in safe_get_dict_value(run_config, "seeds", [0])
+            ]
+
+            args_dict = {"project": project, "toolchain": toolchain}
+
+    else:
+        args_dict = {"project": args.project, "toolchain": args.toolchain}
+        seeds = [int(args.seed)] if args.seed else [0]
 
     params_file = args.parameters
     params_strings = [None]
@@ -150,14 +173,17 @@ def main():
         for params in params_helper.get_all_params_combinations():
             params_strings.append(" ".join(params))
 
-    seed = int(args.seed) if args.seed else None
+    logger.debug("Getting Tasks")
+    task_list = tasks.get_tasks(args_dict, seeds, params_strings)
 
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
-        args.build, seed, params_strings
+        args.build
     )
+
     logger.debug("Running Projects")
     runner.run()
+
     logger.debug("Collecting Results")
     runner.collect_results()
 
