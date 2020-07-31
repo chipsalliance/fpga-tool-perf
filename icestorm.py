@@ -68,7 +68,7 @@ class Icestorm(Toolchain):
             m = re.match(r'Total path delay: .*s \((.*) (.*)\)', l)
             if m:
                 assert m.group(2) == 'MHz'
-                ret['max_freq'] = float(m.group(1))
+                ret['max_freq'] = float(m.group(1)) * 1e6
         return ret
 
     def max_freq(self):
