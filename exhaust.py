@@ -112,6 +112,9 @@ def main():
     parser.add_argument(
         '--parameters', default=None, help='Tool parameters json file'
     )
+    parser.add_argument(
+        '--seed', default=None, help='Seed to assign when running the tools'
+    )
     parser.add_argument('--fail', action='store_true', help='fail on error')
     parser.add_argument(
         '--verbose', action='store_true', help='verbose output'
@@ -147,9 +150,11 @@ def main():
         for params in params_helper.get_all_params_combinations():
             params_strings.append(" ".join(params))
 
+    seed = int(args.seed) if args.seed else None
+
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
-        args.build, params_strings
+        args.build, seed, params_strings
     )
     logger.debug("Running Projects")
     runner.run()

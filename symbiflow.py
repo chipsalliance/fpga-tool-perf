@@ -127,6 +127,7 @@ class VPR(Toolchain):
                                     'fasm2bels': self.fasm2bels,
                                     'dbroot': self.dbroot,
                                     'clocks': self.clocks,
+                                    'seed': self.seed,
                                 }
                         }
                 }

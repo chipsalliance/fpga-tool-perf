@@ -171,7 +171,10 @@ def run(
     t = toolchains[toolchain](root_dir)
     t.verbose = verbose
     t.strategy = strategy
-    t.seed = seed
+
+    if t.seedable():
+        t.seed = seed
+
     t.carry = carry
 
     # Constraint files shall be in their directories

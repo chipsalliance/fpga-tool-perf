@@ -40,10 +40,16 @@ run-multiple-samples-tests:
 		$(IN_CONDA_ENV) python3 exhaust.py --project blinky --toolchain vpr --build_type multiple-samples --build $$run; \
 	done
 
+run-seedable-tests:
+	for run in {0..${MULTIPLE_RUN_ITERATIONS}}; do \
+		$(IN_CONDA_ENV) python3 exhaust.py --toolchain vpr --project blinky --build_type multiple-seeds --build $$run --seed $$RANDOM; \
+	done
+
 run-all:
 	$(MAKE) run-tests
 	$(MAKE) run-parameters-tests
 	$(MAKE) run-multiple-samples-tests
+	$(MAKE) run-seedable-tests
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
 
