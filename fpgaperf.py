@@ -143,6 +143,7 @@ def run(
     params_string=None,
     out_dir=None,
     out_prefix=None,
+    overwrite=False,
     verbose=False,
     strategy=None,
     seed=None,
@@ -207,6 +208,7 @@ def run(
         params_string,
         out_dir=out_dir,
         out_prefix=out_prefix,
+        overwrite=overwrite,
     )
     t.run()
     logger.debug("Printing Stats")
@@ -389,8 +391,14 @@ def main():
         'Analyze FPGA tool performance (MHz, resources, runtime, etc)'
     )
 
-    parser.add_argument('--verbose', action='store_true', help='')
-    parser.add_argument('--overwrite', action='store_true', help='')
+    parser.add_argument(
+        '--verbose', action='store_true', help='Print DEBUG Statements'
+    )
+    parser.add_argument(
+        '--overwrite',
+        action='store_true',
+        help='Overwrite the folder with this run'
+    )
     parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
         '--params_file', default=None, help='Use custom tool parameters'
@@ -493,6 +501,7 @@ def main():
             params_string=args.params_string,
             out_dir=args.out_dir,
             out_prefix=args.out_prefix,
+            overwrite=args.overwrite,
             verbose=args.verbose,
             strategy=args.strategy,
             carry=args.carry,

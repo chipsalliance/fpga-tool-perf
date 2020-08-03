@@ -8,6 +8,7 @@ import shutil
 import sys
 import glob
 import datetime
+import shutil
 from utils import Timed
 
 
@@ -168,6 +169,7 @@ class Toolchain:
         params_string,
         out_dir=None,
         out_prefix=None,
+        overwrite=False,
     ):
         self.family = family
         self.device = device
@@ -195,6 +197,8 @@ class Toolchain:
         if out_dir is None:
             out_dir = out_prefix + "/" + self.design()
         self.out_dir = out_dir
+        if overwrite and os.path.exists(out_dir):
+            shutil.rmtree(out_dir)
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
         print('Writing to %s' % out_dir)
