@@ -5,6 +5,9 @@
     ],
     "top": "top",
     "name": "picosoc-spimemio-wrap",
+    "clocks": {
+        "clk": 10.0
+    },
     "toolchains": {
         "vivado": {
             "basys3": ["basys3.xdc"]
@@ -13,6 +16,9 @@
             "basys3": ["basys3.xdc"]
         },
         "vpr": {
+            "basys3": ["basys3.pcf"]
+        },
+        "vpr-fasm2bels": {
             "basys3": ["basys3.pcf"]
         }
     }
