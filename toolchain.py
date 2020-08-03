@@ -195,7 +195,7 @@ class Toolchain:
 
         out_prefix = out_prefix or 'build'
         if not os.path.exists(out_prefix):
-            os.mkdir(out_prefix)
+            os.makedirs(out_prefix)
 
         if out_dir is None:
             out_dir = out_prefix + "/" + self.design()
@@ -203,7 +203,7 @@ class Toolchain:
         if overwrite and os.path.exists(out_dir):
             shutil.rmtree(out_dir)
         if not os.path.exists(out_dir):
-            os.mkdir(out_dir)
+            os.makedirs(out_dir)
         print('Writing to %s' % out_dir)
         data = project.get('data', None)
         if data:

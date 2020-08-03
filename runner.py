@@ -85,6 +85,7 @@ class Runner:
     def run(self):
         if not os.path.exists(self.out_prefix):
             os.makedirs(self.out_prefix)
+        print('Writing to %s' % self.out_prefix)
 
         with Pool(cpu_count()) as pool:
             for _ in tqdm.tqdm(pool.imap_unordered(self.worker,
