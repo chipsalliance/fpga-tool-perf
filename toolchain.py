@@ -242,6 +242,7 @@ class Toolchain:
             'placement': ['place', 'place_design'],
             'routing': ['route', 'route_design'],
             'fasm': ['fasm'],
+            'overhead': ['overhead'],
             'checkpoint': ['open_checkpoint'],
             'bitstream': ['write_bitstream', 'bitstream'],
             'reports': ['report_power', 'report_methodology', 'report_drc'],
