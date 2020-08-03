@@ -78,68 +78,65 @@ class Vivado(Toolchain):
             self.add_runtime(t, impl_times[t])
 
     def run(self):
-        with Timed(self, 'prepare'):
-            os.makedirs(self.out_dir, exist_ok=True)
-            for f in self.srcs:
-                if f.endswith(".vhd") or f.endswith(".vhdl"):
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(f),
-                            'file_type': 'vhdlSource'
-                        }
-                    )
-                elif f.endswith(".v"):
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(f),
-                            'file_type': 'verilogSource'
-                        }
-                    )
-
-            self.files.append(
-                {
-                    'name': os.path.realpath(self.xdc),
-                    'file_type': 'xdc'
-                }
-            )
-
-            chip = self.family + self.device + self.package
-
-            vivado_settings = os.getenv('VIVADO_SETTINGS')
-
-            self.edam = {
-                'files': self.files,
-                'name': self.project_name,
-                'toplevel': self.top,
-                'parameters':
-                    {
-                        'VIVADO':
-                            {
-                                'paramtype': 'vlogdefine',
-                                'datatype': 'int',
-                                'default': 1,
-                            },
-                    },
-                'tool_options':
-                    {
-                        'vivado':
-                            {
-                                'part': chip,
-                                'synth': self.synthtool,
-                                'vivado-settings': vivado_settings,
-                                'yosys_synth_options': self.synthoptions,
-                            }
-                    }
-            }
-
-            self.backend = edalize.get_edatool('vivado')(
-                edam=self.edam, work_root=self.out_dir
-            )
-            self.backend.configure("")
-
         with Timed(self, 'total'):
-            self.backend.build()
+            with Timed(self, 'prepare'):
+                os.makedirs(self.out_dir, exist_ok=True)
+                for f in self.srcs:
+                    if f.endswith(".vhd") or f.endswith(".vhdl"):
+                        self.files.append(
+                            {
+                                'name': os.path.realpath(f),
+                                'file_type': 'vhdlSource'
+                            }
+                        )
+                    elif f.endswith(".v"):
+                        self.files.append(
+                            {
+                                'name': os.path.realpath(f),
+                                'file_type': 'verilogSource'
+                            }
+                        )
 
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.xdc),
+                        'file_type': 'xdc'
+                    }
+                )
+
+                chip = self.family + self.device + self.package
+
+                vivado_settings = os.getenv('VIVADO_SETTINGS')
+
+                self.edam = {
+                    'files': self.files,
+                    'name': self.project_name,
+                    'toplevel': self.top,
+                    'parameters':
+                        {
+                            'VIVADO':
+                                {
+                                    'paramtype': 'vlogdefine',
+                                    'datatype': 'int',
+                                    'default': 1,
+                                },
+                        },
+                    'tool_options':
+                        {
+                            'vivado':
+                                {
+                                    'part': chip,
+                                    'synth': self.synthtool,
+                                    'vivado-settings': vivado_settings,
+                                    'yosys_synth_options': self.synthoptions,
+                                }
+                        }
+                }
+                self.backend = edalize.get_edatool('vivado')(
+                    edam=self.edam, work_root=self.out_dir
+                )
+                self.backend.configure("")
+            self.backend.build()
         self.add_runtimes()
         self.add_maximum_memory_use()
 

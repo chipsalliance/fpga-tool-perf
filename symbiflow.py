@@ -159,11 +159,10 @@ class VPR(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
-
             self.run_steps()
-            self.add_runtimes()
-            self.add_wirelength()
-            self.add_maximum_memory_use()
+        self.add_runtimes()
+        self.add_wirelength()
+        self.add_maximum_memory_use()
 
     def get_tool_params(self):
         if self.params_file:
@@ -729,13 +728,11 @@ class NextpnrXilinx(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
-
             self.backend.build_main(self.project_name + '.fasm')
-
             self.run_steps()
 
-            self.add_runtimes()
-            self.add_wirelength()
+        self.add_runtimes()
+        self.add_wirelength()
 
     def add_wirelength(self):
         def get_wirelength(log_file):
