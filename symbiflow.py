@@ -377,6 +377,22 @@ class VPR(Toolchain):
                     if '{} took'.format(step) in l:
                         return float(l.split()[position])
 
+        def get_overhead_runtime(logfile):
+            steps = [
+                'Clean circuit took', 'Load Timing Constraints took',
+                'Create Device took'
+            ]
+            overhead = 0.0
+            with open(logfile, 'r') as fp:
+                for l in fp:
+                    l = l.strip()
+                    for step in steps:
+                        if step in l:
+                            overhead += float(
+                                l.split()[l.split().index('took') + 1]
+                            )
+            return overhead
+
         log = dict()
 
         pack_log = os.path.join(self.out_dir, 'pack.log')
@@ -385,8 +401,11 @@ class VPR(Toolchain):
         fasm_log = os.path.join(self.out_dir, 'fasm.log')
 
         log['pack'] = get_step_runtime('Packing', pack_log, 3)
+        log['overhead'] = get_overhead_runtime(pack_log)
         log['place'] = get_step_runtime('Placement', place_log, 3)
+        log['overhead'] += get_overhead_runtime(place_log)
         log['route'] = get_step_runtime('Routing', route_log, 3)
+        log['overhead'] += get_overhead_runtime(route_log)
         # XXX: Need add to genfasm the amount of time it took to create the fasm file.
         #      For now the whole command execution time is considered
         log['fasm'] = get_step_runtime('The entire flow of VPR', fasm_log, 6)
