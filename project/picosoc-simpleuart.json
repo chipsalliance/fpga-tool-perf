@@ -20,6 +20,9 @@
         },
         "vpr-fasm2bels": {
             "basys3": ["basys3.pcf"]
+	},
+        "nextpnr-xilinx": {
+            "basys3": ["nextpnr-xilinx-basys3.xdc"]
         }
     }
 }

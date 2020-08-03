@@ -28,6 +28,9 @@
             "basys3": ["basys3.xdc"],
             "zybo": ["zybo.xdc"]
         },
+        "nextpnr-xilinx": {
+            "arty": ["nextpnr-xilinx-arty.xdc"]
+        },
         "nextpnr-ice40": {
             "icebreaker": ["icebreaker.pcf"]
         }
