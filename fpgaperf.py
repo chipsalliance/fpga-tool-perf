@@ -214,6 +214,17 @@ def run(
     t.write_metadata()
 
 
+def list_combinations():
+    print("(Project, Toolchain, Board)")
+    print("---------------------------")
+    for project in get_projects():
+        toolchain_info = get_project(project)["toolchains"]
+        for t in toolchain_info:
+            board_info = toolchain_info[t]
+            for b in board_info:
+                print("(%s, %s, %s)" % (project, t, b))
+
+
 def get_toolchains():
     '''Query all supported toolchains'''
     return sorted(toolchains.keys())
@@ -346,6 +357,11 @@ def main():
     )
     parser.add_argument('--list-projects', action='store_true', help='')
     parser.add_argument(
+        '--list-combinations',
+        action='store_true',
+        help='Lists every <project, toolchain, board> combination.'
+    )
+    parser.add_argument(
         '--seed',
         default=None,
         help='31 bit seed number to use, possibly directly mapped to PnR tool'
@@ -379,7 +395,10 @@ def main():
 
     assert not (args.params_file and args.params_string)
 
-    if args.list_toolchains:
+    if args.list_combinations:
+        logger.debug("Listing Combinations")
+        list_combinations()
+    elif args.list_toolchains:
         logger.debug("Listing Toolchains")
         list_toolchains()
     elif args.list_projects:
