@@ -4,7 +4,7 @@
         "src/vexriscv/vexriscv-verilog_wrap.v"
     ],
     "top": "top",
-    "name": "vexriscv-verilog",
+    "name": "vexriscv",
     "clocks": {
         "clk": 10.0
     },

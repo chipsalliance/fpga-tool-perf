@@ -4,7 +4,7 @@
         "src/picosoc-spimemio/picosoc_spimemio_wrap.v"
     ],
     "top": "top",
-    "name": "picosoc-spimemio-wrap",
+    "name": "picosoc-spimemio",
     "clocks": {
         "clk": 10.0
     },
