@@ -134,15 +134,6 @@ toolchains = {
 }
 
 
-boards = [
-    'basys3',
-    'arty',
-    'zybo',
-    'nexys',
-    'icebreaker',
-]
-
-
 def run(
     board,
     toolchain,
@@ -223,23 +214,23 @@ def run(
     t.write_metadata()
 
 
-def list_combinations():
+def list_combinations(
+    project=None,
+    toolchain=None,
+    board=None,
+):
     '''Query all supported combinations'''
-    table_data = [
-            [
-                'Project', 'Toolchain', 'Board', 'Status'
-            ]
-        ]        
-    for p in get_projects():
+    table_data = [['Project', 'Toolchain', 'Board', 'Status']]
+    for p in get_projects(project):
         toolchain_info = get_project(p)["toolchains"]
-        for t in get_toolchains():
+        for t in get_toolchains(toolchain):
             text = "Supported"
             board_info = None
             if t not in toolchain_info:
                 text = "Missing"
             else:
                 board_info = toolchain_info[t]
-            for b in get_boards():
+            for b in get_boards(board):
                 text2 = text
                 if board_info is None or b not in board_info:
                     text2 = "Missing"
@@ -249,14 +240,27 @@ def list_combinations():
     print(table.table)
 
 
-def get_boards():
+def get_boards(board=None):
     '''Query all supported boards'''
-    return sorted(boards)
+    with open(os.path.join(root_dir, 'boards', 'boards.json'),
+              'r') as boards_file:
+        boards = json.load(boards_file)
+    if board is None:
+        return boards
+    elif board in boards:
+        return [board]
+    else:
+        return []
 
 
-def get_toolchains():
+def get_toolchains(toolchain=None):
     '''Query all supported toolchains'''
-    return sorted(toolchains.keys())
+    if toolchain is None:
+        return sorted(toolchains.keys())
+    elif toolchain in sorted(toolchains.keys()):
+        return [toolchain]
+    else:
+        return []
 
 
 def list_toolchains():
@@ -269,11 +273,17 @@ def matching_pattern(path, pattern):
     return sorted([re.match(pattern, fn).group(1) for fn in glob.glob(path)])
 
 
-def get_projects():
+def get_projects(project=None):
     '''Query all supported projects'''
-    return matching_pattern(
+    projects = matching_pattern(
         os.path.join(project_dir, '*.json'), '/.*/(.*)[.]json'
     )
+    if project is None:
+        return projects
+    elif project in projects:
+        return [project]
+    else:
+        return []
 
 
 def list_projects():
@@ -426,7 +436,7 @@ def main():
 
     if args.list_combinations:
         logger.debug("Listing Combinations")
-        list_combinations()
+        list_combinations(args.project, args.toolchain, args.board)
     elif args.list_toolchains:
         logger.debug("Listing Toolchains")
         list_toolchains()
