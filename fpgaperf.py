@@ -134,6 +134,15 @@ toolchains = {
 }
 
 
+boards = [
+    'basys3',
+    'arty',
+    'zybo',
+    'nexys',
+    'icebreaker',
+]
+
+
 def run(
     board,
     toolchain,
@@ -215,14 +224,34 @@ def run(
 
 
 def list_combinations():
-    print("(Project, Toolchain, Board)")
-    print("---------------------------")
-    for project in get_projects():
-        toolchain_info = get_project(project)["toolchains"]
-        for t in toolchain_info:
-            board_info = toolchain_info[t]
-            for b in board_info:
-                print("(%s, %s, %s)" % (project, t, b))
+    '''Query all supported combinations'''
+    table_data = [
+            [
+                'Project', 'Toolchain', 'Board', 'Status'
+            ]
+        ]        
+    for p in get_projects():
+        toolchain_info = get_project(p)["toolchains"]
+        for t in get_toolchains():
+            text = "Supported"
+            board_info = None
+            if t not in toolchain_info:
+                text = "Missing"
+            else:
+                board_info = toolchain_info[t]
+            for b in get_boards():
+                text2 = text
+                if board_info is None or b not in board_info:
+                    text2 = "Missing"
+                row = [p, t, b, text2]
+                table_data.append(row)
+    table = AsciiTable(table_data)
+    print(table.table)
+
+
+def get_boards():
+    '''Query all supported boards'''
+    return sorted(boards)
 
 
 def get_toolchains():
