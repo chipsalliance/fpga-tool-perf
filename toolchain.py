@@ -99,6 +99,9 @@ class Toolchain:
         if op:
             ret += '_' + op
 
+        if self.seed:
+            ret += '_seed_' + str(self.seed)
+
         return ret
 
     @property
@@ -248,6 +251,8 @@ class Toolchain:
             'total': ['total'],
             'nop': ['nop'],
             'fasm2bels': ['fasm2bels'],
+            'link design': ['link_design'],
+            'phys opt design': ['phys_opt_design']
         }
 
         def get_standard_runtime(runtime):

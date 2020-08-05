@@ -154,12 +154,17 @@ def main():
             seeds = [
                 int(i) for i in safe_get_dict_value(run_config, "seeds", [0])
             ]
+            build_numbers = [
+                int(i)
+                for i in safe_get_dict_value(run_config, "build_number", [0])
+            ]
 
             args_dict = {"project": project, "toolchain": toolchain}
 
     else:
         args_dict = {"project": args.project, "toolchain": args.toolchain}
         seeds = [int(args.seed)] if args.seed else [0]
+        build_numbers = [int(args.build)] if args.build else [0]
 
     params_file = args.parameters
     params_strings = [None]
@@ -174,11 +179,13 @@ def main():
             params_strings.append(" ".join(params))
 
     logger.debug("Getting Tasks")
-    task_list = tasks.get_tasks(args_dict, seeds, params_strings)
+    task_list = tasks.get_tasks(
+        args_dict, seeds, build_numbers, params_strings
+    )
 
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
-        args.build
+        build_numbers
     )
 
     logger.debug("Running Projects")

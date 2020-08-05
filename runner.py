@@ -28,22 +28,17 @@ class Runner:
     runs all of them parallely.
     """
     def __init__(
-        self,
-        task_list,
-        verbose,
-        out_prefix,
-        root_dir,
-        build_type,
-        build_number=0,
+        self, task_list, verbose, out_prefix, root_dir, build_type,
+        build_numbers
     ):
         self.verbose = verbose
         self.out_prefix = out_prefix
         self.root_dir = root_dir
         self.build_format = "{:03d}"
         self.build_type = build_type
-        self.build_number = build_number
         self.results = dict()
         self.task_list = task_list
+        self.build_numbers = build_numbers
 
     def worker(self, arglist):
         """Single worker function that is run in the Pool of workers.
@@ -53,9 +48,9 @@ class Runner:
         def eprint(*args, **kwargs):
             print(*args, file=sys.stderr, **kwargs)
 
-        project, toolchain, board, seed, option = arglist
+        project, toolchain, board, seed, option, build_number = arglist
 
-        build = self.build_format.format(self.build_number)
+        build = self.build_format.format(build_number)
 
         # We don't want output of all subprocesses here
         # Log files for each build will be placed in build directory
@@ -97,15 +92,17 @@ class Runner:
 
     def get_reports(self):
         reports = []
-        if self.build_number is not None:
-            metadata_path = '*{}_{}*/meta.json'.format(
-                self.build_type, self.build_format.format(self.build_number)
-            )
-        else:
-            metadata_path = '*{}*/meta.json'.format(self.build_type)
-        for filename in glob.iglob(os.path.join(self.root_dir, self.out_prefix,
-                                                metadata_path)):
-            reports.append(filename)
+        for build_number in self.build_numbers:
+            if build_number is not None:
+                metadata_path = '*{}_{}*/meta.json'.format(
+                    self.build_type, self.build_format.format(build_number)
+                )
+            else:
+                metadata_path = '*{}*/meta.json'.format(self.build_type)
+            for filename in glob.iglob(os.path.join(self.root_dir,
+                                                    self.out_prefix,
+                                                    metadata_path)):
+                reports.append(filename)
 
         return reports
 

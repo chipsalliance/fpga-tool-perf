@@ -36,9 +36,7 @@ run-parameters-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters
 
 run-multiple-samples-tests:
-	for run in {0..${MULTIPLE_RUN_ITERATIONS}}; do \
-		$(IN_CONDA_ENV) python3 exhaust.py --project blinky --toolchain vpr --build_type multiple-samples --build $$run; \
-	done
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-samples --run_config run_configs/multiple_samples.json
 
 run-seedable-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-seeds --run_config run_configs/multiple_seeds.json
