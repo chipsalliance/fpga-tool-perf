@@ -31,7 +31,9 @@ def get_builds(out_prefix):
     return builds
 
 
-def print_summary_table(out_prefix, build_type, build_nr=None):
+def print_summary_table(
+    out_prefix, project, toolchain, build_type, build_nr=None
+):
     """Prints a summary table of the outcome of each test."""
     builds = get_builds(out_prefix)
     table_data = [
@@ -53,6 +55,10 @@ def print_summary_table(out_prefix, build_type, build_nr=None):
         row = list(re.match(pattern, build).groups())
 
         if build_type != row[5] or (build_nr and int(build_nr) != int(row[6])):
+            continue
+        if project and row[0] not in project:
+            continue
+        if toolchain and row[1] not in toolchain:
             continue
 
         # Check if metadata was generated
@@ -195,7 +201,10 @@ def main():
     runner.collect_results()
 
     logger.debug("Printing Summary Table")
-    result = print_summary_table(args.out_prefix, args.build_type, args.build)
+    result = print_summary_table(
+        args.out_prefix, args.project, args.toolchain, args.build_type,
+        args.build
+    )
 
     if not result and args.fail:
         print("ERROR: some tests have failed.")
