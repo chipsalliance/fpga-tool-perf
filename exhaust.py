@@ -13,7 +13,7 @@ from utils import safe_get_dict_value
 from tasks import Tasks
 from runner import Runner
 from tool_parameters import ToolParametersHelper
-from fpgaperf import get_projects, get_toolchains
+from fpgaperf import get_projects, get_toolchains, get_boards
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = root_dir + '/src'
@@ -33,7 +33,7 @@ def get_builds(out_prefix):
 
 
 def print_summary_table(
-    out_prefix, project, toolchain, build_type, build_nr=None
+    out_prefix, project, toolchain, board, build_type, build_nr=None
 ):
     """Prints a summary table of the outcome of each test."""
     builds = get_builds(out_prefix)
@@ -60,6 +60,8 @@ def print_summary_table(
         if project and row[0] not in project:
             continue
         if toolchain and row[1] not in toolchain:
+            continue
+        if board and row[4] not in board:
             continue
 
         # Check if metadata was generated
@@ -91,7 +93,7 @@ def print_summary_table(
 def main():
     import argparse
     parser = argparse.ArgumentParser(
-        description='Exhaustively try project-toolchain combinations'
+        description='Exhaustively try project-toolchain-board combinations'
     )
     parser.add_argument(
         '--project',
@@ -106,6 +108,13 @@ def main():
         nargs="+",
         choices=get_toolchains(),
         help='run given toolchain(s) only (default: all)'
+    )
+    parser.add_argument(
+        '--board',
+        default=None,
+        nargs='+',
+        choices=get_boards(),
+        help='run given board(s) only (default: all)'
     )
     parser.add_argument(
         '--out-prefix',
@@ -168,10 +177,18 @@ def main():
                 for i in safe_get_dict_value(run_config, "build_number", [0])
             ]
 
-            args_dict = {"project": project, "toolchain": toolchain}
+            args_dict = {
+                "project": project,
+                "toolchain": toolchain,
+                "board": args.board
+            }
 
     else:
-        args_dict = {"project": args.project, "toolchain": args.toolchain}
+        args_dict = {
+            "project": args.project,
+            "toolchain": args.toolchain,
+            "board": args.board
+        }
         seeds = [int(args.seed)] if args.seed else [0]
         build_numbers = [int(args.build)] if args.build else [0]
 
@@ -205,8 +222,8 @@ def main():
 
     logger.debug("Printing Summary Table")
     result = print_summary_table(
-        args.out_prefix, args.project, args.toolchain, args.build_type,
-        args.build
+        args.out_prefix, args.project, args.toolchain, args.board,
+        args.build_type, args.build
     )
 
     if not result and args.fail:
