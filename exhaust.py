@@ -13,6 +13,7 @@ from utils import safe_get_dict_value
 from tasks import Tasks
 from runner import Runner
 from tool_parameters import ToolParametersHelper
+from fpgaperf import get_projects, get_toolchains
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = root_dir + '/src'
@@ -96,13 +97,15 @@ def main():
         '--project',
         default=None,
         nargs="+",
-        help='run given project only (default: all)'
+        choices=get_projects(),
+        help='run given project(s) only (default: all)'
     )
     parser.add_argument(
         '--toolchain',
         default=None,
         nargs="+",
-        help='run given toolchain only (default: all)'
+        choices=get_toolchains(),
+        help='run given toolchain(s) only (default: all)'
     )
     parser.add_argument(
         '--out-prefix',
