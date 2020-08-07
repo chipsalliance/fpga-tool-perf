@@ -75,7 +75,7 @@ class Tasks:
 
         return combinations
 
-    def get_tasks(self, args):
+    def get_tasks(self, args, seeds=[0], build_number=[0], options=[None]):
         """Returns all the tasks filtering out the ones that do not correspond
         to the selected criteria"""
 
@@ -94,4 +94,30 @@ class Tasks:
             if take_task:
                 tasks.append(task)
 
+        tasks = self.add_extra_entry(seeds, tasks, create_new_tasks=True)
+        tasks = self.add_extra_entry(options, tasks)
+        tasks = self.add_extra_entry(
+            build_number, tasks, create_new_tasks=True
+        )
+
         return tasks
+
+    def add_extra_entry(
+        self, entries, tasks, with_idx=False, create_new_tasks=False
+    ):
+        def add_tuple_to_tasks(tasks, tpl):
+            new_tasks = []
+
+            for task in tasks:
+                new_tasks.append(task + tpl)
+
+            return new_tasks
+
+        task_list = []
+        for idx, entry in enumerate(entries):
+            if create_new_tasks:
+                task_list += add_tuple_to_tasks(tasks, (entry, ))
+            else:
+                task_list = add_tuple_to_tasks(tasks, (entry, ))
+
+        return task_list

@@ -28,36 +28,17 @@ class Runner:
     runs all of them parallely.
     """
     def __init__(
-        self,
-        task_list,
-        verbose,
-        out_prefix,
-        root_dir,
-        build_type,
-        build=None,
-        seed=None,
-        options=[]
+        self, task_list, verbose, out_prefix, root_dir, build_type,
+        build_numbers
     ):
         self.verbose = verbose
         self.out_prefix = out_prefix
         self.root_dir = root_dir
-        self.build = int(build) if build else None
         self.build_format = "{:03d}"
         self.build_type = build_type
-        self.seed = seed
         self.results = dict()
-
-        def add_tuple_to_tasks(tasks, tpl):
-            new_tasks = []
-
-            for task in tasks:
-                new_tasks.append(task + tpl)
-
-            return new_tasks
-
-        self.task_list = []
-        for idx, option in enumerate(options):
-            self.task_list += add_tuple_to_tasks(task_list, (option, idx))
+        self.task_list = task_list
+        self.build_numbers = build_numbers
 
     def worker(self, arglist):
         """Single worker function that is run in the Pool of workers.
@@ -67,9 +48,9 @@ class Runner:
         def eprint(*args, **kwargs):
             print(*args, file=sys.stderr, **kwargs)
 
-        project, toolchain, board, option, build = arglist
+        project, toolchain, board, seed, option, build_number = arglist
 
-        build = self.build_format.format(self.build or build)
+        build = self.build_format.format(build_number)
 
         # We don't want output of all subprocesses here
         # Log files for each build will be placed in build directory
@@ -85,7 +66,7 @@ class Runner:
                     self.out_prefix,
                     self.verbose,
                     None,  #strategy
-                    self.seed,
+                    seed,
                     None,  #carry
                     build,
                     self.build_type,
@@ -111,15 +92,17 @@ class Runner:
 
     def get_reports(self):
         reports = []
-        if self.build is not None:
-            metadata_path = '*{}_{}*/meta.json'.format(
-                self.build_type, self.build_format.format(self.build)
-            )
-        else:
-            metadata_path = '*{}*/meta.json'.format(self.build_type)
-        for filename in glob.iglob(os.path.join(self.root_dir, self.out_prefix,
-                                                metadata_path)):
-            reports.append(filename)
+        for build_number in self.build_numbers:
+            if build_number is not None:
+                metadata_path = '*{}_{}*/meta.json'.format(
+                    self.build_type, self.build_format.format(build_number)
+                )
+            else:
+                metadata_path = '*{}*/meta.json'.format(self.build_type)
+            for filename in glob.iglob(os.path.join(self.root_dir,
+                                                    self.out_prefix,
+                                                    metadata_path)):
+                reports.append(filename)
 
         return reports
 
