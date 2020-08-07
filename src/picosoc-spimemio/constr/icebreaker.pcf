@@ -1,0 +1,4 @@
+set_io clk 35
+set_io stb 25
+set_io di 10
+set_io do 21

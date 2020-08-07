@@ -11,19 +11,26 @@
     "toolchains": {
         "vivado": {
             "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
             "zybo": ["zybo.xdc"]
         },
         "vivado-yosys": {
             "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
             "zybo": ["zybo.xdc"]
         },
         "vpr": {
             "arty": ["arty.pcf"],
+            "basys3": ["basys3.pcf"],
             "zybo": ["zybo.pcf"]
         },
         "vpr-fasm2bels": {
             "arty": ["arty.pcf"],
+            "basys3": ["basys3.pcf"],
             "zybo": ["zybo.pcf"]
+        },
+        "nextpnr-ice40": {
+            "icebreaker": ["icebreaker.pcf"]
         }
     }
 }

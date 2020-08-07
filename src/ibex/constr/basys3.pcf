@@ -1,0 +1,12 @@
+## Clock signal
+set_io IO_CLK W5
+
+## LEDs
+set_io LED[0] U16
+set_io LED[1] E19
+set_io LED[2] U19
+set_io LED[3] W18
+
+
+# Reset signal
+set_io IO_RST_N A18
