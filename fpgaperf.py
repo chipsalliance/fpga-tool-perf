@@ -124,12 +124,13 @@ toolchains = {
     'nextpnr-ice40': NextpnrIcestorm,
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
-    'icecube2-synpro': Icecube2Synpro,
-    'icecube2-lse': Icecube2LSE,
-    'icecube2-yosys': Icecube2Yosys,
-    'radiant-synpro': RadiantSynpro,
-    'radiant-lse': RadiantLSE,
-    #'radiant-yosys':    RadiantYosys,
+    # TODO: These are not currently be extensively tested
+    #'icecube2-synpro': Icecube2Synpro,
+    #'icecube2-lse': Icecube2LSE,
+    #'icecube2-yosys': Icecube2Yosys,
+    #'radiant-synpro': RadiantSynpro,
+    #'radiant-lse': RadiantLSE,
+    #'radiant-yosys': RadiantYosys,
     #'radiant': VPR,
 }
 
