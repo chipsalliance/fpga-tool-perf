@@ -21,6 +21,7 @@ class Toolchain:
     def __init__(self, rootdir):
         self.rootdir = rootdir
         self.runtimes = collections.OrderedDict()
+        self.unprinted_runtimes = collections.OrderedDict()
         self.toolchain = None
         self.verbose = False
         self.cmds = []
@@ -72,16 +73,18 @@ class Toolchain:
             tokens.append('seed-%08X' % (self.seed, ))
         return '_'.join(tokens)
 
-    def add_runtime(self, name, dt, parent=None):
+    def add_runtime(self, name, dt, parent=None, unprinted_runtime=False):
+        collection = self.runtimes
+        if unprinted_runtime:
+            collection = self.unprinted_runtimes
         if parent is None:
-            self.runtimes[name] = dt
+            collection[name] = dt
         else:
-            assert (parent not in self.runtimes) or (
-                type(self.runtimes[parent]) is collections.OrderedDict
-            )
-            if parent not in self.runtimes:
-                self.runtimes[parent] = collections.OrderedDict()
-            self.runtimes[parent][name] = dt
+            assert (parent not in collection
+                    ) or (type(collection[parent]) is collections.OrderedDict)
+            if parent not in collection:
+                collection[parent] = collections.OrderedDict()
+            collection[parent][name] = dt
 
     def design(self):
         ret = "{}_{}_{}_{}_{}".format(
