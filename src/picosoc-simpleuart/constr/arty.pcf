@@ -1,0 +1,4 @@
+set_io clk E3
+set_io stb H5
+set_io di A8
+set_io do J5

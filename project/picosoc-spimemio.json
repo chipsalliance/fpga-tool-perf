@@ -10,16 +10,27 @@
     },
     "toolchains": {
         "vivado": {
-            "basys3": ["basys3.xdc"]
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
         },
         "vivado-yosys": {
-            "basys3": ["basys3.xdc"]
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
         },
         "vpr": {
-            "basys3": ["basys3.pcf"]
+            "arty": ["arty.pcf"],
+            "basys3": ["basys3.pcf"],
+            "zybo": ["zybo.pcf"]
         },
         "vpr-fasm2bels": {
-            "basys3": ["basys3.pcf"]
+            "arty": ["arty.pcf"],
+            "basys3": ["basys3.pcf"],
+            "zybo": ["zybo.pcf"]
+	},
+        "nextpnr-ice40": {
+            "icebreaker": ["icebreaker.pcf"]
         }
     }
 }
