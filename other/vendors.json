@@ -1,0 +1,10 @@
+{
+    "xilinx": {
+        "boards": ["arty", "basys3", "zybo", "nexys"],
+        "toolchains": ["vivado", "vivado-yosys", "vpr", "vpr-fasm2bels", "nextpnr-xilinx", "nextpnr-xilinx-fasm2bels"]
+    },
+    "lattice": {
+        "boards": ["icebreaker", "tinyfpgab2"],
+        "toolchains": ["nextpnr-ice40"]
+    }
+}

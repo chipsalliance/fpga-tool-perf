@@ -30,6 +30,6 @@
 		"vivado": {
 			"nexys": ["nexys.xdc"]
 		}
-	}
+	},
+    "vendors": ["xilinx"]
 }
-

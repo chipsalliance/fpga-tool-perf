@@ -28,7 +28,7 @@
             "arty": ["arty.pcf"],
             "basys3": ["basys3.pcf"],
             "zybo": ["zybo.pcf"]
-	}
-    }
+        }
+	},
+    "vendors": ["xilinx"]
 }
-

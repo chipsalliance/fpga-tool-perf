@@ -156,7 +156,7 @@ def run(
 
     logger.debug("Preparing Project")
     project_dict = get_project(project)
-    with open(os.path.join(root_dir, 'boards', 'boards.json'), 'r') as boards:
+    with open(os.path.join(root_dir, 'other', 'boards.json'), 'r') as boards:
         boards_info = json.load(boards)
 
     board_info = boards_info[board]
@@ -224,7 +224,11 @@ def list_combinations(
     table_data = [['Project', 'Toolchain', 'Board', 'Status']]
     for p in get_projects(project):
         toolchain_info = get_project(p)["toolchains"]
+        vendor_info = get_project(p)["vendors"]
         for t in get_toolchains(toolchain):
+            vendor = get_vendors(t)
+            if vendor not in vendor_info:
+                continue
             text = "Supported"
             board_info = None
             if t not in toolchain_info:
@@ -232,6 +236,8 @@ def list_combinations(
             else:
                 board_info = toolchain_info[t]
             for b in get_boards(board):
+                if b not in get_vendors()[vendor]["boards"]:
+                    continue
                 text2 = text
                 if board_info is None or b not in board_info:
                     text2 = "Missing"
@@ -241,9 +247,22 @@ def list_combinations(
     print(table.table)
 
 
+def get_vendors(toolchain=None):
+    '''Return vendor information'''
+    with open(os.path.join(root_dir, 'other', 'vendors.json'),
+              'r') as vendors_file:
+        vendors = json.load(vendors_file)
+    if toolchain is None:
+        return vendors
+    for v in vendors:
+        if toolchain in vendors[v]["toolchains"]:
+            return v
+    return None
+
+
 def get_boards(board=None):
     '''Query all supported boards'''
-    with open(os.path.join(root_dir, 'boards', 'boards.json'),
+    with open(os.path.join(root_dir, 'other', 'boards.json'),
               'r') as boards_file:
         boards = json.load(boards_file)
     if board is None:

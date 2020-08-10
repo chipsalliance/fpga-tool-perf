@@ -43,6 +43,6 @@
         "nextpnr-ice40": {
             "icebreaker": ["icebreaker.pcf"]
         }
-    }
+    },
+    "vendors": ["xilinx", "lattice"]
 }
-
