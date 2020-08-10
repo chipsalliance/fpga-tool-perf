@@ -75,7 +75,7 @@ class Icecube2Synpro(Icecube2):
 
     def __init__(self):
         Icecube2.__init__(self)
-        self.toolchain = 'icecube2-synpro'
+        self.toolchain = 'synpro-icecube2'
 
     def syn(self):
         return "synpro"
@@ -94,7 +94,7 @@ class Icecube2LSE(Icecube2):
 
     def __init__(self):
         Icecube2.__init__(self)
-        self.toolchain = 'icecube2-lse'
+        self.toolchain = 'lse-icecube2'
 
     def syn(self):
         return "lse"
@@ -113,7 +113,7 @@ class Icecube2Yosys(Icecube2):
 
     def __init__(self):
         Icecube2.__init__(self)
-        self.toolchain = 'icecube2-yosys'
+        self.toolchain = 'yosys-icecube2'
 
     def syn(self):
         return "yosys-synpro"

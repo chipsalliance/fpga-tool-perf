@@ -78,7 +78,7 @@ class RadiantLSE(Radiant):
 
     def __init__(self):
         Radiant.__init__(self)
-        self.toolchain = 'radiant-lse'
+        self.toolchain = 'lse-radiant'
 
     def syn(self):
         return "lse"
@@ -90,7 +90,7 @@ class RadiantSynpro(Radiant):
 
     def __init__(self):
         Radiant.__init__(self)
-        self.toolchain = 'radiant-synpro'
+        self.toolchain = 'synpro-radiant'
 
     def syn(self):
         return "synplify"
@@ -103,7 +103,7 @@ class RadiantYosys(Radiant):
 
     def __init__(self):
         Radiant.__init__(self)
-        self.toolchain = 'radiant-yosys'
+        self.toolchain = 'yosys-radiant'
 
     def syn(self):
         return "yosys-synpro"
