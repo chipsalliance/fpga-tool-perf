@@ -3,17 +3,22 @@ import os
 
 
 class Timed:
-    def __init__(self, t, name):
+    def __init__(self, t, name, unprinted_runtime=False):
         self.t = t
         self.name = name
         self.start = None
+        self.unprinted_runtime = unprinted_runtime
 
     def __enter__(self):
         self.start = time.time()
 
     def __exit__(self, type, value, traceback):
         end = time.time()
-        self.t.add_runtime(self.name, end - self.start)
+        self.t.add_runtime(
+            self.name,
+            end - self.start,
+            unprinted_runtime=self.unprinted_runtime
+        )
 
 
 def get_vivado_max_freq(report_file):
