@@ -124,12 +124,13 @@ toolchains = {
     'nextpnr-ice40': NextpnrIcestorm,
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
-    'icecube2-synpro': Icecube2Synpro,
-    'icecube2-lse': Icecube2LSE,
-    'icecube2-yosys': Icecube2Yosys,
-    'radiant-synpro': RadiantSynpro,
-    'radiant-lse': RadiantLSE,
-    #'radiant-yosys':    RadiantYosys,
+    # TODO: These are not currently be extensively tested
+    #'icecube2-synpro': Icecube2Synpro,
+    #'icecube2-lse': Icecube2LSE,
+    #'icecube2-yosys': Icecube2Yosys,
+    #'radiant-synpro': RadiantSynpro,
+    #'radiant-lse': RadiantLSE,
+    #'radiant-yosys': RadiantYosys,
     #'radiant': VPR,
 }
 
@@ -155,7 +156,7 @@ def run(
 
     logger.debug("Preparing Project")
     project_dict = get_project(project)
-    with open(os.path.join(root_dir, 'boards', 'boards.json'), 'r') as boards:
+    with open(os.path.join(root_dir, 'other', 'boards.json'), 'r') as boards:
         boards_info = json.load(boards)
 
     board_info = boards_info[board]
@@ -214,9 +215,72 @@ def run(
     t.write_metadata()
 
 
-def get_toolchains():
+def list_combinations(
+    project=None,
+    toolchain=None,
+    board=None,
+):
+    '''Query all supported combinations'''
+    table_data = [['Project', 'Toolchain', 'Board', 'Status']]
+    for p in get_projects(project):
+        toolchain_info = get_project(p)["toolchains"]
+        vendor_info = get_project(p)["vendors"]
+        for t in get_toolchains(toolchain):
+            vendor = get_vendors(t)
+            if vendor not in vendor_info:
+                continue
+            text = "Supported"
+            board_info = None
+            if t not in toolchain_info:
+                text = "Missing"
+            else:
+                board_info = toolchain_info[t]
+            for b in get_boards(board):
+                if b not in get_vendors()[vendor]["boards"]:
+                    continue
+                text2 = text
+                if board_info is None or b not in board_info:
+                    text2 = "Missing"
+                row = [p, t, b, text2]
+                table_data.append(row)
+    table = AsciiTable(table_data)
+    print(table.table)
+
+
+def get_vendors(toolchain=None):
+    '''Return vendor information'''
+    with open(os.path.join(root_dir, 'other', 'vendors.json'),
+              'r') as vendors_file:
+        vendors = json.load(vendors_file)
+    if toolchain is None:
+        return vendors
+    for v in vendors:
+        if toolchain in vendors[v]["toolchains"]:
+            return v
+    return None
+
+
+def get_boards(board=None):
+    '''Query all supported boards'''
+    with open(os.path.join(root_dir, 'other', 'boards.json'),
+              'r') as boards_file:
+        boards = json.load(boards_file)
+    if board is None:
+        return boards
+    elif board in boards:
+        return [board]
+    else:
+        return []
+
+
+def get_toolchains(toolchain=None):
     '''Query all supported toolchains'''
-    return sorted(toolchains.keys())
+    if toolchain is None:
+        return sorted(toolchains.keys())
+    elif toolchain in sorted(toolchains.keys()):
+        return [toolchain]
+    else:
+        return []
 
 
 def list_toolchains():
@@ -229,11 +293,17 @@ def matching_pattern(path, pattern):
     return sorted([re.match(pattern, fn).group(1) for fn in glob.glob(path)])
 
 
-def get_projects():
+def get_projects(project=None):
     '''Query all supported projects'''
-    return matching_pattern(
+    projects = matching_pattern(
         os.path.join(project_dir, '*.json'), '/.*/(.*)[.]json'
     )
+    if project is None:
+        return projects
+    elif project in projects:
+        return [project]
+    else:
+        return []
 
 
 def list_projects():
@@ -346,6 +416,11 @@ def main():
     )
     parser.add_argument('--list-projects', action='store_true', help='')
     parser.add_argument(
+        '--list-combinations',
+        action='store_true',
+        help='Lists every <project, toolchain, board> combination.'
+    )
+    parser.add_argument(
         '--seed',
         default=None,
         help='31 bit seed number to use, possibly directly mapped to PnR tool'
@@ -379,7 +454,10 @@ def main():
 
     assert not (args.params_file and args.params_string)
 
-    if args.list_toolchains:
+    if args.list_combinations:
+        logger.debug("Listing Combinations")
+        list_combinations(args.project, args.toolchain, args.board)
+    elif args.list_toolchains:
         logger.debug("Listing Toolchains")
         list_toolchains()
     elif args.list_projects:

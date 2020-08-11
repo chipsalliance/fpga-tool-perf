@@ -29,6 +29,6 @@
         "vpr-fasm2bels": {
             "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
         }
-    }
+    },
+    "vendors": ["xilinx"]
 }
-
