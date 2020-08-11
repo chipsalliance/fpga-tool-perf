@@ -1,0 +1,34 @@
+{
+    "srcs": [
+        "src/dram_test_64x1d/dram_test_64x1d.v",
+        "src/dram_test_64x1d/uart.v",
+        "src/dram_test_64x1d/uart_rx.v",
+        "src/dram_test_64x1d/uart_tx.v",
+        "src/dram_test_64x1d/ram_test.v",
+        "src/dram_test_64x1d/lfsr.v",
+        "src/dram_test_64x1d/error_output_logic.v",
+        "src/dram_test_64x1d/baudgen.v"
+    ],
+    "top": "top",
+    "name": "dram_test_64x1d",
+    "clocks": {
+        "clk": 10.0
+    },
+    "toolchains": {
+        "vpr": {
+            "basys3": ["basys3.pcf", "basys3.sdc"]
+        },
+        "vpr-fasm2bels": {
+            "basys3": ["basys3.pcf", "basys3.sdc"]
+        },
+        "nextpnr-xilinx": {
+            "basys3": ["basys3-nextpnr.xdc"]
+        },
+        "vivado": {
+            "basys3": ["basys3.xdc"]
+        },
+        "vivado-yosys": {
+            "basys3": ["basys3.xdc"]
+        }
+    }
+}
