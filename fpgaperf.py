@@ -118,19 +118,19 @@ def print_stats(t):
 
 toolchains = {
     'vivado': Vivado,
-    'vivado-yosys': VivadoYosys,
+    'yosys-vivado': VivadoYosys,
     'vpr': VPR,
     'vpr-fasm2bels': VPRFasm2Bels,
     'nextpnr-ice40': NextpnrIcestorm,
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
     # TODO: These are not currently be extensively tested
-    #'icecube2-synpro': Icecube2Synpro,
-    #'icecube2-lse': Icecube2LSE,
-    #'icecube2-yosys': Icecube2Yosys,
-    #'radiant-synpro': RadiantSynpro,
-    #'radiant-lse': RadiantLSE,
-    #'radiant-yosys': RadiantYosys,
+    #'synpro-icecube2': Icecube2Synpro,
+    #'lse-icecube2': Icecube2LSE,
+    #'yosys-icecube2': Icecube2Yosys,
+    #'synpro-radiant': RadiantSynpro,
+    #'lse-radiant': RadiantLSE,
+    #'yosys-radiant': RadiantYosys,
     #'radiant': VPR,
 }
 

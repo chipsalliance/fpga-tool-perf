@@ -4,7 +4,7 @@
         "src/baselitex/baselitex_arty.v"
     ],
     "top": "top",
-    "name": "litex-linux",
+    "name": "baselitex",
     "data": [
         "src/baselitex/mem.init",
         "src/baselitex/mem_1.init",

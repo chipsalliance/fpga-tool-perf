@@ -4,7 +4,7 @@
         "src/picorv32/picorv32_wrap.v"
     ],
     "top": "top",
-    "name": "picorv32-wrap",
+    "name": "picorv32",
     "clocks": {
         "clk": 10.0
     },

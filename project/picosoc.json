@@ -8,7 +8,7 @@
         "src/picosoc/progmem.v"
     ],
     "top": "top",
-    "name": "picosoc-wrap",
+    "name": "picosoc",
     "clocks": {
         "clk": 10.0
     },
