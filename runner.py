@@ -60,10 +60,11 @@ class Runner:
                     board,
                     toolchain,
                     project,
-                    None,  #options_file
-                    option,
+                    None,  #params_file
+                    option,  #params_string
                     None,  #out_dir
                     self.out_prefix,
+                    False,  #overwrite
                     self.verbose,
                     None,  #strategy
                     seed,
