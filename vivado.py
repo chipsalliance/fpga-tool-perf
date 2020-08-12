@@ -130,6 +130,41 @@ class Vivado(Toolchain):
             self.backend.build()
 
         self.add_runtimes()
+        self.add_maximum_memory_use()
+
+    def add_maximum_memory_use(self):
+        def get_usage(log_file, token="Memory ("):
+            unit_list = ["B", "KB", "MB", "GB", "TB", "PB"]
+            memory_usage = list()
+            with open(log_file, 'r') as fp:
+                for l in fp:
+                    l = l.strip()
+                    if token in l:
+                        l_split = l.split()
+                        memory_index = [
+                            idx for idx, s in enumerate(l_split)
+                            if "Memory" in s
+                        ][0]
+                        unit = l_split[memory_index + 1][1:-2]
+                        max_rss = float(l_split[memory_index + 4])
+                        # convert memory to MB
+                        unit_index = unit_list.index(unit) - 2
+                        if unit_index < 0:
+                            max_rss = max_rss / (
+                                1000 * (-unit_index)
+                            )  # make unit index positive
+                        elif unit_index > 0:
+                            max_rss = max_rss * 1000 * unit_index
+
+                        # convert MB to MiB
+                        max_rss = max_rss * 0.95367431640625
+
+                        memory_usage.append(max_rss)
+            return memory_usage
+
+        vivado_log = os.path.join(self.out_dir, 'vivado.log')
+
+        self.maximum_memory_use = max(get_usage(vivado_log))
 
     @staticmethod
     def seedable():
