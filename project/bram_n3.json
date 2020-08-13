@@ -24,5 +24,6 @@
         "vivado-yosys": {
             "basys3": ["basys3.xdc"]
         }
-    }
+    },
+    "vendors": ["xilinx"]
 }
