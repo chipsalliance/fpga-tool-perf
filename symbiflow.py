@@ -141,6 +141,8 @@ class VPR(Toolchain):
 
             self.run_steps()
             self.add_runtimes()
+            self.add_wirelength()
+            self.add_maximum_memory_use()
 
     def get_tool_params(self):
         if self.params_file:
@@ -201,6 +203,61 @@ class VPR(Toolchain):
                         processing = False
 
         return critical_paths
+
+    def add_wirelength(self):
+        def get_wirelength(log_file):
+            with open(log_file, 'r') as fp:
+                for l in fp:
+                    l = l.strip()
+                    if 'Total wirelength:' in l:
+                        return int(l.split()[2][:-1])
+            return 0
+
+        route_log = os.path.join(self.out_dir, 'route.log')
+        self.wirelength = get_wirelength(route_log)
+
+    def add_maximum_memory_use(self):
+        def get_usage(log_file, token="max_rss"):
+            unit_list = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
+            memory_usage = list()
+            with open(log_file, 'r') as fp:
+                for l in fp:
+                    l = l.strip()
+                    if token in l:
+                        l_split = l.split()
+                        unit = l_split[l_split.index("(max_rss") + 2][:-1]
+                        max_rss = float(l_split[l_split.index("(max_rss") + 1])
+                        # convert memory to MiB
+                        unit_index = unit_list.index(unit) - 2
+                        if unit_index < 0:
+                            max_rss = max_rss / (
+                                1024 * (-unit_index)
+                            )  # make unit index positive
+                        elif unit_index > 0:
+                            max_rss = max_rss * 1024 * unit_index
+
+                        memory_usage.append(max_rss)
+
+            return memory_usage
+
+        pack_log = os.path.join(self.out_dir, 'pack.log')
+        place_log = os.path.join(self.out_dir, 'place.log')
+        route_log = os.path.join(self.out_dir, 'route.log')
+        fasm_log = os.path.join(self.out_dir, 'fasm.log')
+
+        self.maximum_memory_use = 0.0
+        self.maximum_memory_use = max(
+            max(get_usage(pack_log)), self.maximum_memory_use
+        )
+        self.maximum_memory_use = max(
+            max(get_usage(place_log)), self.maximum_memory_use
+        )
+        self.maximum_memory_use = max(
+            max(get_usage(route_log)), self.maximum_memory_use
+        )
+        self.maximum_memory_use = max(
+            max(get_usage(fasm_log)), self.maximum_memory_use
+        )
 
     def max_freq(self):
         def safe_division_by_zero(n, d):
@@ -614,6 +671,23 @@ class NextpnrXilinx(Toolchain):
             self.run_steps()
 
             self.add_runtimes()
+            self.add_wirelength()
+
+    def add_wirelength(self):
+        def get_wirelength(log_file):
+            wirelen = 0
+            with open(log_file, 'r') as fp:
+                for l in fp:
+                    l = l.strip()
+                    if 'wirelen =' in l:
+                        l_split = l.split()
+                        wirelen = l_split[l_split.index("wirelen") + 2]
+                        wirelen = ''.join(c for c in wirelen if c.isdigit())
+                        wirelen = int(wirelen)
+            return wirelen
+
+        route_log = os.path.join(self.out_dir, 'nextpnr.log')
+        self.wirelength = get_wirelength(route_log)
 
     def max_freq(self):
         """Returns the max frequencies of the implemented design."""

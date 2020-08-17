@@ -50,6 +50,9 @@ class Toolchain:
         self.out_dir = None
         self.clocks = None
 
+        self.wirelength = None
+        self.maximum_memory_use = None
+
         with Timed(self, 'nop'):
             subprocess.check_call("true", shell=True, cwd=self.out_dir)
 
@@ -329,6 +332,8 @@ class Toolchain:
             "resources": resources,
             "versions": self.versions(),
             "cmds": self.cmds,
+            "wirelength": self.wirelength,
+            "maximum_memory_use": self.maximum_memory_use,
         }
 
         print
