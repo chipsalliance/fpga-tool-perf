@@ -29,7 +29,7 @@ class Runner:
     """
     def __init__(
         self, task_list, verbose, out_prefix, root_dir, build_type,
-        build_numbers
+        build_numbers, overwrite
     ):
         self.verbose = verbose
         self.out_prefix = out_prefix
@@ -39,6 +39,7 @@ class Runner:
         self.results = dict()
         self.task_list = task_list
         self.build_numbers = build_numbers
+        self.overwrite = overwrite
 
     def worker(self, arglist):
         """Single worker function that is run in the Pool of workers.
@@ -64,7 +65,7 @@ class Runner:
                     option,  #params_string
                     None,  #out_dir
                     self.out_prefix,
-                    False,  #overwrite
+                    self.overwrite,
                     self.verbose,
                     None,  #strategy
                     seed,
