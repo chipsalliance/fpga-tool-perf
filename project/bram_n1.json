@@ -4,7 +4,7 @@
         "src/bram/rom.v",
         "src/bram/processing_unit.v",
         "src/bram/simpleuart.v",
-	"src/bram/scalable_proc.v"
+        "src/bram/scalable_proc.v"
     ],
     "top": "top",
     "name": "bram_n1",
