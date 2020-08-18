@@ -9,7 +9,7 @@ dependencies:
   - nextpnr-xilinx=0.0_2809_g7e46c6a3
   - nextpnr-ice40
   - prjxray-tools
-  - prjxray-db=0.0_0230_g485a837
+  - prjxray-db
   - pip
   - pip:                            # Packages installed from PyPI
     - -r file:requirements.txt

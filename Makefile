@@ -7,7 +7,7 @@ MULTIPLE_RUN_ITERATIONS ?= 2
 
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
-SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/44/20200721-072851/symbiflow-arch-defs-install-206bd565.tar.xz"
+SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/58/20200818-030314/symbiflow-arch-defs-install-d379f07f.tar.xz"
 
 all: format
 
