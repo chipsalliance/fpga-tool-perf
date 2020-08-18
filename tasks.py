@@ -12,7 +12,7 @@
 import os
 from itertools import product
 
-from fpgaperf import get_projects, get_project, get_toolchains, get_constraint
+from fpgaperf import get_projects, get_project, get_toolchains, get_constraint, get_vendors
 
 
 class Tasks:
@@ -27,35 +27,28 @@ class Tasks:
         """Returns all the possible combination of:
             - projects,
             - toolchains,
-            - families,
-            - devices,
-            - packages
             - boards.
 
         Example:
-        - path structure:    src/<project>/<toolchain>/<family>_<device>_<package>_<board>.<constraint>
-        - valid combination: src/oneblink/vpr/xc7_a35t_csg324-1_arty.pcf
+        - path structure:    src/<project>/constr/<board>.<constraint>
+        - valid combination: src/oneblink/constr/arty.pcf
         """
 
-        projects = get_projects()
-        toolchains = get_toolchains()
+        new_combinations = set()
 
-        combinations = set()
-        for project, toolchain in list(product(projects, toolchains)):
+        vendors = get_vendors()
+        for project in get_projects():
             project_dict = get_project(project)
 
-            if 'toolchains' in project_dict:
-                toolchains_dict = project_dict['toolchains']
-            else:
-                continue
+            for vendor in project_dict["vendors"]:
+                toolchains = vendors[vendor]["toolchains"]
+                boards = vendors[vendor]["boards"]
 
-            if toolchain not in toolchains_dict:
-                continue
+                for toolchain, board in list(product(toolchains, boards)):
+                    new_combinations.add((project, toolchain, board))
+        ### Update: Specifically use only those with the files ready
 
-            for board in toolchains_dict[toolchain]:
-                combinations.add((project, toolchain, board))
-
-        return combinations
+        return new_combinations
 
     def get_tasks(self, args, seeds=[0], build_number=[0], options=[None]):
         """Returns all the tasks filtering out the ones that do not correspond
@@ -81,7 +74,8 @@ class Tasks:
         tasks = self.add_extra_entry(
             build_number, tasks, create_new_tasks=True
         )
-
+        for task in tasks:
+            print(task)
         return tasks
 
     def add_extra_entry(
