@@ -21,7 +21,6 @@ class Tasks:
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.src_dir = os.path.join(root_dir, 'src')
-
         self.tasks = self.iter_options()
 
     def iter_options(self):
