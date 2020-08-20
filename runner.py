@@ -75,7 +75,7 @@ class Runner:
             except Exception as e:
                 eprint("\n---------------------")
                 eprint(
-                    "ERROR: {} {} {}{}{} {} test has failed (build type {}, build nr. {})\n"
+                    "ERROR: {} {} {} test has failed (build type {}, build nr. {})\n"
                     .format(project, toolchain, board, self.build_type, build)
                 )
                 eprint("ERROR MESSAGE: ", e)
