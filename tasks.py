@@ -21,15 +21,6 @@ class Tasks:
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.src_dir = os.path.join(root_dir, 'src')
-        self.MANDATORY_CONSTRAINTS = {
-            "vivado": "xdc",
-            "vpr": "pcf",
-            "vpr-fasm2bels": "pcf",
-            "vivado-yosys": "xdc",
-            "nextpnr-xilinx": "xdc",
-            "nextpnr-xilinx-fasm2bels": "xdc",
-            "nextpnr-ice40": "pcf",
-        }
 
         self.tasks = self.iter_options()
 
@@ -62,15 +53,7 @@ class Tasks:
             if toolchain not in toolchains_dict:
                 continue
 
-            if toolchain not in self.MANDATORY_CONSTRAINTS.keys():
-                continue
-
             for board in toolchains_dict[toolchain]:
-                assert get_constraint(
-                    project, board, toolchains_dict[toolchain][board],
-                    self.MANDATORY_CONSTRAINTS[toolchain]
-                )
-
                 combinations.add((project, toolchain, board))
 
         return combinations
