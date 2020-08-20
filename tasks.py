@@ -12,7 +12,7 @@
 import os
 from itertools import product
 
-from fpgaperf import get_projects, get_project, get_toolchains, get_constraint, get_vendors
+from fpgaperf import get_projects, get_project, get_toolchains, get_constraint, get_vendors, verify_constraint
 
 
 class Tasks:
@@ -34,7 +34,7 @@ class Tasks:
         - valid combination: src/oneblink/constr/arty.pcf
         """
 
-        new_combinations = set()
+        combinations = set()
 
         vendors = get_vendors()
         for project in get_projects():
@@ -45,10 +45,18 @@ class Tasks:
                 boards = vendors[vendor]["boards"]
 
                 for toolchain, board in list(product(toolchains, boards)):
+<<<<<<< HEAD
                     new_combinations.add((project, toolchain, board))
         ### Update: Specifically use only those with the files ready
+=======
+>>>>>>> 07265b7... verify_constraint function
 
-        return new_combinations
+                    if verify_constraint(
+                            project, board,
+                            self.MANDATORY_CONSTRAINTS[toolchain]):
+                        combinations.add((project, toolchain, board))
+
+        return combinations
 
     def get_tasks(self, args, seeds=[0], build_number=[0], options=[None]):
         """Returns all the tasks filtering out the ones that do not correspond
@@ -74,8 +82,6 @@ class Tasks:
         tasks = self.add_extra_entry(
             build_number, tasks, create_new_tasks=True
         )
-        for task in tasks:
-            print(task)
         return tasks
 
     def add_extra_entry(
