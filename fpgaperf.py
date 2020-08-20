@@ -351,6 +351,12 @@ def env_ready():
     return True
 
 
+def verify_constraint(project, board, extension):
+    board_file = board + "." + extension
+    path = os.path.join(src_dir, project, 'constr', board_file)
+    return os.path.exists(path)
+
+
 def get_constraint(project, board, constr_list, extension):
     constr_file = [v for v in constr_list if v.endswith(extension)]
 

@@ -12,7 +12,7 @@
 import os
 from itertools import product
 
-from fpgaperf import get_projects, get_project, get_toolchains, get_constraint, get_vendors
+from fpgaperf import get_projects, get_project, get_toolchains, get_constraint, get_vendors, verify_constraint
 
 
 class Tasks:
@@ -25,7 +25,7 @@ class Tasks:
             "vivado": "xdc",
             "vpr": "pcf",
             "vpr-fasm2bels": "pcf",
-            "vivado-yosys": "xdc",
+            "yosys-vivado": "xdc",
             "nextpnr-xilinx": "xdc",
             "nextpnr-xilinx-fasm2bels": "xdc",
             "nextpnr-ice40": "pcf",
@@ -44,22 +44,24 @@ class Tasks:
         - valid combination: src/oneblink/constr/arty.pcf
         """
 
-        new_combinations = set()
+        combinations = set()
 
         vendors = get_vendors()
         for project in get_projects():
             project_dict = get_project(project)
-            
+
             for vendor in project_dict["vendors"]:
                 toolchains = vendors[vendor]["toolchains"]
                 boards = vendors[vendor]["boards"]
 
                 for toolchain, board in list(product(toolchains, boards)):
-                    new_combinations.add((project, toolchain, board))
-                    
-        ### Update: Specifically use only those with the files ready
 
-        return new_combinations
+                    if verify_constraint(
+                            project, board,
+                            self.MANDATORY_CONSTRAINTS[toolchain]):
+                        combinations.add((project, toolchain, board))
+
+        return combinations
 
     def get_tasks(self, args, seeds=[0], build_number=[0], options=[None]):
         """Returns all the tasks filtering out the ones that do not correspond
@@ -85,8 +87,6 @@ class Tasks:
         tasks = self.add_extra_entry(
             build_number, tasks, create_new_tasks=True
         )
-        for task in tasks:
-            print(task)
         return tasks
 
     def add_extra_entry(
