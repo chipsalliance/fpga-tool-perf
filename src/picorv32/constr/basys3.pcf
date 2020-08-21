@@ -1,4 +1,0 @@
-set_io clk W5
-set_io stb U16
-set_io di V17
-set_io do E19
