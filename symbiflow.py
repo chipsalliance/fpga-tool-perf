@@ -560,21 +560,13 @@ class NextpnrXilinx(Toolchain):
                         }
                     )
 
-                if self.xdc:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.xdc),
-                            'file_type': 'xdc'
-                        }
-                    )
-
-                if self.pcf:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.pcf),
-                            'file_type': 'PCF'
-                        }
-                    )
+                assert self.xdc
+                self.files.append(
+                    {
+                        'name': os.path.realpath(self.xdc),
+                        'file_type': 'xdc'
+                    }
+                )
 
                 chip = self.family + self.device
 
@@ -637,29 +629,52 @@ class NextpnrXilinx(Toolchain):
                         }
                     )
 
+                symbiflow_options = {
+                    'part': chip,
+                    'package': self.package,
+                    'vendor': 'xilinx',
+                    'builddir': '.',
+                    'pnr': 'nextpnr',
+                    'yosys_synth_options':
+                        ["-flatten", "-nowidelut", "-abc9", "-arch xc7"],
+                    'fasm2bels': self.fasm2bels,
+                    'dbroot': self.dbroot,
+                    'clocks': self.clocks,
+                }
+
+                if self.fasm2bels:
+                    bitstream_device = None
+                    if self.device.startswith('a'):
+                        bitstream_device = 'artix7'
+                    if self.device.startswith('z'):
+                        bitstream_device = 'zynq7'
+                    if self.device.startswith('k'):
+                        bitstream_device = 'kintex7'
+
+                    assert bitstream_device
+
+                    part_json = os.path.join(
+                        self.dbroot, bitstream_device, self.family + self.part,
+                        'part.json'
+                    )
+                    symbiflow_options['yosys_additional_commands'] = [
+                        "plugin -i xdc",
+                        "yosys -import",
+                        "read_xdc -part_json {} {}".format(
+                            part_json, os.path.realpath(self.xdc)
+                        ),
+                        "write_blif -attr -param {}.eblif".format(
+                            self.project_name
+                        ),
+                    ]
+
                 self.edam = {
                     'files': self.files,
                     'name': self.project_name,
                     'toplevel': self.top,
-                    'tool_options':
-                        {
-                            'symbiflow':
-                                {
-                                    'part': chip,
-                                    'package': self.package,
-                                    'vendor': 'xilinx',
-                                    'builddir': '.',
-                                    'pnr': 'nextpnr',
-                                    'yosys_synth_options':
-                                        [
-                                            "-flatten", "-nowidelut", "-abc9",
-                                            "-arch xc7"
-                                        ],
-                                    'fasm2bels': self.fasm2bels,
-                                    'dbroot': self.dbroot,
-                                    'clocks': self.clocks,
-                                }
-                        }
+                    'tool_options': {
+                        'symbiflow': symbiflow_options,
+                    }
                 }
                 self.backend = edalize.get_edatool('symbiflow')(
                     edam=self.edam, work_root=self.out_dir
