@@ -51,10 +51,7 @@ class Tasks:
 =======
 >>>>>>> 07265b7... verify_constraint function
 
-                    if verify_constraint(
-                            project, board,
-                            self.MANDATORY_CONSTRAINTS[toolchain]):
-                        combinations.add((project, toolchain, board))
+                    combinations.add((project, toolchain, board))
 
         return combinations
 
