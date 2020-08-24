@@ -21,15 +21,6 @@ class Tasks:
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.src_dir = os.path.join(root_dir, 'src')
-        self.MANDATORY_CONSTRAINTS = {
-            "vivado": "xdc",
-            "vpr": "pcf",
-            "vpr-fasm2bels": "pcf",
-            "yosys-vivado": "xdc",
-            "nextpnr-xilinx": "xdc",
-            "nextpnr-xilinx-fasm2bels": "xdc",
-            "nextpnr-ice40": "pcf",
-        }
 
         self.tasks = self.iter_options()
 
@@ -56,10 +47,7 @@ class Tasks:
 
                 for toolchain, board in list(product(toolchains, boards)):
 
-                    if verify_constraint(
-                            project, board,
-                            self.MANDATORY_CONSTRAINTS[toolchain]):
-                        combinations.add((project, toolchain, board))
+                    combinations.add((project, toolchain, board))
 
         return combinations
 
