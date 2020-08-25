@@ -8,3 +8,5 @@ set_property IOSTANDARD LVCMOS33 [get_ports clk]
 set_property IOSTANDARD LVCMOS33 [get_ports stb]
 set_property IOSTANDARD LVCMOS33 [get_ports di]
 set_property IOSTANDARD LVCMOS33 [get_ports do]
+
+set_property DRIVE 12 [get_ports do]
