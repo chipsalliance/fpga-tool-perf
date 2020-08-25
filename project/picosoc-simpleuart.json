@@ -26,7 +26,7 @@
         },
         "vpr-fasm2bels": {
             "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
+            "basys3": ["basys3-vpr.xdc"],
             "zybo": ["zybo.xdc"]
         },
         "nextpnr-xilinx": {
