@@ -194,8 +194,7 @@ class Toolchain:
             self.clocks = project['clocks']
 
         out_prefix = out_prefix or 'build'
-        if not os.path.exists(out_prefix):
-            os.makedirs(out_prefix)
+        os.makedirs(out_prefix, exist_ok=True)
 
         if out_dir is None:
             out_dir = out_prefix + "/" + self.design()
