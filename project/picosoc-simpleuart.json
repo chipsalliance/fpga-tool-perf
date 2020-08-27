@@ -20,24 +20,24 @@
             "zybo": ["zybo.xdc"]
         },
         "vpr": {
-            "arty": ["arty.pcf"],
-            "basys3": ["basys3.pcf"],
-            "zybo": ["zybo.pcf"]
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
         },
         "vpr-fasm2bels": {
-            "arty": ["arty.pcf"],
-            "basys3": ["basys3.pcf"],
-            "zybo": ["zybo.pcf"]
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3-vpr.xdc"],
+            "zybo": ["zybo.xdc"]
         },
         "nextpnr-xilinx": {
             "arty": ["arty.xdc"],
-            "basys3": ["nextpnr-xilinx-basys3.xdc"],
+            "basys3": ["basys3.xdc"],
             "zybo": ["zybo.xdc"]
         },
         "nextpnr-xilinx-fasm2bels": {
-            "arty": ["arty.xdc", "arty.pcf"],
-            "basys3": ["nextpnr-xilinx-basys3.xdc", "basys3.pcf"],
-            "zybo": ["zybo.xdc", "zybo.pcf"]
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
         },
         "nextpnr-ice40": {
             "icebreaker": ["icebreaker.pcf"]

@@ -9,14 +9,14 @@
     },
     "toolchains": {
         "vpr": {
-            "arty": ["arty.pcf"],
-            "basys3": ["basys3.pcf"],
-            "zybo": ["zybo.pcf"]
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
         },
         "vpr-fasm2bels": {
-            "arty": ["arty.pcf"],
-            "basys3": ["basys3.pcf"],
-            "zybo": ["zybo.pcf"]
+            "arty": ["arty.xdc"],
+            "basys3": ["basys3.xdc"],
+            "zybo": ["zybo.xdc"]
         },
         "vivado": {
             "arty": ["arty.xdc"],
@@ -31,14 +31,14 @@
             "zybo": ["zybo.xdc"]
         },
         "nextpnr-xilinx": {
-            "arty": ["nextpnr-xilinx-arty.xdc"],
-            "zybo": ["nextpnr-xilinx-zybo.xdc"],
-            "basys3": ["nextpnr-xilinx-basys3.xdc"]
+            "arty": ["arty.xdc"],
+            "zybo": ["zybo.xdc"],
+            "basys3": ["basys3.xdc"]
         },
         "nextpnr-xilinx-fasm2bels": {
-            "arty": ["nextpnr-xilinx-arty.xdc", "arty.pcf"],
-            "zybo": ["nextpnr-xilinx-zybo.xdc", "zybo.pcf"],
-            "basys3": ["nextpnr-xilinx-basys3.xdc", "basys3.pcf"]
+            "arty": ["arty.xdc"],
+            "zybo": ["zybo.xdc"],
+            "basys3": ["basys3.xdc"]
         },
         "nextpnr-ice40": {
             "icebreaker": ["icebreaker.pcf"]

@@ -24,10 +24,10 @@
             "arty": ["arty-nextpnr.xdc"]
         },
         "vpr": {
-            "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
+            "arty": ["arty-vpr.xdc", "arty.sdc"]
         },
         "vpr-fasm2bels": {
-            "arty": ["arty.pcf", "arty.sdc", "arty-vpr.xdc"]
+            "arty": ["arty-vpr.xdc", "arty.sdc"]
         }
     },
     "vendors": ["xilinx"]

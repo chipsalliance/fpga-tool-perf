@@ -1,5 +1,0 @@
-# arty 100 MHz CLK
-set_io clk L16
-set_io stb M14
-set_io di G15
-set_io do M15
