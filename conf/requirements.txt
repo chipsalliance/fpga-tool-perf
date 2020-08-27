@@ -12,5 +12,5 @@ pandas
 yapf
 git+https://github.com/SymbiFlow/fasm.git#egg=fasm
 git+https://github.com/SymbiFlow/xc-fasm.git#egg=xc-fasm
-git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
+git+https://github.com/antmicro/edalize.git@quicklogic#egg=edalize
 git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git#egg=symbiflow-xc-fasm2bels

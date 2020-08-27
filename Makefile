@@ -25,9 +25,17 @@ env:: | $(CONDA_ENV_PYTHON)
 	git submodule init
 	git submodule update --init --recursive
 	mkdir -p env/symbiflow
+	wget -q https://github.com/QuickLogic-Corp/quicklogic-fpga-toolchain/releases/download/v1.1.0/Symbiflow_v1.1.0.gz.run
+	mkdir env/quicklogic
+	chmod +x Symbiflow_v1.1.0.gz.run
+	INSTALL_DIR=${PWD}/env/quicklogic ./Symbiflow_v1.1.0.gz.run
+	rm Symbiflow_v1.1.0.gz.run
+	source ./env/quicklogic/conda/bin/activate && pip3 install asciitable terminaltables colorclass "git+https://github.com/antmicro/edalize.git@quicklogic#egg=edalize"
+	sed -i "s/\/home\/kkumar\/symbiflow-arch-defs\/build\/env\/conda\/bin\/python3/\/usr\/bin\/env python3/" ./env/quicklogic/install/bin/python/qlfasm #fix path to interpreter, see https://github.com/QuickLogic-Corp/quicklogic-fpga-toolchain/issues/16
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
 	rm ${SYMBIFLOW_ARCHIVE}
+	source env.sh
 
 run-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic --fail
