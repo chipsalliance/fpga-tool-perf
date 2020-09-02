@@ -1,0 +1,41 @@
+set_io clk        63
+set_io reset      61
+set_io start      6
+set_io din(0)     2
+set_io din(1)     3
+set_io din(2)     64
+set_io din(3)     62
+set_io din(4)     4
+set_io din(5)     5
+set_io din(6)     60
+set_io din(7)     59
+
+set_io dout(0)     57
+set_io dout(1)     56
+set_io dout(2)     55
+set_io dout(3)     54
+set_io dout(4)     53
+set_io dout(5)     40
+set_io dout(6)     42
+set_io dout(7)     38
+
+set_io params(0)     36
+set_io params(1)     37
+set_io params(2)     39
+set_io params(3)     34
+set_io params(4)     33
+set_io params(5)     32
+set_io params(6)     31
+set_io params(7)     30
+set_io params(8)     28
+set_io params(9)     27
+set_io params(10)    15
+set_io params(11)    26
+set_io params(12)    25
+set_io params(13)    23
+set_io params(14)    22
+set_io params(15)    21
+
+set_io ready         20
+set_io iir_start     18
+set_io iir_done      17

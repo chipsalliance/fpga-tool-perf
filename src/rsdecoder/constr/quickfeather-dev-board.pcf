@@ -1,0 +1,21 @@
+set_io clk 63
+set_io clrn 5
+
+set_io x(0) 6
+set_io x(1) 2
+set_io x(2) 3
+set_io x(3) 64
+
+set_io k(0) 62
+set_io k(1) 42
+set_io k(2) 61
+set_io k(3) 60
+
+set_io error(0) 59
+set_io error(1) 57
+set_io error(2) 56
+set_io error(3) 55
+
+set_io enable 54
+set_io valid 53
+set_io with_error 40

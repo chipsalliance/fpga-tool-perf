@@ -1,0 +1,47 @@
+set_io clk        63
+set_io rst        61
+set_io ena        6
+set_io dstrb      2
+
+set_io din(0)     3
+set_io din(1)     64
+set_io din(2)     62
+set_io din(3)     4
+set_io din(4)     5
+set_io din(5)     60
+set_io din(6)     59
+set_io din(7)     57
+set_io din(8)     56
+set_io din(9)     55
+set_io din(10)    54
+set_io din(11)    53
+
+set_io qnt_val(0)     40
+set_io qnt_val(1)     42
+set_io qnt_val(2)     38
+set_io qnt_val(3)     36
+set_io qnt_val(4)     37
+set_io qnt_val(5)     39
+set_io qnt_val(6)     34
+set_io qnt_val(7)     33
+
+set_io qnt_cnt(0)     32
+set_io qnt_cnt(1)     31
+set_io qnt_cnt(2)     30
+set_io qnt_cnt(3)     28
+set_io qnt_cnt(4)     27
+set_io qnt_cnt(5)     26
+
+set_io douten        25
+
+set_io dout(0)     22
+set_io dout(1)     21
+set_io dout(2)     20
+set_io dout(3)     18
+set_io dout(4)     17
+set_io dout(5)     15
+set_io dout(6)     16
+set_io dout(7)     11
+set_io dout(8)     13
+set_io dout(9)     14
+set_io dout(10)    10

@@ -12,7 +12,8 @@
     },
     "toolchains": {
         "quicklogic": {
-            "chandalar": ["chandalar.pcf"]
+            "chandalar": ["chandalar.pcf"],
+            "quickfeather-dev-board": ["quickfeather-dev-board.pcf"]
         }
     },
     "vendors": ["quicklogic"]
