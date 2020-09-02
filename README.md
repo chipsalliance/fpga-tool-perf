@@ -15,7 +15,7 @@ Currently, the following tools that are available in conda are:
 To setup the conda environment, run the following command:
 
 ```bash
-make conda
+make env
 ```
 
 fpga-tool-perf can also run the Vivado EDA tool. The tool is not available in the conda environment and it needs to be installed by the user.
