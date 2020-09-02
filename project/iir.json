@@ -1,0 +1,16 @@
+{
+    "srcs": [
+        "src/iir/iir.v"
+        ],
+    "top": "top",
+    "name": "iir",
+    "clocks": {
+        "clk": 10.0
+    },
+    "toolchains": {
+        "quicklogic": {
+            "chandalar": ["chandalar.pcf"]
+        }
+    },
+    "vendors": ["quicklogic"]
+}
