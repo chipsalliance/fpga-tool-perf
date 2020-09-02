@@ -33,5 +33,10 @@
         "family": "eos",
         "device": "ql-eos-s3",
         "package": "PU64"
+    },
+    "chandalar": {
+        "family": "eos",
+        "device": "ql-eos-s3",
+        "package": "PD64"
     }
 }
