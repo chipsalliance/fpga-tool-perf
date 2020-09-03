@@ -26,7 +26,7 @@ env:: | $(CONDA_ENV_PYTHON)
 	git submodule update --init --recursive
 	mkdir -p env/symbiflow
 	wget -q https://github.com/QuickLogic-Corp/quicklogic-fpga-toolchain/releases/download/v1.1.0/Symbiflow_v1.1.0.gz.run
-	mkdir env/quicklogic
+	mkdir -p env/quicklogic
 	chmod +x Symbiflow_v1.1.0.gz.run
 	INSTALL_DIR=${PWD}/env/quicklogic ./Symbiflow_v1.1.0.gz.run
 	rm Symbiflow_v1.1.0.gz.run
