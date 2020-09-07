@@ -12,10 +12,11 @@ Currently, the following tools that are available in conda are:
 - yosys (+ yosys-plugins)
 - prjxray
 
-To setup the conda environment, run the following command:
+To setup the conda environment, run the following commands:
 
 ```bash
-make env
+TOOLCHAIN=symbiflow make env
+TOOLCHAIN=quicklogic make env
 ```
 
 fpga-tool-perf can also run the Vivado EDA tool. The tool is not available in the conda environment and it needs to be installed by the user.

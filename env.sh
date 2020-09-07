@@ -26,12 +26,12 @@ function path_remove {
 }
 
 path_remove ${SYMBIFLOW}/bin
-path_remove ${QUICKLOGIC}/bin
+path_remove ${QUICKLOGIC}/install/bin
 
 conda_env=${1:-xilinx}
 
 if [ "quicklogic" == ${conda_env} ]; then
-    . ${FPGA_TOOL_PERF_BASE_DIR}/env/quicklogic/conda/bin/activate base
+    . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate quicklogic
     export PATH=${QUICKLOGIC}/install/bin:${PATH}
 else
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate fpga-tool-perf-env

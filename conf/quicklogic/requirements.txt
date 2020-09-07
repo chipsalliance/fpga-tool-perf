@@ -1,0 +1,14 @@
+terminaltables
+asciitable
+simplejson
+tqdm
+colorclass
+lxml
+python-constraint
+intervaltree
+jinja2
+pytest
+pandas
+yapf
+git+https://github.com/antmicro/edalize.git@quicklogic#egg=edalize
+git+https://github.com/antmicro/quicklogic-fasm
