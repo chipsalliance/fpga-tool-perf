@@ -10,5 +10,5 @@ jinja2
 pytest
 pandas
 yapf
-git+https://github.com/antmicro/edalize.git@quicklogic#egg=edalize
-git+https://github.com/antmicro/quicklogic-fasm
+git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
+git+https://github.com/QuickLogic-corp/quicklogic-fasm.git
