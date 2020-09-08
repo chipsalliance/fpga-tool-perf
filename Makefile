@@ -31,9 +31,10 @@ env:: | $(CONDA_ENV_PYTHON)
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/${TOOLCHAIN}
 	rm ${SYMBIFLOW_ARCHIVE}
+	#FIXME: Fix issues with quicklogic toolchain v1.1.0, check are this fixes still necessary when new version will be released.
 ifeq ("${TOOLCHAIN}", "quicklogic")
-	cp -r env/conda/envs/quicklogic/share/yosys/* env/conda/envs/quicklogic/share/
-	sed -i "s/\/home\/kkumar\/symbiflow-arch-defs\/build\/env\/conda\/bin\/python3/\/usr\/bin\/env python3/" env/${TOOLCHAIN}/install/bin/python/qlfasm #fix path to interpreter, see https://github.com/QuickLogic-Corp/quicklogic-fpga-toolchain/issues/16
+	cp -r env/conda/envs/quicklogic/share/yosys/* env/conda/envs/quicklogic/share/ #FIXME: Fix yosys issue with finding share files.
+	sed -i "s/\/home\/kkumar\/symbiflow-arch-defs\/build\/env\/conda\/bin\/python3/\/usr\/bin\/env python3/" env/${TOOLCHAIN}/install/bin/python/qlfasm #FIXME: fix path to interpreter, see https://github.com/QuickLogic-Corp/quicklogic-fpga-toolchain/issues/16
 endif
 
 run-tests:
