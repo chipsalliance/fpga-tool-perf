@@ -45,7 +45,7 @@ wire [31:0] inp_sreg_i_dat = rom_o_dat;
 reg         inp_sreg_o_stb;
 
 always @(posedge CLK)
-    if (inp_sreg_i_stb) inp_sreg <= {inp_sreg[SREG_BITS-32-1:0], inp_sreg_i_dat};
+    if (inp_sreg_i_stb) inp_sreg <= (NUM_PROCESSING_UNITS > 1) ? {inp_sreg[SREG_BITS-32-1:0], inp_sreg_i_dat} : inp_sreg_i_dat;
     else                inp_sreg <=  inp_sreg;
 
 always @(posedge CLK or posedge RST)
