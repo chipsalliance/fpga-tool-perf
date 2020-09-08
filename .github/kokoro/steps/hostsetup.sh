@@ -78,6 +78,7 @@ echo "----------------------------------------"
 	echo
 	echo " Configuring conda environment"
 	echo "----------------------------------------"
-	make env
+	TOOLCHAIN=symbiflow make env
+	TOOLCHAIN=quicklogic make env
 	echo "----------------------------------------"
 )
