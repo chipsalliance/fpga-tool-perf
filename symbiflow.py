@@ -113,17 +113,28 @@ class VPR(Toolchain):
                         }
                     )
                 symbiflow_options = {
-                    'part': chip,
-                    'package': self.package,
-                    'vendor': 'xilinx',
-                    'builddir': '.',
-                    'pnr': 'vpr',
-                    'options': tool_params,
-                    'fasm2bels': self.fasm2bels,
-                    'dbroot': self.dbroot,
-                    'clocks': self.clocks,
-                    'seed': self.seed,
-                    'source': os.path.abspath('env.sh'),
+                    'part':
+                        chip,
+                    'package':
+                        self.package,
+                    'vendor':
+                        'xilinx',
+                    'builddir':
+                        '.',
+                    'pnr':
+                        'vpr',
+                    'options':
+                        tool_params,
+                    'fasm2bels':
+                        self.fasm2bels,
+                    'dbroot':
+                        self.dbroot,
+                    'clocks':
+                        self.clocks,
+                    'seed':
+                        self.seed,
+                    'environment_script':
+                        os.path.abspath('env.sh') + ' xilinx',
                 }
                 self.edam = {
                     'files': self.files,
@@ -629,17 +640,26 @@ class NextpnrXilinx(Toolchain):
                     )
 
                 symbiflow_options = {
-                    'part': chip,
-                    'package': self.package,
-                    'vendor': 'xilinx',
-                    'builddir': '.',
-                    'pnr': 'nextpnr',
+                    'part':
+                        chip,
+                    'package':
+                        self.package,
+                    'vendor':
+                        'xilinx',
+                    'builddir':
+                        '.',
+                    'pnr':
+                        'nextpnr',
                     'yosys_synth_options':
                         ["-flatten", "-nowidelut", "-abc9", "-arch xc7"],
-                    'fasm2bels': self.fasm2bels,
-                    'dbroot': self.dbroot,
-                    'clocks': self.clocks,
-                    'source': os.path.abspath('env.sh'),
+                    'fasm2bels':
+                        self.fasm2bels,
+                    'dbroot':
+                        self.dbroot,
+                    'clocks':
+                        self.clocks,
+                    'environment_script':
+                        os.path.abspath('env.sh') + ' xilinx',
                 }
 
                 if self.fasm2bels:
@@ -959,17 +979,28 @@ class Quicklogic(VPR):
 
                 tool_params = []
                 symbiflow_options = {
-                    'part': self.device,
-                    'package': self.package,
-                    'vendor': 'quicklogic',
-                    'builddir': '.',
-                    'pnr': 'vpr',
-                    'options': tool_params,
-                    'fasm2bels': self.fasm2bels,
-                    'dbroot': self.dbroot,
-                    'clocks': self.clocks,
-                    'seed': self.seed,
-                    'source': os.path.abspath('env.sh'),
+                    'part':
+                        self.device,
+                    'package':
+                        self.package,
+                    'vendor':
+                        'quicklogic',
+                    'builddir':
+                        '.',
+                    'pnr':
+                        'vpr',
+                    'options':
+                        tool_params,
+                    'fasm2bels':
+                        self.fasm2bels,
+                    'dbroot':
+                        self.dbroot,
+                    'clocks':
+                        self.clocks,
+                    'seed':
+                        self.seed,
+                    'environment_script':
+                        os.path.abspath('env.sh') + ' quicklogic',
                 }
 
                 self.edam = {
