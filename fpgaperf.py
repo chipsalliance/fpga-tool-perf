@@ -21,7 +21,7 @@ from icestorm import NextpnrIcestorm
 from icestorm import Arachne
 from vivado import Vivado
 from vivado import VivadoYosys
-from symbiflow import VPR, NextpnrXilinx
+from symbiflow import VPR, NextpnrXilinx, Quicklogic
 from fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from radiant import RadiantSynpro
 from radiant import RadiantLSE
@@ -124,6 +124,7 @@ toolchains = {
     'nextpnr-ice40': NextpnrIcestorm,
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
+    'quicklogic': Quicklogic,
     # TODO: These are not currently be extensively tested
     #'synpro-icecube2': Icecube2Synpro,
     #'lse-icecube2': Icecube2LSE,
@@ -165,7 +166,7 @@ def run(
     device = board_info['device']
     package = board_info['package']
 
-    assert family == 'ice40' or family == 'xc7'
+    assert family == 'ice40' or family == 'xc7' or family == 'eos'
 
     # some toolchains use signed 32 bit
     assert seed is None or 0 <= seed <= 0x7FFFFFFF

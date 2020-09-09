@@ -1,0 +1,4 @@
+set_io clk 63
+set_io stb 34
+set_io di 62
+set_io do 38

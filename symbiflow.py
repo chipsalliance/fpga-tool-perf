@@ -112,27 +112,37 @@ class VPR(Toolchain):
                                 'VPRGrid'
                         }
                     )
-
+                symbiflow_options = {
+                    'part':
+                        chip,
+                    'package':
+                        self.package,
+                    'vendor':
+                        'xilinx',
+                    'builddir':
+                        '.',
+                    'pnr':
+                        'vpr',
+                    'options':
+                        tool_params,
+                    'fasm2bels':
+                        self.fasm2bels,
+                    'dbroot':
+                        self.dbroot,
+                    'clocks':
+                        self.clocks,
+                    'seed':
+                        self.seed,
+                    'environment_script':
+                        os.path.abspath('env.sh') + ' xilinx',
+                }
                 self.edam = {
                     'files': self.files,
                     'name': self.project_name,
                     'toplevel': self.top,
-                    'tool_options':
-                        {
-                            'symbiflow':
-                                {
-                                    'part': chip,
-                                    'package': self.package,
-                                    'vendor': 'xilinx',
-                                    'builddir': '.',
-                                    'pnr': 'vpr',
-                                    'options': tool_params,
-                                    'fasm2bels': self.fasm2bels,
-                                    'dbroot': self.dbroot,
-                                    'clocks': self.clocks,
-                                    'seed': self.seed,
-                                }
-                        }
+                    'tool_options': {
+                        'symbiflow': symbiflow_options
+                    }
                 }
                 self.backend = edalize.get_edatool('symbiflow')(
                     edam=self.edam, work_root=self.out_dir
@@ -630,16 +640,26 @@ class NextpnrXilinx(Toolchain):
                     )
 
                 symbiflow_options = {
-                    'part': chip,
-                    'package': self.package,
-                    'vendor': 'xilinx',
-                    'builddir': '.',
-                    'pnr': 'nextpnr',
+                    'part':
+                        chip,
+                    'package':
+                        self.package,
+                    'vendor':
+                        'xilinx',
+                    'builddir':
+                        '.',
+                    'pnr':
+                        'nextpnr',
                     'yosys_synth_options':
                         ["-flatten", "-nowidelut", "-abc9", "-arch xc7"],
-                    'fasm2bels': self.fasm2bels,
-                    'dbroot': self.dbroot,
-                    'clocks': self.clocks,
+                    'fasm2bels':
+                        self.fasm2bels,
+                    'dbroot':
+                        self.dbroot,
+                    'clocks':
+                        self.clocks,
+                    'environment_script':
+                        os.path.abspath('env.sh') + ' xilinx',
                 }
 
                 if self.fasm2bels:
@@ -906,3 +926,94 @@ class NextpnrXilinx(Toolchain):
             'nextpnr': have_exec('nextpnr-xilinx'),
             'prjxray-config': have_exec('prjxray-config'),
         }
+
+
+class Quicklogic(VPR):
+    '''Quicklogic using Yosys for synthesis'''
+    carries = (False, )
+
+    def __init__(self, rootdir):
+        VPR.__init__(self, rootdir)
+        self.toolchain = 'quicklogic'
+        self.files = []
+        self.fasm2bels = False
+        self.dbroot = None
+
+    def run(self):
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                os.makedirs(self.out_dir, exist_ok=True)
+
+                for f in self.srcs:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(f),
+                            'file_type': 'verilogSource'
+                        }
+                    )
+
+                if self.pcf:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(self.pcf),
+                            'file_type': 'PCF'
+                        }
+                    )
+                if self.sdc:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(self.sdc),
+                            'file_type': 'SDC'
+                        }
+                    )
+
+                if self.xdc:
+                    self.files.append(
+                        {
+                            'name': os.path.realpath(self.xdc),
+                            'file_type': 'xdc'
+                        }
+                    )
+
+                chip = self.family + self.device
+
+                tool_params = []
+                symbiflow_options = {
+                    'part':
+                        self.device,
+                    'package':
+                        self.package,
+                    'vendor':
+                        'quicklogic',
+                    'builddir':
+                        '.',
+                    'pnr':
+                        'vpr',
+                    'options':
+                        tool_params,
+                    'fasm2bels':
+                        self.fasm2bels,
+                    'dbroot':
+                        self.dbroot,
+                    'clocks':
+                        self.clocks,
+                    'seed':
+                        self.seed,
+                    'environment_script':
+                        os.path.abspath('env.sh') + ' quicklogic',
+                }
+
+                self.edam = {
+                    'files': self.files,
+                    'name': self.project_name,
+                    'toplevel': self.top,
+                    'tool_options': {
+                        'symbiflow': symbiflow_options
+                    }
+                }
+                self.backend = edalize.get_edatool('symbiflow')(
+                    edam=self.edam, work_root=self.out_dir
+                )
+                self.backend.configure("")
+
+            self.run_steps()

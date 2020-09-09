@@ -28,5 +28,15 @@
         "family": "ice40",
         "device": "lp8k",
         "package": "cm81"
+    },
+    "quickfeather-dev-board": {
+        "family": "eos",
+        "device": "ql-eos-s3",
+        "package": "PU64"
+    },
+    "chandalar": {
+        "family": "eos",
+        "device": "ql-eos-s3",
+        "package": "PD64"
     }
 }

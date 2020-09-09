@@ -42,7 +42,10 @@
         },
         "nextpnr-ice40": {
             "icebreaker": ["icebreaker.pcf"]
+        },
+        "quicklogic": {
+            "quickfeather-dev-board": ["quickfeather-dev-board.pcf"]
         }
     },
-    "vendors": ["xilinx", "lattice"]
+    "vendors": ["xilinx", "lattice", "quicklogic"]
 }
