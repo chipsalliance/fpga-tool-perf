@@ -131,6 +131,11 @@ def main():
     parser.add_argument(
         '--verbose', action='store_true', help='verbose output'
     )
+    parser.add_argument(
+        '--overwrite',
+        action='store_true',
+        help='deletes previous exhuast builds before running'
+    )
 
     args = parser.parse_args()
 
@@ -191,7 +196,7 @@ def main():
 
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
-        build_numbers
+        build_numbers, args.overwrite
     )
 
     logger.debug("Running Projects")
