@@ -223,7 +223,7 @@ def list_combinations(
     toolchain=None,
     board=None,
 ):
-    '''Query all supported combinations'''
+    '''Query all possible project/toolchain/board combinations'''
     table_data = [['Project', 'Toolchain', 'Board', 'Status']]
     for p in get_projects(project):
         toolchain_info = get_project(p)["toolchains"]
@@ -274,6 +274,12 @@ def get_boards(board=None):
         return [board]
     else:
         return []
+
+
+def list_boards():
+    '''Print all supported boards'''
+    for b in get_boards():
+        print(b)
 
 
 def get_toolchains(toolchain=None):
@@ -344,7 +350,7 @@ def check_env(to_check=None):
 
 
 def env_ready():
-    '''Return true if every tool can be ran'''
+    '''Return true if every tool can be run'''
     for tc in toolchains.values():
         for v in tc.check_env().values():
             if not v:
@@ -386,7 +392,6 @@ def add_bool_arg(parser, yes_arg, default=False, **kwargs):
 
 def main():
     import argparse
-
     parser = argparse.ArgumentParser(
         description=
         'Analyze FPGA tool performance (MHz, resources, runtime, etc)'
@@ -400,7 +405,6 @@ def main():
         action='store_true',
         help='Overwrite the folder with this run'
     )
-    parser.add_argument('--board', default=None, help='Target board')
     parser.add_argument(
         '--params_file', default=None, help='Use custom tool parameters'
     )
@@ -416,6 +420,8 @@ def main():
         default=None,
         help='Force carry / no carry (default: use tool default)'
     )
+    parser.add_argument('--board', help='Target board', choices=get_boards())
+    parser.add_argument('--list-boards', action='store_true', help='')
     parser.add_argument(
         '--toolchain', help='Tools to use', choices=get_toolchains()
     )
@@ -472,6 +478,9 @@ def main():
     elif args.list_projects:
         logger.debug("Listing Projects")
         list_projects()
+    elif args.list_boards:
+        logger.debug("Listing Boards")
+        list_boards()
     elif args.list_seedable:
         logger.debug("Listing Seedables")
         list_seedable()

@@ -5,7 +5,7 @@ import subprocess
 import edalize
 
 from toolchain import Toolchain
-from utils import Timed, get_vivado_max_freq, have_exec, which
+from utils import Timed, have_exec, which
 from tool_parameters import ToolParametersHelper
 
 
