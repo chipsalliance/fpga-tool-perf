@@ -83,7 +83,7 @@ class Runner:
                 eprint("---------------------\n")
 
     def run(self):
-        os.makedirs(self.out_prefix, exist_ok=True)
+        os.makedirs(os.path.expanduser(self.out_prefix), exist_ok=True)
         print('Writing to %s' % self.out_prefix)
 
         with Pool(cpu_count()) as pool:
