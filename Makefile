@@ -46,8 +46,14 @@ run-parameters-tests:
 run-multiple-samples-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-samples --run_config run_configs/multiple_samples.json
 
+run-all-multiple-samples-tests:
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type all-multiple-samples --run_config run_configs/all_multiple_samples.json
+
 run-seedable-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-seeds --run_config run_configs/multiple_seeds.json
+
+run-all-seedable-tests:
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type all-multiple-seeds --run_config run_configs/all_multiple_seeds.json
 
 run-all-devices-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --project oneblink blinky picosoc-simpleuart
