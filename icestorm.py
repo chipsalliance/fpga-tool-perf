@@ -73,7 +73,9 @@ class Icestorm(Toolchain):
 
     def max_freq(self):
         with open(self.out_dir + '/' + self.project_name + '.tim') as f:
-            return self.icetime_parse(f)['max_freq']
+            return float(
+                "{:03f}".format(self.icetime_parse(f)['max_freq'] / 1e6)
+            )
 
     def run(self, pnr, args):
         with Timed(self, 'total'):

@@ -80,11 +80,11 @@ def print_stats(t):
         ]
     ]
     if type(max_freq) is float:
-        table_data.append(['Design', ("%0.3f MHz" % (max_freq / 1e6))])
+        table_data.append(['Design', ("%0.3f MHz" % max_freq)])
     elif type(max_freq) is dict:
         for cd in max_freq:
-            actual = "%0.3f MHz" % (max_freq[cd]['actual'] / 1e6)
-            requested = "%0.3f MHz" % (max_freq[cd]['requested'] / 1e6)
+            actual = "%0.3f MHz" % (max_freq[cd]['actual'])
+            requested = "%0.3f MHz" % (max_freq[cd]['requested'])
             met = "unknown" if max_freq[cd]['met'] is None else max_freq[cd][
                 'met']
             s_violation = ("%0.3f ns" % max_freq[cd]['setup_violation'])

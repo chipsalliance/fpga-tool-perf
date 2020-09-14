@@ -327,6 +327,14 @@ class VPR(Toolchain):
             if 'met' not in clocks[clk]:
                 clocks[clk]['met'] = None
 
+        for cd in clocks:
+            clocks[cd]['actual'] = float(
+                "{:.3f}".format(clocks[cd]['actual'] / 1e6)
+            )
+            clocks[cd]['requested'] = float(
+                "{:.3f}".format(clocks[cd]['requested'] / 1e6)
+            )
+
         return clocks
 
     def get_resources(self):
@@ -726,9 +734,6 @@ class NextpnrXilinx(Toolchain):
 
     def max_freq(self):
         """Returns the max frequencies of the implemented design."""
-        def safe_division_by_zero(n, d):
-            return n / d if d else 0.0
-
         log_file = os.path.join(self.out_dir, 'nextpnr.log')
 
         clocks = dict()
@@ -747,7 +752,9 @@ class NextpnrXilinx(Toolchain):
                         clk_freq = float(match.groups()[1])
 
                         clocks[clk_name] = dict()
-                        clocks[clk_name]['actual'] = 1e6 * clk_freq
+                        clocks[clk_name]['actual'] = float(
+                            "{:.3f}".format(clk_freq)
+                        )
                         clocks[clk_name]['requested'] = 0
                         clocks[clk_name]['met'] = None
                         clocks[clk_name]['setup_violation'] = 0
