@@ -17,7 +17,7 @@
         "vivado": {
             "arty": ["arty-vivado.xdc"]
         },
-        "vivado-yosys": {
+        "yosys-vivado": {
             "arty": ["arty-vivado.xdc"]
         },
         "nextpnr-xilinx": {

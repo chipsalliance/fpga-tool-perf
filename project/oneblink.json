@@ -24,7 +24,7 @@
             "nexys": ["nexys.xdc"],
             "zybo": ["zybo.xdc"]
         },
-        "vivado-yosys": {
+        "yosys-vivado": {
             "arty": ["arty.xdc"],
             "basys3": ["basys3.xdc"],
             "nexys": ["nexys.xdc"],
