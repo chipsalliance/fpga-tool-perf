@@ -10,3 +10,5 @@ set_property IOSTANDARD LVCMOS33 [get_ports di]
 set_property IOSTANDARD LVCMOS33 [get_ports do]
 
 set_property DRIVE 12 [get_ports do]
+
+create_clock -period 10.0 [get_ports clk]

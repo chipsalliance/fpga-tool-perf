@@ -21,7 +21,7 @@
         "vpr-fasm2bels": {
             "basys3": ["basys3.xdc", "basys3.sdc"]
         },
-        "vivado-yosys": {
+        "yosys-vivado": {
             "basys3": ["basys3.xdc"]
         }
     },

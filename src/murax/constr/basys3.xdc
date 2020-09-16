@@ -76,3 +76,5 @@ set_property IOSTANDARD LVCMOS33 [get_ports {io_led[12]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {io_led[13]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {io_led[14]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {io_led[15]}]
+
+create_clock -period 10.0 [get_ports io_mainClk]

@@ -45,7 +45,7 @@
             "basys3": ["basys3.xdc"],
             "zybo": ["zybo.xdc"]
         },
-        "vivado-yosys": {
+        "yosys-vivado": {
             "arty": ["arty-vivado.xdc"],
             "basys3": ["basys3.xdc"],
             "zybo": ["zybo.xdc"]

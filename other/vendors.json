@@ -6,5 +6,10 @@
     "lattice": {
         "boards": ["icebreaker", "tinyfpgab2"],
         "toolchains": ["nextpnr-ice40"]
+    },
+    "quicklogic": {
+	"boards": ["quickfeather-dev-board", "chandalar"],
+	"toolchains": ["quicklogic"]
     }
 }
+

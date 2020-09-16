@@ -27,7 +27,7 @@ def get_vivado_max_freq(report_file):
     group = ""
     delay = ""
     freq = 0
-    freqs = {}
+    freqs = dict()
     path_type = None
 
     with open(report_file, 'r') as fp:
@@ -77,6 +77,11 @@ def get_vivado_max_freq(report_file):
                         ptype = data[1].strip()
                         if path_type != ptype.split()[0]:
                             path_type = ptype.split()[0]
+    for cd in freqs:
+        freqs[cd]['actual'] = float("{:.3f}".format(freqs[cd]['actual'] / 1e6))
+        freqs[cd]['requested'] = float(
+            "{:.3f}".format(freqs[cd]['requested'] / 1e6)
+        )
     return freqs
 
 
