@@ -168,6 +168,7 @@ class Toolchain:
         device,
         package,
         board,
+        vendor,
         params_file,
         params_string,
         out_dir=None,
@@ -179,6 +180,7 @@ class Toolchain:
         self.package = package
         self.part = "".join((device, package))
         self.board = board
+        self.vendor = vendor
 
         self.params_file = params_file
         self.params_string = params_string
@@ -303,6 +305,42 @@ class Toolchain:
             )
             max_freq = None
 
+        toolchain_map = {
+            'vpr': {
+                'synthesis_tool': 'yosys',
+                'pr_tool': 'vpr'
+            },
+            'vpr-fasm2bels': {
+                'synthesis_tool': 'yosys',
+                'pr_tool': 'vpr'
+            },
+            'yosys-vivado': {
+                'synthesis_tool': 'yosys',
+                'pr_tool': 'vivado'
+            },
+            'vivado': {
+                'synthesis_tool': 'vivado',
+                'pr_tool': 'vivado'
+            },
+            'nextpnr-ice40': {
+                'synthesis_tool': 'yosys',
+                'pr_tool': 'nextpnr'
+            },
+            'nextpnr-xilinx': {
+                'synthesis_tool': 'yosys',
+                'pr_tool': 'nextpnr'
+            },
+            'nextpnr-xilinx-fasm2bels':
+                {
+                    'synthesis_tool': 'yosys',
+                    'pr_tool': 'nextpnr'
+                },
+            'quicklogic': {
+                'synthesis_tool': 'yosys',
+                'pr_tool': 'vpr'
+            }
+        }
+
         date_str = self.date.replace(microsecond=0).isoformat()
         j = {
             'design': self.design(),
@@ -310,6 +348,7 @@ class Toolchain:
             'device': self.device,
             'package': self.package,
             'board': self.board,
+            'vendor': self.vendor,
             'project': self.project_name,
             'optstr': self.optstr(),
             'pcf': os.path.basename(self.pcf) if self.pcf else None,
@@ -320,7 +359,9 @@ class Toolchain:
             'build': self.build,
             'build_type': self.build_type,
             'date': date_str,
-            'toolchain': self.toolchain,
+            'toolchain': {
+                self.toolchain: toolchain_map[self.toolchain]
+            },
             'strategy': self.strategy,
             'parameters': self.params_file or self.params_string,
 

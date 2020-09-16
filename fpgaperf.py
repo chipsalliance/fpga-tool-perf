@@ -205,6 +205,7 @@ def run(
         device,
         package,
         board,
+        get_vendors(board=board),
         params_file,
         params_string,
         out_dir=out_dir,
@@ -250,16 +251,19 @@ def list_combinations(
     print(table.table)
 
 
-def get_vendors(toolchain=None):
+def get_vendors(toolchain=None, board=None):
     '''Return vendor information'''
     with open(os.path.join(root_dir, 'other', 'vendors.json'),
               'r') as vendors_file:
         vendors = json.load(vendors_file)
-    if toolchain is None:
+    if toolchain is None and board is None:
         return vendors
     for v in vendors:
         if toolchain in vendors[v]["toolchains"]:
             return v
+        if board in vendors[v]["boards"]:
+            return v
+
     return None
 
 
