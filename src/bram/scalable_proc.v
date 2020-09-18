@@ -1,3 +1,12 @@
+/*
+* Copyright (C) 2020  The SymbiFlow Authors.
+*
+*  Use of this source code is governed by a ISC-style
+*  license that can be found in the LICENSE file or at
+*  https://opensource.org/licenses/ISC
+*
+*  SPDX-License-Identifier: ISC
+*/
 module scalable_proc #
 (
 parameter NUM_PROCESSING_UNITS  = 2,    // Number of processing units

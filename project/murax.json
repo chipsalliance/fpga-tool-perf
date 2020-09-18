@@ -1,6 +1,6 @@
 {
     "srcs": [
-        "src/murax/Murax.v",
+        "third_party/murax/Murax.v",
         "src/murax/toplevel.v"
     ],
     "data": [

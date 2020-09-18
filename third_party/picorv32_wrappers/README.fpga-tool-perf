@@ -1,0 +1,10 @@
+Name: PicoRV32 - A Size-Optimized RISC-V CPU
+Short Name: PicoRV32
+URL: https://github.com/cliffordwolf/picorv32/
+Version: 1.0
+License: ISC
+
+Description:
+This package is used as a testbench for the fpga-tool-perf project, to test performance and quality of results of different vendor and open source toolchains.
+
+Local Modifications:

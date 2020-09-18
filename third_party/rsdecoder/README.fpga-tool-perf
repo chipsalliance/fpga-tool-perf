@@ -1,0 +1,11 @@
+Name: Reed-Solomon decoder
+Short Name: rsdecoder
+URL:
+Version: 1.0
+License: GNU GPL v2
+
+Description:
+This package is used as a testbench for the fpga-tool-perf project, to test performance and quality of results of different vendor and open source toolchains.
+
+Local Modifications:
+None

@@ -1,6 +1,6 @@
 {
     "srcs": [
-        "src/rsdecoder/rsdecoder.v"
+        "third_party/rsdecoder/rsdecoder.v"
         ],
     "top": "top",
     "name": "rsdecoder",
