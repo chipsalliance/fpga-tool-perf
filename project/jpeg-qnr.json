@@ -10,11 +10,9 @@
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": {
-        "quicklogic": {
-            "chandalar": ["chandalar.pcf"],
-            "quickfeather-dev-board": ["quickfeather-dev-board.pcf"]
-        }
+    "toolchains": ["quicklogic"],
+    "required_working": {
+	    "quicklogic": ["chandalar", "quickfeather"]
     },
     "vendors": ["quicklogic"]
 }

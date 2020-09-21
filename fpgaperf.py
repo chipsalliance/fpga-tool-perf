@@ -182,15 +182,9 @@ def run(
 
     # Constraint files shall be in their directories
     logger.debug("Getting Constraints")
-    pcf = get_constraint(
-        project, board, project_dict['toolchains'][toolchain][board], 'pcf'
-    )
-    sdc = get_constraint(
-        project, board, project_dict['toolchains'][toolchain][board], 'sdc'
-    )
-    xdc = get_constraint(
-        project, board, project_dict['toolchains'][toolchain][board], 'xdc'
-    )
+    pcf = get_constraint(project, board, toolchain, 'pcf')
+    sdc = get_constraint(project, board, toolchain, 'sdc')
+    xdc = get_constraint(project, board, toolchain, 'xdc')
 
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
@@ -368,19 +362,19 @@ def verify_constraint(project, board, extension):
     return os.path.exists(path)
 
 
-def get_constraint(project, board, constr_list, extension):
-    constr_file = [v for v in constr_list if v.endswith(extension)]
+def get_constraint(project, board, toolchain, extension):
+    constr_file = board + "-" + toolchain + "." + extension
 
-    if not constr_file:
-        return None
+    path = os.path.join(src_dir, project, 'constr', constr_file)
+    if (os.path.exists(path)):
+        return path
+    constr_file = board + "." + extension
 
-    assert len(constr_file) == 1
-
-    path = os.path.join(src_dir, project, 'constr', constr_file[0])
+    path = os.path.join(src_dir, project, 'constr', constr_file)
     if (os.path.exists(path)):
         return path
 
-    assert False, "No constraint file found"
+    return None
 
 
 def get_project(name):

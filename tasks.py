@@ -45,17 +45,18 @@ class Tasks:
                 boards = vendors[vendor]["boards"]
 
                 for toolchain, board in list(product(toolchains, boards)):
-<<<<<<< HEAD
-                    new_combinations.add((project, toolchain, board))
-        ### Update: Specifically use only those with the files ready
-=======
->>>>>>> 07265b7... verify_constraint function
-
                     combinations.add((project, toolchain, board))
 
         return combinations
 
-    def get_tasks(self, args, seeds=[0], build_number=[0], options=[None]):
+    def get_tasks(
+        self,
+        args,
+        seeds=[0],
+        build_number=[0],
+        options=[None],
+        only_required=False
+    ):
         """Returns all the tasks filtering out the ones that do not correspond
         to the selected criteria"""
 
@@ -72,7 +73,15 @@ class Tasks:
                     break
 
             if take_task:
-                tasks.append(task)
+                if only_required:
+                    required = get_project(task[0])["required_working"]
+                    try:
+                        if task[2] in required[task[1]]:
+                            tasks.append(task)
+                    except:
+                        continue
+                else:
+                    tasks.append(task)
 
         tasks = self.add_extra_entry(seeds, tasks, create_new_tasks=True)
         tasks = self.add_extra_entry(options, tasks)

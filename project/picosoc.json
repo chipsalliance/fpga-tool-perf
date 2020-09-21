@@ -12,22 +12,13 @@
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": {
-        "vpr": {
-            "basys3": ["basys3.pcf", "basys3.sdc"]
-        },
-        "vpr-fasm2bels": {
-            "basys3": ["basys3.pcf", "basys3.sdc"]
-        },
-        "nextpnr-xilinx": {
-            "basys3": ["basys3-nextpnr.xdc"]
-        },
-        "vivado": {
-            "basys3": ["basys3.xdc"]
-        },
-        "yosys-vivado": {
-            "basys3": ["basys3.xdc"]
-        }
+    "toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx"],
+    "required_working": {
+	    "vivado": ["basys3"],
+	    "vpr": ["basys3"],
+	    "vpr-fasm2bels": ["basys3"],
+	    "yosys-vivado": ["basys3"],
+	    "nextpnr-xilinx": ["basys3"]
     },
     "vendors": ["xilinx"]
 }

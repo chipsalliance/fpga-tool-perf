@@ -37,8 +37,11 @@ ifeq ("${TOOLCHAIN}", "quicklogic")
 	sed -i "s/\/home\/kkumar\/symbiflow-arch-defs\/build\/env\/conda\/bin\/python3/\/usr\/bin\/env python3/" env/${TOOLCHAIN}/install/bin/python/qlfasm #FIXME: fix path to interpreter, see https://github.com/QuickLogic-Corp/quicklogic-fpga-toolchain/issues/16
 endif
 
+run-tests-only-required:
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic --fail --only_required
+
 run-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic --fail
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic
 
 run-parameters-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters
@@ -59,10 +62,11 @@ run-all-devices-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --project oneblink blinky picosoc-simpleuart
 
 run-all:
-	$(MAKE) run-tests
+	$(MAKE) run-tests-only-required
 	$(MAKE) run-parameters-tests
 	$(MAKE) run-multiple-samples-tests
 	$(MAKE) run-seedable-tests
+	$(MAKE) run-tests
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
 

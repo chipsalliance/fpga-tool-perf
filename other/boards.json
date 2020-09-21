@@ -29,7 +29,7 @@
         "device": "lp8k",
         "package": "cm81"
     },
-    "quickfeather-dev-board": {
+    "quickfeather": {
         "family": "eos",
         "device": "ql-eos-s3",
         "package": "PU64"

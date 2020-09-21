@@ -8,27 +8,12 @@
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": {
-        "vivado": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "yosys-vivado": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "vpr": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "vpr-fasm2bels": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        }
+    "toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"],
+    "required_working": {
+	    "vivado": ["basys3"],
+	    "vpr": ["basys3"],
+	    "vpr-fasm2bels": ["basys3"],
+	    "yosys-vivado": ["basys3"]
     },
     "vendors": ["xilinx"]
 }

@@ -661,7 +661,10 @@ class NextpnrXilinx(Toolchain):
                     'pnr':
                         'nextpnr',
                     'yosys_synth_options':
-                        ["-flatten", "-nowidelut", "-abc9", "-arch xc7"],
+                        [
+                            "-flatten", "-nowidelut", "-abc9", "-arch xc7",
+                            "-nocarry"
+                        ],
                     'fasm2bels':
                         self.fasm2bels,
                     'dbroot':
@@ -693,6 +696,7 @@ class NextpnrXilinx(Toolchain):
                         "read_xdc -part_json {} {}".format(
                             part_json, os.path.realpath(self.xdc)
                         ),
+                        "clean",
                         "write_blif -attr -param {}.eblif".format(
                             self.project_name
                         ),
