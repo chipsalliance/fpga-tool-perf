@@ -676,7 +676,7 @@ class NextpnrXilinx(Toolchain):
                     'yosys_synth_options':
                         [
                             "-flatten", "-nowidelut", "-abc9", "-arch xc7",
-                            "-nocarry"
+                            "-nocarry", "-nodsp"
                         ],
                     'fasm2bels':
                         self.fasm2bels,
