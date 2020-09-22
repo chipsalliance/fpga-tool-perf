@@ -9,15 +9,19 @@ all: format
 
 TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 TOOLCHAIN ?= symbiflow
-REQUIREMENTS_FILE := conf/$(TOOLCHAIN)/requirements.txt
-ENVIRONMENT_FILE := conf/$(TOOLCHAIN)/environment.yml
+REQUIREMENTS_FILE := conf/${TOOLCHAIN}/requirements.txt
+ENVIRONMENT_FILE := conf/${TOOLCHAIN}/environment.yml
 
-SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
+SYMBIFLOW_ARCHIVE = ${TOOLCHAIN}.tar.xz
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
-SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/presubmit/install/599/20200819-032039/symbiflow-arch-defs-install-918694f9.tar.xz"
+SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/69/20200918-011856/symbiflow-arch-defs-install-6e6e8c7c.tar.xz"
+ifeq ("${TOOLCHAIN}", "symbiflow-a200t")
+SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/12/20200918-011229/symbiflow-arch-defs-install-200t-6e6e8c7c.tar.xz"
+REQUIREMENTS_FILE = conf/symbiflow/requirements.txt
+ENVIRONMENT_FILE = conf/symbiflow/environment.yml
+endif
 ifeq ("${TOOLCHAIN}", "quicklogic")
-SYMBIFLOW_ARCHIVE = quicklogic.tar.xz
-SYMBIFLOW_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/Eb7341Bq-XRAukVQ6oQ6PrgB-qdFbrsrPEON1yTa4krFSA?download=1
+SYMBIFLOW_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
 endif
 
 third_party/make-env/conda.mk:
@@ -27,15 +31,10 @@ third_party/make-env/conda.mk:
 include third_party/make-env/conda.mk
 
 env:: | $(CONDA_ENV_PYTHON)
-	mkdir -p env/${TOOLCHAIN}
+	mkdir -p env/${TOOLCHAIN}$(SYMBIFLOW_VERSION)
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
-	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/${TOOLCHAIN}
+	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/${TOOLCHAIN}$(SYMBIFLOW_VERSION)
 	rm ${SYMBIFLOW_ARCHIVE}
-	#FIXME: Fix issues with quicklogic toolchain v1.1.0, check are this fixes still necessary when new version will be released.
-ifeq ("${TOOLCHAIN}", "quicklogic")
-	cp -r env/conda/envs/quicklogic/share/yosys/* env/conda/envs/quicklogic/share/ #FIXME: Fix yosys issue with finding share files.
-	sed -i "s/\/home\/kkumar\/symbiflow-arch-defs\/build\/env\/conda\/bin\/python3/\/usr\/bin\/env python3/" env/${TOOLCHAIN}/install/bin/python/qlfasm #FIXME: fix path to interpreter, see https://github.com/QuickLogic-Corp/quicklogic-fpga-toolchain/issues/16
-endif
 
 run-tests-only-required:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic --fail --only_required

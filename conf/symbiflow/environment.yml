@@ -4,8 +4,8 @@ channels:
   - symbiflow
 dependencies:
   - symbiflow-yosys=0.8_6021_gd8b2d1a2
-  - symbiflow-yosys-plugins=1.0.0.7_0048_gaa1b583
-  - symbiflow-vtr=8.0.0.rc2_4003_g8980e4621
+  - symbiflow-yosys-plugins=1.0.0.7_0117_g160b309
+  - symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a
   - nextpnr-xilinx=0.0_2810_g2425dde6
   - nextpnr-ice40
   - prjxray-tools
