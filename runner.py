@@ -79,7 +79,9 @@ class Runner:
                     "ERROR: {} {} {} test has failed (build type {}, build nr. {})\n"
                     .format(project, toolchain, board, self.build_type, build)
                 )
-                eprint("ERROR MESSAGE: ", e)
+                # Limit output to max 300 characters for exhaust.py to make sure log files are not too large.
+                exception_str = str(e)
+                eprint("ERROR MESSAGE: ", (exception_str[:296] + " [...]") if len(str(exception_str)) > 300 else exception_str)
                 eprint("---------------------\n")
 
     def run(self):
@@ -110,6 +112,9 @@ class Runner:
 
     def collect_results(self):
         reports = self.get_reports()
+
+        if len(reports) == 0:
+            return
 
         for report in reports:
             sow.merge(self.results, json.load(open(report, 'r')))
