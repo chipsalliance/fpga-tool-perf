@@ -418,6 +418,8 @@ class VPR(Toolchain):
             bram += res['RAMB18E1_Y0']
         if 'RAMB18E1_Y1' in res:
             bram += res['RAMB18E1_Y1']
+        if 'RAMB36E1' in res:
+            bram += res['RAMB36E1'] * 2
         if 'PLLE2_ADV' in res:
             pll = res['PLLE2_ADV']
 
@@ -817,6 +819,8 @@ class NextpnrXilinx(Toolchain):
             iob = iob + res['PAD']
         if 'RAMB18E1_RAMB18E1' in res:
             bram = res['RAMB18E1_RAMB18E1']
+        if 'RAMB36E1_RAMB36E1' in res:
+            bram += res['RAMB36E1_RAMB36E1'] * 2
         if 'PLLE2_ADV_PLLE2_ADV' in res:
             pll = res['PLLE2_ADV_PLLE2_ADV']
 
