@@ -37,10 +37,10 @@ env:: | $(CONDA_ENV_PYTHON)
 	rm ${SYMBIFLOW_ARCHIVE}
 
 run-tests-only-required:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic --fail --only_required
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-required --fail --only_required
 
 run-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all
 
 run-parameters-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters
