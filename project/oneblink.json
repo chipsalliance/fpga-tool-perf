@@ -9,10 +9,10 @@
     },
     "toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx", "nextpnr-xilinx-fasm2bels", "nextpnr-ice40", "quicklogic"],
     "required_working": {
-	    "vivado": ["arty", "basys3", "nexys", "zybo"],
+	    "vivado": ["arty", "basys3", "nexys-video", "zybo"],
 	    "vpr": ["arty", "basys3", "zybo"],
 	    "vpr-fasm2bels": ["arty", "basys3", "zybo"],
-	    "yosys-vivado": ["arty", "basys3", "nexys", "zybo"],
+	    "yosys-vivado": ["arty", "basys3", "nexys-video", "zybo"],
 	    "nextpnr-xilinx": ["arty", "basys3", "zybo"],
 	    "nextpnr-xilinx-fasm2bels": ["arty", "basys3", "zybo"],
 	    "nextpnr-ice40": ["icebreaker"],
