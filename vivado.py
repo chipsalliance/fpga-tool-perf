@@ -67,9 +67,6 @@ class Vivado(Toolchain):
             self.add_runtime(t, impl_times[t])
 
     def run(self):
-        if self.xdc is None:
-            raise ValueError("Can't find reqired xdc file, aborting.")
-            sys.exit(1)
         with Timed(self, 'prepare'):
             os.makedirs(self.out_dir, exist_ok=True)
             for f in self.srcs:

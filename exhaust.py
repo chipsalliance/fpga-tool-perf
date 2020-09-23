@@ -79,8 +79,8 @@ def print_summary_table(
     table_data.append(
         [
             Color('{autogreen}Passed:{/autogreen}'), passed,
-            Color('{autored}Failed:{/autored}'), failed, '', '', '', '',
-            '{}%'.format(int(passed / build_count * 100) if build_count != 0 else 0)
+            Color('{autored}Failed:{/autored}'), failed, '', '', '', '', '{}%'.
+            format(int(passed / build_count * 100) if build_count != 0 else 0)
         ]
     )
     table = AsciiTable(table_data)
