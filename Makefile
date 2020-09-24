@@ -43,19 +43,19 @@ run-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all
 
 run-parameters-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters
+	@$(IN_CONDA_ENV) python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters --only_required
 
 run-multiple-samples-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-samples --run_config run_configs/multiple_samples.json
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-samples --run_config run_configs/multiple_samples.json --only_required
 
 run-all-multiple-samples-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type all-multiple-samples --run_config run_configs/all_multiple_samples.json
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type all-multiple-samples --run_config run_configs/all_multiple_samples.json --only_required
 
 run-seedable-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-seeds --run_config run_configs/multiple_seeds.json
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type multiple-seeds --run_config run_configs/multiple_seeds.json --only_required
 
 run-all-seedable-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type all-multiple-seeds --run_config run_configs/all_multiple_seeds.json
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type all-multiple-seeds --run_config run_configs/all_multiple_seeds.json --only_required
 
 run-all-devices-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --project oneblink blinky picosoc-simpleuart
