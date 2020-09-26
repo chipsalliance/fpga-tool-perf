@@ -1,25 +1,25 @@
 {
     "srcs": [
-        "src/bram_n1/bram_n1.v",
+        "src/bram-n3/bram_n3.v",
         "src/bram/rom.v",
         "src/bram/processing_unit.v",
         "src/bram/simpleuart.v",
 	"src/bram/scalable_proc.v"
     ],
     "top": "top",
-    "name": "bram_n1",
+    "name": "bram-n3",
     "clocks": {
         "clk": 10.0
     },
     "toolchains": {
-	"vivado": {
-            "basys3": ["basys3.xdc"]
-	},
         "vpr": {
             "basys3": ["basys3.xdc", "basys3.sdc"]
         },
         "vpr-fasm2bels": {
             "basys3": ["basys3.xdc", "basys3.sdc"]
+        },
+        "vivado": {
+            "basys3": ["basys3.xdc"]
         },
         "yosys-vivado": {
             "basys3": ["basys3.xdc"]

@@ -67,7 +67,7 @@ For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z dev
 
 ```bash
 # Yosys -> Vivado
-python3 fpgaperf.py --toolchain vivado-yosys --project oneblink --board basys3
+python3 fpgaperf.py --toolchain yosys-vivado --project oneblink --board basys3
 # Pure Vivado
 python3 fpgaperf.py --toolchain vivado --project oneblink --board basys3
 ```
@@ -76,14 +76,14 @@ Use `--help` to see additional parameters for the `fpgaperf.py` script.
 
 Supported toolchains can be queried as follows:
 ```bash
-$ python3 fpgaperf.py  --list-toolchains
+$ python3 fpgaperf.py --list-toolchains
 nextpnr-ice40
 nextpnr-xilinx
 nextpnr-xilinx-fasm2bels
 vivado
-vivado-yosys
 vpr
 vpr-fasm2bels
+yosys-vivado
 ```
 
 You can check if you have the toolchain environments correctly installed as
@@ -93,6 +93,7 @@ $ python3 fpgaperf.py --check-env --toolchain vpr
 vpr
   yosys: True
   vpr: True
+  prjxray-config: True
 ```
 
 Supported projects can be queried as follows:
@@ -100,6 +101,10 @@ Supported projects can be queried as follows:
 $ python3 fpgaperf.py  --list-projects
 baselitex
 blinky
+bram-n1
+bram-n2
+bram-n3
+dram-test-64x1d
 hamsternz-hdmi
 ibex
 murax
@@ -120,9 +125,9 @@ Use `exhaust.py` to automatically test all projects, toolchain and boards suppor
 python3 exhaust.py
 ```
 
-Its also possible to run a test against a single toolchain and/or project:
+Its also possible to run a test against specific project(s), toolchain(s), and/or board(s):
 ```bash
-python3 exhaust.py --project blinky --toolchain vpr
+python3 exhaust.py --project blinky oneblink --toolchain vpr
 ```
 
 See `build` directory for output. Note in particular `all.json`.
@@ -138,9 +143,10 @@ This section describes the structure of this project to better understand its me
   - data: all of the data/memory files needed to run the test
   - clocks: all the input clocks of the design
   - toolchains: all the toolchains that are enabled for this project. Moreover, each toolchain has a specific set of available boards with the various constraints files.
+  - vendors: all the vendors that are enabled for this project. (e.g. xilinx, lattice)
 
 - the `src` directory contains all the source files needed to build the test project. It also contains the constraints files relative to the various boards supported.
-- the `boards` directory contains a json file describing all the supported boards in this test suite.
+- the `other` directory contains two json files, describing all the supported boards and vendors in this test suite. 
 
 ## Development
 
@@ -168,7 +174,7 @@ Projects are .json files in the project directory. Project names shouldn't conta
 These are the basic steps to inserting an existing project into fpga-tool-perf:
 
 #### *Step 1.*
-Add a folder within `fpga-tool-perf/src` under the name of the project. For example, for the project named counter:
+Add a folder within `fpga-tool-perf/src` under the name of the project (make sure there are no underscores '_' in the name). For example, for the project named counter:
 ```
 cd ~/fpga-tool-perf/src
 mkdir counter
@@ -209,7 +215,8 @@ Within the `project` directory, create a `.json` file under the name of the proj
         "vivado-yosys": {
             "basys3": ["basys3.xdc"]
         }
-    }
+    },
+    "vendors": ["xilinx"]
 }
 ```
 
