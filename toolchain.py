@@ -196,16 +196,14 @@ class Toolchain:
             self.clocks = project['clocks']
 
         out_prefix = out_prefix or 'build'
-        if not os.path.exists(out_prefix):
-            os.mkdir(out_prefix)
+        os.makedirs(os.path.expanduser(out_prefix), exist_ok=True)
 
         if out_dir is None:
             out_dir = out_prefix + "/" + self.design()
         self.out_dir = out_dir
         if overwrite and os.path.exists(out_dir):
             shutil.rmtree(out_dir)
-        if not os.path.exists(out_dir):
-            os.mkdir(out_dir)
+        os.makedirs(os.path.expanduser(out_dir), exist_ok=True)
         print('Writing to %s' % out_dir)
         data = project.get('data', None)
         if data:

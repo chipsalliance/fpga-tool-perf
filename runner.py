@@ -83,8 +83,8 @@ class Runner:
                 eprint("---------------------\n")
 
     def run(self):
-        if not os.path.exists(self.out_prefix):
-            os.makedirs(self.out_prefix)
+        os.makedirs(os.path.expanduser(self.out_prefix), exist_ok=True)
+        print('Writing to %s' % self.out_prefix)
 
         with Pool(cpu_count()) as pool:
             for _ in tqdm.tqdm(pool.imap_unordered(self.worker,
