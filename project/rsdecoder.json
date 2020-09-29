@@ -7,9 +7,8 @@
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": ["quicklogic"],
-    "required_working": {
-	    "quicklogic": ["chandalar", "quickfeather"]
+    "vendors": {
+        "quicklogic": ["chandalar", "quickfeather"]
     },
-    "vendors": ["quicklogic"]
+    "required_toolchains": ["quicklogic"]
 }

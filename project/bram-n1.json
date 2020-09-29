@@ -11,12 +11,8 @@
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"],
-    "required_working": {
-        "vivado": ["basys3"],
-        "vpr": ["basys3"],
-        "vpr-fasm2bels": ["basys3"],
-        "yosys-vivado": ["basys3"]
+    "vendors": {
+        "xilinx": ["basys3"]
     },
-    "vendors": ["xilinx"]
+    "required_toolchains": ["vivado", "vpr", "vpr-fasm2bels", "yosys-vivado"]
 }

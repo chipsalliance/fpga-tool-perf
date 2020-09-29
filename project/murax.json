@@ -14,13 +14,8 @@
     "clocks": {
         "io_mainClk": 10.0
     },
-    "toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx"],
-    "required_working": {
-	    "vivado": ["basys3"],
-	    "vpr": ["basys3"],
-	    "vpr-fasm2bels": ["basys3"],
-	    "yosys-vivado": ["basys3"],
-	    "nextpnr-xilinx": ["basys3"]
+    "vendors": {
+        "xilinx": ["basys3"]
     },
-    "vendors": ["xilinx"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx"]
 }

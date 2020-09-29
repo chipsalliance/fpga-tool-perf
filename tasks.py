@@ -41,8 +41,14 @@ class Tasks:
             project_dict = get_project(project)
 
             for vendor in project_dict["vendors"]:
+                project_boards = project_dict["vendors"][vendor]
+
                 toolchains = vendors[vendor]["toolchains"]
-                boards = vendors[vendor]["boards"]
+                vendor_boards = vendors[vendor]["boards"]
+
+                boards = [
+                    board for board in project_boards if board in vendor_boards
+                ]
 
                 for toolchain, board in list(product(toolchains, boards)):
                     combinations.add((project, toolchain, board))
@@ -74,12 +80,10 @@ class Tasks:
 
             if take_task:
                 if only_required:
-                    required = get_project(task[0])["required_working"]
-                    try:
-                        if task[2] in required[task[1]]:
-                            tasks.append(task)
-                    except:
-                        continue
+                    required_toolchains = get_project(task[0]
+                                                      )["required_toolchains"]
+                    if task[1] in required_toolchains:
+                        tasks.append(task)
                 else:
                     tasks.append(task)
 

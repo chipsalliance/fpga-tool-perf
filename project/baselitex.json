@@ -13,13 +13,8 @@
     "clocks": {
         "clk100": 10.0
     },
-    "toolchains": ["vivado", "yosys-vivado"],
-    "required_working": {
-	"vivado": ["arty"],
-	"yosys-vivado": ["arty"],
-	"nextpnr-xilinx": ["arty"],
-	"vpr": ["arty"],
-	"vpr-fasm2bels": ["arty"]
+    "vendors": {
+        "xilinx": ["arty"]
     },
-    "vendors": ["xilinx"]
+    "required_toolchains": ["vivado", "yosys-vivado", "nextpnr-xilinx", "vpr", "vpr-fasm2bels"]
 }

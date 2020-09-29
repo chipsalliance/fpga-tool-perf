@@ -14,9 +14,8 @@
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_2_core_RegFilePlugin_regFile.bin",
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_3_core_RegFilePlugin_regFile.bin"
     ],
-    "toolchains": ["vivado"],
-    "required_working": {
-	    "vivado": ["arty"]
+    "vendors": {
+        "xilinx": ["arty"]
     },
-    "vendors": ["xilinx"]
+    "required_toolchains": ["vivado"]
 }
