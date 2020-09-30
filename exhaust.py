@@ -79,8 +79,8 @@ def print_summary_table(
     table_data.append(
         [
             Color('{autogreen}Passed:{/autogreen}'), passed,
-            Color('{autored}Failed:{/autored}'), failed, '', '', '', '',
-            '{}%'.format(int(passed / build_count * 100))
+            Color('{autored}Failed:{/autored}'), failed, '', '', '', '', '{}%'.
+            format(int(passed / build_count * 100) if build_count != 0 else 0)
         ]
     )
     table = AsciiTable(table_data)
@@ -148,6 +148,11 @@ def main():
         action='store_true',
         help='deletes previous exhuast builds before running'
     )
+    parser.add_argument(
+        '--only_required',
+        action='store_true',
+        help='runs only test/board/toolchain combinations that should pass'
+    )
 
     args = parser.parse_args()
 
@@ -211,7 +216,7 @@ def main():
 
     logger.debug("Getting Tasks")
     task_list = tasks.get_tasks(
-        args_dict, seeds, build_numbers, params_strings
+        args_dict, seeds, build_numbers, params_strings, args.only_required
     )
 
     runner = Runner(

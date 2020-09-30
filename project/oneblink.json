@@ -7,45 +7,10 @@
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": {
-        "vpr": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "vpr-fasm2bels": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "vivado": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "nexys": ["nexys.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "yosys-vivado": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "nexys": ["nexys.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "nextpnr-xilinx": {
-            "arty": ["arty.xdc"],
-            "zybo": ["zybo.xdc"],
-            "basys3": ["basys3.xdc"]
-        },
-        "nextpnr-xilinx-fasm2bels": {
-            "arty": ["arty.xdc"],
-            "zybo": ["zybo.xdc"],
-            "basys3": ["basys3.xdc"]
-        },
-        "nextpnr-ice40": {
-            "icebreaker": ["icebreaker.pcf"]
-        },
-        "quicklogic": {
-            "quickfeather-dev-board": ["quickfeather-dev-board.pcf"]
-        }
+    "vendors": {
+        "xilinx": ["arty", "basys3", "zybo"],
+        "lattice": ["icebreaker"],
+        "quicklogic": ["quickfeather"]
     },
-    "vendors": ["xilinx", "lattice", "quicklogic"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx", "nextpnr-xilinx-fasm2bels", "nextpnr-ice40", "quicklogic"]
 }

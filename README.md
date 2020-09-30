@@ -16,6 +16,7 @@ To setup the conda environment, run the following commands:
 
 ```bash
 TOOLCHAIN=symbiflow make env
+TOOLCHAIN=symbiflow-a200t make env
 TOOLCHAIN=quicklogic make env
 ```
 

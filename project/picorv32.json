@@ -8,30 +8,9 @@
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": {
-        "vivado": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "yosys-vivado": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "vpr": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "vpr-fasm2bels": {
-            "arty": ["arty.xdc"],
-            "basys3": ["basys3.xdc"],
-            "zybo": ["zybo.xdc"]
-        },
-        "nextpnr-ice40": {
-            "icebreaker": ["icebreaker.pcf"]
-        }
+    "vendors": {
+        "xilinx": ["arty", "basys3", "zybo"],
+        "lattice": ["icebreaker"]
     },
-    "vendors": ["xilinx"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-ice40"]
 }

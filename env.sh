@@ -25,15 +25,23 @@ function path_remove {
   PATH=${PATH/%":$1"/} # delete any instance in the at the end
 }
 
+#Remove all possible paths from PATH
 path_remove ${SYMBIFLOW}/bin
+path_remove ${SYMBIFLOW}-a200t/bin
 path_remove ${QUICKLOGIC}/install/bin
 
-conda_env=${1:-xilinx}
+#Set now environment variables
+environment=${1:-xilinx-a35t}
 
-if [ "quicklogic" == ${conda_env} ]; then
+if [ "quicklogic" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate quicklogic
     export PATH=${QUICKLOGIC}/install/bin:${PATH}
+elif [ "xilinx-a200t" == ${environment} ]; then
+    . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate fpga-tool-perf-env
+    export SYMBIFLOW=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow-a200t
+    export PATH=${SYMBIFLOW}/bin:${PATH}
 else
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate fpga-tool-perf-env
+    export SYMBIFLOW=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
     export PATH=${SYMBIFLOW}/bin:${PATH}
 fi

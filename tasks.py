@@ -12,7 +12,7 @@
 import os
 from itertools import product
 
-from fpgaperf import get_projects, get_project, get_toolchains, get_constraint
+from fpgaperf import get_projects, get_project, get_toolchains, get_constraint, get_vendors, verify_constraint
 
 
 class Tasks:
@@ -27,37 +27,42 @@ class Tasks:
         """Returns all the possible combination of:
             - projects,
             - toolchains,
-            - families,
-            - devices,
-            - packages
             - boards.
 
         Example:
-        - path structure:    src/<project>/<toolchain>/<family>_<device>_<package>_<board>.<constraint>
-        - valid combination: src/oneblink/vpr/xc7_a35t_csg324-1_arty.pcf
+        - path structure:    src/<project>/constr/<board>.<constraint>
+        - valid combination: src/oneblink/constr/arty.pcf
         """
 
-        projects = get_projects()
-        toolchains = get_toolchains()
-
         combinations = set()
-        for project, toolchain in list(product(projects, toolchains)):
+
+        vendors = get_vendors()
+        for project in get_projects():
             project_dict = get_project(project)
 
-            if 'toolchains' in project_dict:
-                toolchains_dict = project_dict['toolchains']
-            else:
-                continue
+            for vendor in project_dict["vendors"]:
+                project_boards = project_dict["vendors"][vendor]
 
-            if toolchain not in toolchains_dict:
-                continue
+                toolchains = vendors[vendor]["toolchains"]
+                vendor_boards = vendors[vendor]["boards"]
 
-            for board in toolchains_dict[toolchain]:
-                combinations.add((project, toolchain, board))
+                boards = [
+                    board for board in project_boards if board in vendor_boards
+                ]
+
+                for toolchain, board in list(product(toolchains, boards)):
+                    combinations.add((project, toolchain, board))
 
         return combinations
 
-    def get_tasks(self, args, seeds=[0], build_number=[0], options=[None]):
+    def get_tasks(
+        self,
+        args,
+        seeds=[0],
+        build_number=[0],
+        options=[None],
+        only_required=False
+    ):
         """Returns all the tasks filtering out the ones that do not correspond
         to the selected criteria"""
 
@@ -74,14 +79,19 @@ class Tasks:
                     break
 
             if take_task:
-                tasks.append(task)
+                if only_required:
+                    required_toolchains = get_project(task[0]
+                                                      )["required_toolchains"]
+                    if task[1] in required_toolchains:
+                        tasks.append(task)
+                else:
+                    tasks.append(task)
 
         tasks = self.add_extra_entry(seeds, tasks, create_new_tasks=True)
         tasks = self.add_extra_entry(options, tasks)
         tasks = self.add_extra_entry(
             build_number, tasks, create_new_tasks=True
         )
-
         return tasks
 
     def add_extra_entry(

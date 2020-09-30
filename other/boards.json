@@ -19,6 +19,11 @@
         "device": "a200t",
         "package": "fbg484-1"
     },
+    "nexys-video": {
+        "family": "xc7",
+        "device": "a200t",
+        "package": "sbg484-1"
+    },
     "icebreaker": {
         "family": "ice40",
         "device": "up5k",
@@ -29,7 +34,7 @@
         "device": "lp8k",
         "package": "cm81"
     },
-    "quickfeather-dev-board": {
+    "quickfeather": {
         "family": "eos",
         "device": "ql-eos-s3",
         "package": "PU64"

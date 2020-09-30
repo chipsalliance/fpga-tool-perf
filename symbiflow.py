@@ -134,7 +134,7 @@ class VPR(Toolchain):
                     'seed':
                         self.seed,
                     'environment_script':
-                        os.path.abspath('env.sh') + ' xilinx',
+                        os.path.abspath('env.sh') + ' xilinx-' + self.device,
                 }
                 self.edam = {
                     'files': self.files,
@@ -450,12 +450,14 @@ class VPR(Toolchain):
         assert False, "No run time found for yosys."
 
     def get_vpr_runtimes(self):
-        def get_step_runtime(step, logfile, position):
+        def get_step_runtime(step, logfile):
             with open(logfile, 'r') as fp:
                 for l in fp:
                     l = l.strip()
                     if '{} took'.format(step) in l:
-                        return float(l.split()[position])
+                        l = l.split()
+                        position = l.index("took") + 1
+                        return float(l[position])
 
         def get_overhead_runtime(name, log):
             if name in log and "%s_all" % name in self.unprinted_runtimes:
@@ -471,12 +473,12 @@ class VPR(Toolchain):
         route_log = os.path.join(self.out_dir, 'route.log')
         fasm_log = os.path.join(self.out_dir, 'fasm.log')
 
-        log['pack'] = get_step_runtime('Packing', pack_log, 3)
-        log['place'] = get_step_runtime('Placement', place_log, 3)
-        log['route'] = get_step_runtime('Routing', route_log, 3)
+        log['pack'] = get_step_runtime('Packing', pack_log)
+        log['place'] = get_step_runtime('Placement', place_log)
+        log['route'] = get_step_runtime('Routing', route_log)
         # XXX: Need add to genfasm the amount of time it took to create the fasm file.
         #      For now the whole command execution time is considered
-        log['fasm'] = get_step_runtime('The entire flow of VPR', fasm_log, 6)
+        log['fasm'] = get_step_runtime('The entire flow of VPR', fasm_log)
 
         get_overhead_runtime("pack", log)
         get_overhead_runtime("place", log)
@@ -661,7 +663,10 @@ class NextpnrXilinx(Toolchain):
                     'pnr':
                         'nextpnr',
                     'yosys_synth_options':
-                        ["-flatten", "-nowidelut", "-abc9", "-arch xc7"],
+                        [
+                            "-flatten", "-nowidelut", "-abc9", "-arch xc7",
+                            "-nocarry"
+                        ],
                     'fasm2bels':
                         self.fasm2bels,
                     'dbroot':
@@ -669,7 +674,7 @@ class NextpnrXilinx(Toolchain):
                     'clocks':
                         self.clocks,
                     'environment_script':
-                        os.path.abspath('env.sh') + ' xilinx',
+                        os.path.abspath('env.sh') + ' xilinx-' + self.device,
                 }
 
                 if self.fasm2bels:
@@ -693,6 +698,7 @@ class NextpnrXilinx(Toolchain):
                         "read_xdc -part_json {} {}".format(
                             part_json, os.path.realpath(self.xdc)
                         ),
+                        "clean",
                         "write_blif -attr -param {}.eblif".format(
                             self.project_name
                         ),
