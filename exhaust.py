@@ -33,7 +33,13 @@ def get_builds(out_prefix):
 
 
 def print_summary_table(
-    out_prefix, project, toolchain, board, build_type, build_nr=None
+    out_prefix,
+    project,
+    toolchain,
+    board,
+    build_type,
+    required_task_list,
+    build_nr=None
 ):
     """Prints a summary table of the outcome of each test."""
     builds = get_builds(out_prefix)
@@ -44,6 +50,7 @@ def print_summary_table(
         ]
     ]
     passed = failed = 0
+    build_status = True
     build_count = 0
     for build in sorted(builds):
         # Split directory name into columns
@@ -73,6 +80,8 @@ def print_summary_table(
         else:
             row.append(Color('{autored}failed{/autored}'))
             failed += 1
+            if (row[0], row[1], row[4]) in required_task_list:
+                build_status = False
         table_data.append(row)
         build_count += 1
 
@@ -87,7 +96,7 @@ def print_summary_table(
     table.inner_footing_row_border = True
     print(table.table)
 
-    return failed == 0
+    return build_status
 
 
 def main():
@@ -215,6 +224,12 @@ def main():
             params_strings.append(" ".join(params))
 
     logger.debug("Getting Tasks")
+    required_task_list = tasks.get_tasks(
+        args_dict, seeds, build_numbers, params_strings, True
+    )
+    required_task_list = [
+        (task[0], task[1], task[2]) for task in required_task_list
+    ]
     task_list = tasks.get_tasks(
         args_dict, seeds, build_numbers, params_strings, args.only_required
     )
@@ -233,7 +248,7 @@ def main():
     logger.debug("Printing Summary Table")
     result = print_summary_table(
         args.out_prefix, args.project, args.toolchain, args.board,
-        args.build_type, args.build
+        args.build_type, required_task_list, args.build
     )
 
     if not result and args.fail:
