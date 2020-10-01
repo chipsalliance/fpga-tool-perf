@@ -36,11 +36,8 @@ env:: | $(CONDA_ENV_PYTHON)
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/${TOOLCHAIN}$(SYMBIFLOW_VERSION)
 	rm ${SYMBIFLOW_ARCHIVE}
 
-run-tests-only-required:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-required --fail --only_required
-
 run-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all --fail
 
 run-parameters-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters --only_required
@@ -61,11 +58,10 @@ run-all-devices-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --project oneblink blinky picosoc-simpleuart
 
 run-all:
-	$(MAKE) run-tests-only-required
+	$(MAKE) run-tests
 	$(MAKE) run-parameters-tests
 	$(MAKE) run-multiple-samples-tests
 	$(MAKE) run-seedable-tests
-	$(MAKE) run-tests
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
 
