@@ -675,6 +675,8 @@ class NextpnrXilinx(Toolchain):
                         self.clocks,
                     'environment_script':
                         os.path.abspath('env.sh') + ' xilinx-' + self.device,
+                    'options':
+                        '--timing-allow-fail'
                 }
 
                 if self.fasm2bels:
