@@ -27,7 +27,7 @@
     "top": "hdmi_design",
     "name": "hamsternz-hdmi",
     "vendors": {
-        "xilinx": ["nexys-video"]
+        "xilinx": ["nexys-video", "nexys"]
     },
     "required_toolchains": ["vivado"]
 }

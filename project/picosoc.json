@@ -13,7 +13,7 @@
         "clk": 10.0
     },
     "vendors": {
-        "xilinx": ["basys3"]
+        "xilinx": ["basys3", "nexys"]
     },
     "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx"]
 }
