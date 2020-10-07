@@ -675,6 +675,8 @@ class NextpnrXilinx(Toolchain):
                         self.clocks,
                     'environment_script':
                         os.path.abspath('env.sh') + ' xilinx-' + self.device,
+                    'options':
+                        '--timing-allow-fail'
                 }
 
                 if self.fasm2bels:
@@ -821,8 +823,16 @@ class NextpnrXilinx(Toolchain):
             dff = dff = res['SLICE_FFX']
         if 'CARRY4' in res:
             carry = res['CARRY4']
-        if 'PAD' in res:
-            iob = iob + res['PAD']
+        if 'IOB33M_OUTBUF' in res:
+            assert res['IOB33M_OUTBUF'] == res['IOB33S_OUTBUF']
+            iob = iob + res['IOB33M_OUTBUF']
+        if 'IOB33M_INBUF_EN' in res:
+            assert res['IOB33M_INBUF_EN'] == res['IOB33S_INBUF_EN']
+            iob = iob + res['IOB33M_INBUF_EN']
+        if 'IOB33_OUTBUF' in res:
+            iob = iob + res['IOB33_OUTBUF']
+        if 'IOB33_INBUF_EN' in res:
+            iob = iob + res['IOB33_INBUF_EN']
         if 'RAMB18E1_RAMB18E1' in res:
             bram = res['RAMB18E1_RAMB18E1']
         if 'RAMB36E1_RAMB36E1' in res:

@@ -82,8 +82,9 @@ class Runner:
                 # Limit output to max 300 characters for exhaust.py to make sure log files are not too large.
                 exception_str = str(e)
                 eprint(
-                    "ERROR MESSAGE: ", (exception_str[:296] + " [...]")
-                    if len(str(exception_str)) > 300 else exception_str
+                    "ERROR MESSAGE: ",
+                    ("[...]\n{}".format(exception_str[-1000:]))
+                    if len(str(exception_str)) > 1000 else exception_str
                 )
                 eprint("---------------------\n")
 

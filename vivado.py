@@ -317,15 +317,5 @@ class VivadoYosys(Vivado):
             total_runtime += float(impl_times[t])
         self.add_runtime('total', total_runtime)
 
-    def resources(self):
-        report_file_pattern = self.out_dir + "/*_utilization_placed.rpt"
-        report_file = glob.glob(report_file_pattern).pop()
-        return super(VivadoYosys, self).resources(report_file)
-
-    def max_freq(self):
-        report_file_pattern = self.out_dir + "/*_timing_summary_routed.rpt"
-        report_file = glob.glob(report_file_pattern).pop()
-        return get_vivado_max_freq(report_file)
-
     def versions(self):
         return {'yosys': self.yosys_ver(), 'vivado': self.vivado_ver()}

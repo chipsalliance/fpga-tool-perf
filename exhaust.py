@@ -52,6 +52,7 @@ def print_summary_table(
     passed = failed = 0
     build_status = True
     build_count = 0
+    failed_required_tests = []
     for build in sorted(builds):
         # Split directory name into columns
         # Example: oneblink_vpr_xc7_a35tcsg326-1_arty_generic-build_0_options
@@ -82,6 +83,9 @@ def print_summary_table(
             failed += 1
             if (row[0], row[1], row[4]) in required_task_list:
                 build_status = False
+                failed_required_tests.append(
+                    "{} {} {}".format(row[0], row[1], row[4])
+                )
         table_data.append(row)
         build_count += 1
 
@@ -96,7 +100,7 @@ def print_summary_table(
     table.inner_footing_row_border = True
     print(table.table)
 
-    return build_status
+    return build_status, failed_required_tests
 
 
 def main():
@@ -246,13 +250,16 @@ def main():
     runner.collect_results()
 
     logger.debug("Printing Summary Table")
-    result = print_summary_table(
+    result, failed_required_tests = print_summary_table(
         args.out_prefix, args.project, args.toolchain, args.board,
         args.build_type, required_task_list, args.build
     )
 
     if not result and args.fail:
-        print("ERROR: some tests have failed.")
+        print("ERROR: Some required tests have failed.")
+        for failed_required_test in failed_required_tests:
+            print(failed_required_test)
+
         exit(1)
 
 
