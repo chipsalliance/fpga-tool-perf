@@ -1,0 +1,12 @@
+Name: Ibex, a small 32 bit RISC-V CPU core (RV32IMC/EMC) with a two stage pipeline, previously known as zero-riscy.
+Short Name: Ibex
+URL: https://github.com/lowRISC/ibex
+Version: 4.1.0
+License: Apache-2.0
+
+Description:
+This package is used as a testbench for the fpga-tool-perf project, to test performance and quality of results of different vendor and open source toolchains.
+
+Local Modifications:
+Conversion from SystemVerilog to Verilog of the source files.
+Removal of clock gating in the design.

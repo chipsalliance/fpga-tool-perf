@@ -1,0 +1,11 @@
+Name: JPEG Quantization & Rounding Core
+Short Name: jpeg-qnr
+URL: www.asics.ws
+Version: 1.3
+License: BSD-3-Clause
+
+Description:
+This package is used as a testbench for the fpga-tool-perf project, to test performance and quality of results of different vendor and open source toolchains.
+
+Local Modifications:
+None

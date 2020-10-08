@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+#
+# Copyright (C) 2020  The SymbiFlow Authors.
+#
+# Use of this source code is governed by a ISC-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/ISC
+#
+# SPDX-License-Identifier: ISC
+
 python3 wrapper.py --module VexRiscv src/vexriscv-verilog/VexRiscv.v >src/vexriscv-verilog_wrap.v
 
 #python3 wrapper.py "src/picorv32/picosoc/picosoc.v" >src/picosoc_wrap.v

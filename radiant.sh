@@ -1,3 +1,13 @@
+#!/bin/bash
+#
+# Copyright (C) 2020  The SymbiFlow Authors.
+#
+# Use of this source code is governed by a ISC-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/ISC
+#
+# SPDX-License-Identifier: ISC
+
 syn=synpro
 #syn=lse
 PRJNAME=my
@@ -82,8 +92,8 @@ prj_save
 prj_run PAR -impl test1
 prj_run Export -impl test1
 EOF
-    #timing -sethld -v 10 -u 10 -endpoints 10  -nperend 1 -html -rpt "test1_test1.twr" "test1_test1.udb" 
-    #bitgen -w "test1_test1.udb" -f "test1_test1.t2b" 
+    #timing -sethld -v 10 -u 10 -endpoints 10  -nperend 1 -html -rpt "test1_test1.twr" "test1_test1.udb"
+    #bitgen -w "test1_test1.udb" -f "test1_test1.t2b"
 
     cat run.tcl | $radiantdir/bin/lin64/radiantc
     cp ./test1/test1_test1.bin my.bin

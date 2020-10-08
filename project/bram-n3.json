@@ -3,7 +3,7 @@
         "src/bram-n3/bram_n3.v",
         "src/bram/rom.v",
         "src/bram/processing_unit.v",
-        "src/bram/simpleuart.v",
+        "third_party/picorv32/picosoc/simpleuart.v",
         "src/bram/scalable_proc.v"
     ],
     "top": "top",

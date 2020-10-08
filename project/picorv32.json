@@ -1,7 +1,7 @@
 {
     "srcs": [
         "third_party/picorv32/picorv32.v",
-        "src/picorv32/picorv32_wrap.v"
+        "third_party/picorv32_wrappers/picorv32_wrap.v"
     ],
     "top": "top",
     "name": "picorv32",

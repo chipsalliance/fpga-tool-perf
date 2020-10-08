@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2020  The SymbiFlow Authors.
+#
+# Use of this source code is governed by a ISC-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/ISC
+#
+# SPDX-License-Identifier: ISC
+
 import os
 import re
 import subprocess
@@ -665,7 +676,7 @@ class NextpnrXilinx(Toolchain):
                     'yosys_synth_options':
                         [
                             "-flatten", "-nowidelut", "-abc9", "-arch xc7",
-                            "-nocarry"
+                            "-nocarry", "-nodsp"
                         ],
                     'fasm2bels':
                         self.fasm2bels,
