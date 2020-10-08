@@ -9,6 +9,7 @@ all: format
 
 TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 TOOLCHAIN ?= symbiflow
+TOOLCHAIN_LOCATION ?= symbiflow
 REQUIREMENTS_FILE := conf/${TOOLCHAIN}/requirements.txt
 ENVIRONMENT_FILE := conf/${TOOLCHAIN}/environment.yml
 
@@ -22,6 +23,7 @@ ENVIRONMENT_FILE = conf/symbiflow/environment.yml
 endif
 ifeq ("${TOOLCHAIN}", "quicklogic")
 SYMBIFLOW_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
+TOOLCHAIN_LOCATION = quicklogic
 endif
 
 third_party/make-env/conda.mk:
@@ -31,9 +33,9 @@ third_party/make-env/conda.mk:
 include third_party/make-env/conda.mk
 
 env:: | $(CONDA_ENV_PYTHON)
-	mkdir -p env/${TOOLCHAIN}$(SYMBIFLOW_VERSION)
+	mkdir -p env/${TOOLCHAIN_LOCATION}$(SYMBIFLOW_VERSION)
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
-	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/${TOOLCHAIN}$(SYMBIFLOW_VERSION)
+	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/${TOOLCHAIN_LOCATION}$(SYMBIFLOW_VERSION)
 	rm ${SYMBIFLOW_ARCHIVE}
 
 run-tests:
