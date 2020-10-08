@@ -473,9 +473,9 @@ class VPR(Toolchain):
         route_log = os.path.join(self.out_dir, 'route.log')
         fasm_log = os.path.join(self.out_dir, 'fasm.log')
 
-        log['pack'] = get_step_runtime('Packing', pack_log)
-        log['place'] = get_step_runtime('Placement', place_log)
-        log['route'] = get_step_runtime('Routing', route_log)
+        log['pack'] = get_step_runtime('# Packing', pack_log)
+        log['place'] = get_step_runtime('# Placement', place_log)
+        log['route'] = get_step_runtime('# Routing', route_log)
         # XXX: Need add to genfasm the amount of time it took to create the fasm file.
         #      For now the whole command execution time is considered
         log['fasm'] = get_step_runtime('The entire flow of VPR', fasm_log)
