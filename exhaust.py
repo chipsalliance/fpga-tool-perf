@@ -100,8 +100,9 @@ def print_summary_table(
 
     table_data.append(
         [
+            Color('{autoblue}Total Runs:{/autoblue}'), build_count,
             Color('{autogreen}Passed:{/autogreen}'), passed,
-            Color('{autored}Failed:{/autored}'), failed, '', '', '', '', '{}%'.
+            Color('{autored}Failed:{/autored}'), failed, '', '', '{}%'.
             format(int(passed / build_count * 100) if build_count != 0 else 0)
         ]
     )
