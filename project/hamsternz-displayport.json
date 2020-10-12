@@ -26,6 +26,10 @@
 	"third_party/hamsternz-displayport/src/top_level_nexys_video.v"
         ],
     "top": "top_level_nexys_video",
-    "name": "hamsternz-displayport"
+    "name": "hamsternz-displayport",
+    "vendors": {
+        "xilinx": ["nexys-video", "nexys"]
+    },
+    "required_toolchains": ["vivado"]
 }
 
