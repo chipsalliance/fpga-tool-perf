@@ -1,6 +1,6 @@
 {
     "srcs": [
-	"third_party/up5k-demos/nes/MicroCode.v",
+	"third_party/up5k-demos-changes/MicroCode.v",
 	"third_party/up5k-demos/nes/generic_ram.v",
 	"third_party/up5k-demos/nes/flashmem.v",
 	"third_party/up5k-demos/nes/apu.v",
@@ -25,6 +25,10 @@
 	"third_party/up5k-demos/nes/nes_palette_fceux.txt",
 	"third_party/up5k-demos/nes/nes_palette_unsaturatedv6.txt",
 	"third_party/up5k-demos/nes/oam_palette.txt"
-    ]
+    ],
+    "vendors": {
+        "lattice": ["icebreaker"]
+    },
+    "required_toolchains": ["nextpnr-ice40"]
 }
 

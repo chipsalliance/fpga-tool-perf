@@ -1,0 +1,11 @@
+Name: Port of the MIST NES core to ice40
+Short Name: up5k-nes-demo
+URL: https://github.com/daveshah1/up5k-demos/tree/master/nes
+Version: 1.0.0
+License: GNU GPL v3
+
+Description:
+This package is used as a testbench for the fpga-tool-perf project, to test performance and quality of results of different vendor and open source toolchains.
+
+Local Modifications:
+Remove underscore character (_) if it is a first character in the number.
