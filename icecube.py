@@ -39,7 +39,6 @@ class Icecube2(Toolchain):
             if self.strategy:
                 args += " --strategy %s" % (self.strategy, )
             self.cmd(root_dir + "/icecubed.sh", args, env=env)
-
             self.cmd("iceunpack", "my.bin my.asc")
 
         self.cmd("icetime", "-tmd %s my.asc" % (self.device, ))

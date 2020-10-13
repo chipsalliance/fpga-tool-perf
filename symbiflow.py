@@ -35,10 +35,13 @@ class VPR(Toolchain):
         self.backend.build_main(self.top + '.eblif')
         with Timed(self, 'pack_all', unprinted_runtime=True):
             self.backend.build_main(self.top + '.net')
+
         with Timed(self, 'place_all', unprinted_runtime=True):
             self.backend.build_main(self.top + '.place')
+
         with Timed(self, 'route_all', unprinted_runtime=True):
             self.backend.build_main(self.top + '.route')
+
         self.backend.build_main(self.top + '.fasm')
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.top + '.bit')
@@ -159,7 +162,9 @@ class VPR(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
+
             self.run_steps()
+
         self.add_runtimes()
         self.add_wirelength()
         self.add_maximum_memory_use()
@@ -728,6 +733,7 @@ class NextpnrXilinx(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
+
             self.backend.build_main(self.project_name + '.fasm')
             self.run_steps()
 

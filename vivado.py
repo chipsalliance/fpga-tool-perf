@@ -136,7 +136,9 @@ class Vivado(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
+
             self.backend.build()
+
         self.add_runtimes()
         self.add_maximum_memory_use()
 
