@@ -143,6 +143,7 @@ class NextpnrIcestorm(Icestorm):
         args = ''
         args += " --" + self.device
         args += " --package " + self.package
+        args += " --timing-allow-fail "
         if self.seed:
             args += " --seed %u" % (self.seed, )
 
