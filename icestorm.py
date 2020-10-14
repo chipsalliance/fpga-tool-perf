@@ -115,10 +115,16 @@ class Icestorm(Toolchain):
                     {
                         'icestorm':
                             {
-                                'nextpnr_options': args.split(),
-                                'arachne_pnr_options': args.split(),
-                                'pnr': pnr,
-                                'part': self.device
+                                'nextpnr_options':
+                                    args.split(),
+                                'arachne_pnr_options':
+                                    args.split(),
+                                'pnr':
+                                    pnr,
+                                'part':
+                                    self.device,
+                                'environment_script':
+                                    os.path.abspath('env.sh') + ' nextpnr'
                             }
                     }
             }

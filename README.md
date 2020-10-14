@@ -18,6 +18,7 @@ To setup the conda environment, run the following commands:
 TOOLCHAIN=symbiflow make env
 TOOLCHAIN=symbiflow-a200t make env
 TOOLCHAIN=quicklogic make env
+TOOLCHAIN=nextpnr make env
 ```
 
 fpga-tool-perf can also run the Vivado EDA tool. The tool is not available in the conda environment and it needs to be installed by the user.

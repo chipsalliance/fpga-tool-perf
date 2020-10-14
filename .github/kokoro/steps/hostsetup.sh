@@ -81,5 +81,6 @@ echo "----------------------------------------"
 	TOOLCHAIN=symbiflow make env
 	TOOLCHAIN=symbiflow-a200t make env
 	TOOLCHAIN=quicklogic make env
+	TOOLCHAIN=nextpnr make env
 	echo "----------------------------------------"
 )
