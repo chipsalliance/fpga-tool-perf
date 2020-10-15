@@ -15,7 +15,7 @@
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_3_core_RegFilePlugin_regFile.bin"
     ],
     "vendors": {
-        "xilinx": ["arty"]
+        "xilinx": ["arty-a35t", "arty-a100t"]
     },
     "required_toolchains": ["vivado"]
 }

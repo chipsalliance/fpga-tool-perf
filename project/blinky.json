@@ -8,7 +8,7 @@
         "clk_i": 10.0
     },
     "vendors": {
-        "xilinx": ["arty", "basys3"]
+        "xilinx": ["arty-a35t", "arty-a100t", "basys3"]
     },
     "required_toolchains": ["vivado", "yosys-vivado", "nextpnr-xilinx", "nextpnr-xilinx-fasm2bels", "vpr", "vpr-fasm2bels"]
 }

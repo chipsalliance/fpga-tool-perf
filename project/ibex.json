@@ -30,7 +30,7 @@
         "IO_CLK": 10.0
     },
     "vendors": {
-        "xilinx": ["arty", "basys3", "zybo"]
+        "xilinx": ["arty-a35t", "arty-a100t", "basys3", "zybo"]
     },
     "required_toolchains": ["vivado", "vpr", "vpr-fasm2bels", "yosys-vivado"]
 }
