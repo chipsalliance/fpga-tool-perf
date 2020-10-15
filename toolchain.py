@@ -64,9 +64,6 @@ class Toolchain:
         self.wirelength = None
         self.maximum_memory_use = None
 
-        with Timed(self, 'nop'):
-            subprocess.check_call("true", shell=True, cwd=self.out_dir)
-
     def canonicalize(self, fns):
         return [os.path.realpath(self.rootdir + '/' + fn) for fn in fns]
 
@@ -271,7 +268,6 @@ class Toolchain:
             'bitstream': ['write_bitstream', 'bitstream'],
             'reports': ['report_power', 'report_methodology', 'report_drc'],
             'total': ['total'],
-            'nop': ['nop'],
             'fasm2bels': ['fasm2bels'],
             'link design': ['link_design'],
             'phys opt design': ['phys_opt_design']

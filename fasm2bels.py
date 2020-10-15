@@ -64,6 +64,7 @@ class VPRFasm2Bels(VPR):
         self.backend.build_main(self.top + '.fasm')
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.top + '.bit')
+
         with Timed(self, 'fasm2bels'):
             self.backend.build_main('timing_summary.rpt')
 
@@ -97,5 +98,6 @@ class NextpnrXilinxFasm2Bels(NextpnrXilinx):
     def run_steps(self):
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.project_name + '.bit')
+
         with Timed(self, 'fasm2bels'):
             self.backend.build_main('timing_summary.rpt')

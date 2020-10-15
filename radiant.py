@@ -48,7 +48,6 @@ class Radiant(Toolchain):
             if self.strategy:
                 args += " --strategy %s" % self.strategy
             self.cmd(root_dir + "/radiant.sh", args, env=env)
-
             self.cmd("iceunpack", "my.bin my.asc")
 
         self.cmd("icetime", "-tmd up5k my.asc")
