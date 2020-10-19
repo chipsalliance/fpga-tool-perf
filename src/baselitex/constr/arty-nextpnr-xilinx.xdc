@@ -284,7 +284,10 @@ set_property IOSTANDARD LVCMOS33 [get_ports eth_col]
 set_property LOC G14 [get_ports eth_crs]
 set_property IOSTANDARD LVCMOS33 [get_ports eth_crs]
 
-set_property INTERNAL_VREF 0.750 [get_iobanks 34]
+#Nextpnr-xilinx is suppose to skip INTERNAL_VREF argument:
+#https://github.com/daveshah1/nextpnr-xilinx/blob/xilinx-upstream/xilinx/xdc.cc#L143-L144
+#not sure why, but it doesn't, manually commenting INTERNAL_VREF until it will be fixed.
+#set_property INTERNAL_VREF 0.750 [get_iobanks 34]
 
 create_clock -name sys_clk -period 16.666 [get_nets sys_clk]
 
