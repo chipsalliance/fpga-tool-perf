@@ -15,7 +15,7 @@
         "io_mainClk": 10.0
     },
     "vendors": {
-        "xilinx": ["basys3"]
+        "xilinx": ["basys3", "nexys-video"]
     },
     "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx"]
 }

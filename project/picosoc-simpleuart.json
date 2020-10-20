@@ -9,7 +9,7 @@
         "clk": 10.0
     },
     "vendors": {
-        "xilinx": ["arty", "basys3", "zybo"],
+        "xilinx": ["arty", "basys3", "zybo", "nexys-video"],
         "lattice": ["icebreaker"],
         "quicklogic": ["quickfeather"]
     },
