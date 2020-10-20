@@ -302,7 +302,7 @@ class VPR(Toolchain):
                     cpd = float(fields[0].split(":")[1].split()[0].strip())
                     freqs[clk] = safe_division_by_zero(1e9, cpd)
 
-                if l == "Intra-domain critical path delays (CPDs):\n":
+                if l == "Final intra-domain critical path delays (CPDs):\n":
                     intra_domain_processing = True
                     continue
 
