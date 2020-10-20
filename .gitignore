@@ -5,9 +5,6 @@ build
 # vpr
 vpr_stdout.log
 
-# vivado
-vivado.*
-
 # verilog parser
 parser.out
 parsetab.py

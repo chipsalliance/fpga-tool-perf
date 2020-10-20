@@ -12,12 +12,11 @@
 import os
 import re
 import subprocess
-
 import edalize
 
-from toolchain import Toolchain
-from utils import Timed, have_exec, which
-from tool_parameters import ToolParametersHelper
+from toolchains.toolchain import Toolchain
+from utils.utils import Timed, have_exec, which
+from infrastructure.tool_parameters import ToolParametersHelper
 
 YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
 

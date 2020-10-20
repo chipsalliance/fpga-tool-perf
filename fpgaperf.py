@@ -23,20 +23,20 @@ import edalize
 import logging
 from terminaltables import AsciiTable
 
-from toolchain import Toolchain
-from utils import Timed
+from utils.utils import Timed
 
-from icestorm import NextpnrIcestorm
-from icestorm import Arachne
-from vivado import Vivado
-from vivado import VivadoYosys
-from symbiflow import VPR, NextpnrXilinx, Quicklogic
-from fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
-from radiant import RadiantSynpro
-from radiant import RadiantLSE
-from icecube import Icecube2Synpro
-from icecube import Icecube2LSE
-from icecube import Icecube2Yosys
+from toolchains.toolchain import Toolchain
+from toolchains.icestorm import NextpnrIcestorm
+from toolchains.icestorm import Arachne
+from toolchains.vivado import Vivado
+from toolchains.vivado import VivadoYosys
+from toolchains.symbiflow import VPR, NextpnrXilinx, Quicklogic
+from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
+from toolchains.radiant import RadiantSynpro
+from toolchains.radiant import RadiantLSE
+from toolchains.icecube import Icecube2Synpro
+from toolchains.icecube import Icecube2LSE
+from toolchains.icecube import Icecube2Yosys
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))

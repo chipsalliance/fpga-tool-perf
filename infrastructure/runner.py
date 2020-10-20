@@ -19,8 +19,8 @@ from multiprocessing import Pool, cpu_count
 from contextlib import redirect_stdout
 
 from fpgaperf import run
-from dataframe import generate_dataframe
-import sow
+from infrastructure.dataframe import generate_dataframe
+import utils.sow as sow
 
 
 class Runner:
