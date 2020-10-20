@@ -10,5 +10,5 @@
     "vendors": {
         "quicklogic": ["chandalar", "quickfeather"]
     },
-    "required_toolchains": ["quicklogic"]
+    "required_toolchains": []
 }
