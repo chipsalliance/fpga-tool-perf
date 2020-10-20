@@ -19,6 +19,8 @@ from toolchain import Toolchain
 from utils import Timed, have_exec, which
 from tool_parameters import ToolParametersHelper
 
+YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
+
 
 class VPR(Toolchain):
     '''VPR using Yosys for synthesis'''
@@ -517,9 +519,15 @@ class VPR(Toolchain):
     @staticmethod
     def yosys_ver():
         # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
-        return subprocess.check_output(
+        yosys_version = subprocess.check_output(
             "yosys -V", shell=True, universal_newlines=True
         ).strip()
+
+        m = YOSYS_REGEXP.match(yosys_version)
+
+        assert m, yosys_version
+
+        return "{} {} {})".format(m.group(1), m.group(2), m.group(3))
 
     @staticmethod
     def vpr_version():
@@ -934,9 +942,15 @@ class NextpnrXilinx(Toolchain):
     @staticmethod
     def yosys_ver():
         # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
-        return subprocess.check_output(
+        yosys_version = subprocess.check_output(
             "yosys -V", shell=True, universal_newlines=True
         ).strip()
+
+        m = YOSYS_REGEXP.match(yosys_version)
+
+        assert m
+
+        return "{} {} {})".format(m.group(1), m.group(2), m.group(3))
 
     @staticmethod
     def nextpnr_version():
