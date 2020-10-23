@@ -23,9 +23,9 @@ ENVIRONMENT_FILE := conf/${TOOLCHAIN}/environment.yml
 
 SYMBIFLOW_ARCHIVE = ${TOOLCHAIN}.tar.xz
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
-SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/69/20200918-011856/symbiflow-arch-defs-install-6e6e8c7c.tar.xz"
+SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/80/20201020-195452/symbiflow-arch-defs-install-2f55fb8f.tar.xz"
 ifeq ("${TOOLCHAIN}", "symbiflow-a200t")
-SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/12/20200918-011229/symbiflow-arch-defs-install-200t-6e6e8c7c.tar.xz"
+SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/23/20201020-195721/symbiflow-arch-defs-install-200t-2f55fb8f.tar.xz"
 REQUIREMENTS_FILE = conf/symbiflow/requirements.txt
 ENVIRONMENT_FILE = conf/symbiflow/environment.yml
 endif
