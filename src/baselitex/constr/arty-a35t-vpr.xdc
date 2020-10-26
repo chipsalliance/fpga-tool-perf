@@ -286,22 +286,4 @@ set_property IOSTANDARD LVCMOS33 [get_ports eth_crs]
 
 set_property INTERNAL_VREF 0.750 [get_iobanks 34]
 
-#create_clock -name sys_clk -period 16.666 [get_nets sys_clk]
-#
-#create_clock -name clk100 -period 10.0 [get_nets clk100]
-#
-#create_clock -name eth_rx_clk -period 40.0 [get_nets eth_rx_clk]
-#
-#create_clock -name eth_tx_clk -period 40.0 [get_nets eth_tx_clk]
-#
-#set_clock_groups -group [get_clocks -include_generated_clocks -of [get_nets sys_clk]] -group [get_clocks -include_generated_clocks -of [get_nets eth_rx_clk]] -asynchronous
-#
-#set_clock_groups -group [get_clocks -include_generated_clocks -of [get_nets sys_clk]] -group [get_clocks -include_generated_clocks -of [get_nets eth_tx_clk]] -asynchronous
-#
-#set_clock_groups -group [get_clocks -include_generated_clocks -of [get_nets eth_rx_clk]] -group [get_clocks -include_generated_clocks -of [get_nets eth_tx_clk]] -asynchronous
-#
-#set_false_path -quiet -to [get_nets -quiet -filter {mr_ff == TRUE}]
-#
-#set_false_path -quiet -to [get_pins -quiet -filter {REF_PIN_NAME == PRE} -of [get_cells -quiet -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}]]
-#
-#set_max_delay 2 -quiet -from [get_pins -quiet -filter {REF_PIN_NAME == Q} -of [get_cells -quiet -filter {ars_ff1 == TRUE}]] -to [get_pins -quiet -filter {REF_PIN_NAME == D} -of [get_cells -quiet -filter {ars_ff2 == TRUE}]]
+create_clock -period 10.0 clk100
