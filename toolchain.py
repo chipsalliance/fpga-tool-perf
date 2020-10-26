@@ -308,7 +308,8 @@ class Toolchain:
                     ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
                 ]
             )
-            max_freq = None
+
+        assert max_freq, "ERROR: no clocks assigned for this test design!"
 
         toolchain_map = {
             'vpr': {
