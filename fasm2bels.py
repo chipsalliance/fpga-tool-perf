@@ -80,11 +80,11 @@ class NextpnrXilinxFasm2Bels(NextpnrXilinx):
         self.fasm2bels = True
 
         self.dbroot = subprocess.check_output(
-            'prjxray-config', shell=True
+            'bash -c ". ./env.sh nextpnr && prjxray-config"', shell=True
         ).decode('utf-8').strip()
 
         capnp_schema_dir = subprocess.check_output(
-            'capnp-schemas-dir', shell=True
+            'bash -c ". ./env.sh nextpnr && capnp-schemas-dir"', shell=True
         ).decode('utf-8').strip()
 
         self.files.append({'name': capnp_schema_dir, 'file_type': 'capnp'})

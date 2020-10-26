@@ -615,9 +615,19 @@ class NextpnrXilinx(Toolchain):
 
                 chip = self.family + self.device
 
-                nextpnr_location = which(
-                    program='nextpnr-xilinx', get_dir=True
+                out = subprocess.run(
+                    ["find", ".", "-name", "nextpnr-xilinx"],
+                    stdout=subprocess.PIPE
                 )
+                nextpnr_locations = out.stdout.decode('utf-8').split('\n')
+
+                for location in nextpnr_locations:
+                    if "/bin/nextpnr-xilinx" in location:
+                        nextpnr_location = os.path.abspath(
+                            os.path.dirname(location)
+                        )
+                        break
+
                 assert nextpnr_location
 
                 share_dir = os.path.join(nextpnr_location, '..', 'share')
@@ -697,7 +707,8 @@ class NextpnrXilinx(Toolchain):
                     'clocks':
                         self.clocks,
                     'environment_script':
-                        os.path.abspath('env.sh') + ' xilinx-' + self.device,
+                        os.path.abspath('env.sh') + ' nextpnr xilinx-' +
+                        self.device,
                     'options':
                         '--timing-allow-fail'
                 }
@@ -958,7 +969,7 @@ class NextpnrXilinx(Toolchain):
         nextpnr-xilinx  --version
         '''
         return subprocess.check_output(
-            "nextpnr-xilinx --version",
+            'bash -c ". ./env.sh nextpnr && nextpnr-xilinx --version"',
             shell=True,
             universal_newlines=True,
             stderr=subprocess.STDOUT

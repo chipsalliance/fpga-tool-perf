@@ -24,6 +24,10 @@ if [ -z "${QUICKLOGIC}" ]; then
     echo "WARNING: using default quicklogic dir."
     export QUICKLOGIC=${FPGA_TOOL_PERF_BASE_DIR}/env/quicklogic
 fi
+if [ -z "${NEXTPNR}" ]; then
+    echo "WARNING: using default nextpnr dir."
+    export NEXTPNR=${FPGA_TOOL_PERF_BASE_DIR}/env/nextpnr
+fi
 
 #https://unix.stackexchange.com/a/291611
 function path_remove {
@@ -36,6 +40,7 @@ function path_remove {
 #Remove all possible paths from PATH
 path_remove ${SYMBIFLOW}/bin
 path_remove ${QUICKLOGIC}/install/bin
+path_remove ${NEXTPNR}/bin
 
 #Set now environment variables
 environment=${1:-xilinx-a35t}
@@ -43,8 +48,11 @@ environment=${1:-xilinx-a35t}
 if [ "quicklogic" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate quicklogic
     export PATH=${QUICKLOGIC}/install/bin:${PATH}
+elif [ "nextpnr" == ${environment} ]; then
+    . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate nextpnr-env
+    export PATH=${NEXTPNR}/bin:${PATH}
 else
-    . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate fpga-tool-perf-env
+    . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate symbiflow-env
     export SYMBIFLOW=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
     export PATH=${SYMBIFLOW}/bin:${PATH}
 fi

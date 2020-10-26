@@ -33,6 +33,9 @@ ifeq ("${TOOLCHAIN}", "quicklogic")
 SYMBIFLOW_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
 TOOLCHAIN_LOCATION = quicklogic
 endif
+ifeq ("${TOOLCHAIN}", "nextpnr")
+TOOLCHAIN_LOCATION = nextpnr
+endif
 
 third_party/make-env/conda.mk:
 	git submodule init

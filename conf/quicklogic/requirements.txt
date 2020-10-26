@@ -1,14 +1,1 @@
-terminaltables
-asciitable
-simplejson
-tqdm
-colorclass
-lxml
-python-constraint
-intervaltree
-jinja2
-pytest
-pandas
-yapf
-git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
 git+https://github.com/QuickLogic-corp/quicklogic-fasm.git
