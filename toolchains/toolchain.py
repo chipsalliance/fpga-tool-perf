@@ -20,7 +20,8 @@ import sys
 import glob
 import datetime
 import shutil
-from utils import Timed
+
+from utils.utils import Timed
 
 
 class Toolchain:

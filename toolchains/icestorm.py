@@ -22,8 +22,8 @@ import datetime
 import asciitable
 import edalize
 
-from toolchain import Toolchain
-from utils import Timed
+from toolchains.toolchain import Toolchain
+from utils.utils import Timed
 
 
 class Icestorm(Toolchain):

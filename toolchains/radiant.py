@@ -11,8 +11,8 @@
 
 import os
 
-from toolchain import Toolchain
-from utils import Timed
+from toolchains.toolchain import Toolchain
+from utils.utils import Timed
 
 
 # .asc version field just says "DiamondNG"

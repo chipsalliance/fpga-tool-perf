@@ -18,10 +18,11 @@ import logging
 from terminaltables import AsciiTable
 from colorclass import Color
 
-from utils import safe_get_dict_value
-from tasks import Tasks
-from runner import Runner
-from tool_parameters import ToolParametersHelper
+from utils.utils import safe_get_dict_value
+
+from infrastructure.tasks import Tasks
+from infrastructure.runner import Runner
+from infrastructure.tool_parameters import ToolParametersHelper
 from fpgaperf import get_projects, get_toolchains, get_boards
 
 root_dir = os.path.dirname(os.path.abspath(__file__))

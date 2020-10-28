@@ -23,8 +23,8 @@ import asciitable
 import edalize
 import glob
 
-from toolchain import Toolchain
-from utils import Timed, get_vivado_max_freq, have_exec
+from toolchains.toolchain import Toolchain
+from utils.utils import Timed, get_vivado_max_freq, have_exec
 
 
 class Vivado(Toolchain):
