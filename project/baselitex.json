@@ -14,7 +14,7 @@
         "clk100": 10.0
     },
     "vendors": {
-        "xilinx": ["arty"]
+        "xilinx": ["arty-a35t", "arty-a100t"]
     },
     "required_toolchains": ["vivado", "yosys-vivado", "nextpnr-xilinx", "vpr", "vpr-fasm2bels"]
 }

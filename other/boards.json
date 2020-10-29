@@ -1,7 +1,12 @@
 {
-    "arty": {
+    "arty-a35t": {
         "family": "xc7",
         "device": "a35t",
+        "package": "csg324-1"
+    },
+    "arty-a100t": {
+        "family": "xc7",
+        "device": "a100t",
         "package": "csg324-1"
     },
     "basys3": {
