@@ -76,10 +76,16 @@ echo "Setting up conda environment"
 echo "----------------------------------------"
 (
 	echo
+	echo " Installing symbiflow and quicklogic"
+	echo "----------------------------------------"
+	make install_symbiflow
+	make install_quicklogic
+	echo "----------------------------------------"
+
+	echo
 	echo " Configuring conda environment"
 	echo "----------------------------------------"
 	TOOLCHAIN=symbiflow make env
-	TOOLCHAIN=symbiflow-a200t make env
 	TOOLCHAIN=quicklogic make env
 	TOOLCHAIN=nextpnr make env
 	echo "----------------------------------------"
