@@ -39,6 +39,8 @@ install_symbiflow:
 	mkdir -p env/symbiflow
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
+	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL_200T}
+	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
 	rm ${SYMBIFLOW_ARCHIVE}
 	# Adapt the environment file from symbiflow-arch-defs
 	test -e env/symbiflow/environment.yml && sed -i 's/symbiflow_arch_def_base/symbiflow-env/g' env/symbiflow/environment.yml || true
