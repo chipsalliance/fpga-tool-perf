@@ -15,6 +15,7 @@ module clkgen_xil7series (
 	wire clk_fb_buf;
 	wire clk_fb_unbuf;
 	wire clk_pll_fb;
+	(* LOC="PLLE2_ADV_X1Y1" *)
 	PLLE2_ADV #(
 		.BANDWIDTH("OPTIMIZED"),
 		.COMPENSATION("INTERNAL"),
