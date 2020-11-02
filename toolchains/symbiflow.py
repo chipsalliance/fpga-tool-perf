@@ -319,15 +319,17 @@ class VPR(Toolchain):
                     )
 
         for clk in freqs:
-            criticals = self.get_critical_paths(clk, 'setup')
             clocks[clk] = dict()
             clocks[clk]['actual'] = freqs[clk]
+
+            criticals = self.get_critical_paths(clk, 'setup')
             if criticals is not None:
                 clocks[clk]['requested'] = safe_division_by_zero(
                     1e9, criticals[clk]['requested']
                 )
                 clocks[clk]['met'] = criticals[clk]['met']
                 clocks[clk]['setup_violation'] = criticals[clk]['violation']
+
             criticals = self.get_critical_paths(clk, 'hold')
             if criticals is not None:
                 clocks[clk]['hold_violation'] = criticals[clk]['violation']
@@ -337,9 +339,11 @@ class VPR(Toolchain):
                     )
                 if 'met' not in clocks[clk]:
                     clocks[clk]['met'] = criticals[clk]['met']
+
             for v in ['requested', 'setup_violation', 'hold_violation']:
                 if v not in clocks[clk]:
                     clocks[clk][v] = 0.0
+
             if 'met' not in clocks[clk]:
                 clocks[clk]['met'] = None
 
@@ -787,18 +791,21 @@ class NextpnrXilinx(Toolchain):
                     in_routing = True
 
                 if "Max frequency" in line and in_routing:
-                    regex = ".*\'(.*)\': ([0-9]*\.[0-9]*).*"
+                    regex = ".*\'(.*)\': ([0-9]*\.[0-9]*).*\(([A-Z]*) at ([0-9]*\.[0-9]*).*"
                     match = re.match(regex, line)
                     if match:
                         clk_name = match.groups()[0]
                         clk_freq = float(match.groups()[1])
+                        req_clk_freq = float(match.groups()[3])
 
                         clocks[clk_name] = dict()
                         clocks[clk_name]['actual'] = float(
                             "{:.3f}".format(clk_freq)
                         )
-                        clocks[clk_name]['requested'] = 0
-                        clocks[clk_name]['met'] = None
+                        clocks[clk_name]['requested'] = float(
+                            "{:.3f}".format(req_clk_freq)
+                        )
+                        clocks[clk_name]['met'] = match.groups()[2] == "PASS"
                         clocks[clk_name]['setup_violation'] = 0
                         clocks[clk_name]['hold_violation'] = 0
 
