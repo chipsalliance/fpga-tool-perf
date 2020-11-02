@@ -17,25 +17,15 @@ all: format
 
 TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 TOOLCHAIN ?= symbiflow
-TOOLCHAIN_LOCATION ?= symbiflow
-REQUIREMENTS_FILE := conf/${TOOLCHAIN}/requirements.txt
-ENVIRONMENT_FILE := conf/${TOOLCHAIN}/environment.yml
+REQUIREMENTS_FILE ?= conf/${TOOLCHAIN}/requirements.txt
+ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
 
-SYMBIFLOW_ARCHIVE = ${TOOLCHAIN}.tar.xz
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
-SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/80/20201020-195452/symbiflow-arch-defs-install-2f55fb8f.tar.xz"
-ifeq ("${TOOLCHAIN}", "symbiflow-a200t")
-SYMBIFLOW_URL = "https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/23/20201020-195721/symbiflow-arch-defs-install-200t-2f55fb8f.tar.xz"
-REQUIREMENTS_FILE = conf/symbiflow/requirements.txt
-ENVIRONMENT_FILE = conf/symbiflow/environment.yml
-endif
-ifeq ("${TOOLCHAIN}", "quicklogic")
-SYMBIFLOW_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
-TOOLCHAIN_LOCATION = quicklogic
-endif
-ifeq ("${TOOLCHAIN}", "nextpnr")
-TOOLCHAIN_LOCATION = nextpnr
-endif
+SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
+SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/80/20201020-195452/symbiflow-arch-defs-install-2f55fb8f.tar.xz
+SYMBIFLOW_URL_200T = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/23/20201020-195721/symbiflow-arch-defs-install-200t-2f55fb8f.tar.xz
+QUICKLOGIC_ARCHIVE = quicklogic.tar.xz
+QUICKLOGIC_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
 
 third_party/make-env/conda.mk:
 	git submodule init
@@ -44,10 +34,23 @@ third_party/make-env/conda.mk:
 include third_party/make-env/conda.mk
 
 env:: | $(CONDA_ENV_PYTHON)
-	mkdir -p env/${TOOLCHAIN_LOCATION}$(SYMBIFLOW_VERSION)
+
+install_symbiflow:
+	mkdir -p env/symbiflow
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
-	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/${TOOLCHAIN_LOCATION}$(SYMBIFLOW_VERSION)
+	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
+	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL_200T}
+	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
 	rm ${SYMBIFLOW_ARCHIVE}
+	# Adapt the environment file from symbiflow-arch-defs
+	test -e env/symbiflow/environment.yml && sed -i 's/symbiflow_arch_def_base/symbiflow-env/g' env/symbiflow/environment.yml || true
+	cat conf/common/requirements.txt conf/symbiflow/requirements.txt > env/symbiflow/requirements.txt
+
+install_quicklogic:
+	mkdir -p env/quicklogic
+	wget -O ${QUICKLOGIC_ARCHIVE} ${QUICKLOGIC_URL}
+	tar -xf ${QUICKLOGIC_ARCHIVE} -C env/quicklogic
+	rm ${QUICKLOGIC_ARCHIVE}
 
 run-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all --fail
