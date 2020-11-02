@@ -12,36 +12,25 @@ Currently, the following tools that are available in conda are:
 - yosys (+ yosys-plugins)
 - prjxray
 
+Prior to setting up the conda environment, the symbiflow and quicklogic data files need to be installed through the following commands:
+
+```bash
+make install_symbiflow
+make install_quicklogic
+```
+
+The install packages are extracted in the `env/<toolchain>/` location.
+
 To setup the conda environment, run the following commands:
 
 ```bash
 TOOLCHAIN=symbiflow make env
-TOOLCHAIN=symbiflow-a200t make env
 TOOLCHAIN=quicklogic make env
 TOOLCHAIN=nextpnr make env
 ```
 
 fpga-tool-perf can also run the Vivado EDA tool. The tool is not available in the conda environment and it needs to be installed by the user.
 The user needs also to set the `VIVADO_SETTINGS` environmental variable, which points to the `settings64.sh` file to enable Vivado.
-
-### Recommended versions
-
-These "releases" are tool suite combinations known to work well together. Primary testing platform is
-Ubuntu 16.04 with some testing on Debian Buster/Sid
-
-#### v0.0.1
-
-Versions:
-  * [arachne-pnr](https://github.com/cseed/arachne-pnr.git): git 5d830dd
-  * [fpga-tool-perf](https://github.com/SymbiFlow/fpga-tool-perf.git): git v0.0.1
-  * [iCEcube2](http://www.latticesemi.com/iCEcube2): release 2017.08.27940
-  * [icestorm](https://github.com/elmsfu/icestorm.git) : git 542e9ef
-    * Waiting on some PRs as of this writing
-  * [nextpnr](https://github.com/YosysHQ/nextpnr.git): git 7da64ee
-  * [Radiant](http://www.latticesemi.com/latticeradiant): release 1.0.0.350.6
-  * [symbiflow-arch-defs](https://github.com/SymbiFlow/symbiflow-arch-defs.git): git 8232130
-  * [vpr](https://github.com/SymbiFlow/vtr-verilog-to-routing.git): git vpr-7.0.5+ice40-v0.0.0
-  * [yosys](https://github.com/YosysHQ/yosys.git): git e275692e
 
 ## Running
 
@@ -144,17 +133,19 @@ This section describes the structure of this project to better understand its me
   - name: project name
   - data: all of the data/memory files needed to run the test
   - clocks: all the input clocks of the design
-  - toolchains: all the toolchains that are enabled for this project. Moreover, each toolchain has a specific set of available boards with the various constraints files.
-  - vendors: all the vendors that are enabled for this project. (e.g. xilinx, lattice)
+  - required\_toolchains: all the toolchains that are required to correctly run to completion.
+  - vendors: all the vendors that are enabled for this project (e.g. xilinx, lattice). Each vendor requires a list of boards enabled for the test project.
 
 - the `src` directory contains all the source files needed to build the test project. It also contains the constraints files relative to the various boards supported.
-- the `other` directory contains two json files, describing all the supported boards and vendors in this test suite. 
+- the `other` directory contains two json files, describing all the supported boards and vendors in this test suite.
+- the `toolchains` directory contains the python scripts that enable a toolchain to be run within fpga-tool-perf.
+- the `infrastructure` directory contains python scripts to control the fpga-tool-perf framework to run the tests
 
 ## Development
 
 ### Wrapper
 
-`wrapper.py` creates a simple verilog interface against an arbitrary verilog module. 
+`wrapper.py` creates a simple verilog interface against an arbitrary verilog module.
 This allows testing arbitrary verilog modules against a standard pin configuration. The rough idea is taken from project x-ray.
 
 Run `wrappers.sh` to regenerate all wrappers. Requires pyverilog
@@ -164,7 +155,7 @@ Run `wrappers.sh` to regenerate all wrappers. Requires pyverilog
  * Spaces inside numbers are not supported (ex: 8' h00 vs 8'h00)
  * Attributes (sometimes?) are not supported (ex: (* LOC="HERE" *) )
 
-As a result, sometimes the module definition is cropped out to make running the tool easier 
+As a result, sometimes the module definition is cropped out to make running the tool easier
 (ex: src/picorv32/picosoc/spimemio.v was cropped to src/picosoc_spimemio_def.v).
 
 ### Project
@@ -182,7 +173,7 @@ cd ~/fpga-tool-perf/src
 mkdir counter
 cd counter
 ```
-Add the source (verilog) and data/memory files to this directory. 
+Add the source (verilog) and data/memory files to this directory.
 
 Create a `constr` subdirectory, and within it, add the project's `.pcf` (for symbiflow) and `.xdc` (for vivado) files under the name of the board it uses.
 ```
@@ -204,21 +195,12 @@ Within the `project` directory, create a `.json` file under the name of the proj
     "clocks": {
         "clk": 10.0
     },
-    "toolchains": {
-        "vpr": {
-            "basys3": ["basys3.pcf"]
-        },
-        "vpr-fasm2bels": {
-            "basys3": ["basys3.pcf"]
-        },
-        "vivado": {
-            "basys3": ["basys3.xdc"]
-        },
-        "vivado-yosys": {
-            "basys3": ["basys3.xdc"]
-        }
-    },
-    "vendors": ["xilinx"]
+    "required_toolchains": [
+        "vpr", "vpr-fasm2bels", "vivado", "yosys-vivado"
+    ],
+    "vendors": {
+        "xilinx": ["arty-a35t", "basys3"]
+    }
 }
 ```
 
