@@ -12,7 +12,7 @@
 import os
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed
+from utils.utils import Timed, have_exec
 
 
 # .asc version field just says "DiamondNG"
