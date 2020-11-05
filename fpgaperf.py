@@ -230,7 +230,6 @@ def list_combinations(
     '''Query all possible project/toolchain/board combinations'''
     table_data = [['Project', 'Toolchain', 'Board', 'Status']]
     for p in get_projects(project):
-        toolchain_info = get_project(p)["toolchains"]
         vendor_info = get_project(p)["vendors"]
         for t in get_toolchains(toolchain):
             vendor = get_vendors(t)
@@ -238,17 +237,11 @@ def list_combinations(
                 continue
             text = "Supported"
             board_info = None
-            if t not in toolchain_info:
-                text = "Missing"
-            else:
-                board_info = toolchain_info[t]
             for b in get_boards(board):
                 if b not in get_vendors()[vendor]["boards"]:
                     continue
                 text2 = text
-                if board_info is None or b not in board_info:
-                    text2 = "Missing"
-                row = [p, t, b, text2]
+                row = [p, t, b, '...']
                 table_data.append(row)
     table = AsciiTable(table_data)
     print(table.table)
