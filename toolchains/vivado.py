@@ -96,6 +96,13 @@ class Vivado(Toolchain):
                                 'file_type': 'verilogSource'
                             }
                         )
+                    elif f.endswith(".xci"):
+                        self.files.append(
+                            {
+                                'name': os.path.realpath(f),
+                                'file_type': 'xci'
+                            }
+                        )
 
                 self.files.append(
                     {
