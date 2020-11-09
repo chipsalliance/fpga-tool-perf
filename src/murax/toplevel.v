@@ -11,12 +11,12 @@
 `timescale 1ns / 1ps
 
 module toplevel(
-    input   io_mainClk,
-    output  io_uart_txd,
-    input   io_uart_rxd,
-    input [15:0] sw,
-    output [15:0] io_led
-  );
+  input  io_mainClk,
+  output io_uart_txd,
+  input  io_uart_rxd,
+  input  [15:0] sw,
+  output [15:0] io_led
+);
 
   wire io_mainClk_bufg;
   BUFG bufg(.I(io_mainClk), .O(io_mainClk_bufg));
@@ -47,4 +47,5 @@ module toplevel(
     .io_uart_txd(io_uart_txd),
     .io_uart_rxd(io_uart_rxd)
   );
+
 endmodule

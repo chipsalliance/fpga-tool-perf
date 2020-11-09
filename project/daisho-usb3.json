@@ -1,36 +1,39 @@
 {
     "srcs": [
-	"src/daisho-usb3/top.v",
-	"third_party/daisho-usb3/usb3_ep0in_ram.v",
-	"third_party/daisho-usb3/usb3_descramble.v",
-	"third_party/daisho-usb3/usb3_ep0.v",
-	"third_party/daisho-usb3/usb3_descrip_rom.v",
-	"third_party/daisho-usb3/usb3_lfsr.v",
-	"third_party/daisho-usb3/usb3_const.v",
-	"third_party/daisho-usb3/usb3_crc.v",
-	"third_party/daisho-usb3/usb3_ep.v",
-	"third_party/daisho-usb3/usb3_ep_ram.v",
-	"third_party/daisho-usb3/usb3_top.v",
-	"third_party/daisho-usb3/usb_descrip.v",
-	"third_party/daisho-usb3/usb3_protocol.v",
-	"third_party/daisho-usb3/usb3_scramble.v",
-	"third_party/daisho-usb3/usb3_link.v",
-	"third_party/daisho-usb3/usb3_ltssm.v",
-	"third_party/daisho-usb3/usb3_pipe.v"
-        ],
+        "src/daisho-usb3/top.v",
+        "third_party/daisho-usb3/usb3_ep0in_ram.v",
+        "third_party/daisho-usb3/usb3_descramble.v",
+        "third_party/daisho-usb3/usb3_ep0.v",
+        "third_party/daisho-usb3/usb3_descrip_rom.v",
+        "third_party/daisho-usb3/usb3_lfsr.v",
+        "third_party/daisho-usb3/usb3_const.v",
+        "third_party/daisho-usb3/usb3_crc.v",
+        "third_party/daisho-usb3/usb3_ep.v",
+        "third_party/daisho-usb3/usb3_ep_ram.v",
+        "third_party/daisho-usb3/usb3_top.v",
+        "third_party/daisho-usb3/usb_descrip.v",
+        "third_party/daisho-usb3/usb3_protocol.v",
+        "third_party/daisho-usb3/usb3_scramble.v",
+        "third_party/daisho-usb3/usb3_link.v",
+        "third_party/daisho-usb3/usb3_ltssm.v",
+        "third_party/daisho-usb3/usb3_pipe.v"
+    ],
     "top": "top",
     "name": "daisho-usb3",
     "data": [
         "src/daisho-usb3/mem.init",
-	"third_party/daisho-usb3/usb3_descrip_rom.init"
+        "third_party/daisho-usb3/usb3_descrip_rom.init"
     ],
     "clocks": {
         "clk100": 10.0
     },
     "vendors": {
-	"xilinx": ["nexys-video"]
+        "xilinx": [
+            "nexys-video"
+        ]
     },
-
-    "required_toolchains": ["vivado", "yosys-vivado"]
+    "required_toolchains": [
+        "vivado",
+        "yosys-vivado"
+    ]
 }
-

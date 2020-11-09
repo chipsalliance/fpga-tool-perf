@@ -144,4 +144,5 @@ module top (
     always @(posedge clk) begin
         nrst <= 1;
     end
+    
 endmodule

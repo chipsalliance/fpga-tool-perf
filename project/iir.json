@@ -1,7 +1,7 @@
 {
     "srcs": [
         "src/iir/iir.v"
-        ],
+    ],
     "top": "top",
     "name": "iir",
     "clocks": {

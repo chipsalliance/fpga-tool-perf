@@ -1,34 +1,33 @@
 {
     "srcs": [
-	"third_party/up5k-demos-changes/MicroCode.v",
-	"third_party/up5k-demos/nes/generic_ram.v",
-	"third_party/up5k-demos/nes/flashmem.v",
-	"third_party/up5k-demos/nes/apu.v",
-	"third_party/up5k-demos/nes/main_mem.v",
-	"third_party/up5k-demos/nes/scan_double.v",
-	"third_party/up5k-demos/nes/compat.v",
-	"third_party/up5k-demos/nes/mmu.v",
-	"third_party/up5k-demos/nes/up_spram.v",
-	"third_party/up5k-demos/nes/cpu.v",
-	"third_party/up5k-demos/nes/pll.v",
-	"third_party/up5k-demos/nes/hq2x.v",
-	"third_party/up5k-demos/nes/NES_ice40.v",
-	"third_party/up5k-demos/nes/nes.v",
-	"third_party/up5k-demos/nes/ppu.v",
-	"third_party/up5k-demos/nes/sigma_delta_dac.v",
-	"third_party/up5k-demos/nes/cart_mem.v",
-	"third_party/up5k-demos/nes/video.v"
+        "third_party/up5k-demos-changes/MicroCode.v",
+        "third_party/up5k-demos/nes/generic_ram.v",
+        "third_party/up5k-demos/nes/flashmem.v",
+        "third_party/up5k-demos/nes/apu.v",
+        "third_party/up5k-demos/nes/main_mem.v",
+        "third_party/up5k-demos/nes/scan_double.v",
+        "third_party/up5k-demos/nes/compat.v",
+        "third_party/up5k-demos/nes/mmu.v",
+        "third_party/up5k-demos/nes/up_spram.v",
+        "third_party/up5k-demos/nes/cpu.v",
+        "third_party/up5k-demos/nes/pll.v",
+        "third_party/up5k-demos/nes/hq2x.v",
+        "third_party/up5k-demos/nes/NES_ice40.v",
+        "third_party/up5k-demos/nes/nes.v",
+        "third_party/up5k-demos/nes/ppu.v",
+        "third_party/up5k-demos/nes/sigma_delta_dac.v",
+        "third_party/up5k-demos/nes/cart_mem.v",
+        "third_party/up5k-demos/nes/video.v"
     ],
     "top": "NES_ice40",
     "name": "up5k-nes",
     "data": [
-	"third_party/up5k-demos/nes/nes_palette_fceux.txt",
-	"third_party/up5k-demos/nes/nes_palette_unsaturatedv6.txt",
-	"third_party/up5k-demos/nes/oam_palette.txt"
+        "third_party/up5k-demos/nes/nes_palette_fceux.txt",
+        "third_party/up5k-demos/nes/nes_palette_unsaturatedv6.txt",
+        "third_party/up5k-demos/nes/oam_palette.txt"
     ],
     "vendors": {
         "lattice": ["icebreaker"]
     },
     "required_toolchains": ["nextpnr-ice40"]
 }
-

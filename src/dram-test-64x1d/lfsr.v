@@ -29,4 +29,5 @@ module LFSR #(
             r <= {r[WIDTH-2:0], feedback};
         end
     end
+    
 endmodule

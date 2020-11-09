@@ -63,4 +63,5 @@ module UART_TX(
             data_accepted <= 0;
         end
     end
+    
 endmodule

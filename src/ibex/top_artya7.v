@@ -134,4 +134,5 @@ module top (
 		.clk_sys(clk_sys),
 		.rst_sys_n(rst_sys_n)
 	);
+
 endmodule

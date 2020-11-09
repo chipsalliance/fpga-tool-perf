@@ -15,7 +15,7 @@ input  wire         clk,
 output wire         ser_tx,
 input  wire         ser_rx,
 
-input wire [15:0]   sw,
+input  wire [15:0]  sw,
 output wire [15:0]  led
 );
 
@@ -38,7 +38,7 @@ rst <= rst1;
 end
 
 // ============================================================================
-//
+
 scalable_proc #
 (
 .NUM_PROCESSING_UNITS   (2),

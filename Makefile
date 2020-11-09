@@ -69,10 +69,18 @@ install_quicklogic:
 	tar -xf ${QUICKLOGIC_ARCHIVE} -C env/quicklogic
 	rm ${QUICKLOGIC_ARCHIVE}
 
-PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
+PYTHON_SRCS=$(shell find . -name "*.py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
+JSON_SRCS=$(shell find . -name "*.json" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
+VERILOG_SRCS=$(shell find . -name "*.v" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
 
-format: ${PYTHON_SRCS}
-	yapf -i $?
+format:
+	yapf -i ${PYTHON_SRCS}
+	for i in ${JSON_SRCS}; do \
+		echo "$$(mjson $$i)" > $$i; \
+	done
+	for i in ${VERILOG_SRCS}; do \
+		echo "$$(verible-verilog-format $$i)" > $$i; \
+	done
 
 clean::
 	rm -rf build/

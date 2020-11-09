@@ -1,7 +1,7 @@
 {
     "srcs": [
         "third_party/rsdecoder/rsdecoder.v"
-        ],
+    ],
     "top": "top",
     "name": "rsdecoder",
     "clocks": {

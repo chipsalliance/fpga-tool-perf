@@ -96,4 +96,5 @@ module UART_RX(
             framing_error_reg <= 0;
         end
     end
+    
 endmodule

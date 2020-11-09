@@ -4,7 +4,7 @@
         "third_party/jpeg-qnr/div_su.v",
         "third_party/jpeg-qnr/div_uu.v",
         "third_party/jpeg-qnr/timescale.v"
-        ],
+    ],
     "top": "top",
     "name": "jpeg-qnr",
     "clocks": {

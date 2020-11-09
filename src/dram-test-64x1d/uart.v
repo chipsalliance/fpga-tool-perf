@@ -69,4 +69,5 @@ module UART (
         .data_ready(rx_data_ready),
         .framing_error(rx_framing_error)
     );
+
 endmodule

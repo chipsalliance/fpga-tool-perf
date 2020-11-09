@@ -83,9 +83,9 @@ OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_cas (.I(ddram_cas_n_iob), .O(
 OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_we  (.I(ddram_we_n_iob),  .O(ddram_we_n));
 OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_cs  (.I(ddram_cs_n_iob),  .O(ddram_cs_n));
 
-OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_cke (.I(ddram_cke_iob),  .O(ddram_cke));
-OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_odt (.I(ddram_odt_iob),  .O(ddram_odt));
-OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_rst (.I(ddram_reset_n_iob),.O(ddram_reset_n));
+OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_cke (.I(ddram_cke_iob),   .O(ddram_cke));
+OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_odt (.I(ddram_odt_iob),   .O(ddram_odt));
+OBUF #(.IOSTANDARD("SSTL135"), .SLEW("FAST")) obuf_rst (.I(ddram_reset_n_iob), .O(ddram_reset_n));
 
 // End manually inserted OBUFs
 

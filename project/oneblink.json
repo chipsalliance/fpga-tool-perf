@@ -1,7 +1,7 @@
 {
     "srcs": [
         "src/oneblink/oneblink.v"
-        ],
+    ],
     "top": "top",
     "name": "oneblink",
     "clocks": {

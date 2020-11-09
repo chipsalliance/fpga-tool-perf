@@ -218,4 +218,5 @@ module ERROR_OUTPUT_LOGIC #(
             endcase
         end
     end
+    
 endmodule

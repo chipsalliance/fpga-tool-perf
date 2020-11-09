@@ -23,7 +23,7 @@
         "third_party/hamsternz-hdmi/src/edge_enhance.vhd",
         "third_party/hamsternz-hdmi/src/audio_meters.vhd",
         "third_party/hamsternz-hdmi/src/input_channel.vhd"
-        ],
+    ],
     "top": "hdmi_design",
     "name": "hamsternz-hdmi",
     "vendors": {

@@ -1,7 +1,7 @@
 {
     "srcs": [
         "src/blinky/blinky.v"
-        ],
+    ],
     "top": "top",
     "name": "blinky",
     "clocks": {

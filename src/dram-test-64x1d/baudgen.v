@@ -32,4 +32,5 @@ module BAUDGEN(
             end
         end
     end
+
 endmodule

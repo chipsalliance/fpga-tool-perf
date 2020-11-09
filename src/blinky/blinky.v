@@ -7,9 +7,12 @@
 *
 *  SPDX-License-Identifier: ISC
 */
-module top (input clk_i, output [11:0] led);
+module top (
+    input clk_i, 
+    output [11:0] led
+);
 
-    //assign led = {&sw, |sw, ^sw, ~^sw};
+    // assign led = {&sw, |sw, ^sw, ~^sw};
 
     wire clk;
     BUFG bufg_i (
@@ -17,8 +20,7 @@ module top (input clk_i, output [11:0] led);
         .O(clk)
     );
 
-
-  //  wire clk = clk_i;
+    // wire clk = clk_i;
 
     reg clkdiv;
     reg [22:0] ctr;

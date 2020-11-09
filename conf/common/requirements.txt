@@ -10,4 +10,5 @@ termcolor
 terminaltables
 tqdm
 yapf
+mjson
 git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
