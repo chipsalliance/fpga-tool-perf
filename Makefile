@@ -55,6 +55,13 @@ install_quicklogic:
 	tar -xf ${QUICKLOGIC_ARCHIVE} -C env/quicklogic
 	rm ${QUICKLOGIC_ARCHIVE}
 
+BASIC_PROJECT = oneblink
+BASIC_BOARD = basys3
+
+example-runs:
+	$(IN_CONDA_ENV) python3 fpgaperf.py --toolchain vivado --project ${BASIC_PROJECT} --board ${BASIC_BOARD}
+	$(IN_CONDA_ENV) python3 fpgaperf.py --toolchain vpr --project ${BASIC_PROJECT} --board ${BASIC_BOARD}
+
 run-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all ${ENABLE_FAIL}
 

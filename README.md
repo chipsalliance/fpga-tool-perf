@@ -45,7 +45,7 @@ Once the environment settings has been sourced, you are ready to proceed with th
 ### Quick start example
 
 ```bash
-python3 fpgaperf.py --toolchain vivado --project oneblink --board arty
+python3 fpgaperf.py --toolchain vivado --project oneblink --board basys3
 ```
 
 or
@@ -53,6 +53,8 @@ or
 ```bash
 python3 fpgaperf.py --toolchain vpr --project oneblink --board basys3
 ```
+
+The two commands above can also be called by running `make example-runs`. The output will give you some idea of the functionalities and capabilities of this repository.
 
 For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
 
@@ -108,6 +110,8 @@ vexriscv
 vexriscv-smp
 ```
 
+There are also `--list-boards` and `--list-combinations` arguments that could prove useful to you.
+
 ### Exhaustive build
 
 Use `exhaust.py` to automatically test all projects, toolchain and boards supported
@@ -121,7 +125,7 @@ Its also possible to run a test against specific project(s), toolchain(s), and/o
 python3 exhaust.py --project blinky oneblink --toolchain vpr
 ```
 
-See `build` directory for output. Note in particular `all.json`.
+See `build` directory for output. 
 
 ## Project Structure
 
