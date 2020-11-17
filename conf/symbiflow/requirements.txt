@@ -1,4 +1,3 @@
 git+https://github.com/SymbiFlow/fasm.git#egg=fasm
 git+https://github.com/SymbiFlow/xc-fasm.git#egg=xc-fasm
-# Pinning fasm2bels to working commit. Needs https://github.com/SymbiFlow/symbiflow-arch-defs/pull/1720 to restore to master
-git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git@05864823b689d7c50917abb207e222965df26031#egg=symbiflow-xc-fasm2bels
+git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git#egg=symbiflow-xc-fasm2bels

@@ -31,6 +31,6 @@
 	"xilinx": ["nexys-video"]
     },
 
-    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
+    "required_toolchains": ["vivado", "yosys-vivado"]
 }
 

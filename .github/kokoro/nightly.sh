@@ -14,6 +14,6 @@ echo "Running FPGA perf tool tests (make run-all)"
 echo "-------------------------------------------"
 (
     source env.sh
-    FAIL=1 make run-all
+    make run-all
 )
 echo "-------------------------------------------"

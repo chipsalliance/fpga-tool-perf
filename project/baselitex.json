@@ -16,5 +16,5 @@
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t"]
     },
-    "required_toolchains": ["vivado", "yosys-vivado", "nextpnr-xilinx", "vpr", "vpr-fasm2bels"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
 }

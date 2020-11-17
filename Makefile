@@ -20,10 +20,16 @@ TOOLCHAIN ?= symbiflow
 REQUIREMENTS_FILE ?= conf/${TOOLCHAIN}/requirements.txt
 ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
 
+ENABLE_FAIL :=
+ifeq ($(FAIL),1)
+ENABLE_FAIL := --fail
+endif
+
+
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
-SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/80/20201020-195452/symbiflow-arch-defs-install-2f55fb8f.tar.xz
-SYMBIFLOW_URL_200T = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/23/20201020-195721/symbiflow-arch-defs-install-200t-2f55fb8f.tar.xz
+SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/92/20201113-190213/symbiflow-arch-defs-install-1d921548.tar.xz
+SYMBIFLOW_URL_200T = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/35/20201113-190426/symbiflow-arch-defs-install-200t-1d921548.tar.xz
 QUICKLOGIC_ARCHIVE = quicklogic.tar.xz
 QUICKLOGIC_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
 
@@ -53,7 +59,7 @@ install_quicklogic:
 	rm ${QUICKLOGIC_ARCHIVE}
 
 run-tests:
-	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all --fail
+	@$(IN_CONDA_ENV) python3 exhaust.py --build_type generic-all ${ENABLE_FAIL}
 
 run-parameters-tests:
 	@$(IN_CONDA_ENV) python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters --only_required
