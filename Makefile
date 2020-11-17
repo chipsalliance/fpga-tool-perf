@@ -22,8 +22,8 @@ ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
 
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
-SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/80/20201020-195452/symbiflow-arch-defs-install-2f55fb8f.tar.xz
-SYMBIFLOW_URL_200T = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/23/20201020-195721/symbiflow-arch-defs-install-200t-2f55fb8f.tar.xz
+SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/presubmit/install/994/20201112-204433/symbiflow-arch-defs-install-f9862c2f.tar.xz
+SYMBIFLOW_URL_200T = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/presubmit/install-200t/401/20201112-205141/symbiflow-arch-defs-install-200t-f9862c2f.tar.xz
 QUICKLOGIC_ARCHIVE = quicklogic.tar.xz
 QUICKLOGIC_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
 
