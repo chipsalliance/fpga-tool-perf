@@ -28,8 +28,7 @@ endif
 
 # FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
-SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/92/20201113-190213/symbiflow-arch-defs-install-1d921548.tar.xz
-SYMBIFLOW_URL_200T = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install-200t/35/20201113-190426/symbiflow-arch-defs-install-200t-1d921548.tar.xz
+SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/98/20201120-093358/symbiflow-arch-defs-install-d5f8ce8d.tar.xz
 QUICKLOGIC_ARCHIVE = quicklogic.tar.xz
 QUICKLOGIC_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
 
@@ -44,8 +43,6 @@ env:: | $(CONDA_ENV_PYTHON)
 install_symbiflow:
 	mkdir -p env/symbiflow
 	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
-	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
-	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL_200T}
 	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
 	rm ${SYMBIFLOW_ARCHIVE}
 	# Adapt the environment file from symbiflow-arch-defs
