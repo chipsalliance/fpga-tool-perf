@@ -1,0 +1,31 @@
+name: CI tests
+
+on: [push, pull_request]
+
+jobs:
+
+  Run-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.6', '3.7', '3.8']
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Check formatting
+      run: |
+        pip install yapf
+        make format
+        test $(git status --porcelain | wc -l) -eq 0 || { git diff; false;  }
+
+    - name: Check license
+      run: source .github/workflows/scripts/check_license.sh
+
+    - name: Check python scripts
+      run: source .github/workflows/scripts/check_python_scripts.sh
