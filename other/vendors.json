@@ -8,8 +8,7 @@
         "toolchains": ["nextpnr-ice40"]
     },
     "quicklogic": {
-	    "boards": ["quickfeather", "chandalar"],
-	    "toolchains": ["quicklogic"]
+        "boards": ["quickfeather", "chandalar"],
+        "toolchains": ["quicklogic"]
     }
 }
-
