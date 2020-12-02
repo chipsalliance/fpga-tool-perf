@@ -5,7 +5,7 @@ channels:
 dependencies:
   - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
   - symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
-  - symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a=20200916_072439
+  - symbiflow-vtr=8.0.0.rc2_5415_gd6d69ff92=20201120_180018
   - prjxray-tools
   - prjxray-db
   - python=3.8
