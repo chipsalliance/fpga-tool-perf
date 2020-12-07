@@ -10,6 +10,7 @@ dependencies:
   - libboost=1.73.0
   - nextpnr-ice40
   - prjxray-db
+  - prjxray-tools
   - pip
   - pip:                            # Packages installed from PyPI
     - -r file:../common/requirements.txt
