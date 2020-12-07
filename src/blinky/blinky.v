@@ -12,10 +12,8 @@ module top (input clk_i, output [11:0] led);
     //assign led = {&sw, |sw, ^sw, ~^sw};
 
     wire clk;
-    BUFGCTRL bufg_i (
-        .I0(clk_i),
-        .CE0(1'b1),
-        .S0(1'b1),
+    BUFG bufg_i (
+        .I(clk_i),
         .O(clk)
     );
 
