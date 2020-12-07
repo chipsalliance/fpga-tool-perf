@@ -26,9 +26,11 @@ ENABLE_FAIL := --fail
 endif
 
 
-# FIXME: make this dynamic: https://github.com/SymbiFlow/fpga-tool-perf/issues/75
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
-SYMBIFLOW_URL = https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/98/20201120-093358/symbiflow-arch-defs-install-d5f8ce8d.tar.xz
+SYMBIFLOW_LATEST_URL_BASE = https://storage.googleapis.com/symbiflow-arch-defs-gha
+SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-toolchain-latest
+SYMBIFLOW_DEVICES = xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
+
 QUICKLOGIC_ARCHIVE = quicklogic.tar.xz
 QUICKLOGIC_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
 
@@ -42,12 +44,14 @@ env:: | $(CONDA_ENV_PYTHON)
 
 install_symbiflow:
 	mkdir -p env/symbiflow
-	wget -O ${SYMBIFLOW_ARCHIVE} ${SYMBIFLOW_URL}
-	tar -xf ${SYMBIFLOW_ARCHIVE} -C env/symbiflow
-	rm ${SYMBIFLOW_ARCHIVE}
+	curl -s ${SYMBIFLOW_LATEST_URL} | xargs wget -qO- | tar -xJC env/symbiflow
 	# Adapt the environment file from symbiflow-arch-defs
 	test -e env/symbiflow/environment.yml && sed -i 's/symbiflow_arch_def_base/symbiflow-env/g' env/symbiflow/environment.yml || true
 	cat conf/common/requirements.txt conf/symbiflow/requirements.txt > env/symbiflow/requirements.txt
+	# Install all devices
+	for device in ${SYMBIFLOW_DEVICES}; do \
+		curl -s ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs wget -qO- | tar -xJC env/symbiflow; \
+	done
 
 install_quicklogic:
 	mkdir -p env/quicklogic
