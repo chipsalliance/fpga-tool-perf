@@ -16,7 +16,7 @@ import edalize
 
 from toolchains.toolchain import Toolchain
 from toolchains.symbiflow import VPR, NextpnrXilinx
-from utils.utils import Timed, get_vivado_max_freq, which
+from utils.utils import Timed, get_vivado_max_freq, which, have_exec
 
 
 class VPRFasm2Bels(VPR):

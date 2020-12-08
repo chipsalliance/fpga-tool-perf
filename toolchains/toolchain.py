@@ -21,7 +21,7 @@ import glob
 import datetime
 import shutil
 
-from utils.utils import Timed
+from utils.utils import Timed, have_exec
 
 
 class Toolchain:
