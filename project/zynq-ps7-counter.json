@@ -1,0 +1,14 @@
+{
+    "srcs": [
+        "src/zynq-ps7-counter/counter_zynq.v"
+        ],
+    "top": "top",
+    "name": "zynq-ps7-counter",
+    "clocks": {
+        "clk": 12.5
+    },
+    "vendors": {
+        "xilinx": ["zybo"]
+    },
+    "required_toolchains": ["vivado", "yosys-vivado", "nextpnr-xilinx", "nextpnr-xilinx-fasm2bels", "vpr", "vpr-fasm2bels"]
+}
