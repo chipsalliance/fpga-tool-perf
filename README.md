@@ -45,7 +45,7 @@ Once the environment settings has been sourced, you are ready to proceed with th
 ### Quick start example
 
 ```bash
-python3 fpgaperf.py --toolchain vivado --project oneblink --board arty
+python3 fpgaperf.py --toolchain vivado --project oneblink --board arty-a35t
 ```
 
 or
