@@ -379,7 +379,3 @@ set_property INTERNAL_VREF 0.750 [get_iobanks 35]
 ################################################################################
 # Clock constraints
 ################################################################################
-
-
-create_clock -period 10.0 clk100
-create_clock -period 8.0 eth_clocks_rx
