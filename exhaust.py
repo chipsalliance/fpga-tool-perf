@@ -17,6 +17,7 @@ import re
 import logging
 from terminaltables import AsciiTable
 from colorclass import Color
+from multiprocessing import cpu_count
 
 from utils.utils import safe_get_dict_value
 
@@ -114,7 +115,7 @@ def print_summary_table(
     return build_status, failed_required_tests
 
 
-def main():
+def parse_args():
     import argparse
     parser = argparse.ArgumentParser(
         description='Exhaustively try project-toolchain-board combinations'
@@ -177,8 +178,19 @@ def main():
         action='store_true',
         help='runs only test/board/toolchain combinations that should pass'
     )
+    parser.add_argument(
+        '--num-cpu',
+        default=cpu_count(),
+        type=int,
+        choices=range(1, cpu_count()),
+        help='Number of CPUs to use in parallel to run the tests'
+    )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
 
     if args.verbose:
         global logger
@@ -251,7 +263,7 @@ def main():
 
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
-        build_numbers, args.overwrite
+        build_numbers, args.overwrite, args.num_cpu
     )
 
     logger.debug("Running Projects")

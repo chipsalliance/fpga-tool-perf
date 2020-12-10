@@ -29,7 +29,7 @@ class Runner:
     """
     def __init__(
         self, task_list, verbose, out_prefix, root_dir, build_type,
-        build_numbers, overwrite
+        build_numbers, overwrite, num_cpu
     ):
         self.verbose = verbose
         self.out_prefix = out_prefix
@@ -40,6 +40,7 @@ class Runner:
         self.task_list = task_list
         self.build_numbers = build_numbers
         self.overwrite = overwrite
+        self.num_cpu = num_cpu
 
     def worker(self, arglist):
         """Single worker function that is run in the Pool of workers.
@@ -92,7 +93,7 @@ class Runner:
         os.makedirs(os.path.expanduser(self.out_prefix), exist_ok=True)
         print('Writing to %s' % self.out_prefix)
 
-        with Pool(cpu_count()) as pool:
+        with Pool(self.num_cpu) as pool:
             for _ in tqdm.tqdm(pool.imap_unordered(self.worker,
                                                    self.task_list),
                                total=len(self.task_list), unit='test'):
