@@ -12,5 +12,5 @@ set_property IOSTANDARD LVCMOS33 [get_ports {led[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {led[2]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {led[3]}]
 
-# Clock constraints
-create_clock -period 10.0 [get_ports {clk}]
+# Clock constraints (clk @ 125 MHz)
+create_clock -period 8.0 [get_ports {clk}]
