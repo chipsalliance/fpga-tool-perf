@@ -1,0 +1,20 @@
+{
+    "srcs": [
+        "third_party/vexriscv-verilog/VexRiscv_Linux.v",
+        "src/baselitex-nexys-video/baselitex_nexys_video.v"
+    ],
+    "top": "top",
+    "name": "baselitex-nexys-video",
+    "data": [
+        "src/baselitex-nexys-video/mem.init",
+        "src/baselitex-nexys-video/mem_1.init",
+        "src/baselitex-nexys-video/mem_2.init"
+    ],
+    "clocks": {
+        "clk100": 10.0
+    },
+    "vendors": {
+        "xilinx": ["nexys-video"]
+    },
+    "required_toolchains": ["vivado", "vpr", "vpr-fasm2bels"]
+}
