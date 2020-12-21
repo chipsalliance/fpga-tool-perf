@@ -19,14 +19,10 @@ echo "Running FPGA perf tool tests (make run-all)"
 echo "-------------------------------------------"
 (
     source env.sh
-    # Testing all projects/toolchains/boards
-    python3 exhaust.py --build_type generic-all --fail --num-cpu $NUM_CORES
-    # Testing parameters injection feature
-    python3 exhaust.py --parameters parameters.json --toolchain vpr --project blinky --build_type parameters --only_required
-    # Testing multiple samples
-    python3 exhaust.py --build_type multiple-samples --run_config run_configs/multiple_samples.json --only_required
-    # Testing multiple seeds
-    python3 exhaust.py --build_type multiple-seeds --run_config run_configs/multiple_seeds.json --only_required
+    python3 exhaust.py \
+            --build_type vpr-runtime \
+            --run_config run_configs/vpr_runtime.json \
+            --only_required
 
 )
 echo "-------------------------------------------"
