@@ -63,6 +63,8 @@ sudo apt-get install -y \
         python3-virtualenv \
         python3-yaml \
         virtualenv \
+        default-jre-headless \
+        uuid-dev \
 
 if [ -z "${BUILD_TOOL}" ]; then
     export BUILD_TOOL=make
