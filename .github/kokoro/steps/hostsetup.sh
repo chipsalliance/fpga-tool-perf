@@ -63,6 +63,8 @@ sudo apt-get install -y \
         python3-virtualenv \
         python3-yaml \
         virtualenv \
+        default-jre-headless \
+        uuid-dev \
 
 if [ -z "${BUILD_TOOL}" ]; then
     export BUILD_TOOL=make
@@ -85,7 +87,7 @@ echo "----------------------------------------"
 	echo
 	echo " Configuring conda environment"
 	echo "----------------------------------------"
-	ENVIRONMENT_FILE=env/symbiflow/environment.yml TOOLCHAIN=symbiflow make env
+	TOOLCHAIN=symbiflow make env
 	TOOLCHAIN=quicklogic make env
 	TOOLCHAIN=nextpnr make env
 	echo "----------------------------------------"
