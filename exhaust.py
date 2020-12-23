@@ -239,31 +239,7 @@ def main():
         build_numbers = [int(args.build)] if args.build else [0]
 
     params_file = args.parameters
-    params_strings = [
-        " --max_router_iterations 500"
-        " --routing_failure_predictor off"
-        " --router_high_fanout_threshold -1"
-        " --constant_net_method route"
-        " --route_chan_width 500"
-        " --router_heap bucket"
-        " --clock_modeling route"
-        " --place_delta_delay_matrix_calculation_method dijkstra"
-        " --place_delay_model delta_override"
-        " --router_lookahead extended_map"
-        " --check_route quick"
-        " --strict_checks off"
-        " --allow_dangling_combinational_nodes on"
-        " --disable_errors check_unbuffered_edges:check_route"
-        " --congested_routing_iteration_threshold 0.8"
-        " --incremental_reroute_delay_ripup off"
-        " --base_cost_type delay_normalized_length_bounded"
-        " --bb_factor 10"
-        " --acc_fac 1.0"
-        " --astar_fac 1.2"
-        " --initial_pres_fac 4.0"
-        " --pres_fac_mult 1.3"
-        " --check_rr_graph off"
-    ]
+    params_strings = [None]
     if params_file:
         params_strings = []
         assert len(
