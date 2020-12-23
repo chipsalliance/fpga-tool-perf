@@ -21,7 +21,10 @@ dependencies:
   - libiconv
   # libxml2 2.9.10 contains an integer overflow fix required for arch-defs.
   - libxml2>=2.9.10
+  - openjdk
+  - libuuid
+  - pkg-config
+  - cython
   - pip
   - pip:
-    - -r file:../common/requirements.txt
     - -r file:requirements.txt

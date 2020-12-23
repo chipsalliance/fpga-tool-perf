@@ -1,3 +1,16 @@
+terminaltables
+asciitable
+simplejson
+tqdm
+colorclass
+lxml
+python-constraint
+intervaltree
+jinja2
+pytest
+pandas
+yapf
+git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
 git+git://github.com/SymbiFlow/prjxray.git#egg=prjxray
 git+git://github.com/SymbiFlow/fasm.git#egg=fasm
 git+git://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
