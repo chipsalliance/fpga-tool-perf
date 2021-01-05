@@ -108,6 +108,15 @@ class Vivado(Toolchain):
 
                 vivado_settings = os.getenv('VIVADO_SETTINGS')
 
+                vivado_options = {
+                    'part': chip,
+                    'synth': self.synthtool,
+                    'vivado-settings': vivado_settings,
+                    'yosys_synth_options': self.synthoptions,
+                }
+                if hasattr(self, 'library_files'):
+                    vivado_options['library_files'] = self.library_files
+
                 self.edam = {
                     'files': self.files,
                     'name': self.project_name,
@@ -121,16 +130,9 @@ class Vivado(Toolchain):
                                     'default': 1,
                                 },
                         },
-                    'tool_options':
-                        {
-                            'vivado':
-                                {
-                                    'part': chip,
-                                    'synth': self.synthtool,
-                                    'vivado-settings': vivado_settings,
-                                    'yosys_synth_options': self.synthoptions,
-                                }
-                        }
+                    'tool_options': {
+                        'vivado': vivado_options
+                    }
                 }
                 self.backend = edalize.get_edatool('vivado')(
                     edam=self.edam, work_root=self.out_dir
@@ -329,3 +331,28 @@ class VivadoYosys(Vivado):
 
     def versions(self):
         return {'yosys': self.yosys_ver(), 'vivado': self.vivado_ver()}
+
+
+class VivadoYosysUhdm(VivadoYosys):
+    '''Vivado PnR + Yosys synthesis using uhdm frontend'''
+    def __init__(self, rootdir):
+        VivadoYosys.__init__(self, rootdir)
+        self.synthtool = 'yosys'
+        self.synthoptions = [
+            '-iopad', '-arch xc7', '-flatten', 'frontend=surelog'
+        ]
+        self.toolchain = 'yosys-vivado-uhdm'
+        uhdm_yosys_path = shutil.which("uhdm-yosys")
+        # by default assume, uhdm-yosys is installed in symbiflow env
+        if uhdm_yosys_path is None:
+            print(
+                "Could not find uhdm-yosys binary. Please execute 'source env.sh' or reinstall conda environments."
+            )
+            sys.exit(1)
+        uhdm_yosys_path = os.path.dirname(uhdm_yosys_path)
+
+        self.library_files = os.path.join(
+            uhdm_yosys_path, "../share/uhdm-yosys/xilinx/cells_xtra_surelog.v"
+        ) + "," + os.path.join(
+            uhdm_yosys_path, "../share/uhdm-yosys/xilinx/cells_sim.v"
+        )

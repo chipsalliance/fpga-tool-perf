@@ -30,6 +30,7 @@ from toolchains.icestorm import NextpnrIcestorm
 from toolchains.icestorm import Arachne
 from toolchains.vivado import Vivado
 from toolchains.vivado import VivadoYosys
+from toolchains.vivado import VivadoYosysUhdm
 from toolchains.symbiflow import VPR, NextpnrXilinx, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from toolchains.radiant import RadiantSynpro
@@ -128,6 +129,7 @@ def print_stats(t):
 toolchains = {
     'vivado': Vivado,
     'yosys-vivado': VivadoYosys,
+    'yosys-vivado-uhdm': VivadoYosysUhdm,
     'vpr': VPR,
     'vpr-fasm2bels': VPRFasm2Bels,
     'nextpnr-ice40': NextpnrIcestorm,
