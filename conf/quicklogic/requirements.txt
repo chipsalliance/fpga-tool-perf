@@ -1,1 +1,1 @@
-git+https://github.com/QuickLogic-corp/quicklogic-fasm.git
+git+https://github.com/QuickLogic-corp/quicklogic-fasm.git@2312ff03d5690449a597e565430764a162d452b7

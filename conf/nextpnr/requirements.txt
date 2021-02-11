@@ -1,6 +1,8 @@
-git+git://github.com/SymbiFlow/prjxray.git#egg=prjxray
-git+git://github.com/SymbiFlow/fasm.git#egg=fasm
-git+git://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
-git+git://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-interchange
-git+https://github.com/SymbiFlow/xc-fasm.git#egg=xc-fasm
-git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git#egg=fasm2bels
+pyyaml
+git+git://github.com/litghost/rapidyaml.git@fixup_python_packaging#egg=rapidyaml&subdirectory=api/python
+git+git://github.com/SymbiFlow/prjxray.git@b8ff7326c89aea52ef5b740c1775db9630b2f8ba#egg=prjxray
+git+git://github.com/SymbiFlow/fasm.git@bae2e6dd782026d9db3e4e00ef535d1b5858322d#egg=fasm
+git+git://github.com/SymbiFlow/symbiflow-rr-graph.git@9b747da4c2ed5a137f58dfe5403a535a23b57c74#egg=rr-graph
+git+git://github.com/SymbiFlow/python-fpga-interchange.git@24db3ae4e978a36ad064ebe2b18c4ee992b42c0c#egg=python-fpga-interchange
+git+git://github.com/SymbiFlow/xc-fasm.git@e12f31334e96fedf3af86d13cf51f70ad2270f5f#egg=xc-fasm
+git+git://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git@47c46270de32418a5f7a69e0db3e4d54db9849bc#egg=fasm2bels
