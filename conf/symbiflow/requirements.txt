@@ -1,6 +1,8 @@
 git+git://github.com/SymbiFlow/prjxray.git#egg=prjxray
 git+git://github.com/SymbiFlow/fasm.git#egg=fasm
 git+git://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
+# TODO: https://github.com/SymbiFlow/python-fpga-interchange/issues/11
+git+https://github.com/litghost/rapidyaml.git@fixup_python_packaging#egg=rapidyaml&subdirectory=api/python
 git+git://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-interchange
 git+https://github.com/SymbiFlow/xc-fasm.git#egg=xc-fasm
 git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git#egg=fasm2bels

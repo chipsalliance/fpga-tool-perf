@@ -10,6 +10,9 @@ dependencies:
   - litex-hub::prjxray-db=0.0_0239_gd87c844=20201120_145821
   - litex-hub::vtr=v8.0.0_3011_gb0223dc59=20201202_112618
   - litex-hub::yosys=0.9_5007_g2116c585=20201202_112618
+  # swig is required to build the rapidyaml package
+  # It can be removed once that is available in PyPi
+  - swig
   - pip
   - pip:
     - -r file:../common/requirements.txt
