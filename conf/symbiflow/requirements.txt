@@ -1,3 +1,5 @@
+# Can be removed after merging https://github.com/SymbiFlow/prjxray/pull/1550
+pyyaml
 git+git://github.com/SymbiFlow/prjxray.git#egg=prjxray
 git+git://github.com/SymbiFlow/fasm.git#egg=fasm
 git+git://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
