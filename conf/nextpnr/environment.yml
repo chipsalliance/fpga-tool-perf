@@ -1,16 +1,19 @@
 name: nextpnr-env
 channels:
   - defaults
-  - symbiflow
+  - litex-hub
 dependencies:
-  - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
-  - symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
-  - symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a
-  - nextpnr-xilinx=0.0_2814_gd40ffba7
+  - litex-hub::symbiflow-yosys=0.8_6021_gd8b2d1a2=20201120_145821_libffi33
+  - litex-hub::symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
+  - litex-hub::symbiflow-vtr=8.0.0rc2_5082_gf1a3bcc2a=20201105_110531
+  - litex-hub::nextpnr-ice40=0.0.0_2726_g1afa494=20201126_123829
+  - litex-hub::nextpnr-xilinx=v0.0_2814_gd40ffba7=20201216_065815
+  - litex-hub::prjxray-db=v0.0_245_ge7663ba=20210209_144911
+  - litex-hub::prjxray-tools=0.1_2697_g0f939808=20201120_145821
   - libboost=1.73.0
-  - nextpnr-ice40
-  - prjxray-db
-  - prjxray-tools
+  # swig is required to build the rapidyaml package
+  # It can be removed once that is available in PyPi
+  - swig
   - pip
   - pip:                            # Packages installed from PyPI
     - -r file:../common/requirements.txt
