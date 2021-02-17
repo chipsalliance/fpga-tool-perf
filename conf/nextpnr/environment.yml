@@ -8,7 +8,7 @@ dependencies:
   - litex-hub::symbiflow-vtr=8.0.0rc2_5082_gf1a3bcc2a=20201105_110531
   - litex-hub::nextpnr-ice40=0.0.0_2726_g1afa494=20201126_123829
   - litex-hub::nextpnr-xilinx=v0.0_2814_gd40ffba7=20201216_065815
-  - litex-hub::prjxray-db=v0.0_239_gd87c844=20210108_144229
+  - litex-hub::prjxray-db=v0.0_245_ge7663ba=20210209_144911
   - litex-hub::prjxray-tools=0.1_2697_g0f939808=20201120_145821
   - libboost=1.73.0
   # swig is required to build the rapidyaml package
