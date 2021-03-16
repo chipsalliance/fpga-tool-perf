@@ -36,12 +36,13 @@ include third_party/make-env/conda.mk
 
 env:: | $(CONDA_ENV_PYTHON)
 
-install_symbiflow:
+install_symbiflow: | $(CONDA_ENV_PYTHON)
 	mkdir -p env/symbiflow
 	curl -s ${SYMBIFLOW_LATEST_URL} | xargs wget -qO- | tar -xJC env/symbiflow
 	# Adapt the environment file from symbiflow-arch-defs
 	test -e env/symbiflow/environment.yml && sed -i 's/symbiflow_arch_def_base/symbiflow-env/g' env/symbiflow/environment.yml || true
 	cat conf/common/requirements.txt conf/symbiflow/requirements.txt > env/symbiflow/requirements.txt
+	@$(IN_CONDA_ENV_BASE) conda env update --name symbiflow-env --file env/symbiflow/environment.yml
 	# Install all devices
 	for device in ${SYMBIFLOW_DEVICES}; do \
 		curl -s ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs wget -qO- | tar -xJC env/symbiflow; \
