@@ -182,7 +182,6 @@ def parse_args():
         '--num-cpu',
         default=cpu_count(),
         type=int,
-        choices=range(1, cpu_count()),
         help='Number of CPUs to use in parallel to run the tests'
     )
 
@@ -261,9 +260,11 @@ def main():
         args_dict, seeds, build_numbers, params_strings, args.only_required
     )
 
+    num_cpu = max(args.num_cpu, cpu_count())
+
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
-        build_numbers, args.overwrite, args.num_cpu
+        build_numbers, args.overwrite, num_cpu
     )
 
     logger.debug("Running Projects")

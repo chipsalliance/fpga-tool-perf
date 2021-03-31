@@ -3,6 +3,7 @@ channels:
   - defaults
   - litex-hub
 dependencies:
+  - litex-hub::yosys-uhdm=0.5_8401_g30b87e190
   - python=3.7
   - pip
   - pip:

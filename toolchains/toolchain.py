@@ -325,6 +325,11 @@ class Toolchain:
                 'synthesis_tool': 'yosys',
                 'pr_tool': 'vivado'
             },
+            'yosys-vivado-uhdm':
+                {
+                    'synthesis_tool': 'yosys',
+                    'pr_tool': 'vivado'
+                },
             'vivado': {
                 'synthesis_tool': 'vivado',
                 'pr_tool': 'vivado'
