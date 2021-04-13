@@ -1,6 +1,8 @@
-# build
-build
-/build.*
+# outputs/multirun
+outputs
+/outputs.*
+multirun
+/multirun.*
 
 # vpr
 vpr_stdout.log

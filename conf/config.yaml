@@ -1,0 +1,20 @@
+defaults:
+  - override hydra/help: fpgaperf_help
+  - override hydra/job_logging: custom
+
+board: null
+toolchain: null
+project: null
+list: null
+check: null
+seed: null
+params_file: null
+params_string: null
+strategy: null
+carry: null
+out_dir: null
+out_prefix: null
+build: null
+build_type: null
+overwrite: null
+verbose: null

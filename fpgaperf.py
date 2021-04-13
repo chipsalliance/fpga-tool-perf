@@ -22,6 +22,9 @@ import datetime
 import edalize
 import logging
 from terminaltables import AsciiTable
+from omegaconf import DictConfig, OmegaConf
+import hydra
+from hydra.core.hydra_config import HydraConfig
 
 from utils.utils import Timed
 
@@ -53,11 +56,11 @@ class NotAvailable:
 
 def print_stats(t):
     def print_section_header(title):
-        print('')
-        print('===============================')
-        print(title)
-        print('===============================')
-        print('')
+        logger.info('')
+        logger.info('===============================')
+        logger.info(title)
+        logger.info('===============================')
+        logger.info('')
 
     print_section_header('Setting')
 
@@ -79,7 +82,7 @@ def print_stats(t):
         table_data.append(['Seed', 'default'])
 
     table = AsciiTable(table_data)
-    print(table.table)
+    logger.info('\n' + table.table)
 
     print_section_header('Clocks')
     max_freq = t.max_freq()
@@ -104,7 +107,7 @@ def print_stats(t):
             )
 
     table = AsciiTable(table_data)
-    print(table.table)
+    logger.info('\n' + table.table)
 
     print_section_header('Toolchain Run-Times')
     table_data = [['Stage', 'Run Time (seconds)']]
@@ -113,7 +116,7 @@ def print_stats(t):
         table_data.append([k, value])
 
     table = AsciiTable(table_data)
-    print(table.table)
+    logger.info('\n' + table.table)
 
     print_section_header('FPGA resource utilization')
     table_data = [['Resource', 'Used']]
@@ -123,7 +126,7 @@ def print_stats(t):
         table_data.append([k, value])
 
     table = AsciiTable(table_data)
-    print(table.table)
+    logger.info('\n' + table.table)
 
 
 toolchains = {
@@ -137,13 +140,13 @@ toolchains = {
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
     'quicklogic': Quicklogic,
     # TODO: These are not currently be extensively tested
-    #'synpro-icecube2': Icecube2Synpro,
-    #'lse-icecube2': Icecube2LSE,
-    #'yosys-icecube2': Icecube2Yosys,
-    #'synpro-radiant': RadiantSynpro,
-    #'lse-radiant': RadiantLSE,
-    #'yosys-radiant': RadiantYosys,
-    #'radiant': VPR,
+    # 'synpro-icecube2': Icecube2Synpro,
+    # 'lse-icecube2': Icecube2LSE,
+    # 'yosys-icecube2': Icecube2Yosys,
+    # 'synpro-radiant': RadiantSynpro,
+    # 'lse-radiant': RadiantLSE,
+    # 'yosys-radiant': RadiantYosys,
+    # 'radiant': VPR,
 }
 
 
@@ -403,134 +406,60 @@ def add_bool_arg(parser, yes_arg, default=False, **kwargs):
     )
 
 
-def main():
-    import argparse
-    parser = argparse.ArgumentParser(
-        description=
-        'Analyze FPGA tool performance (MHz, resources, runtime, etc)'
-    )
-
-    parser.add_argument(
-        '--verbose', action='store_true', help='Print DEBUG Statements'
-    )
-    parser.add_argument(
-        '--overwrite',
-        action='store_true',
-        help='Overwrite the folder with this run'
-    )
-    parser.add_argument(
-        '--params_file', default=None, help='Use custom tool parameters'
-    )
-    parser.add_argument(
-        '--params_string', default=None, help='Use custom tool parameters'
-    )
-    parser.add_argument(
-        '--strategy', default=None, help='Optimization strategy'
-    )
-    add_bool_arg(
-        parser,
-        '--carry',
-        default=None,
-        help='Force carry / no carry (default: use tool default)'
-    )
-    parser.add_argument('--board', help='Target board', choices=get_boards())
-    parser.add_argument('--list-boards', action='store_true', help='')
-    parser.add_argument(
-        '--toolchain', help='Tools to use', choices=get_toolchains()
-    )
-    parser.add_argument('--list-toolchains', action='store_true', help='')
-    parser.add_argument(
-        '--project', help='Source code to run on', choices=get_projects()
-    )
-    parser.add_argument('--list-projects', action='store_true', help='')
-    parser.add_argument(
-        '--list-combinations',
-        action='store_true',
-        help='Lists every <project, toolchain, board> combination.'
-    )
-    parser.add_argument(
-        '--seed',
-        default=None,
-        help='31 bit seed number to use, possibly directly mapped to PnR tool'
-    )
-    parser.add_argument('--list-seedable', action='store_true', help='')
-    parser.add_argument(
-        '--check-env',
-        action='store_true',
-        help='Check if environment is present'
-    )
-    parser.add_argument('--out-dir', default=None, help='Output directory')
-    parser.add_argument(
-        '--out-prefix',
-        default=None,
-        help='Auto named directory prefix (default: build)'
-    )
-    parser.add_argument('--build', default=None, help='Build number')
-    parser.add_argument('--build_type', default=None, help='Build type')
-    args = parser.parse_args()
-
-    if args.verbose:
-        global logger
-        logger = logging.getLogger('MyLogger')
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(levelname)s: %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.DEBUG)
-
+@hydra.main(config_path="conf", config_name="config")
+def main(cfg):
     logger.debug("Parsing Arguments")
 
-    assert not (args.params_file and args.params_string)
+    assert not (cfg.params_file and cfg.params_string)
 
-    if args.list_combinations:
+    if cfg.list == "combinations":
         logger.debug("Listing Combinations")
-        list_combinations(args.project, args.toolchain, args.board)
-    elif args.list_toolchains:
+        list_combinations(cfg.project, cfg.toolchain, cfg.board)
+    elif cfg.list == "toolchains":
         logger.debug("Listing Toolchains")
         list_toolchains()
-    elif args.list_projects:
+    elif cfg.list == "projects":
         logger.debug("Listing Projects")
         list_projects()
-    elif args.list_boards:
+    elif cfg.list == "boards":
         logger.debug("Listing Boards")
         list_boards()
-    elif args.list_seedable:
+    elif cfg.list == "seedable":
         logger.debug("Listing Seedables")
         list_seedable()
-    elif args.check_env:
+    elif cfg.check == "env":
         logger.debug("Checking Environment")
-        check_env(args.toolchain)
+        check_env(cfg.toolchain)
     else:
         argument_errors = []
-        if args.board is None:
-            argument_errors.append('--board argument required')
-        if args.toolchain is None:
-            argument_errors.append('--toolchain argument required')
-        if args.project is None:
-            argument_errors.append('--project argument required')
+        if cfg.board is None:
+            argument_errors.append('board argument required')
+        if cfg.toolchain is None:
+            argument_errors.append('toolchain argument required')
+        if cfg.project is None:
+            argument_errors.append('project argument required')
 
         if argument_errors:
-            parser.print_usage()
+            print('Use --help to print usage')
             for e in argument_errors:
                 print('{}: error: {}'.format(sys.argv[0], e))
             sys.exit(1)
-
-        seed = int(args.seed, 0) if args.seed else None
+        seed = int(cfg.seed, 0) if cfg.seed else None
         run(
-            args.board,
-            args.toolchain,
-            args.project,
-            params_file=args.params_file,
-            params_string=args.params_string,
-            out_dir=args.out_dir,
-            out_prefix=args.out_prefix,
-            overwrite=args.overwrite,
-            verbose=args.verbose,
-            strategy=args.strategy,
-            carry=args.carry,
+            cfg.board,
+            cfg.toolchain,
+            cfg.project,
+            params_file=cfg.params_file,
+            params_string=cfg.params_string,
+            out_dir=cfg.out_dir,
+            out_prefix=cfg.out_prefix,
+            overwrite=cfg.overwrite,
+            verbose=HydraConfig.get().verbose,
+            strategy=cfg.strategy,
+            carry=cfg.carry,
             seed=seed,
-            build=args.build,
-            build_type=args.build_type
+            build=cfg.build,
+            build_type=cfg.build_type
         )
 
 

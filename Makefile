@@ -18,7 +18,7 @@ all: format
 TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 TOOLCHAIN ?= symbiflow
 REQUIREMENTS_FILE ?= conf/${TOOLCHAIN}/requirements.txt
-ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
+ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yaml
 
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
 SYMBIFLOW_LATEST_URL_BASE = https://storage.googleapis.com/symbiflow-arch-defs-gha

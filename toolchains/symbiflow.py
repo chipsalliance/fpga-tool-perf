@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import edalize
+from hydra.utils import get_original_cwd
 
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec, which
@@ -149,7 +150,8 @@ class VPR(Toolchain):
                     'seed':
                         self.seed,
                     'environment_script':
-                        os.path.abspath('env.sh') + ' xilinx-' + self.device,
+                        os.path.join(get_original_cwd(), 'env.sh') +
+                    ' xilinx-' + self.device,
                 }
                 self.edam = {
                     'files': self.files,
@@ -202,7 +204,7 @@ class VPR(Toolchain):
 
                 if processing is True:
                     if l.startswith('clock') and not l.startswith(
-                        ('clock source latency', 'clock uncertainty')):
+                            ('clock source latency', 'clock uncertainty')):
                         clock = l.split()[1]
                         if clock in clocks:
                             if critical_paths is None:
@@ -710,7 +712,7 @@ class NextpnrXilinx(Toolchain):
                     'clocks':
                         self.clocks,
                     'environment_script':
-                        os.path.abspath('env.sh') + ' nextpnr xilinx-' +
+                        os.path.join(get_original_cwd(), 'env.sh') + ' nextpnr xilinx-' +
                         self.device,
                     'options':
                         '--timing-allow-fail'
@@ -866,7 +868,7 @@ class NextpnrXilinx(Toolchain):
             assert res['IOB33M_OUTBUF'] == res['IOB33S_OUTBUF']
             iob = iob + res['IOB33M_OUTBUF']
         if 'IOB33M_INBUF_EN' in res:
-            #TODO: check if this assert is correct becasue for baselitex-nexys-video it fails
+            # TODO: check if this assert is correct becasue for baselitex-nexys-video it fails
             #assert res['IOB33M_INBUF_EN'] == res['IOB33S_INBUF_EN']
             iob = iob + res['IOB33M_INBUF_EN']
         if 'IOB33_OUTBUF' in res:
@@ -1073,7 +1075,8 @@ class Quicklogic(VPR):
                     'seed':
                         self.seed,
                     'environment_script':
-                        os.path.abspath('env.sh') + ' quicklogic',
+                        os.path.join(get_original_cwd(),
+                                     'env.sh') + ' quicklogic',
                 }
 
                 self.edam = {
