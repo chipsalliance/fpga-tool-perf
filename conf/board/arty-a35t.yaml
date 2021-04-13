@@ -1,0 +1,5 @@
+arty-a35t:
+  family: xc7
+  device: a35t
+  package: csg324-1
+  vendor: xilinx

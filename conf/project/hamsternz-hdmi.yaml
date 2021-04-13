@@ -1,0 +1,33 @@
+hamsternz-hdmi:
+  srcs:
+    - third_party/hamsternz-hdmi/src/symbol_dump.vhd
+    - third_party/hamsternz-hdmi/src/line_delay.vhd
+    - third_party/hamsternz-hdmi/src/pixel_processing.vhd
+    - third_party/hamsternz-hdmi/src/tmds_decoder.vhd
+    - third_party/hamsternz-hdmi/src/expand_422_to_444.vhd
+    - third_party/hamsternz-hdmi/src/edid_rom.vhd
+    - third_party/hamsternz-hdmi/src/hdmi_input.vhd
+    - third_party/hamsternz-hdmi/src/extract_video_infopacket_data.vhd
+    - third_party/hamsternz-hdmi/src/audio_to_db.vhd
+    - third_party/hamsternz-hdmi/src/hdmi_design.vhd
+    - third_party/hamsternz-hdmi/src/guidelines.vhd
+    - third_party/hamsternz-hdmi/src/alignment_detect.vhd
+    - third_party/hamsternz-hdmi/src/serialiser_10_to_1.vhd
+    - third_party/hamsternz-hdmi/src/deserialiser_1_to_10.vhd
+    - third_party/hamsternz-hdmi/src/detect_interlace.vhd
+    - third_party/hamsternz-hdmi/src/tmds_encoder.vhd
+    - third_party/hamsternz-hdmi/src/dvid_output.vhd
+    - third_party/hamsternz-hdmi/src/hdmi_io.vhd
+    - third_party/hamsternz-hdmi/src/conversion_to_RGB.vhd
+    - third_party/hamsternz-hdmi/src/extract_audio_samples.vhd
+    - third_party/hamsternz-hdmi/src/edge_enhance.vhd
+    - third_party/hamsternz-hdmi/src/audio_meters.vhd
+    - third_party/hamsternz-hdmi/src/input_channel.vhd
+  top: hdmi_design
+  name: hamsternz-hdmi
+  vendors:
+    xilinx:
+      - nexys-video
+      - nexys
+  required_toolchains:
+    - vivado

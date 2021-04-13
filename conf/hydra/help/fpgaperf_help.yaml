@@ -31,19 +31,11 @@ template: |-
     carry=null                  Force carry / no carry (default: use tool default)
     no-carry=null               Force carry / no carry (default: use tool default)
     board=null                  Target board
-    list=boards                 {arty-a35t,arty-a100t,basys3,zybo,nexys,nexys-video,
-                                icebreaker,tinyfpgab2,quickfeather,chandalar}
+    list=boards                 Lists all boards supported
     toolchain=null              Tool to use
-    list=toolchains             {nextpnr-ice40,nextpnr-xilinx,nextpnr-xilinx-fasm2bels,
-                                quicklogic,vivado,vpr,vpr-fasm2bels,yosys-vivado,
-                                yosys-vivado-uhdm}
+    list=toolchains             Lists all toolchains supported
     project=null                Source code to run on
-    list=projects               {axi-lite-reg,baselitex,baselitex-nexys-video,blinky,
-                                bram-n1,bram-n2,bram-n3,daisho-usb3,dram-test-64x1d,
-                                hamsternz-displayport,hamsternz-hdmi,ibex,iir,jpeg-qnr,
-                                murax,oneblink,picorv32,picosoc,picosoc-simpleuart,
-                                picosoc-spimemio,rsdecoder,up5k-nes,vexriscv,
-                                vexriscv-smp,zynq-ps7-counter}
+    list=projects               Lists all projects
     list=combinations           Lists every <project, toolchain, board> combination.
     seed=SEED                   31 bit seed number to use, possibly directly mapped to
                                 PnR tool

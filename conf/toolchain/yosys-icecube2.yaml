@@ -1,0 +1,3 @@
+yosys-icecube2:
+  module: toolchains.icecube
+  class: Icecube2Yosys

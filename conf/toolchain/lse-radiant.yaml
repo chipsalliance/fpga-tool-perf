@@ -1,0 +1,3 @@
+lse-radiant:
+  module: toolchains.radiant
+  class: RadiantLSE

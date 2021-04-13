@@ -1,0 +1,3 @@
+synpro-radiant:
+  module: toolchains.radiant
+  class: RadiantSynpro

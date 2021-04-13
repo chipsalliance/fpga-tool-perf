@@ -1,0 +1,4 @@
+vpr:
+  module: toolchains.symbiflow
+  class: VPR
+  vendor: xilinx

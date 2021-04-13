@@ -21,37 +21,17 @@ import glob
 import datetime
 import edalize
 import logging
+import importlib
 from terminaltables import AsciiTable
 from omegaconf import DictConfig, OmegaConf
 import hydra
 from hydra.core.hydra_config import HydraConfig
+from hydra.utils import get_original_cwd
 
 from utils.utils import Timed
 
-from toolchains.toolchain import Toolchain
-from toolchains.icestorm import NextpnrIcestorm
-from toolchains.icestorm import Arachne
-from toolchains.vivado import Vivado
-from toolchains.vivado import VivadoYosys
-from toolchains.vivado import VivadoYosysUhdm
-from toolchains.symbiflow import VPR, NextpnrXilinx, Quicklogic
-from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
-from toolchains.radiant import RadiantSynpro
-from toolchains.radiant import RadiantLSE
-from toolchains.icecube import Icecube2Synpro
-from toolchains.icecube import Icecube2LSE
-from toolchains.icecube import Icecube2Yosys
-
-# to find data files
-root_dir = os.path.dirname(os.path.abspath(__file__))
-project_dir = os.path.join(root_dir, 'project')
-src_dir = os.path.join(root_dir, 'src')
 
 logger = logging.getLogger(__name__)
-
-
-class NotAvailable:
-    pass
 
 
 def print_stats(t):
@@ -129,27 +109,6 @@ def print_stats(t):
     logger.info('\n' + table.table)
 
 
-toolchains = {
-    'vivado': Vivado,
-    'yosys-vivado': VivadoYosys,
-    'yosys-vivado-uhdm': VivadoYosysUhdm,
-    'vpr': VPR,
-    'vpr-fasm2bels': VPRFasm2Bels,
-    'nextpnr-ice40': NextpnrIcestorm,
-    'nextpnr-xilinx': NextpnrXilinx,
-    'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
-    'quicklogic': Quicklogic,
-    # TODO: These are not currently be extensively tested
-    # 'synpro-icecube2': Icecube2Synpro,
-    # 'lse-icecube2': Icecube2LSE,
-    # 'yosys-icecube2': Icecube2Yosys,
-    # 'synpro-radiant': RadiantSynpro,
-    # 'lse-radiant': RadiantLSE,
-    # 'yosys-radiant': RadiantYosys,
-    # 'radiant': VPR,
-}
-
-
 def run(
     board,
     toolchain,
@@ -171,11 +130,8 @@ def run(
     assert project is not None
 
     logger.debug("Preparing Project")
-    project_dict = get_project(project)
-    with open(os.path.join(root_dir, 'other', 'boards.json'), 'r') as boards:
-        boards_info = json.load(boards)
-
-    board_info = boards_info[board]
+    project_name, project_info = project
+    board_name, board_info = board
     family = board_info['family']
     device = board_info['device']
     package = board_info['package']
@@ -184,8 +140,10 @@ def run(
 
     # some toolchains use signed 32 bit
     assert seed is None or 0 <= seed <= 0x7FFFFFFF
-
-    t = toolchains[toolchain](root_dir)
+    tc_name, tc = toolchain
+    tool_class = getattr(
+        importlib.import_module(tc['module']), tc['class'])
+    t = tool_class(get_original_cwd())
     t.verbose = verbose
     t.strategy = strategy
 
@@ -196,9 +154,9 @@ def run(
 
     # Constraint files shall be in their directories
     logger.debug("Getting Constraints")
-    pcf = get_constraint(project, board, toolchain, 'pcf')
-    sdc = get_constraint(project, board, toolchain, 'sdc')
-    xdc = get_constraint(project, board, toolchain, 'xdc')
+    pcf = get_constraint(project_name, board_name, tc_name, 'pcf')
+    sdc = get_constraint(project_name, board_name, tc_name, 'sdc')
+    xdc = get_constraint(project_name, board_name, tc_name, 'xdc')
 
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
@@ -208,12 +166,12 @@ def run(
     t.build_type = build_type
     logger.debug("Running Project")
     t.project(
-        project_dict,
+        project_info,
         family,
         device,
         package,
-        board,
-        get_vendors(board=board),
+        board_name,
+        board_info['vendor'],
         params_file,
         params_string,
         out_dir=out_dir,
@@ -234,19 +192,19 @@ def list_combinations(
 ):
     '''Query all possible project/toolchain/board combinations'''
     table_data = [['Project', 'Toolchain', 'Board', 'Status']]
-    for p in get_projects(project):
-        toolchain_info = get_project(p)["required_toolchains"]
-        vendor_info = get_project(p)["vendors"]
-        for t in get_toolchains(toolchain):
-            vendor = get_vendors(t)
+    for p, p_val in project.items():
+        toolchain_info = p_val["required_toolchains"]
+        vendor_info = p_val["vendors"]
+        for t, t_val in toolchain.items():
+            vendor = t_val.vendor
             if vendor not in vendor_info:
                 continue
             text = "Supported"
             board_info = vendor_info[vendor]
             if t not in toolchain_info:
                 text = "Missing"
-            for b in get_boards(board):
-                if b not in get_vendors()[vendor]["boards"]:
+            for b, b_val in board.items():
+                if b_val.vendor != vendor:
                     continue
                 text2 = text
                 if board_info is None or b not in board_info:
@@ -257,153 +215,31 @@ def list_combinations(
     print(table.table)
 
 
-def get_vendors(toolchain=None, board=None):
-    '''Return vendor information'''
-    with open(os.path.join(root_dir, 'other', 'vendors.json'),
-              'r') as vendors_file:
-        vendors = json.load(vendors_file)
-    if toolchain is None and board is None:
-        return vendors
-    for v in vendors:
-        if toolchain in vendors[v]["toolchains"]:
-            return v
-        if board in vendors[v]["boards"]:
-            return v
-
-    return None
-
-
-def get_boards(board=None):
-    '''Query all supported boards'''
-    with open(os.path.join(root_dir, 'other', 'boards.json'),
-              'r') as boards_file:
-        boards = json.load(boards_file)
-    if board is None:
-        return boards
-    elif board in boards:
-        return [board]
-    else:
-        return []
-
-
-def list_boards():
-    '''Print all supported boards'''
-    for b in get_boards():
-        print(b)
-
-
-def get_toolchains(toolchain=None):
-    '''Query all supported toolchains'''
-    if toolchain is None:
-        return sorted(toolchains.keys())
-    elif toolchain in sorted(toolchains.keys()):
-        return [toolchain]
-    else:
-        return []
-
-
-def list_toolchains():
-    '''Print all supported toolchains'''
-    for t in get_toolchains():
-        print(t)
-
-
-def matching_pattern(path, pattern):
-    return sorted([re.match(pattern, fn).group(1) for fn in glob.glob(path)])
-
-
-def get_projects(project=None):
-    '''Query all supported projects'''
-    projects = matching_pattern(
-        os.path.join(project_dir, '*.json'), '/.*/(.*)[.]json'
-    )
-    if project is None:
-        return projects
-    elif project in projects:
-        return [project]
-    else:
-        return []
-
-
-def list_projects():
-    '''Print all supported projects'''
-    for project in get_projects():
-        print(project)
-
-
-def get_seedable():
-    '''Query toolchains that support --seed'''
-    ret = []
-    for t, tc in sorted(toolchains.items()):
-        if tc.seedable():
-            ret.append(t)
-    return ret
-
-
-def list_seedable():
-    '''Print toolchains that support --seed'''
-    for t in get_seedable():
-        print(t)
-
-
-def check_env(to_check=None):
+def check_env(cfg):
     '''For each tool, print dependencies and if they are met'''
-    tools = toolchains.items()
-    if to_check:
-        tools = list(filter(lambda t: t[0] == to_check, tools))
-        if not tools:
-            raise TypeError("Unknown toolchain %s" % to_check)
-    for t, tc in sorted(tools):
+    for t, tc in sorted(cfg.items()):
         print(t)
-        for k, v in tc.check_env().items():
+        tool_class = getattr(
+            importlib.import_module(tc['module']), tc['class'])
+        for k, v in tool_class.check_env().items():
             print('  %s: %s' % (k, v))
-
-
-def env_ready():
-    '''Return true if every tool can be run'''
-    for tc in toolchains.values():
-        for v in tc.check_env().values():
-            if not v:
-                return False
-    return True
-
-
-def verify_constraint(project, board, extension):
-    board_file = board + "." + extension
-    path = os.path.join(src_dir, project, 'constr', board_file)
-    return os.path.exists(path)
 
 
 def get_constraint(project, board, toolchain, extension):
     constr_file = board + "-" + toolchain + "." + extension
 
-    path = os.path.join(src_dir, project, 'constr', constr_file)
+    path = os.path.join(get_original_cwd(), 'src',
+                        project, 'constr', constr_file)
     if (os.path.exists(path)):
         return path
     constr_file = board + "." + extension
 
-    path = os.path.join(src_dir, project, 'constr', constr_file)
+    path = os.path.join(get_original_cwd(), 'src',
+                        project, 'constr', constr_file)
     if (os.path.exists(path)):
         return path
 
     return None
-
-
-def get_project(name):
-    project_fn = os.path.join(project_dir, '{}.json'.format(name))
-    with open(project_fn, 'r') as f:
-        return json.load(f)
-
-
-def add_bool_arg(parser, yes_arg, default=False, **kwargs):
-    dashed = yes_arg.replace('--', '')
-    dest = dashed.replace('-', '_')
-    parser.add_argument(
-        yes_arg, dest=dest, action='store_true', default=default, **kwargs
-    )
-    parser.add_argument(
-        '--no-' + dashed, dest=dest, action='store_false', **kwargs
-    )
 
 
 @hydra.main(config_path="conf", config_name="config")
@@ -417,16 +253,17 @@ def main(cfg):
         list_combinations(cfg.project, cfg.toolchain, cfg.board)
     elif cfg.list == "toolchains":
         logger.debug("Listing Toolchains")
-        list_toolchains()
+        [print(key) for key in sorted(cfg.toolchain.keys())]
     elif cfg.list == "projects":
         logger.debug("Listing Projects")
-        list_projects()
+        [print(key) for key in sorted(cfg.project.keys())]
     elif cfg.list == "boards":
         logger.debug("Listing Boards")
-        list_boards()
+        [print(key) for key in sorted(cfg.board.keys())]
     elif cfg.list == "seedable":
         logger.debug("Listing Seedables")
-        list_seedable()
+        [print(t) for t, tc in sorted(cfg.toolchain.items())
+         if getattr(importlib.import_module(tc['module']), tc['class']).seedable()]
     elif cfg.check == "env":
         logger.debug("Checking Environment")
         check_env(cfg.toolchain)
@@ -445,22 +282,46 @@ def main(cfg):
                 print('{}: error: {}'.format(sys.argv[0], e))
             sys.exit(1)
         seed = int(cfg.seed, 0) if cfg.seed else None
-        run(
-            cfg.board,
-            cfg.toolchain,
-            cfg.project,
-            params_file=cfg.params_file,
-            params_string=cfg.params_string,
-            out_dir=cfg.out_dir,
-            out_prefix=cfg.out_prefix,
-            overwrite=cfg.overwrite,
-            verbose=HydraConfig.get().verbose,
-            strategy=cfg.strategy,
-            carry=cfg.carry,
-            seed=seed,
-            build=cfg.build,
-            build_type=cfg.build_type
-        )
+
+        for p, p_val in cfg.project.items():
+            toolchain_info = p_val["required_toolchains"]
+            vendor_info = p_val["vendors"]
+            for t, t_val in cfg.toolchain.items():
+                vendor = t_val.vendor
+                if vendor not in vendor_info:
+                    continue
+                text = "Supported"
+                board_info = vendor_info[vendor]
+                if t not in toolchain_info:
+                    text = "Missing"
+                for b, b_val in cfg.board.items():
+                    if b_val.vendor != vendor:
+                        continue
+                    text2 = text
+                    if board_info is None or b not in board_info:
+                        text2 = "Missing"
+                    if text2 == "Supported":
+                        run(
+                            (b, b_val),
+                            (t, t_val),
+                            (p, p_val),
+                            params_file=cfg.params_file,
+                            params_string=cfg.params_string,
+                            out_dir=cfg.out_dir,
+                            out_prefix=cfg.out_prefix,
+                            overwrite=cfg.overwrite,
+                            verbose=HydraConfig.get().verbose,
+                            strategy=cfg.strategy,
+                            carry=cfg.carry,
+                            seed=seed,
+                            build=cfg.build,
+                            build_type=cfg.build_type
+                        )
+                    else:
+                        logger.info(
+                            'The given configuration is not supported. \
+                                Use list=combinations to find out the \
+                                    configurations that are supported.')
 
 
 if __name__ == '__main__':

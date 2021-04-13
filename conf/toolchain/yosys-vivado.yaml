@@ -1,0 +1,4 @@
+yosys-vivado:
+  module: toolchains.vivado
+  class: VivadoYosys
+  vendor: xilinx

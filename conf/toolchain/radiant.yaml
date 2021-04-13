@@ -1,0 +1,3 @@
+radiant:
+  module: toolchains.symbiflow
+  class: VPR

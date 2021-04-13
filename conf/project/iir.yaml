@@ -1,0 +1,12 @@
+iir:
+  srcs:
+    - src/iir/iir.v
+  top: top
+  name: iir
+  clocks:
+    clk: 10
+  vendors:
+    quicklogic:
+      - chandalar
+      - quickfeather
+  required_toolchains: []

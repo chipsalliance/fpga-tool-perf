@@ -1,0 +1,5 @@
+arty-a100t:
+  family: xc7
+  device: a100t
+  package: csg324-1
+  vendor: xilinx

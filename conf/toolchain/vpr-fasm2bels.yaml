@@ -1,0 +1,4 @@
+vpr-fasm2bels:
+  module: toolchains.fasm2bels
+  class: VPRFasm2Bels
+  vendor: xilinx

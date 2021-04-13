@@ -1,0 +1,5 @@
+icebreaker:
+  family: ice40
+  device: up5k
+  package: sg48
+  vendor: lattice

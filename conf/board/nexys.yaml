@@ -1,0 +1,5 @@
+nexys:
+  family: xc7
+  device: a200t
+  package: fbg484-1
+  vendor: xilinx

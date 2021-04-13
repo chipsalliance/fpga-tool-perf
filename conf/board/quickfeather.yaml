@@ -1,0 +1,5 @@
+quickfeather:
+  family: eos
+  device: ql-eos-s3
+  package: PU64
+  vendor: quicklogic
