@@ -45,16 +45,8 @@ template: |-
     out_prefix=OUT_PREFIX       Auto named directory prefix (default: build)
     build=BUILD                 Build number
     build_type=BUILD_TYPE       Build type
-
-  == Config ==
-  This is the config generated for this run.
-  You can override everything, for example:
-  python fpgaperf.py project=oneblink toolchain=vpr board=basys3
-  -------
-  $CONFIG
-  -------
-
-  == Logging ==
-  hydra.verbose=true sets the log level of all loggers to DEBUG
   
+    == Logging ==
+    hydra.verbose=true sets the log level of all loggers to DEBUG
+
   ${hydra.help.footer}
