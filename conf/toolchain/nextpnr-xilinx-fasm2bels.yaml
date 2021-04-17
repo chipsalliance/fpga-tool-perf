@@ -1,0 +1,4 @@
+nextpnr-xilinx-fasm2bels:
+  module: toolchains.fasm2bels
+  class: NextpnrXilinxFasm2Bels
+  vendor: xilinx

@@ -21,6 +21,7 @@ import glob
 import datetime
 import asciitable
 import edalize
+from hydra.utils import get_original_cwd
 
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec
@@ -124,7 +125,8 @@ class Icestorm(Toolchain):
                                 'part':
                                     self.device,
                                 'environment_script':
-                                    os.path.abspath('env.sh') + ' nextpnr'
+                                    os.path.join(get_original_cwd(),
+                                                 'env.sh') + ' nextpnr'
                             }
                     }
             }

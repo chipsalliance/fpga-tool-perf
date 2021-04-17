@@ -45,29 +45,29 @@ Once the environment settings has been sourced, you are ready to proceed with th
 ### Quick start example
 
 ```bash
-python3 fpgaperf.py --toolchain vivado --project oneblink --board arty-a35t
+python3 fpgaperf.py toolchain=vivado project=oneblink board=arty-a35t
 ```
 
 or
 
 ```bash
-python3 fpgaperf.py --toolchain vpr --project oneblink --board basys3
+python3 fpgaperf.py toolchain=vpr project=oneblink board=basys3
 ```
 
 For example to compare pure Vivado flow and Yosys -> Vivado flow for an xc7z device the following commands can be run:
 
 ```bash
 # Yosys -> Vivado
-python3 fpgaperf.py --toolchain yosys-vivado --project oneblink --board basys3
+python3 fpgaperf.py toolchain=yosys-vivado project=oneblink board=basys3
 # Pure Vivado
-python3 fpgaperf.py --toolchain vivado --project oneblink --board basys3
+python3 fpgaperf.py toolchain=vivado project=oneblink board=basys3
 ```
 
 Use `--help` to see additional parameters for the `fpgaperf.py` script.
 
 Supported toolchains can be queried as follows:
 ```bash
-$ python3 fpgaperf.py --list-toolchains
+$ python3 fpgaperf.py list=toolchains
 nextpnr-ice40
 nextpnr-xilinx
 nextpnr-xilinx-fasm2bels
@@ -80,7 +80,7 @@ yosys-vivado
 You can check if you have the toolchain environments correctly installed as
 follows:
 ```bash
-$ python3 fpgaperf.py --check-env --toolchain vpr
+$ python3 fpgaperf.py check=env toolchain=vpr
 vpr
   yosys: True
   vpr: True
@@ -89,7 +89,7 @@ vpr
 
 Supported projects can be queried as follows:
 ```bash
-$ python3 fpgaperf.py  --list-projects
+$ python3 fpgaperf.py  list=projects
 baselitex
 blinky
 bram-n1
@@ -109,11 +109,11 @@ vexriscv-smp
 ```
 
 ### Exhaustive build
-
-Use `exhaust.py` to automatically test all projects, toolchain and boards supported
+  
+Use `fpgaperf.py` to automatically test all projects, toolchain and boards supported
 
 ```bash
-python3 exhaust.py
+python3 fpgaperf.py
 ```
 
 Its also possible to run a test against specific project(s), toolchain(s), and/or board(s):
@@ -122,6 +122,18 @@ python3 exhaust.py --project blinky oneblink --toolchain vpr
 ```
 
 See `build` directory for output. Note in particular `all.json`.
+
+### Parallel build
+
+To build multiple benchmarks in parallel on a multi-core machine, use:
+```bash
+python3 fpgaperf.py --multirun hydra/launcher=joblib project=blinky,oneblink toolchain=vpr board=basys3
+``` 
+
+It's also possible to run multiple benchmarks on a slurm cluster (e.g. [slurm-gcp](https://github.com/SchedMD/slurm-gcp)) in parallel:
+```bash
+python3 fpgaperf.py --multirun hydra/launcher=slurm project=blinky,oneblink toolchain=vpr board=basys3
+```
 
 ## Project Structure
 

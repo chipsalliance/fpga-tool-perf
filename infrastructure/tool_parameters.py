@@ -12,12 +12,13 @@
 import os
 import json
 import itertools
+from hydra.utils import get_original_cwd
 
 
 class ToolParametersHelper:
     def __init__(self, toolchain, params_file='params.json'):
         self.params_path = os.path.join(
-            os.getcwd(), 'tool_parameters', toolchain, params_file
+            get_original_cwd(), 'tool_parameters', toolchain, params_file
         )
         self.params = None
 

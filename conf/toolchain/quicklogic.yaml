@@ -1,0 +1,4 @@
+quicklogic:
+  module: toolchains.symbiflow
+  class: Quicklogic
+  vendor: quicklogic

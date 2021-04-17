@@ -1,0 +1,20 @@
+bram-n3:
+  srcs:
+    - src/bram-n3/bram_n3.v
+    - src/bram/rom.v
+    - src/bram/processing_unit.v
+    - third_party/picorv32/picosoc/simpleuart.v
+    - src/bram/scalable_proc.v
+  top: top
+  name: bram-n3
+  clocks:
+    clk: 10
+  vendors:
+    xilinx:
+      - basys3
+      - nexys-video
+  required_toolchains:
+    - vivado
+    - vpr
+    - vpr-fasm2bels
+    - yosys-vivado

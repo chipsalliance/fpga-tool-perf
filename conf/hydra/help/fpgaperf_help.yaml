@@ -1,0 +1,52 @@
+# App name, override to match the name your app is known by
+app_name: fpga-tool-perf
+
+# Help header, customize to describe your app to your users
+header: == ${hydra.help.app_name} ==
+
+footer: |-
+  Powered by Hydra (https://hydra.cc)
+  Use --hydra-help to view Hydra specific help
+
+# Basic Hydra flags:
+#   $FLAGS_HELP
+#
+# Config groups, choose one of:
+#   $APP_CONFIG_GROUPS: All config groups that does not start with hydra/.
+#   $HYDRA_CONFIG_GROUPS: All the Hydra config groups (starts with hydra/)
+#
+# Configuration generated with overrides:
+#   $CONFIG : Generated config
+#
+template: |-
+  ${hydra.help.header}
+
+  Analyze FPGA tool performance (MHz, resources, runtime, etc)
+  
+  Following are the configuration options available for this app:
+  
+    params_file=PARAMS_FILE     Use custom tool parameters
+    params_string=PARAMS_STRING Use custom tool parameters
+    strategy=STRATEGY           Optimization strategy
+    carry=null                  Force carry / no carry (default: use tool default)
+    no-carry=null               Force carry / no carry (default: use tool default)
+    board=null                  Target board
+    list=boards                 Lists all boards supported
+    toolchain=null              Tool to use
+    list=toolchains             Lists all toolchains supported
+    project=null                Source code to run on
+    list=projects               Lists all projects
+    list=combinations           Lists every <project, toolchain, board> combination.
+    seed=SEED                   31 bit seed number to use, possibly directly mapped to
+                                PnR tool
+    list=seedable
+    check=env                   Check if environment is present
+    out_dir=OUT_DIR             Output directory
+    out_prefix=OUT_PREFIX       Auto named directory prefix (default: build)
+    build=BUILD                 Build number
+    build_type=BUILD_TYPE       Build type
+  
+    == Logging ==
+    hydra.verbose=true sets the log level of all loggers to DEBUG
+
+  ${hydra.help.footer}

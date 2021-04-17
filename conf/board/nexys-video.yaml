@@ -1,0 +1,5 @@
+nexys-video:
+  family: xc7
+  device: a200t
+  package: sbg484-1
+  vendor: xilinx

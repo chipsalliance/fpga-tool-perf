@@ -1,0 +1,5 @@
+zybo:
+  family: xc7
+  device: z010
+  package: clg400-1
+  vendor: xilinx

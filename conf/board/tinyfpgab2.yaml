@@ -1,0 +1,5 @@
+tinyfpgab2:
+  family: ice40
+  device: lp8k
+  package: cm81
+  vendor: lattice

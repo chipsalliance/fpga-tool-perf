@@ -1,0 +1,25 @@
+picosoc-spimemio:
+  srcs:
+    - third_party/picorv32/picosoc/spimemio.v
+    - src/picosoc-spimemio/picosoc_spimemio_wrap.v
+  top: top
+  name: picosoc-spimemio
+  clocks:
+    clk: 10
+  vendors:
+    xilinx:
+      - arty-a35t
+      - arty-a100t
+      - basys3
+      - zybo
+      - nexys-video
+    lattice:
+      - icebreaker
+    quicklogic:
+      - quickfeather
+  required_toolchains:
+    - vivado
+    - vpr
+    - vpr-fasm2bels
+    - nextpnr-ice40
+    - quicklogic

@@ -1,0 +1,77 @@
+defaults:
+  - board:
+    - arty-a100t
+    - arty-a35t
+    - basys3
+    - chandalar
+    - icebreaker
+    - nexys-video
+    - nexys
+    - quickfeather
+    - tinyfpgab2
+    - zybo
+  - project:
+    - axi-lite-reg
+    - baselitex-nexys-video
+    - baselitex
+    - blinky
+    - bram-n1
+    - bram-n2
+    - bram-n3
+    - daisho-usb3
+    - dram-test-64x1d
+    - hamsternz-displayport
+    - hamsternz-hdmi
+    - ibex
+    - iir
+    - jpeg-qnr
+    - murax
+    - oneblink
+    - picorv32
+    - picosoc-simpleuart
+    - picosoc-spimemio
+    - picosoc
+    - rsdecoder
+    - up5k-nes
+    - vexriscv-smp
+    - vexriscv
+    - zynq-ps7-counter
+  - toolchain:
+    - nextpnr-ice40
+    - nextpnr-xilinx-fasm2bels
+    - nextpnr-xilinx
+    - quicklogic
+    - vivado
+    - vpr-fasm2bels
+    - vpr
+    - yosys-vivado-uhdm
+    - yosys-vivado
+    # TODO: These are not currently be extensively tested
+    # - lse-icecube2
+    # - lse-radiant
+    # - radiant
+    # - synpro-icecube2
+    # - synpro-radiant
+    # - yosys-icecube2
+    # - yosys-radiant
+  - override hydra/help: fpgaperf_help
+  - override hydra/job_logging: custom
+  - override hydra/launcher: joblib
+
+hydra:
+  launcher:
+    n_jobs: 4
+
+list: null
+check: null
+seed: null
+params_file: null
+params_string: null
+strategy: null
+carry: null
+out_dir: null
+out_prefix: null
+build: null
+build_type: null
+overwrite: null
+verbose: null

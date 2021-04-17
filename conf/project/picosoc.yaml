@@ -1,0 +1,22 @@
+picosoc:
+  srcs:
+    - third_party/picorv32/picorv32.v
+    - third_party/picorv32/picosoc/spimemio.v
+    - third_party/picorv32/picosoc/simpleuart.v
+    - third_party/picosoc_wrappers/picosoc_wrap.v
+    - third_party/picosoc_wrappers/picosoc_noflash.v
+    - src/picosoc/progmem.v
+  top: top
+  name: picosoc
+  clocks:
+    clk: 10
+  vendors:
+    xilinx:
+      - basys3
+      - nexys
+  required_toolchains:
+    - vivado
+    - yosys-vivado
+    - vpr
+    - vpr-fasm2bels
+    - nextpnr-xilinx

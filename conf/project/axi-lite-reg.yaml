@@ -1,0 +1,13 @@
+axi-lite-reg:
+  srcs:
+    - src/axi-lite-reg/axi_reg.v
+    - src/axi-lite-reg/AxiPeriph.v
+  top: top
+  name: axi-lite-reg
+  vendors:
+    xilinx:
+      - zybo
+  required_toolchains:
+    - vivado
+    - nextpnr-xilinx
+    - vpr

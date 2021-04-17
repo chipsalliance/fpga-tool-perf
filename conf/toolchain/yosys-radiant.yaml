@@ -1,0 +1,3 @@
+yosys-radiant:
+  module: toolchains.radiant
+  class: RadiantYosys

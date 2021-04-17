@@ -1,0 +1,5 @@
+basys3:
+  family: xc7
+  device: a35t
+  package: cpg236-1
+  vendor: xilinx

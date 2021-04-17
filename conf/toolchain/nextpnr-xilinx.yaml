@@ -1,0 +1,4 @@
+nextpnr-xilinx:
+  module: toolchains.symbiflow
+  class: NextpnrXilinx
+  vendor: xilinx

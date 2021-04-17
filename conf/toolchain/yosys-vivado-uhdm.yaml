@@ -1,0 +1,4 @@
+yosys-vivado-uhdm:
+  module: toolchains.vivado
+  class: VivadoYosysUhdm
+  vendor: xilinx

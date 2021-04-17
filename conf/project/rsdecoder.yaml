@@ -1,0 +1,13 @@
+rsdecoder:
+  srcs:
+    - third_party/rsdecoder/rsdecoder.v
+  top: top
+  name: rsdecoder
+  clocks:
+    clk: 10
+  vendors:
+    quicklogic:
+      - chandalar
+      - quickfeather
+  required_toolchains:
+    - quicklogic

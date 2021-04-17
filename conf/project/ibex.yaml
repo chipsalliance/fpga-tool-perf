@@ -1,0 +1,40 @@
+ibex:
+  srcs:
+    - third_party/ibex/ibex_alu.v
+    - third_party/ibex/ibex_core.v
+    - third_party/ibex/ibex_decoder.v
+    - third_party/ibex/ibex_load_store_unit.v
+    - third_party/ibex/ibex_fetch_fifo.v
+    - third_party/ibex/ibex_id_stage.v
+    - third_party/ibex/ibex_if_stage.v
+    - third_party/ibex/ibex_pmp.v
+    - third_party/ibex/ibex_multdiv_fast.v
+    - third_party/ibex/ibex_controller.v
+    - third_party/ibex/ibex_compressed_decoder.v
+    - third_party/ibex/ibex_core_tracing.v
+    - third_party/ibex/ibex_multdiv_slow.v
+    - third_party/ibex/ibex_prefetch_buffer.v
+    - third_party/ibex/ibex_ex_block.v
+    - third_party/ibex/ibex_register_file_ff.v
+    - third_party/ibex/clkgen_xil7series.v
+    - third_party/ibex/ram_1p.v
+    - third_party/ibex/ibex_cs_registers.v
+    - src/ibex/top_artya7.v
+  top: top
+  name: ibex
+  data:
+    - src/ibex/led.vmem
+  clocks:
+    IO_CLK: 10
+  vendors:
+    xilinx:
+      - arty-a35t
+      - arty-a100t
+      - basys3
+      - nexys-video
+  required_toolchains:
+    - nextpnr-xilinx
+    - vivado
+    - vpr
+    - vpr-fasm2bels
+    - yosys-vivado

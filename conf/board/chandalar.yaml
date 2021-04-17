@@ -1,0 +1,5 @@
+chandalar:
+  family: eos
+  device: ql-eos-s3
+  package: PD64
+  vendor: quicklogic

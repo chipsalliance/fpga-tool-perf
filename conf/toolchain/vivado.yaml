@@ -1,0 +1,4 @@
+vivado:
+  module: toolchains.vivado
+  class: Vivado
+  vendor: xilinx

@@ -1,0 +1,4 @@
+nextpnr-ice40:
+  module: toolchains.icestorm
+  class: NextpnrIcestorm
+  vendor: lattice
