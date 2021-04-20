@@ -7,9 +7,12 @@ dependencies:
   - litex-hub::symbiflow-yosys-plugins=1.0.0.7_0174_g5e6370a=20201012_171341
   - litex-hub::symbiflow-vtr=8.0.0rc2_5082_gf1a3bcc2a=20201105_110531
   - litex-hub::nextpnr-ice40=0.0.0_2726_g1afa494=20201126_123829
-  - litex-hub::nextpnr-xilinx=v0.0_2814_gd40ffba7=20201216_065815
-  - litex-hub::prjxray-db=v0.0_245_ge7663ba=20210209_144911
-  - litex-hub::prjxray-tools=0.1_2697_g0f939808=20201120_145821
+  - litex-hub::nextpnr-xilinx=v0.0_2818_ge69bbf9e=20210415_092356
+  - litex-hub::prjxray-db=0.0_250_geda9896=20210415_092356
+  - litex-hub::prjxray-tools=0.1_2918_gcb5f2a30=20210415_092356
+  - litex-hub::nextpnr-fpga_interchange=v0.0_3397_g6fbefb8f=20210415_092356
+  - litex-hub::capnproto=0.8.0=20210316_201220
+  - litex-hub::capnproto-java=0.1.5_18_gcf62cd4=20210316_201220
   - libboost=1.73.0
   # swig is required to build the rapidyaml package
   # It can be removed once that is available in PyPi
