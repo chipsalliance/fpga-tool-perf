@@ -1,0 +1,14 @@
+{
+    "srcs": [
+        "src/blinky_interchange/blinky.v"
+        ],
+    "top": "top",
+    "name": "blinky",
+    "clocks": {
+        "clk_i": 10.0
+    },
+    "vendors": {
+        "xilinx": ["arty-a35t", "arty-a100t", "basys3"]
+    },
+    "required_toolchains": ["nextpnr-fpga_interchange"]
+}
