@@ -31,7 +31,7 @@ from toolchains.icestorm import Arachne
 from toolchains.vivado import Vivado
 from toolchains.vivado import VivadoYosys
 from toolchains.vivado import VivadoYosysUhdm
-from toolchains.symbiflow import VPR, NextpnrXilinx, Quicklogic
+from toolchains.symbiflow import VPR, NextpnrXilinx, NextpnrFPGAInterchange, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from toolchains.radiant import RadiantSynpro
 from toolchains.radiant import RadiantLSE
@@ -135,6 +135,7 @@ toolchains = {
     'nextpnr-ice40': NextpnrIcestorm,
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
+    'nextpnr-fpga_interchange': NextpnrFPGAInterchange,
     'quicklogic': Quicklogic,
     # TODO: These are not currently be extensively tested
     #'synpro-icecube2': Icecube2Synpro,
