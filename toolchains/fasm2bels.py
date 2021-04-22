@@ -74,7 +74,7 @@ class NextpnrXilinxFasm2Bels(NextpnrXilinx):
     carries = (False, )
 
     def __init__(self, rootdir):
-        Toolchain.__init__(self, rootdir)
+        NextpnrXilinx.__init__(self, rootdir)
         self.toolchain = 'nextpnr-xilinx-fasm2bels'
         self.files = []
         self.fasm2bels = True
