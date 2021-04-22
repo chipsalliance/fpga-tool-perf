@@ -637,12 +637,13 @@ class NextpnrGeneric(Toolchain):
 
     def get_share_data(self):
         out = subprocess.run(
-            ["find", ".", "-name", self.toolchain], stdout=subprocess.PIPE
+            ["find", ".", "-name", self.toolchain_bin], stdout=subprocess.PIPE
         )
         nextpnr_locations = out.stdout.decode('utf-8').split('\n')
+        nextpnr_location = None
 
         for location in nextpnr_locations:
-            if "env/bin/{}".format(self.toolchain) in location:
+            if "env/bin/{}".format(self.toolchain_bin) in location:
                 nextpnr_location = os.path.abspath(os.path.dirname(location))
                 break
 
@@ -992,8 +993,8 @@ class NextpnrGeneric(Toolchain):
         return {
             'yosys':
                 NextpnrGeneric.yosys_ver(),
-            'nextpnr-{}'.format(self.toolchain):
-                self.nextpnr_version(self.toolchain),
+            'nextpnr-{}'.format(self.toolchain_bin):
+                self.nextpnr_version(self.toolchain_bin),
         }
 
     @staticmethod
@@ -1015,10 +1016,12 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
 
     def __init__(self, rootdir):
         NextpnrGeneric.__init__(self, rootdir)
-        self.toolchain = "nextpnr-fpga_interchange"
         self.arch = "fpga_interchange"
+        self.toolchain = "nextpnr-fpga_interchange"
+        self.toolchain_bin = "nextpnr-fpga_interchange"
 
     def prepare_edam(self):
+        assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
         self.chip = self.family + self.device
         share_dir = NextpnrGeneric.get_share_data(self)
 
@@ -1113,8 +1116,12 @@ class NextpnrXilinx(NextpnrGeneric):
         NextpnrGeneric.__init__(self, rootdir)
         self.arch = "xilinx"
         self.toolchain = 'nextpnr-xilinx'
+        self.toolchain_bin = 'nextpnr-xilinx'
 
     def prepare_edam(self):
+        if "fasm2bels" in self.toolchain:
+            self.fasm2bels = True
+            self.toolchain_bin = self.toolchain.strip("-fasm2bels")
         self.chip = self.family + self.device
         share_dir = NextpnrGeneric.get_share_data(self)
 
