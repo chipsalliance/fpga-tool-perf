@@ -143,26 +143,16 @@ class VPR(Toolchain):
                         }
                     )
                 symbiflow_options = {
-                    'part':
-                        chip,
-                    'package':
-                        self.package,
-                    'vendor':
-                        'xilinx',
-                    'builddir':
-                        '.',
-                    'pnr':
-                        'vpr',
-                    'options':
-                        tool_params,
-                    'fasm2bels':
-                        self.fasm2bels,
-                    'dbroot':
-                        self.dbroot,
-                    'clocks':
-                        self.clocks,
-                    'seed':
-                        self.seed,
+                    'part': chip,
+                    'package': self.package,
+                    'vendor': 'xilinx',
+                    'builddir': '.',
+                    'pnr': 'vpr',
+                    'options': tool_params,
+                    'fasm2bels': self.fasm2bels,
+                    'dbroot': self.dbroot,
+                    'clocks': self.clocks,
+                    'seed': self.seed,
                 }
                 self.edam = {
                     'files': self.files,
@@ -1247,26 +1237,16 @@ class Quicklogic(VPR):
 
                 tool_params = []
                 symbiflow_options = {
-                    'part':
-                        self.device,
-                    'package':
-                        self.package,
-                    'vendor':
-                        'quicklogic',
-                    'builddir':
-                        '.',
-                    'pnr':
-                        'vpr',
-                    'options':
-                        tool_params,
-                    'fasm2bels':
-                        self.fasm2bels,
-                    'dbroot':
-                        self.dbroot,
-                    'clocks':
-                        self.clocks,
-                    'seed':
-                        self.seed,
+                    'part': self.device,
+                    'package': self.package,
+                    'vendor': 'quicklogic',
+                    'builddir': '.',
+                    'pnr': 'vpr',
+                    'options': tool_params,
+                    'fasm2bels': self.fasm2bels,
+                    'dbroot': self.dbroot,
+                    'clocks': self.clocks,
+                    'seed': self.seed,
                 }
 
                 self.edam = {
