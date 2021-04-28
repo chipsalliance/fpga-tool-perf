@@ -629,7 +629,7 @@ class NextpnrGeneric(Toolchain):
         self.dbroot = None
         self.files = list()
         self.yosys_synth_opts = list()
-        self.yosys_additional_commands = list()
+        self.yosys_template = None
         self.schema_dir = None
         self.device_file = None
         self.options = str()
@@ -719,6 +719,23 @@ class NextpnrGeneric(Toolchain):
                 }
             )
 
+        yosys_template_name = '{}_yosys_template.tcl'.format(self.toolchain)
+        yosys_template_src = os.path.realpath(
+            os.path.join(
+                self.rootdir, 'src', 'yosys_templates', yosys_template_name
+            )
+        )
+        if os.path.exists(yosys_template_src):
+            # Copy yosys_template to build dir as it needs edalize procs from there
+            self.yosys_template = os.path.realpath(
+                os.path.join(self.out_dir, yosys_template_name)
+            )
+            with open(yosys_template_src,
+                      "r") as src_tcl, open(self.yosys_template,
+                                            "w") as dest_tcl:
+                data = src_tcl.read()
+                dest_tcl.write(data)
+
         self.symbiflow_options = {
             'arch': self.arch,
             'part': self.chip,
@@ -727,7 +744,7 @@ class NextpnrGeneric(Toolchain):
             'builddir': self.builddir,
             'pnr': 'nextpnr',
             'yosys_synth_options': self.yosys_synth_opts,
-            'yosys_additional_commands': self.yosys_additional_commands,
+            'yosys_template': self.yosys_template,
             'fasm2bels': self.fasm2bels,
             'dbroot': self.dbroot,
             'schema_dir': self.schema_dir,
@@ -752,15 +769,10 @@ class NextpnrGeneric(Toolchain):
                 self.dbroot, bitstream_device, self.family + self.part,
                 'part.json'
             )
-            self.symbiflow_options['yosys_additional_commands'] = [
-                "plugin -i xdc",
-                "yosys -import",
-                "read_xdc -part_json {} {}".format(
-                    part_json, os.path.realpath(self.xdc)
-                ),
-                "clean",
-                "write_blif -attr -param {}.eblif".format(self.project_name),
-            ]
+
+            # These variables are needed in 'nextpnr_fasm2bels_yosys_template.tcl'
+            os.environ["PART_JSON_PATH"] = part_json
+            os.environ["XDC_PATH"] = self.xdc
 
     def run_steps(self):
         with Timed(self, 'bitstream'):
@@ -1052,7 +1064,6 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             }
         )
 
-        self.yosys_additional_commands = ["setundef -zero -params"]
         self.options = '--log nextpnr.log'
         self.env_script = os.path.abspath(
             'env.sh'
