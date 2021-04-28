@@ -10,4 +10,4 @@ jinja2
 pytest
 pandas
 yapf
-git+https://github.com/SymbiFlow/edalize.git@symbiflow#egg=edalize
+git+https://github.com/antmicro/edalize.git@nextpnr+fasm2bels#egg=edalize
