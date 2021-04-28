@@ -51,6 +51,21 @@ class VPR(Toolchain):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 os.makedirs(self.out_dir, exist_ok=True)
+                if self.fasm2bels:
+                    vivado_settings = os.environ["VIVADO_SETTINGS"]
+                    if vivado_settings is "":
+                        for root, dir, f in os.walk('/opt'):
+                            if f == "settings64.sh":
+                                vivado_settings = os.path.join(root, dir, f)
+                    assert vivado_settings is not ""
+                    os.environ['EDALIZE_LAUNCHER'
+                               ] = 'source {} && source {} vpr &&'.format(
+                                   vivado_settings, os.path.abspath('env.sh')
+                               )
+                else:
+                    os.environ['EDALIZE_LAUNCHER'] = 'source {} vpr &&'.format(
+                        os.path.abspath('env.sh')
+                    )
 
                 for f in self.srcs:
                     self.files.append(
@@ -148,8 +163,6 @@ class VPR(Toolchain):
                         self.clocks,
                     'seed':
                         self.seed,
-                    'environment_script':
-                        os.path.abspath('env.sh') + ' xilinx-' + self.device,
                 }
                 self.edam = {
                     'files': self.files,
@@ -624,7 +637,6 @@ class NextpnrGeneric(Toolchain):
         self.vendor = None
         self.chipdb = None
         self.chip = None
-        self.env_script = None
         self.builddir = "."
         self.dbroot = None
         self.files = list()
@@ -653,6 +665,23 @@ class NextpnrGeneric(Toolchain):
 
     def configure(self):
         os.makedirs(self.out_dir, exist_ok=True)
+        if self.fasm2bels:
+            vivado_settings = os.environ["VIVADO_SETTINGS"]
+            if vivado_settings is "":
+                for root, dir, f in os.walk('/opt'):
+                    if f == "settings64.sh":
+                        vivado_settings = os.path.join(root, dir, f)
+            assert vivado_settings is not ""
+            os.environ['EDALIZE_LAUNCHER'
+                       ] = 'source {} && source {} nextpnr {}-{} &&'.format(
+                           vivado_settings, os.path.abspath('env.sh'),
+                           self.arch, self.device
+                       )
+        else:
+            os.environ['EDALIZE_LAUNCHER'
+                       ] = 'source {} nextpnr {}-{} &&'.format(
+                           os.path.abspath('env.sh'), self.arch, self.device
+                       )
 
         for f in self.srcs:
             self.files.append(
@@ -750,7 +779,6 @@ class NextpnrGeneric(Toolchain):
             'schema_dir': self.schema_dir,
             'device': self.device_file,
             'clocks': self.clocks,
-            'environment_script': self.env_script,
             'options': self.options
         }
 
@@ -1065,9 +1093,6 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         )
 
         self.options = '--log nextpnr.log'
-        self.env_script = os.path.abspath(
-            'env.sh'
-        ) + ' nextpnr fpga_interchange-' + self.device
 
         # Run generic configure before constructing an edam
         NextpnrGeneric.configure(self)
@@ -1147,9 +1172,6 @@ class NextpnrXilinx(NextpnrGeneric):
             }
         )
 
-        self.env_script = os.path.abspath(
-            'env.sh'
-        ) + ' nextpnr xilinx-' + self.device
         self.options = '--timing-allow-fail'
 
         # Run generic configure before constructing an edam
@@ -1185,6 +1207,10 @@ class Quicklogic(VPR):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 os.makedirs(self.out_dir, exist_ok=True)
+                os.environ['EDALIZE_LAUNCHER'
+                           ] = 'source {} quicklogic {} &&'.format(
+                               os.path.abspath('env.sh'), self.device
+                           )
 
                 for f in self.srcs:
                     self.files.append(
@@ -1241,8 +1267,6 @@ class Quicklogic(VPR):
                         self.clocks,
                     'seed':
                         self.seed,
-                    'environment_script':
-                        os.path.abspath('env.sh') + ' quicklogic',
                 }
 
                 self.edam = {
