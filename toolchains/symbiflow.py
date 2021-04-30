@@ -148,7 +148,7 @@ class VPR(Toolchain):
                     'vendor': 'xilinx',
                     'builddir': '.',
                     'pnr': 'vpr',
-                    'options': tool_params,
+                    'vpr_options': tool_params,
                     'fasm2bels': self.fasm2bels,
                     'dbroot': self.dbroot,
                     'clocks': self.clocks,
@@ -634,7 +634,7 @@ class NextpnrGeneric(Toolchain):
         self.yosys_template = None
         self.schema_dir = None
         self.device_file = None
-        self.options = str()
+        self.nextpnr_options = str()
         self.fasm2bels = False
 
     def get_share_data(self):
@@ -769,7 +769,7 @@ class NextpnrGeneric(Toolchain):
             'schema_dir': self.schema_dir,
             'device': self.device_file,
             'clocks': self.clocks,
-            'options': self.options
+            'nextpnr_options': self.nextpnr_options
         }
 
         if self.fasm2bels and self.arch is not "fpga-interchange":
@@ -1082,7 +1082,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             }
         )
 
-        self.options = '--log nextpnr.log'
+        self.nextpnr_options = '--log nextpnr.log'
 
         # Run generic configure before constructing an edam
         NextpnrGeneric.configure(self)
@@ -1162,7 +1162,7 @@ class NextpnrXilinx(NextpnrGeneric):
             }
         )
 
-        self.options = '--timing-allow-fail'
+        self.nextpnr_options = '--timing-allow-fail'
 
         # Run generic configure before constructing an edam
         NextpnrGeneric.configure(self)
@@ -1242,7 +1242,7 @@ class Quicklogic(VPR):
                     'vendor': 'quicklogic',
                     'builddir': '.',
                     'pnr': 'vpr',
-                    'options': tool_params,
+                    'vpr_options': tool_params,
                     'fasm2bels': self.fasm2bels,
                     'dbroot': self.dbroot,
                     'clocks': self.clocks,
