@@ -632,7 +632,6 @@ class NextpnrGeneric(Toolchain):
         self.yosys_additional_commands = list()
         self.schema_dir = None
         self.device_file = None
-        self.options = str()
         self.fasm2bels = False
 
     def get_share_data(self):
@@ -1057,6 +1056,11 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         self.env_script = os.path.abspath(
             'env.sh'
         ) + ' nextpnr fpga_interchange-' + self.device
+
+        self.yosys_synth_opts = [
+            "-flatten",  "-nowidelut", "-abc9", "-arch {}".format(self.family),
+            "-nodsp", "-nolutram"
+        ]
 
         # Run generic configure before constructing an edam
         NextpnrGeneric.configure(self)
