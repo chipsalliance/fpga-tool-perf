@@ -1,5 +1,8 @@
 {
-    "toolchain": "vpr",
-    "build_number": [1, 2],
-    "project": "blinky"
+    "build_number": [
+        1,
+        2
+    ],
+    "project": "blinky",
+    "toolchain": "vpr"
 }

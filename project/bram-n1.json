@@ -1,4 +1,14 @@
 {
+    "clocks": {
+        "clk": 10.0
+    },
+    "name": "bram-n1",
+    "required_toolchains": [
+        "vivado",
+        "vpr",
+        "vpr-fasm2bels",
+        "yosys-vivado"
+    ],
     "srcs": [
         "src/bram-n1/bram_n1.v",
         "src/bram/rom.v",
@@ -7,12 +17,10 @@
         "src/bram/scalable_proc.v"
     ],
     "top": "top",
-    "name": "bram-n1",
-    "clocks": {
-        "clk": 10.0
-    },
     "vendors": {
-        "xilinx": ["basys3", "nexys-video"]
-    },
-    "required_toolchains": ["vivado", "vpr", "vpr-fasm2bels", "yosys-vivado"]
+        "xilinx": [
+            "basys3",
+            "nexys-video"
+        ]
+    }
 }

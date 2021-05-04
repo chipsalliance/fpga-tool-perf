@@ -1,4 +1,15 @@
 {
+    "clocks": {
+        "clk": 10.0
+    },
+    "name": "picosoc",
+    "required_toolchains": [
+        "vivado",
+        "yosys-vivado",
+        "vpr",
+        "vpr-fasm2bels",
+        "nextpnr-xilinx"
+    ],
     "srcs": [
         "third_party/picorv32/picorv32.v",
         "third_party/picorv32/picosoc/spimemio.v",
@@ -8,12 +19,10 @@
         "src/picosoc/progmem.v"
     ],
     "top": "top",
-    "name": "picosoc",
-    "clocks": {
-        "clk": 10.0
-    },
     "vendors": {
-        "xilinx": ["basys3", "nexys"]
-    },
-    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
+        "xilinx": [
+            "basys3",
+            "nexys"
+        ]
+    }
 }

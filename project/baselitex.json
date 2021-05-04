@@ -1,20 +1,28 @@
 {
-    "srcs": [
-        "third_party/vexriscv-verilog/VexRiscv_Linux.v",
-        "src/baselitex/baselitex_arty.v"
-    ],
-    "top": "top",
-    "name": "baselitex",
+    "clocks": {
+        "clk100": 10.0
+    },
     "data": [
         "src/baselitex/mem.init",
         "src/baselitex/mem_1.init",
         "src/baselitex/mem_2.init"
     ],
-    "clocks": {
-        "clk100": 10.0
-    },
+    "name": "baselitex",
+    "required_toolchains": [
+        "vivado",
+        "yosys-vivado",
+        "vpr",
+        "vpr-fasm2bels"
+    ],
+    "srcs": [
+        "third_party/vexriscv-verilog/VexRiscv_Linux.v",
+        "src/baselitex/baselitex_arty.v"
+    ],
+    "top": "top",
     "vendors": {
-        "xilinx": ["arty-a35t", "arty-a100t"]
-    },
-    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
+        "xilinx": [
+            "arty-a35t",
+            "arty-a100t"
+        ]
+    }
 }

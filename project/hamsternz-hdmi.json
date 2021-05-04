@@ -1,4 +1,8 @@
 {
+    "name": "hamsternz-hdmi",
+    "required_toolchains": [
+        "vivado"
+    ],
     "srcs": [
         "third_party/hamsternz-hdmi/src/symbol_dump.vhd",
         "third_party/hamsternz-hdmi/src/line_delay.vhd",
@@ -25,10 +29,10 @@
         "third_party/hamsternz-hdmi/src/input_channel.vhd"
     ],
     "top": "hdmi_design",
-    "name": "hamsternz-hdmi",
     "vendors": {
-        "xilinx": ["nexys-video", "nexys"]
-    },
-    "required_toolchains": ["vivado"],
-    "blacklisted_toolchains": ["nextpnr-fpga-interchange"]
+        "xilinx": [
+            "nexys-video",
+            "nexys"
+        ]
+    }
 }

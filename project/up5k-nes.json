@@ -1,4 +1,13 @@
 {
+    "data": [
+        "third_party/up5k-demos/nes/nes_palette_fceux.txt",
+        "third_party/up5k-demos/nes/nes_palette_unsaturatedv6.txt",
+        "third_party/up5k-demos/nes/oam_palette.txt"
+    ],
+    "name": "up5k-nes",
+    "required_toolchains": [
+        "nextpnr-ice40"
+    ],
     "srcs": [
         "third_party/up5k-demos-changes/MicroCode.v",
         "third_party/up5k-demos/nes/generic_ram.v",
@@ -20,14 +29,9 @@
         "third_party/up5k-demos/nes/video.v"
     ],
     "top": "NES_ice40",
-    "name": "up5k-nes",
-    "data": [
-        "third_party/up5k-demos/nes/nes_palette_fceux.txt",
-        "third_party/up5k-demos/nes/nes_palette_unsaturatedv6.txt",
-        "third_party/up5k-demos/nes/oam_palette.txt"
-    ],
     "vendors": {
-        "lattice": ["icebreaker"]
-    },
-    "required_toolchains": ["nextpnr-ice40"]
+        "lattice": [
+            "icebreaker"
+        ]
+    }
 }

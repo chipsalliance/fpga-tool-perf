@@ -1,11 +1,4 @@
 {
-    "srcs": [
-        "src/vexriscv-smp/top.v",
-        "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v",
-        "third_party/litex_vexriscv_smp/verilog/RamXilinx.v"
-    ],
-    "top": "top",
-    "name": "vexriscv-smp",
     "data": [
         "src/vexriscv-smp/mem.init",
         "src/vexriscv-smp/mem_1.init",
@@ -14,8 +7,20 @@
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_2_core_RegFilePlugin_regFile.bin",
         "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v_toplevel_cluster_cpus_3_core_RegFilePlugin_regFile.bin"
     ],
+    "name": "vexriscv-smp",
+    "required_toolchains": [
+        "vivado"
+    ],
+    "srcs": [
+        "src/vexriscv-smp/top.v",
+        "third_party/litex_vexriscv_smp/verilog/VexRiscvLitexSmpCluster_4c.v",
+        "third_party/litex_vexriscv_smp/verilog/RamXilinx.v"
+    ],
+    "top": "top",
     "vendors": {
-        "xilinx": ["arty-a35t", "arty-a100t"]
-    },
-    "required_toolchains": ["vivado"]
+        "xilinx": [
+            "arty-a35t",
+            "arty-a100t"
+        ]
+    }
 }

@@ -1,5 +1,9 @@
 {
-    "toolchain": "vpr",
-    "seeds": [0, 1000, 100000],
-    "project": "blinky"
+    "project": "blinky",
+    "seeds": [
+        0,
+        1000,
+        100000
+    ],
+    "toolchain": "vpr"
 }

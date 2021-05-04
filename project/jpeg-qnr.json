@@ -1,4 +1,11 @@
 {
+    "clocks": {
+        "clk": 10.0
+    },
+    "name": "jpeg-qnr",
+    "required_toolchains": [
+        "quicklogic"
+    ],
     "srcs": [
         "third_party/jpeg-qnr/jpeg-qnr.v",
         "third_party/jpeg-qnr/div_su.v",
@@ -6,12 +13,10 @@
         "third_party/jpeg-qnr/timescale.v"
     ],
     "top": "top",
-    "name": "jpeg-qnr",
-    "clocks": {
-        "clk": 10.0
-    },
     "vendors": {
-        "quicklogic": ["chandalar", "quickfeather"]
-    },
-    "required_toolchains": ["quicklogic"]
+        "quicklogic": [
+            "chandalar",
+            "quickfeather"
+        ]
+    }
 }

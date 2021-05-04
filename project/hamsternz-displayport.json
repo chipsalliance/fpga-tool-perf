@@ -1,4 +1,8 @@
 {
+    "name": "hamsternz-displayport",
+    "required_toolchains": [
+        "vivado"
+    ],
     "srcs": [
         "third_party/hamsternz-displayport/src/test_streams/test_source.v",
         "third_party/hamsternz-displayport/src/debug/seven_segment_driver.v",
@@ -26,9 +30,10 @@
         "third_party/hamsternz-displayport/src/top_level_nexys_video.v"
     ],
     "top": "top_level_nexys_video",
-    "name": "hamsternz-displayport",
     "vendors": {
-        "xilinx": ["nexys-video", "nexys"]
-    },
-    "required_toolchains": ["vivado"]
+        "xilinx": [
+            "nexys-video",
+            "nexys"
+        ]
+    }
 }

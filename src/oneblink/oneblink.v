@@ -9,16 +9,16 @@
 */
 
 module top (
-    input wire clk,
+    input  wire clk,
     output wire out
 );
 
-    reg [23:0] counter;
-    
-    always @(posedge clk) begin
-        counter <= counter + 1;
-    end
+  reg [23:0] counter;
 
-    assign out = counter[23];
+  always @(posedge clk) begin
+    counter <= counter + 1;
+  end
+
+  assign out = counter[23];
 
 endmodule

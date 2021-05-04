@@ -1,24 +1,63 @@
 {
     "param_prefix": "--",
     "params": {
-        "max_router_iterations": [500],
-        "routing_failure_predictor": ["off"],
-        "router_high_fanout_threshold": [-1],
-        "constant_net_method": ["route"],
-        "route_chan_width": [500],
-        "router_heap": ["bucket"],
-        "router_lookahead": ["extended_map"],
-        "check_route": ["quick"],
-        "clock_modeling": ["route"],
-        "place_delta_delay_matrix_calculation_method": ["dijkstra"],
-        "strict_checks": ["off"],
-        "allow_dangling_combinational_nodes": ["on"],
-        "disable_errors": ["check_unbuffered_edges:check_route"],
-        "congested_routing_iteration_threshold": [0.8],
-        "incremental_reroute_delay_ripup": ["off"],
-        "base_cost_type": ["delay_normalized_length_bounded"],
-        "bb_factor": [10, 20],
-        "initial_pres_fac": [4.0],
-        "check_rr_graph": ["off"]
+        "allow_dangling_combinational_nodes": [
+            "on"
+        ],
+        "base_cost_type": [
+            "delay_normalized_length_bounded"
+        ],
+        "bb_factor": [
+            10,
+            20
+        ],
+        "check_route": [
+            "quick"
+        ],
+        "check_rr_graph": [
+            "off"
+        ],
+        "clock_modeling": [
+            "route"
+        ],
+        "congested_routing_iteration_threshold": [
+            0.8
+        ],
+        "constant_net_method": [
+            "route"
+        ],
+        "disable_errors": [
+            "check_unbuffered_edges:check_route"
+        ],
+        "incremental_reroute_delay_ripup": [
+            "off"
+        ],
+        "initial_pres_fac": [
+            4.0
+        ],
+        "max_router_iterations": [
+            500
+        ],
+        "place_delta_delay_matrix_calculation_method": [
+            "dijkstra"
+        ],
+        "route_chan_width": [
+            500
+        ],
+        "router_heap": [
+            "bucket"
+        ],
+        "router_high_fanout_threshold": [
+            -1
+        ],
+        "router_lookahead": [
+            "connection_box_map"
+        ],
+        "routing_failure_predictor": [
+            "off"
+        ],
+        "strict_checks": [
+            "off"
+        ]
     }
 }

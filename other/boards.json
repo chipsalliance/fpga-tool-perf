@@ -1,52 +1,52 @@
 {
-    "arty-a35t": {
+    "arty-a100t": {
+        "device": "a100t",
         "family": "xc7",
-        "device": "a35t",
         "package": "csg324-1"
     },
-    "arty-a100t": {
+    "arty-a35t": {
+        "device": "a35t",
         "family": "xc7",
-        "device": "a100t",
         "package": "csg324-1"
     },
     "basys3": {
-        "family": "xc7",
         "device": "a35t",
+        "family": "xc7",
         "package": "cpg236-1"
     },
-    "zybo": {
-        "family": "xc7",
-        "device": "z010",
-        "package": "clg400-1"
+    "chandalar": {
+        "device": "ql-eos-s3",
+        "family": "eos",
+        "package": "PD64"
+    },
+    "icebreaker": {
+        "device": "up5k",
+        "family": "ice40",
+        "package": "sg48"
     },
     "nexys": {
-        "family": "xc7",
         "device": "a200t",
+        "family": "xc7",
         "package": "fbg484-1"
     },
     "nexys-video": {
-        "family": "xc7",
         "device": "a200t",
+        "family": "xc7",
         "package": "sbg484-1"
     },
-    "icebreaker": {
-        "family": "ice40",
-        "device": "up5k",
-        "package": "sg48"
-    },
-    "tinyfpgab2": {
-        "family": "ice40",
-        "device": "lp8k",
-        "package": "cm81"
-    },
     "quickfeather": {
-        "family": "eos",
         "device": "ql-eos-s3",
+        "family": "eos",
         "package": "PU64"
     },
-    "chandalar": {
-        "family": "eos",
-        "device": "ql-eos-s3",
-        "package": "PD64"
+    "tinyfpgab2": {
+        "device": "lp8k",
+        "family": "ice40",
+        "package": "cm81"
+    },
+    "zybo": {
+        "device": "z010",
+        "family": "xc7",
+        "package": "clg400-1"
     }
 }

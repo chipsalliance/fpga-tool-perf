@@ -1,4 +1,14 @@
 {
+    "clocks": {
+        "clk": 10.0
+    },
+    "name": "dram-test-64x1d",
+    "required_toolchains": [
+        "vivado",
+        "vpr",
+        "vpr-fasm2bels",
+        "yosys-vivado"
+    ],
     "srcs": [
         "src/dram-test-64x1d/dram_test_64x1d.v",
         "src/dram-test-64x1d/uart.v",
@@ -10,12 +20,10 @@
         "src/dram-test-64x1d/baudgen.v"
     ],
     "top": "top",
-    "name": "dram-test-64x1d",
-    "clocks": {
-        "clk": 10.0
-    },
     "vendors": {
-        "xilinx": ["basys3", "nexys-video"]
-    },
-    "required_toolchains": ["vivado", "vpr", "vpr-fasm2bels", "yosys-vivado"]
+        "xilinx": [
+            "basys3",
+            "nexys-video"
+        ]
+    }
 }

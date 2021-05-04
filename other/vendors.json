@@ -1,14 +1,38 @@
 {
-    "xilinx": {
-        "boards": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video"],
-        "toolchains": ["vivado", "yosys-vivado", "yosys-vivado-uhdm", "vpr", "vpr-fasm2bels", "nextpnr-xilinx", "nextpnr-fpga-interchange", "nextpnr-xilinx-fasm2bels"]
-    },
     "lattice": {
-        "boards": ["icebreaker", "tinyfpgab2"],
-        "toolchains": ["nextpnr-ice40"]
+        "boards": [
+            "icebreaker",
+            "tinyfpgab2"
+        ],
+        "toolchains": [
+            "nextpnr-ice40"
+        ]
     },
     "quicklogic": {
-        "boards": ["quickfeather", "chandalar"],
-        "toolchains": ["quicklogic"]
+        "boards": [
+            "quickfeather",
+            "chandalar"
+        ],
+        "toolchains": [
+            "quicklogic"
+        ]
+    },
+    "xilinx": {
+        "boards": [
+            "arty-a35t",
+            "arty-a100t",
+            "basys3",
+            "zybo",
+            "nexys-video"
+        ],
+        "toolchains": [
+            "vivado",
+            "yosys-vivado",
+            "yosys-vivado-uhdm",
+            "vpr",
+            "vpr-fasm2bels",
+            "nextpnr-xilinx",
+            "nextpnr-xilinx-fasm2bels"
+        ]
     }
 }

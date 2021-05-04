@@ -7,44 +7,41 @@
 *
 *  SPDX-License-Identifier: ISC
 */
-module rom #
-(
-parameter  ROM_SIZE_BITS = 9 // Size in 32-bit words
-)
-(
-// Closk & reset
-input  wire CLK,
-input  wire RST,
+module rom #(
+    parameter ROM_SIZE_BITS = 9  // Size in 32-bit words
+) (
+    // Closk & reset
+    input wire CLK,
+    input wire RST,
 
-// ROM interface
-input  wire                     I_STB,
-input  wire [ROM_SIZE_BITS-1:0] I_ADR,
+    // ROM interface
+    input wire                     I_STB,
+    input wire [ROM_SIZE_BITS-1:0] I_ADR,
 
-output wire         O_STB,
-output wire [31:0]  O_DAT
+    output wire        O_STB,
+    output wire [31:0] O_DAT
 );
 
-// ============================================================================
-localparam ROM_SIZE = (1<<ROM_SIZE_BITS);
+  // ============================================================================
+  localparam ROM_SIZE = (1 << ROM_SIZE_BITS);
 
-reg [31:0] rom [0:ROM_SIZE-1];
+  reg [31:0] rom     [0:ROM_SIZE-1];
 
-reg        rom_stb;
-reg [31:0] rom_dat;
+  reg        rom_stb;
+  reg [31:0] rom_dat;
 
-always @(posedge CLK)
-    rom_dat <= rom[I_ADR];
+  always @(posedge CLK) rom_dat <= rom[I_ADR];
 
-always @(posedge CLK or posedge RST)
+  always @(posedge CLK or posedge RST)
     if (RST) rom_stb <= 1'd0;
-    else     rom_stb <= I_STB;
+    else rom_stb <= I_STB;
 
-assign O_STB = rom_stb;
-assign O_DAT = rom_dat;
+  assign O_STB = rom_stb;
+  assign O_DAT = rom_dat;
 
-// ============================================================================
+  // ============================================================================
 
-initial begin
+  initial begin
     rom['h0000] <= 32'hCE3DCB47;
     rom['h0001] <= 32'h07882CB6;
     rom['h0002] <= 32'h0092A9F4;
@@ -558,8 +555,8 @@ initial begin
     rom['h01FE] <= 32'h940BE15C;
     rom['h01FF] <= 32'h5A98F7F1;
 
-end
+  end
 
-// ============================================================================
+  // ============================================================================
 
 endmodule
