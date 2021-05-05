@@ -20,6 +20,7 @@ jobs:
 
     - name: Check formatting
       run: |
+        make env
         source env.sh
         make format
         test $(git status --porcelain | wc -l) -eq 0 || { git diff; false;  }
