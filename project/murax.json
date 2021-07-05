@@ -17,5 +17,5 @@
     "vendors": {
         "xilinx": ["basys3", "nexys-video"]
     },
-    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
 }

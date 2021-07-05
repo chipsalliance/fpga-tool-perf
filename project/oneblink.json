@@ -12,5 +12,5 @@
         "lattice": ["icebreaker"],
         "quicklogic": ["quickfeather"]
     },
-    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-xilinx", "nextpnr-xilinx-fasm2bels", "nextpnr-ice40", "quicklogic"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-ice40", "quicklogic"]
 }

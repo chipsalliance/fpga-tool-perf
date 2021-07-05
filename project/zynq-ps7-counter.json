@@ -10,5 +10,5 @@
     "vendors": {
         "xilinx": ["zybo"]
     },
-    "required_toolchains": ["vivado", "yosys-vivado", "nextpnr-xilinx", "nextpnr-xilinx-fasm2bels", "vpr", "vpr-fasm2bels"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
 }
