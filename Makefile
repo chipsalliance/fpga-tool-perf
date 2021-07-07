@@ -25,8 +25,8 @@ SYMBIFLOW_LATEST_URL_BASE = https://storage.googleapis.com/symbiflow-arch-defs-g
 SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-toolchain-latest
 SYMBIFLOW_DEVICES = xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 
-QUICKLOGIC_ARCHIVE = quicklogic.tar.xz
-QUICKLOGIC_URL = https://quicklogic-my.sharepoint.com/:u:/p/kkumar/EWuqtXJmalROpI2L5XeewMIBRYVCY8H4yc10nlli-Xq79g?download=1
+QUICKLOGIC_ARCHIVE = quicklogic.tar.gz
+QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
 third_party/make-env/conda.mk:
 	git submodule init
