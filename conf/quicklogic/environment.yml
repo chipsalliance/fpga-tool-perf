@@ -1,14 +1,10 @@
 name: quicklogic
 channels:
-  - conda-forge
   - litex-hub
 dependencies:
-  - litex-hub::quicklogic-yosys=v0.8.0_45_gcb3eef2b=20201216_065815
-  - litex-hub::quicklogic-yosys-plugins=v1.2.0_11_g21045a9=20201216_065815
-  - litex-hub::quicklogic-vtr=v8.0.0.rc2_4003_g8980e4621=20200902_114536
-  # TODO: remove when quicklogic-vtr will be updated to version built after https://github.com/hdl/conda-eda/pull/90
-  # or when conda-forge will rename API breaking tbb to another name (see https://github.com/conda-forge/tbb-feedstock/issues/81)
-  - tbb=2020.2
+  - litex-hub::quicklogic-yosys=0.8.0_105_gd282be04=20210625_074838
+  - litex-hub::quicklogic-yosys-plugins=1.2.0_11_g21045a9=20210625_074838
+  - litex-hub::vtr-optimized=8.0.0_4023_ge73e88940=20210625_074838
   - make
   - lxml
   - simplejson

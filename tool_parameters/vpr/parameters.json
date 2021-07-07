@@ -7,7 +7,7 @@
         "constant_net_method": ["route"],
         "route_chan_width": [500],
         "router_heap": ["bucket"],
-        "router_lookahead": ["connection_box_map"],
+        "router_lookahead": ["extended_map"],
         "check_route": ["quick"],
         "clock_modeling": ["route"],
         "place_delta_delay_matrix_calculation_method": ["dijkstra"],

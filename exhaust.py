@@ -16,7 +16,7 @@ import time
 import re
 import logging
 from terminaltables import AsciiTable
-from colorclass import Color
+from termcolor import colored
 from multiprocessing import cpu_count
 
 from utils.utils import safe_get_dict_value
@@ -74,6 +74,8 @@ def print_summary_table(
 
         row = list(re.match(pattern, build).groups())
 
+        is_required = (row[0], row[1], row[4]) in required_task_list
+
         if build_type != row[5] or (build_nr and int(build_nr) != int(row[6])):
             continue
         if project and row[0] not in project:
@@ -87,24 +89,29 @@ def print_summary_table(
         # It is created for successful builds only
         if os.path.exists(os.path.join(root_dir, out_prefix, build,
                                        'meta.json')):
-            row.append(Color('{autogreen}passed{/autogreen}'))
+            row.append(colored('passed', 'green'))
             passed += 1
         else:
-            row.append(Color('{autored}failed{/autored}'))
-            failed += 1
-            if (row[0], row[1], row[4]) in required_task_list:
+            if is_required:
+                row.append(colored('failed', 'red'))
+
                 build_status = False
                 failed_required_tests.append(
                     "{} {} {}".format(row[0], row[1], row[4])
                 )
+            else:
+                row.append(colored('allowed to fail', 'blue'))
+
+            failed += 1
+
         table_data.append(row)
         build_count += 1
 
     table_data.append(
         [
-            Color('{autoblue}Total Runs:{/autoblue}'), build_count,
-            Color('{autogreen}Passed:{/autogreen}'), passed,
-            Color('{autored}Failed:{/autored}'), failed, '', '', '{}%'.
+            colored('Total Runs:', 'blue'), build_count,
+            colored('Passed:', 'green'), passed,
+            colored('Failed:', 'red'), failed, '', '', '{}%'.
             format(int(passed / build_count * 100) if build_count != 0 else 0)
         ]
     )

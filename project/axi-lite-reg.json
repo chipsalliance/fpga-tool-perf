@@ -8,5 +8,5 @@
     "vendors": {
         "xilinx": ["zybo"]
     },
-    "required_toolchains": ["vivado", "nextpnr-xilinx", "vpr"]
+    "required_toolchains": ["vivado", "vpr"]
 }

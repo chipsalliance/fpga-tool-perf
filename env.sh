@@ -39,7 +39,7 @@ environment=${1:-xilinx-a35t}
 
 if [ "quicklogic" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate quicklogic
-    export PATH=${QUICKLOGIC}/install/bin:${PATH}
+    export PATH=${QUICKLOGIC}/quicklogic-arch-defs/bin:${PATH}
 elif [ "nextpnr" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate nextpnr-env
     export PATH=${SYMBIFLOW}/bin:${PATH}
