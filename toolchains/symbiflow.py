@@ -1025,7 +1025,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         share_dir = NextpnrGeneric.get_share_data(self)
 
         self.chipdb = os.path.join(
-            share_dir, 'nextpnr-fpga_interchange', 'chipdb',
+            self.rootdir, 'env', 'interchange', 'devices', self.chip,
             '{}.bin'.format(self.chip)
         )
 
@@ -1041,7 +1041,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             }
         )
         self.device_file = os.path.join(
-            share_dir, 'nextpnr-fpga_interchange', 'devices',
+            self.rootdir, 'env', 'interchange', 'devices', self.chip,
             '{}.device'.format(self.chip)
         )
         self.files.append(
@@ -1058,8 +1058,17 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         ) + ' nextpnr fpga_interchange-' + self.device
 
         self.yosys_synth_opts = [
-            "-flatten",  "-nowidelut", "-abc9", "-arch {}".format(self.family),
+            "-flatten", "-nowidelut", "-abc9", "-arch {}".format(self.family),
             "-nodsp", "-nolutram"
+        ]
+
+        techmap_file = os.path.join(
+            self.rootdir, 'env', 'interchange', 'techmaps',
+            'remap_{}.v'.format(self.family)
+        )
+        self.yosys_additional_commands = [
+            "techmap -map {}".format(techmap_file), "opt_expr -undriven",
+            "opt_clean", "setundef -zero -params"
         ]
 
         # Run generic configure before constructing an edam

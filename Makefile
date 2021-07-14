@@ -28,6 +28,11 @@ SYMBIFLOW_DEVICES = xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 QUICKLOGIC_ARCHIVE = quicklogic.tar.gz
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
+INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/presubmit/139/20210714-043611
+INTERCHANGE_VERSION = e2081f5
+INTERCHANGE_DEVICES = xc7a35t xc7a100t xc7a200t xc7z010
+
+
 third_party/make-env/conda.mk:
 	git submodule init
 	git submodule update --init --recursive
@@ -46,6 +51,13 @@ install_symbiflow: | $(CONDA_ENV_PYTHON)
 	# Install all devices
 	for device in ${SYMBIFLOW_DEVICES}; do \
 		curl -s ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs wget -qO- | tar -xJC env/symbiflow; \
+	done
+
+install_interchange:
+	mkdir -p env/interchange/devices
+	wget -qO- ${INTERCHANGE_BASE_URL}/interchange-techmaps-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange; \
+	for device in ${INTERCHANGE_DEVICES}; do \
+		wget -qO- ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
 	done
 
 install_quicklogic:
