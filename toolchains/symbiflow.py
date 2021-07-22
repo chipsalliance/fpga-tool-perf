@@ -606,8 +606,8 @@ class NextpnrGeneric(Toolchain):
                 'xilinx':
                     {
                         'LUT': ('LUTS', ),
-                        'DFF': ('CARRY', ),
-                        'CARRY': ('FLIP_FLOPS', ),
+                        'DFF': ('FLIP_FLOPS', ),
+                        'CARRY': ('CARRY', ),
                         'IOB': (
                             'IBUFs',
                             'OBUFs',
@@ -1016,7 +1016,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
     def __init__(self, rootdir):
         NextpnrGeneric.__init__(self, rootdir)
         self.arch = "fpga_interchange"
-        self.toolchain = "nextpnr-fpga_interchange"
+        self.toolchain = "nextpnr-fpga-interchange"
         self.toolchain_bin = "nextpnr-fpga_interchange"
 
     def prepare_edam(self):

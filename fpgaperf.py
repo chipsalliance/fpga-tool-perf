@@ -135,7 +135,7 @@ toolchains = {
     'nextpnr-ice40': NextpnrIcestorm,
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
-    'nextpnr-fpga_interchange': NextpnrFPGAInterchange,
+    'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
     'quicklogic': Quicklogic,
     # TODO: These are not currently be extensively tested
     #'synpro-icecube2': Icecube2Synpro,
