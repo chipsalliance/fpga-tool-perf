@@ -45,13 +45,18 @@ class Tasks:
 
                 toolchains = vendors[vendor]["toolchains"]
                 vendor_boards = vendors[vendor]["boards"]
+                blacklisted_toolchains = list()
+                if "blacklisted_toolchains" in project_dict.keys():
+                    blacklisted_toolchains = project_dict[
+                        "blacklisted_toolchains"]
 
                 boards = [
                     board for board in project_boards if board in vendor_boards
                 ]
 
                 for toolchain, board in list(product(toolchains, boards)):
-                    combinations.add((project, toolchain, board))
+                    if toolchain not in blacklisted_toolchains:
+                        combinations.add((project, toolchain, board))
 
         return combinations
 

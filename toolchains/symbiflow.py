@@ -676,12 +676,13 @@ class NextpnrGeneric(Toolchain):
             }
         )
 
-        self.yosys_synth_opts = [
-            "-flatten", "-nowidelut", "-abc9", "-arch {}".format(self.family),
-            "-nocarry", "-nodsp"
-        ]
+        if len(self.yosys_synth_opts) == 0:
+            self.yosys_synth_opts = [
+                "-flatten", "-nowidelut", "-abc9",
+                "-arch {}".format(self.family), "-nocarry", "-nodsp"
+            ]
 
-        if self.fasm2bels and self.arch is not "fpga-interchange":
+        if self.fasm2bels and self.arch is not "fpga_interchange":
             symbiflow = os.getenv('SYMBIFLOW', None)
             assert symbiflow
 
@@ -736,7 +737,7 @@ class NextpnrGeneric(Toolchain):
             'options': self.options
         }
 
-        if self.fasm2bels and self.arch is not "fpga-interchange":
+        if self.fasm2bels and self.arch is not "fpga_interchange":
             bitstream_device = None
             if self.device.startswith('a'):
                 bitstream_device = 'artix7'
@@ -1034,12 +1035,6 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             'interchange'
         )
 
-        self.files.append(
-            {
-                'name': os.path.realpath(self.chipdb),
-                'file_type': 'bba'
-            }
-        )
         self.device_file = os.path.join(
             self.rootdir, 'env', 'interchange', 'devices', self.chip,
             '{}.device'.format(self.chip)
@@ -1058,8 +1053,8 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         ) + ' nextpnr fpga_interchange-' + self.device
 
         self.yosys_synth_opts = [
-            "-flatten", "-nowidelut", "-abc9", "-arch {}".format(self.family),
-            "-nodsp", "-nolutram"
+            "-flatten", "-nowidelut", "-arch {}".format(self.family), "-nodsp",
+            "-nolutram", "-nosrl"
         ]
 
         techmap_file = os.path.join(

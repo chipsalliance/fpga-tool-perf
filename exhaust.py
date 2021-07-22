@@ -267,7 +267,7 @@ def main():
         args_dict, seeds, build_numbers, params_strings, args.only_required
     )
 
-    num_cpu = max(args.num_cpu, cpu_count())
+    num_cpu = min(args.num_cpu, cpu_count())
 
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
