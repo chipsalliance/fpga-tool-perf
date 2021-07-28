@@ -4,13 +4,13 @@ channels:
   - litex-hub/label/ci-yosys-plugins-symbiflow-1052179458
   - litex-hub
 dependencies:
-  - litex-hub::yosys=0.9_5515_g7a25246a=20210625_074838_py37
-  - litex-hub/label/ci-yosys-plugins-symbiflow-1052179458::yosys-symbiflow-plugins=1.0.0_7_366_g5d91d44=20210721_102908
+  - litex-hub::yosys=0.9_5520_ga0e912ba=20210723_083625_py37
+  - litex-hub::yosys-symbiflow-plugins=1.0.0_7_368_gfc33276=20210723_083625
   - litex-hub::vtr-optimized=8.0.0_3614_gb3b34e77a=20210507_125510
-  - litex-hub::nextpnr-fpga_interchange=v0.0_3713_g5212e385=20210722_152338_py37
+  - litex-hub::nextpnr-fpga_interchange=v0.0_3722_geb6817c2=20210723_083625_py37
   - litex-hub::nextpnr-ice40=0.0.0_3403_g3fd1ee77=20210722_152338_py37
   - litex-hub::nextpnr-xilinx=v0.0_2840_g86500ec6=20210722_152338_py37
-  - litex-hub::prjxray-db=0.0_252_g8372b58=20210622_220029
+  - litex-hub::prjxray-db=0.0_252_g8372b58=20210723_083625
   - litex-hub::prjxray-tools=0.1_2842_g6867429c=20210301_104249
   - litex-hub::capnproto=0.8.0=20210316_201220
   - litex-hub::capnproto-java=0.1.5_18_gcf62cd4=20210316_201220

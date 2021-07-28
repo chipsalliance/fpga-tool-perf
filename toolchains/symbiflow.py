@@ -1057,14 +1057,35 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             "-nolutram", "-nosrl"
         ]
 
+        lib_file = os.path.join(
+            self.rootdir, 'env', 'interchange', 'techmaps',
+            'lib_{}.v'.format(self.family)
+        )
+        if os.path.isfile(lib_file):
+            self.files.append(
+                {
+                    'name': os.path.realpath(lib_file),
+                    'file_type': 'yosys_lib'
+                }
+            )
+
         techmap_file = os.path.join(
             self.rootdir, 'env', 'interchange', 'techmaps',
             'remap_{}.v'.format(self.family)
         )
-        self.yosys_additional_commands = [
-            "techmap -map {}".format(techmap_file), "opt_expr -undriven",
-            "opt_clean", "setundef -zero -params"
-        ]
+        if os.path.isfile(lib_file):
+            self.yosys_additional_commands = [
+                "techmap -map {}".format(techmap_file),
+                "techmap -map {}".format(lib_file), "opt_expr -undriven",
+                "opt_clean", "setundef -zero -params"
+            ]
+        else:
+            self.yosys_additional_commands.extend(
+                [
+                    "techmap -map {}".format(techmap_file),
+                    "opt_expr -undriven", "opt_clean", "setundef -zero -params"
+                ]
+            )
 
         # Run generic configure before constructing an edam
         NextpnrGeneric.configure(self)

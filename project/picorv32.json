@@ -13,5 +13,5 @@
         "lattice": ["icebreaker"]
     },
     "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-ice40"],
-    "blacklisted_toolchains": ["nextpnr-fpga-interchange"]
+    "blacklisted_toolchains": [""]
 }
