@@ -29,5 +29,6 @@
     "vendors": {
         "xilinx": ["nexys-video", "nexys"]
     },
-    "required_toolchains": ["vivado"]
+    "required_toolchains": ["vivado"],
+    "blacklisted_toolchains": ["nextpnr-fpga-interchange"]
 }

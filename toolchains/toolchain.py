@@ -342,6 +342,11 @@ class Toolchain:
                 'synthesis_tool': 'yosys',
                 'pr_tool': 'nextpnr'
             },
+            'nextpnr-fpga-interchange':
+                {
+                    'synthesis_tool': 'yosys',
+                    'pr_tool': 'nextpnr'
+                },
             'nextpnr-xilinx-fasm2bels':
                 {
                     'synthesis_tool': 'yosys',

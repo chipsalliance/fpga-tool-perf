@@ -11,5 +11,6 @@
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video"]
     },
-    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"],
+    "blacklisted_toolchains": [""]
 }

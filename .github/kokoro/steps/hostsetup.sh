@@ -80,6 +80,7 @@ echo "----------------------------------------"
 	echo "----------------------------------------"
 	make install_symbiflow
 	make install_quicklogic
+	make install_interchange
 	echo "----------------------------------------"
 
 	echo

@@ -580,177 +580,196 @@ class VPR(Toolchain):
         }
 
 
-class NextpnrXilinx(Toolchain):
+class NextpnrGeneric(Toolchain):
     '''nextpnr using Yosys for synthesis'''
-    carries = (False, )
+    resources_map = {
+        'xilinx':
+            {
+                'LUT': ('SLICE_LUTX', ),
+                'DFF': ('SLICE_FFX', ),
+                'CARRY': ('CARRY4', ),
+                'IOB':
+                    (
+                        'IOB33M_OUTBUF',
+                        'IOB33M_INBUF_EN',
+                        'IOB33_OUTBUF',
+                        'IOB33_INBUF_EN',
+                    ),
+                'PLL': ('PLLE2_ADV_PLLE2_ADV', ),
+                'BRAM': (
+                    'RAMB18E1_RAMB18E1',
+                    'RAMB36E1_RAMB36E1',
+                ),
+            },
+        'fpga_interchange':
+            {
+                'xilinx':
+                    {
+                        'LUT': ('LUTS', ),
+                        'DFF': ('FLIP_FLOPS', ),
+                        'CARRY': ('CARRY', ),
+                        'IOB': (
+                            'IBUFs',
+                            'OBUFs',
+                        ),
+                        'PLL': ('PLL', ),
+                        'BRAM': ('BRAMS', ),
+                    },
+            },
+    }
 
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
-        self.toolchain = 'nextpnr-xilinx'
-        self.files = []
-        self.fasm2bels = False
+        self.arch = None
+        self.vendor = None
+        self.chipdb = None
+        self.chip = None
+        self.env_script = None
+        self.builddir = "."
         self.dbroot = None
+        self.files = list()
+        self.yosys_synth_opts = list()
+        self.yosys_additional_commands = list()
+        self.schema_dir = None
+        self.device_file = None
+        self.fasm2bels = False
+
+    def get_share_data(self):
+        out = subprocess.run(
+            ["find", ".", "-name", self.toolchain_bin], stdout=subprocess.PIPE
+        )
+        nextpnr_locations = out.stdout.decode('utf-8').split('\n')
+        nextpnr_location = None
+
+        for location in nextpnr_locations:
+            if "env/bin/{}".format(self.toolchain_bin) in location:
+                nextpnr_location = os.path.abspath(os.path.dirname(location))
+                break
+
+        assert nextpnr_location
+
+        return os.path.join(nextpnr_location, '..', 'share')
+
+    def configure(self):
+        os.makedirs(self.out_dir, exist_ok=True)
+
+        for f in self.srcs:
+            self.files.append(
+                {
+                    'name': os.path.realpath(f),
+                    'file_type': 'verilogSource'
+                }
+            )
+
+        assert self.xdc
+        self.files.append(
+            {
+                'name': os.path.realpath(self.xdc),
+                'file_type': 'xdc'
+            }
+        )
+
+        self.files.append(
+            {
+                'name': os.path.realpath(self.chipdb),
+                'file_type': 'bba'
+            }
+        )
+
+        if len(self.yosys_synth_opts) == 0:
+            self.yosys_synth_opts = [
+                "-flatten", "-nowidelut", "-abc9",
+                "-arch {}".format(self.family), "-nocarry", "-nodsp"
+            ]
+
+        if self.fasm2bels and self.arch is not "fpga_interchange":
+            symbiflow = os.getenv('SYMBIFLOW', None)
+            assert symbiflow
+
+            device_aliases = {"a35t": "a50t"}
+
+            chip_replace = self.chip
+            for k, v in device_aliases.items():
+                chip_replace = self.chip.replace(k, v)
+
+            device_path = os.path.join(
+                symbiflow, 'share', 'symbiflow', 'arch',
+                '{}_test'.format(chip_replace)
+            )
+
+            self.files.append(
+                {
+                    'name':
+                        os.path.realpath(
+                            os.path.join(device_path, '*rr_graph.real.bin')
+                        ),
+                    'file_type':
+                        'RRGraph'
+                }
+            )
+
+            self.files.append(
+                {
+                    'name':
+                        os.path.realpath(
+                            os.path.join(device_path, 'vpr_grid_map.csv')
+                        ),
+                    'file_type':
+                        'VPRGrid'
+                }
+            )
+
+        self.symbiflow_options = {
+            'arch': self.arch,
+            'part': self.chip,
+            'package': self.package,
+            'vendor': self.vendor,
+            'builddir': self.builddir,
+            'pnr': 'nextpnr',
+            'yosys_synth_options': self.yosys_synth_opts,
+            'yosys_additional_commands': self.yosys_additional_commands,
+            'fasm2bels': self.fasm2bels,
+            'dbroot': self.dbroot,
+            'schema_dir': self.schema_dir,
+            'device': self.device_file,
+            'clocks': self.clocks,
+            'environment_script': self.env_script,
+            'options': self.options
+        }
+
+        if self.fasm2bels and self.arch is not "fpga_interchange":
+            bitstream_device = None
+            if self.device.startswith('a'):
+                bitstream_device = 'artix7'
+            if self.device.startswith('z'):
+                bitstream_device = 'zynq7'
+            if self.device.startswith('k'):
+                bitstream_device = 'kintex7'
+
+            assert bitstream_device
+
+            part_json = os.path.join(
+                self.dbroot, bitstream_device, self.family + self.part,
+                'part.json'
+            )
+            self.symbiflow_options['yosys_additional_commands'] = [
+                "plugin -i xdc",
+                "yosys -import",
+                "read_xdc -part_json {} {}".format(
+                    part_json, os.path.realpath(self.xdc)
+                ),
+                "clean",
+                "write_blif -attr -param {}.eblif".format(self.project_name),
+            ]
 
     def run_steps(self):
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.project_name + '.bit')
 
-    def run(self):
+    def generic_run(self, prepare_edam):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
-                os.makedirs(self.out_dir, exist_ok=True)
-
-                for f in self.srcs:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(f),
-                            'file_type': 'verilogSource'
-                        }
-                    )
-
-                assert self.xdc
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.xdc),
-                        'file_type': 'xdc'
-                    }
-                )
-
-                chip = self.family + self.device
-
-                out = subprocess.run(
-                    ["find", ".", "-name", "nextpnr-xilinx"],
-                    stdout=subprocess.PIPE
-                )
-                nextpnr_locations = out.stdout.decode('utf-8').split('\n')
-
-                for location in nextpnr_locations:
-                    if "/bin/nextpnr-xilinx" in location:
-                        nextpnr_location = os.path.abspath(
-                            os.path.dirname(location)
-                        )
-                        break
-
-                assert nextpnr_location
-
-                share_dir = os.path.join(nextpnr_location, '..', 'share')
-
-                chipdb = os.path.join(
-                    share_dir, 'nextpnr-xilinx',
-                    '{}{}.bin'.format(self.family, self.part)
-                )
-                self.files.append(
-                    {
-                        'name': os.path.realpath(chipdb),
-                        'file_type': 'bba'
-                    }
-                )
-
-                if self.fasm2bels:
-                    symbiflow = os.getenv('SYMBIFLOW', None)
-                    assert symbiflow
-
-                    device_aliases = {"a35t": "a50t"}
-
-                    chip_replace = chip
-                    for k, v in device_aliases.items():
-                        chip_replace = chip.replace(k, v)
-
-                    device_path = os.path.join(
-                        symbiflow, 'share', 'symbiflow', 'arch',
-                        '{}_test'.format(chip_replace)
-                    )
-
-                    self.files.append(
-                        {
-                            'name':
-                                os.path.realpath(
-                                    os.path.join(
-                                        device_path, '*rr_graph.real.bin'
-                                    )
-                                ),
-                            'file_type':
-                                'RRGraph'
-                        }
-                    )
-
-                    self.files.append(
-                        {
-                            'name':
-                                os.path.realpath(
-                                    os.path.join(
-                                        device_path, 'vpr_grid_map.csv'
-                                    )
-                                ),
-                            'file_type':
-                                'VPRGrid'
-                        }
-                    )
-
-                symbiflow_options = {
-                    'part':
-                        chip,
-                    'package':
-                        self.package,
-                    'vendor':
-                        'xilinx',
-                    'builddir':
-                        '.',
-                    'pnr':
-                        'nextpnr',
-                    'yosys_synth_options':
-                        [
-                            "-flatten", "-nowidelut", "-abc9", "-arch xc7",
-                            "-nocarry", "-nodsp"
-                        ],
-                    'fasm2bels':
-                        self.fasm2bels,
-                    'dbroot':
-                        self.dbroot,
-                    'clocks':
-                        self.clocks,
-                    'environment_script':
-                        os.path.abspath('env.sh') + ' nextpnr xilinx-' +
-                        self.device,
-                    'options':
-                        '--timing-allow-fail'
-                }
-
-                if self.fasm2bels:
-                    bitstream_device = None
-                    if self.device.startswith('a'):
-                        bitstream_device = 'artix7'
-                    if self.device.startswith('z'):
-                        bitstream_device = 'zynq7'
-                    if self.device.startswith('k'):
-                        bitstream_device = 'kintex7'
-
-                    assert bitstream_device
-
-                    part_json = os.path.join(
-                        self.dbroot, bitstream_device, self.family + self.part,
-                        'part.json'
-                    )
-                    symbiflow_options['yosys_additional_commands'] = [
-                        "plugin -i xdc",
-                        "yosys -import",
-                        "read_xdc -part_json {} {}".format(
-                            part_json, os.path.realpath(self.xdc)
-                        ),
-                        "clean",
-                        "write_blif -attr -param {}.eblif".format(
-                            self.project_name
-                        ),
-                    ]
-
-                self.edam = {
-                    'files': self.files,
-                    'name': self.project_name,
-                    'toplevel': self.top,
-                    'tool_options': {
-                        'symbiflow': symbiflow_options,
-                    }
-                }
+                self.edam = prepare_edam()
                 self.backend = edalize.get_edatool('symbiflow')(
                     edam=self.edam, work_root=self.out_dir
                 )
@@ -847,49 +866,37 @@ class NextpnrXilinx(Toolchain):
         return resources
 
     def resources(self):
-        lut = 0
-        dff = 0
-        carry = 0
-        iob = 0
-        pll = 0
-        bram = 0
+        resources_count = {
+            "LUT": 0,
+            "DFF": 0,
+            "BRAM": 0,
+            "CARRY": 0,
+            "GLB": None,
+            "PLL": 0,
+            "IOB": 0,
+        }
 
         res = self.get_resources()
 
-        if 'SLICE_LUTX' in res:
-            lut = res['SLICE_LUTX']
-        if 'SLICE_FFX' in res:
-            dff = dff = res['SLICE_FFX']
-        if 'CARRY4' in res:
-            carry = res['CARRY4']
-        if 'IOB33M_OUTBUF' in res:
-            assert res['IOB33M_OUTBUF'] == res['IOB33S_OUTBUF']
-            iob = iob + res['IOB33M_OUTBUF']
-        if 'IOB33M_INBUF_EN' in res:
-            #TODO: check if this assert is correct becasue for baselitex-nexys-video it fails
-            #assert res['IOB33M_INBUF_EN'] == res['IOB33S_INBUF_EN']
-            iob = iob + res['IOB33M_INBUF_EN']
-        if 'IOB33_OUTBUF' in res:
-            iob = iob + res['IOB33_OUTBUF']
-        if 'IOB33_INBUF_EN' in res:
-            iob = iob + res['IOB33_INBUF_EN']
-        if 'RAMB18E1_RAMB18E1' in res:
-            bram = res['RAMB18E1_RAMB18E1']
-        if 'RAMB36E1_RAMB36E1' in res:
-            bram += res['RAMB36E1_RAMB36E1'] * 2
-        if 'PLLE2_ADV_PLLE2_ADV' in res:
-            pll = res['PLLE2_ADV_PLLE2_ADV']
+        # Check arch:
+        # xilinx - NextpnrXilinx
+        # fpga_interchange - NextpnrFPGAInterchange (multi-vendor target)
+        res_map = None
+        if self.arch == 'xilinx':
+            res_map = self.resources_map[self.arch]
+        elif self.arch == 'fpga_interchange':
+            res_map = self.resources_map[self.arch][self.vendor]
 
-        ret = {
-            "LUT": lut,
-            "DFF": dff,
-            "BRAM": bram,
-            "CARRY": carry,
-            "GLB": None,
-            "PLL": pll,
-            "IOB": iob,
-        }
-        return ret
+        assert res_map is not None, "Resources map for arch: {}, vendor: {} doesn't exist".format(
+            self.arch, self.vendor
+        )
+
+        for res_type, res_names in res_map.items():
+            for res_name in res_names:
+                if res_name in res:
+                    resources_count[res_type] += res[res_name]
+
+        return resources_count
 
     def get_yosys_runtimes(self, logfile):
         runtime_re = 'CPU: user (\d+\.\d+)s system (\d+\.\d+)s'
@@ -971,12 +978,12 @@ class NextpnrXilinx(Toolchain):
         return "{} {} {})".format(m.group(1), m.group(2), m.group(3))
 
     @staticmethod
-    def nextpnr_version():
+    def nextpnr_version(toolchain):
         '''
-        nextpnr-xilinx  --version
+        nextpnr-<variant>  --version
         '''
         return subprocess.check_output(
-            'bash -c ". ./env.sh nextpnr && nextpnr-xilinx --version"',
+            'bash -c ". ./env.sh nextpnr && {} --version"'.format(toolchain),
             shell=True,
             universal_newlines=True,
             stderr=subprocess.STDOUT
@@ -984,8 +991,10 @@ class NextpnrXilinx(Toolchain):
 
     def versions(self):
         return {
-            'yosys': NextpnrXilinx.yosys_ver(),
-            'nextpnr-xilinx': NextpnrXilinx.nextpnr_version(),
+            'yosys':
+                NextpnrGeneric.yosys_ver(),
+            'nextpnr-{}'.format(self.toolchain_bin):
+                self.nextpnr_version(self.toolchain_bin),
         }
 
     @staticmethod
@@ -993,12 +1002,190 @@ class NextpnrXilinx(Toolchain):
         return True
 
     @staticmethod
-    def check_env():
+    def check_env(toolchain):
         return {
             'yosys': have_exec('yosys'),
-            'nextpnr': have_exec('nextpnr-xilinx'),
+            'nextpnr': have_exec('{}'.format(toolchain)),
             'prjxray-config': have_exec('prjxray-config'),
         }
+
+
+class NextpnrFPGAInterchange(NextpnrGeneric):
+    '''nextpnr fpga-interchange variant using Yosys for synthesis'''
+    carries = (False, )
+
+    def __init__(self, rootdir):
+        NextpnrGeneric.__init__(self, rootdir)
+        self.arch = "fpga_interchange"
+        self.toolchain = "nextpnr-fpga-interchange"
+        self.toolchain_bin = "nextpnr-fpga_interchange"
+
+    def prepare_edam(self):
+        assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
+        self.chip = self.family + self.device
+        share_dir = NextpnrGeneric.get_share_data(self)
+
+        self.chipdb = os.path.join(
+            self.rootdir, 'env', 'interchange', 'devices', self.chip,
+            '{}.bin'.format(self.chip)
+        )
+
+        self.schema_dir = os.path.join(
+            self.rootdir, 'third_party', 'fpga-interchange-schema',
+            'interchange'
+        )
+
+        self.device_file = os.path.join(
+            self.rootdir, 'env', 'interchange', 'devices', self.chip,
+            '{}.device'.format(self.chip)
+        )
+        self.files.append(
+            {
+                'name': os.path.realpath(self.device_file),
+                'file_type': 'device'
+            }
+        )
+
+        self.yosys_additional_commands = ["setundef -zero -params"]
+        self.options = '--log nextpnr.log'
+        self.env_script = os.path.abspath(
+            'env.sh'
+        ) + ' nextpnr fpga_interchange-' + self.device
+
+        self.yosys_synth_opts = [
+            "-flatten", "-nowidelut", "-arch {}".format(self.family), "-nodsp",
+            "-nolutram", "-nosrl"
+        ]
+
+        lib_file = os.path.join(
+            self.rootdir, 'env', 'interchange', 'techmaps',
+            'lib_{}.v'.format(self.family)
+        )
+        if os.path.isfile(lib_file):
+            self.files.append(
+                {
+                    'name': os.path.realpath(lib_file),
+                    'file_type': 'yosys_lib'
+                }
+            )
+
+        techmap_file = os.path.join(
+            self.rootdir, 'env', 'interchange', 'techmaps',
+            'remap_{}.v'.format(self.family)
+        )
+        if os.path.isfile(lib_file):
+            self.yosys_additional_commands = [
+                "techmap -map {}".format(techmap_file),
+                "techmap -map {}".format(lib_file), "opt_expr -undriven",
+                "opt_clean", "setundef -zero -params"
+            ]
+        else:
+            self.yosys_additional_commands.extend(
+                [
+                    "techmap -map {}".format(techmap_file),
+                    "opt_expr -undriven", "opt_clean", "setundef -zero -params"
+                ]
+            )
+
+        # Run generic configure before constructing an edam
+        NextpnrGeneric.configure(self)
+
+        # Assemble edam
+        edam = {
+            'files': self.files,
+            'name': self.project_name,
+            'toplevel': self.top,
+            'tool_options': {
+                'symbiflow': self.symbiflow_options,
+            }
+        }
+
+        return edam
+
+    def run(self):
+        NextpnrGeneric.generic_run(self, self.prepare_edam)
+
+    # FIXME: currently we do not have precise timing info for this variant.
+    # Fill the clock data with what we have...
+    def max_freq(self):
+        """Returns the max frequencies of the implemented design."""
+        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+
+        clocks = dict()
+
+        with open(log_file, "r") as file:
+            for line in file:
+                if "target frequency" in line:
+                    regex = "target frequency ([0-9]*\.[0-9]*)"
+                    match = re.search(regex, line)
+                    if match:
+                        clk_name = 'clk'
+                        clk_freq = float(match.groups()[0])
+                        req_clk_freq = clk_freq
+
+                        clocks[clk_name] = dict()
+                        clocks[clk_name]['actual'] = float(
+                            "{:.3f}".format(clk_freq)
+                        )
+                        clocks[clk_name]['requested'] = float(
+                            "{:.3f}".format(req_clk_freq)
+                        )
+                        clocks[clk_name]['met'] = True
+                        clocks[clk_name]['setup_violation'] = 0
+                        clocks[clk_name]['hold_violation'] = 0
+
+        return clocks
+
+
+class NextpnrXilinx(NextpnrGeneric):
+    '''nextpnr Xilinx variant using Yosys for synthesis'''
+    carries = (False, )
+
+    def __init__(self, rootdir):
+        NextpnrGeneric.__init__(self, rootdir)
+        self.arch = "xilinx"
+        self.toolchain = 'nextpnr-xilinx'
+        self.toolchain_bin = 'nextpnr-xilinx'
+
+    def prepare_edam(self):
+        if "fasm2bels" in self.toolchain:
+            self.fasm2bels = True
+            self.toolchain_bin = self.toolchain.strip("-fasm2bels")
+        self.chip = self.family + self.device
+        share_dir = NextpnrGeneric.get_share_data(self)
+
+        self.chipdb = os.path.join(
+            share_dir, 'nextpnr-xilinx',
+            '{}{}.bin'.format(self.family, self.part)
+        )
+        self.files.append(
+            {
+                'name': os.path.realpath(self.chipdb),
+                'file_type': 'bba'
+            }
+        )
+
+        self.env_script = os.path.abspath(
+            'env.sh'
+        ) + ' nextpnr xilinx-' + self.device
+        self.options = '--timing-allow-fail'
+
+        # Run generic configure before constructing an edam
+        NextpnrGeneric.configure(self)
+
+        edam = {
+            'files': self.files,
+            'name': self.project_name,
+            'toplevel': self.top,
+            'tool_options': {
+                'symbiflow': self.symbiflow_options,
+            }
+        }
+
+        return edam
+
+    def run(self):
+        NextpnrGeneric.generic_run(self, self.prepare_edam)
 
 
 class Quicklogic(VPR):

@@ -17,5 +17,6 @@
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t"]
     },
-    "required_toolchains": ["vivado"]
+    "required_toolchains": ["vivado"],
+    "blacklisted_toolchains": [""]
 }
