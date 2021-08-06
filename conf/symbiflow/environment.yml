@@ -7,5 +7,5 @@ dependencies:
   - python=3.7
   - pip
   - pip:
-    - -r file:../common/requirements.txt
-    - -r file:requirements.txt
+    - -r ../common/requirements.txt
+    - -r requirements.txt
