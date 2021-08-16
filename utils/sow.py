@@ -12,8 +12,10 @@
 import json
 
 
-def merge(a, b):
+def merge(a, b, exclude_keys=[]):
     for key in b:
+        if key in exclude_keys:
+            continue
         if key in a:
             a[key].append(b[key])
         else:
