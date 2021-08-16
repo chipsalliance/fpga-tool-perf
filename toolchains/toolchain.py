@@ -61,6 +61,7 @@ class Toolchain:
         self.top = None
         self.out_dir = None
         self.clocks = None
+        self.clock_aliases = None
 
         self.wirelength = None
         self.maximum_memory_use = None
@@ -201,8 +202,8 @@ class Toolchain:
                 raise ValueError("Missing source file %s" % src)
         self.top = project['top']
 
-        if 'clocks' in project:
-            self.clocks = project['clocks']
+        self.clocks = project.get('clocks', None)
+        self.clock_aliases = project.get('clock_aliases', None)
 
         out_prefix = out_prefix or 'build'
         os.makedirs(os.path.expanduser(out_prefix), exist_ok=True)
@@ -300,6 +301,29 @@ class Toolchain:
         try:
             resources = self.resources()
             max_freq = self.max_freq()
+
+            clocks_to_remove = list()
+            clocks_to_rename = list()
+            if self.clock_aliases is not None:
+                for clk, clk_data in max_freq.items():
+                    alias_found = False
+                    for clk_name, clk_aliases in self.clock_aliases.items():
+                        if clk in clk_aliases or clk == clk_name:
+                            clocks_to_rename.append((clk, clk_name))
+                            alias_found = True
+                            break
+
+                    if not alias_found:
+                        clocks_to_remove.append(clk)
+
+            for clk in clocks_to_remove:
+                del max_freq[clk]
+
+            for old_clk, new_clk in clocks_to_rename:
+                max_freq[new_clk] = max_freq.pop(old_clk)
+
+
+
         except FileNotFoundError:
             if all:
                 raise

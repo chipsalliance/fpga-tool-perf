@@ -7,6 +7,9 @@
     "clocks": {
         "clk_i": 10.0
     },
+    "clock_aliases": {
+        "clk_i": ["clk"]
+    },
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t", "basys3"]
     },

@@ -7,6 +7,9 @@
     "clocks": {
         "clk": 12.5
     },
+    "clock_aliases": {
+        "clk": ["clk_bufg"]
+    },
     "vendors": {
         "xilinx": ["zybo"]
     },

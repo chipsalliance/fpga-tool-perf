@@ -14,6 +14,9 @@
     "clocks": {
         "io_mainClk": 10.0
     },
+    "clock_aliases": {
+        "io_mainClk": ["clk", "io_mainClk_bufg"]
+    },
     "vendors": {
         "xilinx": ["basys3", "nexys-video"]
     },
