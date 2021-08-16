@@ -114,8 +114,6 @@ class Vivado(Toolchain):
                     'vivado-settings': vivado_settings,
                     'yosys_synth_options': self.synthoptions,
                 }
-                if hasattr(self, 'library_files'):
-                    vivado_options['frontend_options'] = self.library_files
 
                 self.edam = {
                     'files': self.files,
@@ -350,11 +348,3 @@ class VivadoYosysUhdm(VivadoYosys):
             )
             sys.exit(1)
         uhdm_yosys_path = os.path.dirname(uhdm_yosys_path)
-
-        self.library_files = [
-            "-v " + os.path.join(
-                uhdm_yosys_path,
-                "../share/uhdm-yosys/xilinx/cells_xtra_surelog.v"
-            ), "-v" + os.path.
-            join(uhdm_yosys_path, "../share/uhdm-yosys/xilinx/cells_sim.v")
-        ]
