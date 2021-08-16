@@ -151,6 +151,8 @@ class Runner:
         json_data = dict()
         json_data["date"] = date_str
         json_data["results"] = self.results
-        json_file_path = os.path.join(self.root_dir, self.out_prefix, f'results-{self.build_type}.json')
+        json_file_path = os.path.join(
+            self.root_dir, self.out_prefix, f'results-{self.build_type}.json'
+        )
         with open(json_file_path, "w") as f:
             f.write(json.dumps(json_data, indent=4))

@@ -322,8 +322,6 @@ class Toolchain:
             for old_clk, new_clk in clocks_to_rename:
                 max_freq[new_clk] = max_freq.pop(old_clk)
 
-
-
         except FileNotFoundError:
             if all:
                 raise
