@@ -7,6 +7,10 @@
         "boards": ["icebreaker", "tinyfpgab2"],
         "toolchains": ["nextpnr-ice40"]
     },
+    "lattice-nexus": {
+        "boards": ["lifcl-40"],
+        "toolchains": ["nextpnr-nexus"]
+    },
     "quicklogic": {
         "boards": ["quickfeather", "chandalar"],
         "toolchains": ["quicklogic"]
