@@ -1,5 +1,5 @@
 ldc_set_location -site {L13} [get_ports clk]
-ldc_set_location -site {C11} [get_ports out]
+ldc_set_location -site {G19} [get_ports out]
 
 ldc_set_port -iobuf {IO_TYPE=LVCMOS33} [get_ports clk]
 ldc_set_port -iobuf {IO_TYPE=LVCMOS33} [get_ports out]
