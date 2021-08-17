@@ -33,23 +33,29 @@ class VPR(Toolchain):
         self.dbroot = None
 
     def run_steps(self):
-        self.backend.build_main(self.top + '.eblif')
-        with Timed(self, 'pack_all', unprinted_runtime=True):
-            self.backend.build_main(self.top + '.net')
+        try:
+            self.backend.build_main(self.top + '.eblif')
+            with Timed(self, 'pack_all', unprinted_runtime=True):
+                self.backend.build_main(self.top + '.net')
 
-        with Timed(self, 'place_all', unprinted_runtime=True):
-            self.backend.build_main(self.top + '.place')
+            with Timed(self, 'place_all', unprinted_runtime=True):
+                self.backend.build_main(self.top + '.place')
 
-        with Timed(self, 'route_all', unprinted_runtime=True):
-            self.backend.build_main(self.top + '.route')
+            with Timed(self, 'route_all', unprinted_runtime=True):
+                self.backend.build_main(self.top + '.route')
 
-        self.backend.build_main(self.top + '.fasm')
-        with Timed(self, 'bitstream'):
-            self.backend.build_main(self.top + '.bit')
+            self.backend.build_main(self.top + '.fasm')
+            with Timed(self, 'bitstream'):
+                self.backend.build_main(self.top + '.bit')
+        finally:
+            del os.environ['EDALIZE_LAUNCHER']
 
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
+                os.environ[
+                    "EDALIZE_LAUNCHER"
+                ] = f"source {os.path.abspath('env.sh') + ' xilinx-' + self.device} &&"
                 os.makedirs(self.out_dir, exist_ok=True)
 
                 for f in self.srcs:
@@ -138,18 +144,15 @@ class VPR(Toolchain):
                         '.',
                     'pnr':
                         'vpr',
-                    'options':
-                        tool_params,
+                    'vpr_options':
+                        tool_params +
+                        f"--seed {self.seed}" if self.seed else "",
                     'fasm2bels':
                         self.fasm2bels,
                     'dbroot':
                         self.dbroot,
                     'clocks':
                         self.clocks,
-                    'seed':
-                        self.seed,
-                    'environment_script':
-                        os.path.abspath('env.sh') + ' xilinx-' + self.device,
                 }
                 self.edam = {
                     'files': self.files,
@@ -180,7 +183,7 @@ class VPR(Toolchain):
         elif self.params_string:
             return self.params_string
         else:
-            return None
+            return ""
 
     def get_critical_paths(self, clocks, timing):
 
@@ -733,8 +736,7 @@ class NextpnrGeneric(Toolchain):
             'schema_dir': self.schema_dir,
             'device': self.device_file,
             'clocks': self.clocks,
-            'environment_script': self.env_script,
-            'options': self.options
+            'nextpnr_options': self.options
         }
 
         if self.fasm2bels and self.arch is not "fpga_interchange":
@@ -770,13 +772,16 @@ class NextpnrGeneric(Toolchain):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 self.edam = prepare_edam()
+                os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
                 self.backend = edalize.get_edatool('symbiflow')(
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
-
-            self.backend.build_main(self.project_name + '.fasm')
-            self.run_steps()
+            try:
+                self.backend.build_main(self.project_name + '.fasm')
+                self.run_steps()
+            finally:
+                del os.environ['EDALIZE_LAUNCHER']
 
         self.add_runtimes()
         self.add_wirelength()
@@ -1202,6 +1207,9 @@ class Quicklogic(VPR):
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
+                os.environ[
+                    "EDALIZE_LAUNCHER"
+                ] = f"source {os.path.abspath('env.sh') + ' quicklogic'} &&"
                 os.makedirs(self.out_dir, exist_ok=True)
 
                 for f in self.srcs:
@@ -1239,28 +1247,16 @@ class Quicklogic(VPR):
 
                 tool_params = []
                 symbiflow_options = {
-                    'part':
-                        self.device,
-                    'package':
-                        self.package,
-                    'vendor':
-                        'quicklogic',
-                    'builddir':
-                        '.',
-                    'pnr':
-                        'vpr',
-                    'options':
-                        tool_params,
-                    'fasm2bels':
-                        self.fasm2bels,
-                    'dbroot':
-                        self.dbroot,
-                    'clocks':
-                        self.clocks,
-                    'seed':
-                        self.seed,
-                    'environment_script':
-                        os.path.abspath('env.sh') + ' quicklogic',
+                    'part': self.device,
+                    'package': self.package,
+                    'vendor': 'quicklogic',
+                    'builddir': '.',
+                    'pnr': 'vpr',
+                    'vpr_options': tool_params,
+                    'fasm2bels': self.fasm2bels,
+                    'dbroot': self.dbroot,
+                    'clocks': self.clocks,
+                    'seed': self.seed,
                 }
 
                 self.edam = {

@@ -50,8 +50,10 @@ class Icestorm(Toolchain):
         return self.device[2:]
 
     def icebox_stat(self, backend, stat_file):
+        os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
 
         backend.build_main("stats")
+        del os.environ["EDALIZE_LAUNCHER"]
         '''
         DFFs:     22
         LUTs:     24
@@ -115,19 +117,15 @@ class Icestorm(Toolchain):
                     {
                         'icestorm':
                             {
-                                'nextpnr_options':
-                                    args.split(),
-                                'arachne_pnr_options':
-                                    args.split(),
-                                'pnr':
-                                    pnr,
-                                'part':
-                                    self.device,
-                                'environment_script':
-                                    os.path.abspath('env.sh') + ' nextpnr'
+                                'nextpnr_options': args.split(),
+                                'arachne_pnr_options': args.split(),
+                                'pnr': pnr,
+                                'part': self.device,
                             }
                     }
             }
+            self.env_script = os.path.abspath('env.sh') + ' nextpnr'
+            os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
 
             self.backend = edalize.get_edatool('icestorm')(
                 edam=self.edam, work_root=self.out_dir
@@ -135,6 +133,7 @@ class Icestorm(Toolchain):
             self.backend.configure("")
             self.backend.build()
             self.backend.build_main('timing')
+        del os.environ["EDALIZE_LAUNCHER"]
 
 
 class NextpnrIcestorm(Icestorm):
