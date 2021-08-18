@@ -48,6 +48,11 @@ class VPRFasm2Bels(VPR):
             'capnp-schemas-dir', shell=True
         ).decode('utf-8').strip()
 
+        # FIXME: remove when package from https://github.com/hdl/conda-eda/pull/127 is used
+        capnp_schema_dir = os.path.join(
+            os.path.split(capnp_schema_dir)[0], 'share', 'vtr'
+        )
+
         self.files.append({'name': capnp_schema_dir, 'file_type': 'capnp'})
 
         assert self.dbroot
@@ -86,6 +91,11 @@ class NextpnrXilinxFasm2Bels(NextpnrXilinx):
         capnp_schema_dir = subprocess.check_output(
             'bash -c ". ./env.sh nextpnr && capnp-schemas-dir"', shell=True
         ).decode('utf-8').strip()
+
+        # FIXME: remove when package from https://github.com/hdl/conda-eda/pull/127 is used
+        capnp_schema_dir = os.path.join(
+            os.path.split(capnp_schema_dir)[0], 'share', 'vtr'
+        )
 
         self.files.append({'name': capnp_schema_dir, 'file_type': 'capnp'})
 
