@@ -14,6 +14,7 @@ import os
 import sys
 import tqdm
 import glob
+import gzip
 import json
 import pandas
 from multiprocessing import Pool, cpu_count
@@ -142,8 +143,14 @@ class Runner:
         dataframe.to_json(dataframe_path)
 
     def merge_results(self):
+        exclude_results = [
+            "date", "build_type", "carry", "cmds", "design", "parameters",
+            "sources", "strategy", "optstr", "top", "xdc", "sdc", "pcf"
+        ]
         for report in self.get_reports():
-            sow.merge(self.results, json.load(open(report, 'r')), ["date"])
+            sow.merge(
+                self.results, json.load(open(report, 'r')), exclude_results
+            )
 
         date = datetime.datetime.utcnow()
         date_str = date.replace(microsecond=0).isoformat()
@@ -151,8 +158,14 @@ class Runner:
         json_data = dict()
         json_data["date"] = date_str
         json_data["results"] = self.results
-        json_file_path = os.path.join(
-            self.root_dir, self.out_prefix, f'results-{self.build_type}.json'
+
+        json_str = json.dumps(json_data)
+        json_byte = json_str.encode("utf-8")
+
+        gzip_file_path = os.path.join(
+            self.root_dir, self.out_prefix,
+            f'results-{self.build_type}.json.gz'
         )
-        with open(json_file_path, "w") as f:
-            f.write(json.dumps(json_data, indent=4))
+
+        with gzip.open(gzip_file_path, "wb") as f:
+            f.write(json_byte)
