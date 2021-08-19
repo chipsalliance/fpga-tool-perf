@@ -86,9 +86,18 @@ class Icestorm(Toolchain):
 
     def max_freq(self):
         with open(self.out_dir + '/' + self.project_name + '.tim') as f:
-            return float(
+            max_freq = float(
                 "{:03f}".format(self.icetime_parse(f)['max_freq'] / 1e6)
             )
+
+            clk_data = dict()
+            clk_data["actual"] = max_freq
+            clk_data["hold_violation"] = 0.0
+            clk_data["met"] = True
+            clk_data["requested"] = 0.0
+            clk_data["setup_violation"] = 0.0
+
+            return {"clk": clk_data}
 
     def run(self, pnr, args):
         with Timed(self, 'total'):

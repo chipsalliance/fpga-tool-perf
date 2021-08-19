@@ -12,6 +12,9 @@
     "clocks": {
         "clk": 10.0
     },
+    "clock_aliases": {
+        "clk": ["clk_bufg"]
+    },
     "vendors": {
         "xilinx": ["basys3", "nexys"]
     },

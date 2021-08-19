@@ -8,6 +8,9 @@
     "clocks": {
         "clk": 10.0
     },
+    "clock_aliases": {
+        "clk": ["dut.clk"]
+    },
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video"],
         "lattice": ["icebreaker"],

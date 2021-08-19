@@ -277,8 +277,8 @@ def main():
     logger.debug("Running Projects")
     runner.run()
 
-    logger.debug("Collecting Results")
-    runner.collect_results()
+    logger.debug("Merging results data")
+    runner.merge_results()
 
     logger.debug("Printing Summary Table")
     result, failed_required_tests = print_summary_table(

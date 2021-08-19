@@ -29,6 +29,9 @@
     "clocks": {
         "IO_CLK": 10.0
     },
+    "clock_aliases": {
+        "clk_sys": ["clk_50_unbuf", "clkgen.clk_50_unbuf", "u_ram.clk_i", "clk"]
+    },
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t", "basys3", "nexys-video"]
     },

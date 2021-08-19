@@ -9,6 +9,7 @@
 #
 # SPDX-License-Identifier: ISC
 
+import datetime
 import os
 import sys
 import tqdm
@@ -139,3 +140,19 @@ class Runner:
             )
 
         dataframe.to_json(dataframe_path)
+
+    def merge_results(self):
+        for report in self.get_reports():
+            sow.merge(self.results, json.load(open(report, 'r')), ["date"])
+
+        date = datetime.datetime.utcnow()
+        date_str = date.replace(microsecond=0).isoformat()
+
+        json_data = dict()
+        json_data["date"] = date_str
+        json_data["results"] = self.results
+        json_file_path = os.path.join(
+            self.root_dir, self.out_prefix, f'results-{self.build_type}.json'
+        )
+        with open(json_file_path, "w") as f:
+            f.write(json.dumps(json_data, indent=4))
