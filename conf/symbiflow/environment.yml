@@ -2,9 +2,8 @@ name: symbiflow-env
 channels:
   - defaults
   - litex-hub
-  - conda-forge
 dependencies:
-  - litex-hub::yosys-uhdm=0.5_8690_gb7eccab31=20210730_085634_py37
+  - litex-hub::yosys-uhdm=v0.0_93_ga57fae6
   - python=3.7
   - pip
   - pip:
