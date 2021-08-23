@@ -27,6 +27,7 @@ from utils.utils import Timed
 
 from toolchains.toolchain import Toolchain
 from toolchains.icestorm import NextpnrIcestorm
+from toolchains.oxide import NextpnrOxide
 from toolchains.icestorm import Arachne
 from toolchains.vivado import Vivado
 from toolchains.vivado import VivadoYosys
@@ -35,6 +36,7 @@ from toolchains.symbiflow import VPR, NextpnrXilinx, NextpnrFPGAInterchange, Qui
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from toolchains.radiant import RadiantSynpro
 from toolchains.radiant import RadiantLSE
+from toolchains.radiant import RadiantYosys
 from toolchains.icecube import Icecube2Synpro
 from toolchains.icecube import Icecube2LSE
 from toolchains.icecube import Icecube2Yosys
@@ -137,6 +139,7 @@ toolchains = {
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
     'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
     'quicklogic': Quicklogic,
+    'nextpnr-nexus': NextpnrOxide,
     # TODO: These are not currently be extensively tested
     #'synpro-icecube2': Icecube2Synpro,
     #'lse-icecube2': Icecube2LSE,
@@ -178,7 +181,7 @@ def run(
     device = board_info['device']
     package = board_info['package']
 
-    assert family == 'ice40' or family == 'xc7' or family == 'eos'
+    assert family == 'ice40' or family == 'xc7' or family == 'eos' or family == 'lifcl'
 
     # some toolchains use signed 32 bit
     assert seed is None or 0 <= seed <= 0x7FFFFFFF
@@ -197,11 +200,13 @@ def run(
     pcf = get_constraint(project, board, toolchain, 'pcf')
     sdc = get_constraint(project, board, toolchain, 'sdc')
     xdc = get_constraint(project, board, toolchain, 'xdc')
+    pdc = get_constraint(project, board, toolchain, 'pdc')
 
     # XXX: sloppy path handling here...
     t.pcf = os.path.realpath(pcf) if pcf else None
     t.sdc = os.path.realpath(sdc) if sdc else None
     t.xdc = os.path.realpath(xdc) if xdc else None
+    t.pdc = os.path.realpath(pdc) if pdc else None
     t.build = build
     t.build_type = build_type
     logger.debug("Running Project")
