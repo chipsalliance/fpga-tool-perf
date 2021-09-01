@@ -637,6 +637,8 @@ class NextpnrGeneric(Toolchain):
         self.device_file = None
         self.fasm2bels = False
 
+        self.nextpnr_log = "nextpnr.log"
+
     def get_share_data(self):
         out = subprocess.run(
             ["find", ".", "-name", self.toolchain_bin], stdout=subprocess.PIPE
@@ -799,12 +801,12 @@ class NextpnrGeneric(Toolchain):
                         wirelen = int(wirelen)
             return wirelen
 
-        route_log = os.path.join(self.out_dir, 'nextpnr.log')
+        route_log = os.path.join(self.out_dir, self.nextpnr_log)
         self.wirelength = get_wirelength(route_log)
 
     def max_freq(self):
         """Returns the max frequencies of the implemented design."""
-        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+        log_file = os.path.join(self.out_dir, self.nextpnr_log)
 
         clocks = dict()
 
@@ -840,7 +842,7 @@ class NextpnrGeneric(Toolchain):
 
         resources = dict()
 
-        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+        log_file = os.path.join(self.out_dir, self.nextpnr_log)
 
         with open(log_file, "r") as file:
             processing = False
@@ -959,7 +961,7 @@ class NextpnrGeneric(Toolchain):
         """Returns the runtimes of the various steps"""
 
         yosys_log = os.path.join(self.out_dir, 'yosys.log')
-        nextpnr_log = os.path.join(self.out_dir, 'nextpnr.log')
+        nextpnr_log = os.path.join(self.out_dir, self.nextpnr_log)
 
         synth_times = self.get_yosys_runtimes(yosys_log)
         impl_times = self.get_nextpnr_runtimes(nextpnr_log)
@@ -1052,7 +1054,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         )
 
         self.yosys_additional_commands = ["setundef -zero -params"]
-        self.options = '--log nextpnr.log'
+        self.options = f"--log {self.nextpnr_log}"
         self.env_script = os.path.abspath(
             'env.sh'
         ) + ' nextpnr fpga_interchange-' + self.device
@@ -1114,7 +1116,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
     # Fill the clock data with what we have...
     def max_freq(self):
         """Returns the max frequencies of the implemented design."""
-        log_file = os.path.join(self.out_dir, 'nextpnr.log')
+        log_file = os.path.join(self.out_dir, self.nextpnr_log)
 
         clocks = dict()
 

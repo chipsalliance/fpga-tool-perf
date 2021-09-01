@@ -13,7 +13,7 @@
     },
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video"],
-        "lattice": ["icebreaker"],
+        "lattice-ice40": ["icebreaker"],
         "quicklogic": ["quickfeather"]
     },
     "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-ice40", "quicklogic"]

@@ -36,7 +36,6 @@ from toolchains.symbiflow import VPR, NextpnrXilinx, NextpnrFPGAInterchange, Qui
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from toolchains.radiant import RadiantSynpro
 from toolchains.radiant import RadiantLSE
-from toolchains.radiant import RadiantYosys
 from toolchains.icecube import Icecube2Synpro
 from toolchains.icecube import Icecube2LSE
 from toolchains.icecube import Icecube2Yosys

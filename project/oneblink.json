@@ -9,7 +9,7 @@
     },
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video", "nexys"],
-        "lattice": ["icebreaker"],
+        "lattice-ice40": ["icebreaker"],
         "lattice-nexus": ["lifcl-40"],
         "quicklogic": ["quickfeather"]
     },

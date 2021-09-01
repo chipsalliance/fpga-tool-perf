@@ -27,7 +27,7 @@
 	"third_party/up5k-demos/nes/oam_palette.txt"
     ],
     "vendors": {
-        "lattice": ["icebreaker"]
+        "lattice-ice40": ["icebreaker"]
     },
     "required_toolchains": ["nextpnr-ice40"]
 }
