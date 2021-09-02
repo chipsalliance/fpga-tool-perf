@@ -3,9 +3,13 @@
         "boards": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video"],
         "toolchains": ["vivado", "yosys-vivado", "yosys-vivado-uhdm", "vpr", "vpr-fasm2bels", "nextpnr-xilinx", "nextpnr-fpga-interchange", "nextpnr-xilinx-fasm2bels"]
     },
-    "lattice": {
+    "lattice-ice40": {
         "boards": ["icebreaker", "tinyfpgab2"],
         "toolchains": ["nextpnr-ice40"]
+    },
+    "lattice-nexus": {
+        "boards": ["lifcl-40"],
+        "toolchains": ["nextpnr-nexus"]
     },
     "quicklogic": {
         "boards": ["quickfeather", "chandalar"],

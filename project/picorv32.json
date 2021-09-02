@@ -10,7 +10,7 @@
     },
     "vendors": {
         "xilinx": ["arty-a35t", "arty-a100t", "basys3", "zybo"],
-        "lattice": ["icebreaker"]
+        "lattice-ice40": ["icebreaker"]
     },
     "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels", "nextpnr-ice40"]
 }

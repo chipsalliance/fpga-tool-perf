@@ -48,5 +48,10 @@
         "family": "eos",
         "device": "ql-eos-s3",
         "package": "PD64"
+    },
+    "lifcl-40": {
+        "family": "lifcl",
+        "device": "LIFCL-40-9BG400CES",
+        "package": "None"
     }
 }
