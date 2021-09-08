@@ -74,8 +74,9 @@ class TestEntry:
 
 
 def get_configs(json_data: dict):
-    zipped = zip(json_data['results']['board'],
-                 json_data['results']['toolchain'])
+    zipped = zip(
+        json_data['results']['board'], json_data['results']['toolchain']
+    )
     for board, toolchain_dict in zipped:
         toolchain, _ = next(iter(toolchain_dict.items()))
         yield board, toolchain
@@ -130,9 +131,11 @@ def get_entries(json_data: dict):
     if not wirelength:
         wirelength = null_generator()
 
-    zipped = zip(results['board'], results['toolchain'], results['max_freq'],
-                 results['maximum_memory_use'], results['resources'],
-                 results['runtime'], wirelength)
+    zipped = zip(
+        results['board'], results['toolchain'], results['max_freq'],
+        results['maximum_memory_use'], results['resources'],
+        results['runtime'], wirelength
+    )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
             wirelength in zipped:
         toolchain, _ = next(iter(toolchain_dict.items()))

@@ -25,13 +25,15 @@ def main():
     parser = ArgumentParser()
 
     parser.add_argument(
-        'data_dir', type=str, help='Directory containing json data files')
+        'data_dir', type=str, help='Directory containing json data files'
+    )
     parser.add_argument(
         '-o',
         '--out_dir',
         nargs=1,
         type=str,
-        help='Save outputs in a given directory')
+        help='Save outputs in a given directory'
+    )
 
     args = parser.parse_args()
 

@@ -32,7 +32,8 @@ def iter_result_pages(url: str):
     req_url = url
     while True:
         resp = requests.get(
-            url=req_url, headers={'Content-Type': 'application/json'})
+            url=req_url, headers={'Content-Type': 'application/json'}
+        )
         data = resp.json()
 
         yield data
@@ -58,7 +59,8 @@ def download_meta(path: str, binary: bool = False):
 
     req_url = f'{DOWNLOAD_BASE_URL}/{path}'
     resp = requests.get(
-        url=req_url, headers={"Content-Type": "application/json"})
+        url=req_url, headers={"Content-Type": "application/json"}
+    )
 
     if not binary:
         return resp.text
@@ -145,11 +147,13 @@ def download_and_split_compound(gcs_compound_path: str):
     projects = defaultdict(lambda: {'results': defaultdict(lambda: [])})
 
     meta_results = meta['results']
-    zipped = zip(meta_results['board'], meta_results['project'],
-                 meta_results['toolchain'], meta_results['runtime'],
-                 meta_results['resources'], meta_results['maximum_memory_use'],
-                 meta_results['max_freq'], meta_results['device'],
-                 meta_results['wirelength'])
+    zipped = zip(
+        meta_results['board'], meta_results['project'],
+        meta_results['toolchain'], meta_results['runtime'],
+        meta_results['resources'], meta_results['maximum_memory_use'],
+        meta_results['max_freq'], meta_results['device'],
+        meta_results['wirelength']
+    )
 
     for board, project, toolchain, runtime, resources, maximum_mem_use, \
             max_freq, device, wirelength in zipped:
@@ -194,7 +198,8 @@ def get_download_specs(test_info):
         gcs_compound_path = get_compound_result_file_path(test_no, builds)
     except Exception as e:
         print(
-            f'Failed to fetch patches for test run no. {test_no}, cause: {e}')
+            f'Failed to fetch patches for test run no. {test_no}, cause: {e}'
+        )
         return None
 
     if gcs_compound_path:
@@ -224,14 +229,18 @@ def download_from_specs(specs):
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        'builds', type=str, help='Builds type (e.g. `nightly`)')
+        'builds', type=str, help='Builds type (e.g. `nightly`)'
+    )
     parser.add_argument('from_tr', type=int, help='First test run number')
     parser.add_argument(
-        'to_tr', type=str, help='Last test run number (use `_` for "latest")')
+        'to_tr', type=str, help='Last test run number (use `_` for "latest")'
+    )
     parser.add_argument(
-        'output_dir', type=str, help='Output directory for downloaded data')
+        'output_dir', type=str, help='Output directory for downloaded data'
+    )
     parser.add_argument(
-        '--pool-size', type=int, default=8, help='Size of thread pool')
+        '--pool-size', type=int, default=8, help='Size of thread pool'
+    )
     args = parser.parse_args()
 
     if not os.path.isdir(args.output_dir):
@@ -241,15 +250,17 @@ def main():
     print(f'Using {args.pool_size} parallel threads.')
     pool = ThreadPool(args.pool_size)
     test_numbers = list(
-        get_test_run_numbers(args.from_tr, args.to_tr, args.builds))
+        get_test_run_numbers(args.from_tr, args.to_tr, args.builds)
+    )
 
     print('Preparing downloads ...', flush=True)
     tests = [
         dict(test_no=test_no, builds=args.builds) for test_no in test_numbers
     ]
     download_specs = pool.map(get_download_specs, tests)
-    download_specs = list(filter(
-        None, download_specs))  # remove None resulting from errors
+    download_specs = list(
+        filter(None, download_specs)
+    )  # remove None resulting from errors
 
     for specs in download_specs:
         specs['output_dir'] = args.output_dir

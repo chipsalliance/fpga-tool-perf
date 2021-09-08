@@ -51,13 +51,14 @@ def fix_clocks(project: str, data: dict, renames_dict: dict):
         # icebreaker fix
         if type(clock_entries) is float:
             new_entries = {
-                'clk': {
-                    'actual': clock_entries,
-                    'hold_violation': 0.0,
-                    'met': True,
-                    'requested': 0.0,
-                    'setup_violation': 0.0
-                }
+                'clk':
+                    {
+                        'actual': clock_entries,
+                        'hold_violation': 0.0,
+                        'met': True,
+                        'requested': 0.0,
+                        'setup_violation': 0.0
+                    }
             }
         else:
             for clock_name, clock_values in clock_entries.items():

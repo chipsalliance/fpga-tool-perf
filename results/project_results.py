@@ -71,9 +71,11 @@ class ProjectResults:
                 try:
                     configs_to_handle[board].remove(toolchain)
                 except KeyError:
-                    print(f'WARNING: config `{config_name(board, toolchain)}` '
-                          f'repeated in data forproject `{project_name}, '
-                          f'date: {data["date"]}. Data will be ignoreed.')
+                    print(
+                        f'WARNING: config `{config_name(board, toolchain)}` '
+                        f'repeated in data forproject `{project_name}, '
+                        f'date: {data["date"]}. Data will be ignoreed.'
+                    )
                     continue
                 self.entries[board][toolchain].append(entry)
 

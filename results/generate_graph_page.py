@@ -47,8 +47,9 @@ def gen_config_color(config_name: str):
     return min(h, math.pi * 2.0), min(s, 1.0), min(l, 1.0)
 
 
-def generate_graph_html(template: jinja2.Template,
-                        project_results: ProjectResults):
+def generate_graph_html(
+    template: jinja2.Template, project_results: ProjectResults
+):
     print(f'Generating page for project `{project_results.project_name}`...')
 
     all_config_names = set()
@@ -113,16 +114,18 @@ def generate_graph_html(template: jinja2.Template,
 
         generate_datasets((freq_multidatasets[clkname], '{}', selector))
 
-    generate_datasets((runtime_datasets, '{}', lambda e: e.runtime.total),
-                      (lut_datasets, '{}', lambda e: e.resources.lut),
-                      (dff_datasets, '{}', lambda e: e.resources.dff),
-                      (carry_datasets, '{}', lambda e: e.resources.carry),
-                      (iob_datasets, '{}', lambda e: e.resources.iob),
-                      (bram_datasets, '{}', lambda e: e.resources.bram),
-                      (pll_datasets, '{}', lambda e: e.resources.pll),
-                      (glb_datasets, '{}', lambda e: e.resources.glb),
-                      (mem_use_datasets, '{}', lambda e: e.maximum_memory_use),
-                      (wirelength_datasets, '{}', lambda e: e.wirelength))
+    generate_datasets(
+        (runtime_datasets, '{}', lambda e: e.runtime.total),
+        (lut_datasets, '{}', lambda e: e.resources.lut),
+        (dff_datasets, '{}', lambda e: e.resources.dff),
+        (carry_datasets, '{}', lambda e: e.resources.carry),
+        (iob_datasets, '{}', lambda e: e.resources.iob),
+        (bram_datasets, '{}', lambda e: e.resources.bram),
+        (pll_datasets, '{}', lambda e: e.resources.pll),
+        (glb_datasets, '{}', lambda e: e.resources.glb),
+        (mem_use_datasets, '{}', lambda e: e.maximum_memory_use),
+        (wirelength_datasets, '{}', lambda e: e.wirelength)
+    )
 
     rdata = template.render(
         labels=fmt_list(labels, '"{}"'),
@@ -138,6 +141,7 @@ def generate_graph_html(template: jinja2.Template,
         mem_use_datasets=gen_datasets_def(mem_use_datasets),
         wirelength_datasets=gen_datasets_def(wirelength_datasets),
         project=project_results.project_name,
-        board_configs=board_configs)
+        board_configs=board_configs
+    )
 
     return rdata
