@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>FPGA tool perf results: project {{ project }}</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.0/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.1.1/dist/chartjs-plugin-zoom.min.js"></script>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<style>
+  #resource-graphs{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  #resource-graphs div {
+    width: 31vw;
+    max-width: 31vw;
+    max-height: 50vh;
+    margin: 1vh 1vw 1vw 1vh;
+  }
+  #topbar {
+    background-color: lightgrey;
+  }
+  #topbar-platforms {
+    display: flex;
+    flex-direction: row;
+    padding-top: 0.5em;
+  }
+  #topbar-platforms div {
+    margin: 0.1em 0.5em 0.5em 0.5em;
+  }
+  #topbar-legend {
+    max-height: 4em;
+    background-color: lightgrey;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+  }
+  #topbar-legend-flex {
+    display: flex;
+    flex-direction: row;
+  }
+  .topbar-legend-item {
+    margin: 0.1em 0.5em 0.5em 0.5em;
+  }
+  .topbar-legend-item div p {
+    margin-top: 0.5em;
+    margin-bottom: 0.1em;
+    font-size: 0.7em;
+    cursor: pointer;
+  }
+  .topbar-legend-color-indicator {
+    height: 0.5em;
+  }
+  .crosslined {
+    text-decoration: line-through;
+  }
+</style>
+
+<body>
+  <div id="topbar">
+    <div id="topbar-platforms" onchange="selectSetsFromDropdown()">
+      <div>
+        <a href="../index.html">Go back</a>
+      </div>
+      <div>
+        Board:
+      </div>
+      <div style="margin-left: 0em;">
+        <select id="topbar-platforms-dropdown">
+          {% for board in board_configs %}
+            <option value="{{ loop.index0 }}">
+              {{ board }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <button onclick="selectSetsFromDropdown()">Unhide all</button>
+      </div>
+      <div>
+        <button onclick="hideAll()">Hide all</button>
+      </div>
+      <div class="w3-alight-right">
+        To zoom use Shift+Mouse/Wheel or pinch the touchscreen.
+      </div>
+    </div>
+  </div>
+  <div id="topbar-legend">
+    <div id="topbar-legend-flex">
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <canvas id="runtime-chart" width="300" height="150"></canvas>
+  {% for clock_name in freq_multidatasets %}
+    <canvas id="frequency-chart-{{ clock_name }}", width="300" height="150">
+    </canvas>
+  {% endfor %}
+  <div id="resource-graphs">
+    <div>
+      <canvas id="LUT-chart"></canvas>
+    </div>
+    <div>
+      <canvas id="DFF-chart"></canvas>
+    </div>
+    <div>
+      <canvas id="CARRY-chart"></canvas>
+    </div>
+    <div>
+      <canvas id="IOB-chart"></canvas>
+    </div>
+    <div>
+      <canvas id="BRAM-chart"></canvas>
+    </div>
+    <div>
+      <canvas id="PLL-chart"></canvas>
+    </div>
+    <div>
+      <canvas id="GLB-chart"></canvas>
+    </div>
+  </div>
+  <canvas id="wirelength-chart" width="300" height="150"></canvas>
+  <canvas id="memory-usage-chart" width="300" height="150"></canvas>
+
+  <script>
+
+  let charts = [];
+  let labels = [ {{ labels }} ];
+
+  let firstChart = null;
+
+  let datasetSets = {};
+  let datasetSetsIndices = [];
+  {% for board in board_configs %}
+    datasetSets["{{ board }}"] = [
+      {% for config in board_configs[board] %}
+        "{{ config }}",
+      {% endfor %}
+    ];
+    datasetSetsIndices.push("{{ board }}");
+  {% endfor %}
+
+
+  function selectSets(name) {
+    configs = new Set(datasetSets[name]);
+    makeLegend(configs);
+
+    ds_cnt = firstChart.data.datasets.length;
+    for (let i = 0; i < ds_cnt; i++) {
+      dataset = firstChart.data.datasets[i];
+      if (!configs.has(dataset.label)) {
+        setDatasetVisible(i, false);
+        continue;
+      }
+      setDatasetVisible(i, true);
+    }
+
+    updateCharts();
+  }
+
+  function createLegendEntry(idx, name, color) {
+    return "<div class=\"topbar-legend-item\"><div><p id=\"topbar-legend-item-" +
+           idx + "\"onClick=\"toggleDataset(" + idx + ")\">" + name + "</p>" +
+           "</div><div style=\"background-color: " + color + ";\" " +
+           "class=\"topbar-legend-color-indicator\"></div></div>";
+  }
+
+  function selectSetsFromDropdown() {
+    dropdown = document.getElementById("topbar-platforms-dropdown");
+    selectSets(datasetSetsIndices[dropdown.selectedIndex]);
+  }
+
+  function makeLegend(configs) {
+    html_code = ""
+    ds_cnt = firstChart.data.datasets.length;
+    for (let i = 0; i < ds_cnt; i++) {
+      dataset = firstChart.data.datasets[i];
+      if (!configs.has(dataset.label))
+        continue;
+      html_code += createLegendEntry(i, dataset.label, dataset.borderColor);
+    }
+
+    document.getElementById("topbar-legend-flex").innerHTML = html_code;
+  }
+
+  function updateCharts() {
+    for (let i = 0; i < charts.length; i++)
+      charts[i].update();
+  }
+
+  function setDatasetVisible(idx, visibility) {
+    for (let i = 0; i < charts.length; i++) {
+      chart = charts[i];
+      chart.getDatasetMeta(idx).hidden = !visibility;
+    }
+
+    button = document.getElementById("topbar-legend-item-" + idx);
+    if (!button)
+      return;
+    if (visibility)
+      button.className = "";
+    else
+      button.className = "crosslined";
+  }
+
+  function onLegendClicked(event, legendItem, legend) {
+    idx = legendItem.datasetIndex
+    visibility = legendItem.hidden
+    setDatasetVisible(idx, visibility)
+  }
+
+  function toggleDataset(idx) {
+    setDatasetVisible(idx, charts[0].getDatasetMeta(idx).hidden);
+    updateCharts();
+  }
+
+  function hideAll() {
+    for (let i = 0; i < charts.length; i++) {
+      chart = charts[i];
+      for (let j = 0; j < chart.data.datasets.length; j++) {
+        setDatasetVisible(i, false);
+      }
+    }
+
+    updateCharts();
+  }
+
+  function newLineChart(canvas_name, title, unitstr, labels, datasets, legend) {
+    return new Chart(document.getElementById(canvas_name), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: datasets
+      },
+      spanGaps: true,
+      options: {
+        animation: false,
+        normailzed: true,
+        plugins: {
+          title: {
+            display: true,
+            text: title
+          },
+          legend: {
+            display: legend,
+            onClick: onLegendClicked
+          },
+          zoom: {
+            zoom: {
+              wheel: {
+                enabled: true,
+                modifierKey: "shift"
+              },
+              drag: {
+                enabled: true,
+                modifierKey: "shift"
+              },
+              pinch: {
+                enabled: true
+              },
+              mode: "x"
+            },
+            pan: {
+              enabled: true,
+              mode: "x"
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: {
+              callback: function(v, idx, vx) {
+                return v + unitstr;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /* Select "(all configs)" on start */
+  for(let i = 0; i < datasetSetsIndices.length; i++) {
+    if (datasetSetsIndices[i] == "(all configs)") {
+      dropdown = document.getElementById("topbar-platforms-dropdown");
+      dropdown.selectedIndex = i;
+      break;
+    }
+  }
+
+  firstChart = newLineChart(
+    "runtime-chart",
+    "{{ project }}: total runtime",
+    "s",
+     labels,
+    {{ runtime_datasets }},
+    false
+  );
+
+  charts.push(firstChart);
+  makeLegend(new Set(datasetSets["(all configs)"]));
+
+  {% for clock_name in freq_multidatasets %}
+    charts.push(newLineChart(
+      "frequency-chart-{{ clock_name }}",
+      "{{ project }}: {{ clock_name }} actual frequency",
+      "MHz",
+      labels,
+      [
+        {% for cfg in freq_multidatasets[clock_name] %}
+          {
+            data: [ {{ freq_multidatasets[clock_name][cfg]["data"] }} ],
+            label: "{{ cfg }}",
+            borderColor: "{{ freq_multidatasets[clock_name][cfg]["color"] }}",
+            fill: false
+          },
+        {% endfor %}
+      ],
+      false
+    ));
+  {% endfor %}
+
+  charts.push(newLineChart(
+    "LUT-chart",
+    "{{ project }}: total LUT count",
+    "",
+    labels,
+    {{ lut_datasets }},
+    false
+  ));
+  charts.push(newLineChart(
+    "DFF-chart",
+    "{{ project }}: total DFF count",
+    "",
+    labels,
+    {{ dff_datasets }},
+    false
+  ));
+  charts.push(newLineChart(
+    "CARRY-chart",
+    "{{ project }}: total CARRY count",
+    "",
+    labels,
+    {{ carry_datasets }},
+    false
+  ));
+  charts.push(newLineChart(
+    "IOB-chart",
+    "{{ project }}: total IOB count",
+    "",
+    labels,
+    {{ iob_datasets }},
+    false
+  ));
+  charts.push(newLineChart(
+    "BRAM-chart",
+    "{{ project }}: total BRAM count",
+    "",
+    labels,
+    {{ bram_datasets }},
+    false
+  ));
+  charts.push(newLineChart(
+    "PLL-chart",
+    "{{ project }}: total PLL count",
+    "",
+    labels,
+    {{ pll_datasets }},
+    false
+  ));
+  charts.push(newLineChart(
+    "GLB-chart",
+    "{{ project }}: total GLB count",
+    "",
+    labels,
+    {{ glb_datasets }},
+    false
+  ));
+
+  charts.push(newLineChart(
+    "wirelength-chart",
+    "{{ project }}: wirelength",
+    "",
+    labels,
+    {{ wirelength_datasets }},
+    false
+  ));
+
+  charts.push(newLineChart(
+    "memory-usage-chart",
+    "{{ project }}: maximum memory usage",
+    "",
+    labels,
+    {{ mem_use_datasets }},
+    false
+  ));
+
+  </script>
+</body>
+</html>
+
