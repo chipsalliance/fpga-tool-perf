@@ -1,0 +1,20 @@
+<table class="w3-table-all w3-responsive ">
+  <tr class="w3-gray">
+    <th class="w3-center w3-border"> Toolchain  <br></br> Board</th>
+    {% for toolchain in toolchains %}
+      <th class="w3-center w3-border"> {{ toolchain }} </th>
+    {% endfor %}
+  </tr>
+  {% for board in boards %}
+    <tr>
+      <th> {{ board }} </th>
+      {% for toolchain in toolchains %}
+        <th class="w3-center w3-border">
+          {% if toolchain in boards[board] %}
+            X
+          {% endif %}
+        </th>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
