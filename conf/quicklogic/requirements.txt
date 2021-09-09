@@ -1,2 +1,2 @@
 serial
-git+https://github.com/QuickLogic-Corp/quicklogic-fasm.git
+git+https://github.com/QuickLogic-Corp/quicklogic-fasm.git@57b6e60574a9d483dc94710d0d3ff42a62b4ec41
