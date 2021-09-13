@@ -1109,6 +1109,12 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
 
         return edam
 
+    def run_steps(self):
+        with Timed(self, 'fasm'):
+            self.backend.build_main(self.project_name + '.fasm')
+        with Timed(self, 'bitstream'):
+            self.backend.build_main(self.project_name + '.bit')
+
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
@@ -1118,11 +1124,14 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
-            try:
-                self.backend.build_main(self.project_name + '.timing')
-                self.run_steps()
-            finally:
-                del os.environ['EDALIZE_LAUNCHER']
+
+            self.backend.build_main(self.project_name + '.phys')
+            self.run_steps()
+
+        with Timed(self, 'report_timing'):
+            self.backend.build_main(self.project_name + '.timing')
+
+        del os.environ["EDALIZE_LAUNCHER"]
 
         self.add_runtimes()
         self.add_wirelength()
