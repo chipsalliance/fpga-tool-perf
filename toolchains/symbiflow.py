@@ -15,7 +15,7 @@ import subprocess
 import edalize
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed, have_exec, which
+from utils.utils import Timed, have_exec, which, get_vivado_max_freq
 from infrastructure.tool_parameters import ToolParametersHelper
 
 YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
@@ -1110,38 +1110,28 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         return edam
 
     def run(self):
-        NextpnrGeneric.generic_run(self, self.prepare_edam)
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                self.edam = self.prepare_edam()
+                os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
+                self.backend = edalize.get_edatool('symbiflow')(
+                    edam=self.edam, work_root=self.out_dir
+                )
+                self.backend.configure("")
+            try:
+                self.backend.build_main(self.project_name + '.timing')
+                self.run_steps()
+            finally:
+                del os.environ['EDALIZE_LAUNCHER']
+
+        self.add_runtimes()
+        self.add_wirelength()
 
     # FIXME: currently we do not have precise timing info for this variant.
     # Fill the clock data with what we have...
     def max_freq(self):
-        """Returns the max frequencies of the implemented design."""
-        log_file = os.path.join(self.out_dir, self.nextpnr_log)
-
-        clocks = dict()
-
-        with open(log_file, "r") as file:
-            for line in file:
-                if "target frequency" in line:
-                    regex = "target frequency ([0-9]*\.[0-9]*)"
-                    match = re.search(regex, line)
-                    if match:
-                        clk_name = 'clk'
-                        clk_freq = float(match.groups()[0])
-                        req_clk_freq = clk_freq
-
-                        clocks[clk_name] = dict()
-                        clocks[clk_name]['actual'] = float(
-                            "{:.3f}".format(clk_freq)
-                        )
-                        clocks[clk_name]['requested'] = float(
-                            "{:.3f}".format(req_clk_freq)
-                        )
-                        clocks[clk_name]['met'] = True
-                        clocks[clk_name]['setup_violation'] = 0
-                        clocks[clk_name]['hold_violation'] = 0
-
-        return clocks
+        report_file = os.path.join(self.out_dir, f"{self.project_name}.timing")
+        return get_vivado_max_freq(report_file)
 
 
 class NextpnrXilinx(NextpnrGeneric):

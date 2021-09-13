@@ -37,6 +37,8 @@ path_remove ${QUICKLOGIC}/install/bin
 #Set now environment variables
 environment=${1:-xilinx-a35t}
 
+export RAPIDWRIGHT_PATH=${FPGA_TOOL_PERF_BASE_DIR}/third_party/RapidWright
+
 if [ "quicklogic" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate quicklogic
     export PATH=${QUICKLOGIC}/quicklogic-arch-defs/bin:${PATH}
