@@ -31,6 +31,7 @@
 	"xilinx": ["nexys-video"]
     },
 
-    "required_toolchains": ["vivado", "yosys-vivado"]
+    "required_toolchains": ["vivado", "yosys-vivado"],
+    "skip_toolchains": ["nextpnr-fpga-interchange"]
 }
 

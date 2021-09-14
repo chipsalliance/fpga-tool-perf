@@ -268,7 +268,11 @@ class Toolchain:
             'overhead': ['overhead'],
             'checkpoint': ['open_checkpoint'],
             'bitstream': ['write_bitstream', 'bitstream'],
-            'reports': ['report_power', 'report_methodology', 'report_drc'],
+            'reports':
+                [
+                    'report_power', 'report_methodology', 'report_drc',
+                    'report_timing'
+                ],
             'total': ['total'],
             'fasm2bels': ['fasm2bels'],
             'link design': ['link_design'],

@@ -18,5 +18,6 @@
     "vendors": {
         "xilinx": ["basys3", "nexys"]
     },
-    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"]
+    "required_toolchains": ["vivado", "yosys-vivado", "vpr", "vpr-fasm2bels"],
+    "skip_toolchains": ["nextpnr-fpga-interchange"]
 }

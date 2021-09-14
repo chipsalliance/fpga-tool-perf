@@ -28,9 +28,10 @@ SYMBIFLOW_DEVICES = xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 QUICKLOGIC_ARCHIVE = quicklogic.tar.gz
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
-INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/presubmit/143/20210715-090243
-INTERCHANGE_VERSION = b00b616
+INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/continuous/44/20210909-090121
+INTERCHANGE_VERSION = 839e153
 INTERCHANGE_DEVICES = xc7a35t xc7a100t xc7a200t xc7z010
+RAPIDWRIGHT_PATH = $(TOP_DIR)/third_party/RapidWright
 
 
 third_party/make-env/conda.mk:
@@ -62,6 +63,9 @@ install_interchange:
 	for device in ${INTERCHANGE_DEVICES}; do \
 		wget -qO- ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
 	done
+	pushd ${RAPIDWRIGHT_PATH} && \
+		make update_jars && \
+		popd
 
 install_quicklogic:
 	mkdir -p env/quicklogic

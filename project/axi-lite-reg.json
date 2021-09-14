@@ -8,5 +8,6 @@
     "vendors": {
         "xilinx": ["zybo"]
     },
-    "required_toolchains": ["vivado", "vpr"]
+    "required_toolchains": ["vivado", "vpr"],
+    "skip_toolchains": ["nextpnr-fpga-interchange"]
 }
