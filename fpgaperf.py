@@ -166,7 +166,7 @@ def run(
     device = board_info['device']
     package = board_info['package']
 
-    assert family == 'ice40' or family == 'xc7' or family == 'eos' or family == 'lifcl'
+    assert family == 'ice40' or family == 'xc7' or family == 'eos' or family == 'nexus'
 
     # some toolchains use signed 32 bit
     assert seed is None or 0 <= seed <= 0x7FFFFFFF
