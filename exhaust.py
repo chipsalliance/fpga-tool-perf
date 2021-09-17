@@ -87,7 +87,8 @@ def print_summary_table(
 
         # Check if metadata was generated
         # It is created for successful builds only
-        with open(os.path.join(root_dir, out_prefix, build, 'meta.json')) as meta:
+        with open(os.path.join(root_dir, out_prefix, build,
+                               'meta.json')) as meta:
             meta_data = json.load(meta)
             if meta_data["status"] == "succeeded":
                 row.append(colored('passed', 'green'))

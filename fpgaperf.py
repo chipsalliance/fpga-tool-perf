@@ -214,7 +214,9 @@ def run(
         try:
             t.run()
         except Exception as e:
-            output_error = "[...]\n{}".format(str(e)[-1000:]) if len(str(e)) > 1000 else str(e)
+            output_error = "[...]\n{}".format(
+                str(e)[-1000:]
+            ) if len(str(e)) > 1000 else str(e)
             output_error = output_error.split("\n")
 
     logger.debug("Printing Stats")

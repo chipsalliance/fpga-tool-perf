@@ -23,7 +23,6 @@ import shutil
 
 from utils.utils import Timed, have_exec
 
-
 TOOLCHAIN_MAP = {
     'vpr': ('yosys', 'vpr'),
     'vpr-fasm2bels': ('yosys', 'vpr'),
@@ -37,6 +36,7 @@ TOOLCHAIN_MAP = {
     'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
     'quicklogic': ('yosys', 'vpr'),
 }
+
 
 class Toolchain:
     '''A toolchain takes in verilog files and produces a .bitstream'''
@@ -375,12 +375,14 @@ class Toolchain:
             'build': self.build,
             'build_type': self.build_type,
             'date': date_str,
-            'toolchain': {
-                self.toolchain: {
-                    'synthesis_tool': synth_tool,
-                    'pr_tool': pr_tool,
+            'toolchain':
+                {
+                    self.toolchain:
+                        {
+                            'synthesis_tool': synth_tool,
+                            'pr_tool': pr_tool,
+                        },
                 },
-            },
             'strategy': self.strategy,
             'parameters': self.params_file or self.params_string,
 
