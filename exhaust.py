@@ -87,22 +87,24 @@ def print_summary_table(
 
         # Check if metadata was generated
         # It is created for successful builds only
-        if os.path.exists(os.path.join(root_dir, out_prefix, build,
-                                       'meta.json')):
-            row.append(colored('passed', 'green'))
-            passed += 1
-        else:
-            if is_required:
-                row.append(colored('failed', 'red'))
-
-                build_status = False
-                failed_required_tests.append(
-                    "{} {} {}".format(row[0], row[1], row[4])
-                )
+        with open(os.path.join(root_dir, out_prefix, build, 'meta.json')) as meta:
+            meta_data = json.load(meta)
+            if meta_data["status"] == "succeeded":
+                row.append(colored('passed', 'green'))
+                passed += 1
             else:
-                row.append(colored('allowed to fail', 'blue'))
+                assert meta_data["status"] == "failed"
+                if is_required:
+                    row.append(colored('failed', 'red'))
 
-            failed += 1
+                    build_status = False
+                    failed_required_tests.append(
+                        "{} {} {}".format(row[0], row[1], row[4])
+                    )
+                else:
+                    row.append(colored('allowed to fail', 'blue'))
+
+                failed += 1
 
         table_data.append(row)
         build_count += 1

@@ -56,40 +56,23 @@ class Runner:
 
         build = self.build_format.format(build_number)
 
-        # We don't want output of all subprocesses here
-        # Log files for each build will be placed in build directory
         with redirect_stdout(open(os.devnull, 'w')):
-            try:
-                run(
-                    board,
-                    toolchain,
-                    project,
-                    None,  #params_file
-                    option,  #params_string
-                    None,  #out_dir
-                    self.out_prefix,
-                    self.overwrite,
-                    self.verbose,
-                    None,  #strategy
-                    seed,
-                    None,  #carry
-                    build,
-                    self.build_type,
-                )
-            except Exception as e:
-                eprint("\n---------------------")
-                eprint(
-                    "ERROR: {} {} {} test has failed (build type {}, build nr. {})\n"
-                    .format(project, toolchain, board, self.build_type, build)
-                )
-                # Limit output to max 300 characters for exhaust.py to make sure log files are not too large.
-                exception_str = str(e)
-                eprint(
-                    "ERROR MESSAGE: ",
-                    ("[...]\n{}".format(exception_str[-1000:]))
-                    if len(str(exception_str)) > 1000 else exception_str
-                )
-                eprint("---------------------\n")
+            run(
+                board,
+                toolchain,
+                project,
+                None,  #params_file
+                option,  #params_string
+                None,  #out_dir
+                self.out_prefix,
+                self.overwrite,
+                self.verbose,
+                None,  #strategy
+                seed,
+                None,  #carry
+                build,
+                self.build_type,
+            )
 
     def run(self):
         os.makedirs(os.path.expanduser(self.out_prefix), exist_ok=True)

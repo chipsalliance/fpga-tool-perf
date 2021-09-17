@@ -10,35 +10,21 @@
 # SPDX-License-Identifier: ISC
 
 import os
-import subprocess
-import time
-import collections
 import json
 import re
-import shutil
 import sys
 import glob
-import datetime
-import edalize
 import logging
+from contextlib import redirect_stdout
 from terminaltables import AsciiTable
 
-from utils.utils import Timed
-
-from toolchains.toolchain import Toolchain
 from toolchains.icestorm import NextpnrIcestorm
 from toolchains.oxide import NextpnrOxide
-from toolchains.icestorm import Arachne
 from toolchains.vivado import Vivado
 from toolchains.vivado import VivadoYosys
 from toolchains.vivado import VivadoYosysUhdm
 from toolchains.symbiflow import VPR, NextpnrXilinx, NextpnrFPGAInterchange, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
-from toolchains.radiant import RadiantSynpro
-from toolchains.radiant import RadiantLSE
-from toolchains.icecube import Icecube2Synpro
-from toolchains.icecube import Icecube2LSE
-from toolchains.icecube import Icecube2Yosys
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -222,11 +208,21 @@ def run(
         out_prefix=out_prefix,
         overwrite=overwrite,
     )
-    t.run()
+
+    output_error = ""
+    with redirect_stdout(open(os.devnull, 'w')):
+        try:
+            t.run()
+        except Exception as e:
+            output_error = "[...]\n{}".format(str(e)[-1000:]) if len(str(e)) > 1000 else str(e)
+            output_error = output_error.split("\n")
+
     logger.debug("Printing Stats")
-    print_stats(t)
+    if not output_error:
+        print_stats(t)
+
     logger.debug("Writing Metadata")
-    t.write_metadata()
+    t.write_metadata(output_error)
 
 
 def list_combinations(

@@ -24,6 +24,20 @@ import shutil
 from utils.utils import Timed, have_exec
 
 
+TOOLCHAIN_MAP = {
+    'vpr': ('yosys', 'vpr'),
+    'vpr-fasm2bels': ('yosys', 'vpr'),
+    'yosys-vivado': ('yosys', 'vivado'),
+    'yosys-vivado-uhdm': ('yosys', 'vivado'),
+    'vivado': ('vivado', 'vivado'),
+    'nextpnr-ice40': ('yosys', 'nextpnr'),
+    'nextpnr-xilinx': ('yosys', 'nextpnr'),
+    'nextpnr-nexus': ('yosys', 'nextpnr'),
+    'nextpnr-fpga-interchange': ('yosys', 'nextpnr'),
+    'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
+    'quicklogic': ('yosys', 'vpr'),
+}
+
 class Toolchain:
     '''A toolchain takes in verilog files and produces a .bitstream'''
     # List of supported carry modes
@@ -298,9 +312,7 @@ class Toolchain:
 
         return runtimes
 
-    def write_metadata(self, all=True):
-        out_dir = self.out_dir
-
+    def get_metrics(self):
         # If an intermediate write, tolerate missing resource tally
         try:
             resources = self.resources()
@@ -338,58 +350,15 @@ class Toolchain:
 
         assert max_freq, "ERROR: no clocks assigned for this test design!"
 
-        toolchain_map = {
-            'vpr': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vpr'
-            },
-            'vpr-fasm2bels': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vpr'
-            },
-            'yosys-vivado': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vivado'
-            },
-            'yosys-vivado-uhdm':
-                {
-                    'synthesis_tool': 'yosys',
-                    'pr_tool': 'vivado'
-                },
-            'vivado': {
-                'synthesis_tool': 'vivado',
-                'pr_tool': 'vivado'
-            },
-            'nextpnr-ice40': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'nextpnr'
-            },
-            'nextpnr-xilinx': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'nextpnr'
-            },
-            'nextpnr-nexus': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'nextpnr'
-            },
-            'nextpnr-fpga-interchange':
-                {
-                    'synthesis_tool': 'yosys',
-                    'pr_tool': 'nextpnr'
-                },
-            'nextpnr-xilinx-fasm2bels':
-                {
-                    'synthesis_tool': 'yosys',
-                    'pr_tool': 'nextpnr'
-                },
-            'quicklogic': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vpr'
-            }
-        }
+        return max_freq, resources
+
+    def write_metadata(self, output_error):
+        out_dir = self.out_dir
+
+        synth_tool, pr_tool = TOOLCHAIN_MAP[self.toolchain]
 
         date_str = self.date.replace(microsecond=0).isoformat()
-        j = {
+        json_data = {
             'design': self.design(),
             'family': self.family,
             'device': self.device,
@@ -407,7 +376,10 @@ class Toolchain:
             'build_type': self.build_type,
             'date': date_str,
             'toolchain': {
-                self.toolchain: toolchain_map[self.toolchain]
+                self.toolchain: {
+                    'synthesis_tool': synth_tool,
+                    'pr_tool': pr_tool,
+                },
             },
             'strategy': self.strategy,
             'parameters': self.params_file or self.params_string,
@@ -415,19 +387,27 @@ class Toolchain:
             # canonicalize
             'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
             'top': self.top,
-            "runtime": self.get_runtimes(),
-            "max_freq": max_freq,
-            "resources": resources,
             "versions": self.versions(),
             "cmds": self.cmds,
-            "wirelength": self.wirelength,
-            "maximum_memory_use": self.maximum_memory_use,
         }
 
-        print
+        if output_error:
+            json_data['error_msg'] = output_error
+            json_data['status'] = "failed"
+        else:
+            max_freq, resources = self.get_metrics()
+
+            # add metrics
+            json_data['runtime'] = self.get_runtimes()
+            json_data['max_freq'] = max_freq
+            json_data['resources'] = resources
+            json_data['wirelength'] = self.wirelength
+            json_data['maximum_memory_use'] = self.maximum_memory_use
+
+            json_data['status'] = "succeeded"
 
         with open(out_dir + '/meta.json', 'w') as f:
-            json.dump(j, f, sort_keys=True, indent=4)
+            json.dump(json_data, f, sort_keys=True, indent=4)
 
         # Provide some context when comparing runtimes against systems
         subprocess.check_call(
