@@ -9,5 +9,5 @@
         "xilinx": ["zybo"]
     },
     "required_toolchains": ["vivado", "vpr"],
-    "skip_toolchains": ["nextpnr-fpga-interchange"]
+    "skip_toolchains": ["nextpnr-fpga-interchange", "yosys-vivado-uhdm", "yosys-vivado", "vpr-fasm2bels"]
 }
