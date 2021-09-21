@@ -240,10 +240,6 @@ class Toolchain:
         print("Running: %s %s" % (cmd, argstr))
         self.cmds.append('%s %s' % (cmd, argstr))
 
-        # Use this to checkpoint various stages
-        # If a command fails, we'll have everything up to it
-        self.write_metadata(all=False)
-
         cmd_base = os.path.basename(cmd)
         with open("%s/%s.txt" % (self.out_dir, cmd_base), "w") as f:
             f.write("Running: %s %s\n\n" % (cmd_base, argstr))
@@ -348,7 +344,7 @@ class Toolchain:
                 ]
             )
 
-        assert max_freq, "ERROR: no clocks assigned for this test design!"
+        assert max_freq, f"ERROR: no clocks assigned for this test design! {self.design()}"
 
         return max_freq, resources
 
