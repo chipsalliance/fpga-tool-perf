@@ -18,11 +18,11 @@ env:
 
 fetch:
 	mkdir -p meta
-	$(IN_ENV) python fetch_meta.py nightly 1138 _ meta --pool-size $$(nproc)
+	$(IN_ENV) python3 fetch_meta.py --builds nightly --from-build 1138 --output-dir meta --pool-size $$(nproc)
 
 build:
 	mkdir -p build
-	$(IN_ENV) python gen.py meta -o build
+	$(IN_ENV) python3 generate_html.py -i meta -o build
 	touch build/.nojekyll
 
 clean:

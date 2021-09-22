@@ -229,14 +229,17 @@ def download_from_specs(specs):
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        'builds', type=str, help='Builds type (e.g. `nightly`)'
+        '--builds', type=str, help='Builds type (e.g. `nightly`)'
     )
-    parser.add_argument('from_tr', type=int, help='First test run number')
+    parser.add_argument('--from-build', type=int, help='First test run number')
     parser.add_argument(
-        'to_tr', type=str, help='Last test run number (use `_` for "latest")'
+        '--to-build',
+        default="_",
+        type=str,
+        help='Last test run number (use `_` for "latest")'
     )
     parser.add_argument(
-        'output_dir', type=str, help='Output directory for downloaded data'
+        '--output-dir', type=str, help='Output directory for downloaded data'
     )
     parser.add_argument(
         '--pool-size', type=int, default=8, help='Size of thread pool'
@@ -250,7 +253,7 @@ def main():
     print(f'Using {args.pool_size} parallel threads.')
     pool = ThreadPool(args.pool_size)
     test_numbers = list(
-        get_test_run_numbers(args.from_tr, args.to_tr, args.builds)
+        get_test_run_numbers(args.from_build, args.to_build, args.builds)
     )
 
     print('Preparing downloads ...', flush=True)
