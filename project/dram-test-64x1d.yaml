@@ -1,0 +1,25 @@
+srcs:
+  - src/dram-test-64x1d/dram_test_64x1d.v
+  - src/dram-test-64x1d/uart.v
+  - src/dram-test-64x1d/uart_rx.v
+  - src/dram-test-64x1d/uart_tx.v
+  - src/dram-test-64x1d/ram_test.v
+  - src/dram-test-64x1d/lfsr.v
+  - src/dram-test-64x1d/error_output_logic.v
+  - src/dram-test-64x1d/baudgen.v
+top: top
+name: dram-test-64x1d
+clocks:
+  clk: 10.0
+clock_aliases:
+  clk:
+    - dram_test.clk
+vendors:
+  xilinx:
+    - basys3
+    - nexys-video
+required_toolchains:
+  - vivado
+  - vpr
+  - vpr-fasm2bels
+  - yosys-vivado

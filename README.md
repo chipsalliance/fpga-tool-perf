@@ -121,7 +121,7 @@ Its also possible to run a test against specific project(s), toolchain(s), and/o
 python3 exhaust.py --project blinky oneblink --toolchain vpr
 ```
 
-See `build` directory for output. Note in particular `all.json`.
+See `build` directory for output.
 
 ## Project Structure
 
@@ -137,7 +137,7 @@ This section describes the structure of this project to better understand its me
   - vendors: all the vendors that are enabled for this project (e.g. xilinx, lattice). Each vendor requires a list of boards enabled for the test project.
 
 - the `src` directory contains all the source files needed to build the test project. It also contains the constraints files relative to the various boards supported.
-- the `other` directory contains two json files, describing all the supported boards and vendors in this test suite.
+- the `other` directory contains two configuration YAML files, describing all the supported boards and vendors in this test suite.
 - the `toolchains` directory contains the python scripts that enable a toolchain to be run within fpga-tool-perf.
 - the `infrastructure` directory contains python scripts to control the fpga-tool-perf framework to run the tests
 
@@ -160,7 +160,8 @@ As a result, sometimes the module definition is cropped out to make running the 
 
 ### Project
 
-Projects are .json files in the project directory. Project names shouldn't contain underscores such that they are clearly separated from other fields when combined into folder names.
+The project directory contains YAML file configurations for each project.
+Project names shouldn't contain underscores such that they are clearly separated from other fields when combined into folder names.
 
 ### Inserting a New Project into fpga-tool-perf
 
@@ -184,24 +185,23 @@ touch constr/basys3.xdc
 If you don't have both the `.pcf` and `.xdc` files, You can look at the other projects for examples of how the `.xdc` and `.pcf` code correspond.
 
 #### *Step 2.*
-Within the `project` directory, create a `.json` file under the name of the project. Copy the contents of another project's `.json` file and modify it to match your project's specs. It will look like somthing like this:
-```json
-{
-    "srcs": [
-        "src/counter/counter.v"
-        ],
-    "top": "top",
-    "name": "counter",
-    "clocks": {
-        "clk": 10.0
-    },
-    "required_toolchains": [
-        "vpr", "vpr-fasm2bels", "vivado", "yosys-vivado"
-    ],
-    "vendors": {
-        "xilinx": ["arty-a35t", "basys3"]
-    }
-}
+Within the `project` directory, create a YAML file with the name of the project.
+```yaml
+srcs:
+  - src/counter/counter.v
+top: top
+name: counter
+clocks:
+  clk: 10.0
+vendors:
+  xilinx:
+    - arty-a35t
+    - arty-a100t
+    - basys3
+required_toolchains:
+  - vivado
+  - yosys-vivado
+  - vpr
 ```
 
 #### *Step 3.*
