@@ -25,11 +25,14 @@ def main():
     parser = ArgumentParser()
 
     parser.add_argument(
-        'data_dir', type=str, help='Directory containing json data files'
+        '-i',
+        '--in-dir',
+        type=str,
+        help='Directory containing json data files'
     )
     parser.add_argument(
         '-o',
-        '--out_dir',
+        '--out-dir',
         nargs=1,
         type=str,
         help='Save outputs in a given directory'
@@ -37,9 +40,8 @@ def main():
 
     args = parser.parse_args()
 
-    if not os.path.isdir(args.data_dir):
-        print('Path needs to be a path to a directory')
-        exit(-1)
+    if not os.path.isdir(args.in_dir):
+        os.makedirs(args.in_dir)
 
     graph_pages = {}
 
@@ -48,8 +50,8 @@ def main():
 
     results = []
 
-    for project_name in os.listdir(args.data_dir):
-        project_dir = os.path.join(args.data_dir, project_name)
+    for project_name in os.listdir(args.in_dir):
+        project_dir = os.path.join(args.in_dir, project_name)
         if not os.path.isdir(project_dir):
             print(f'Skipping `{project_dir}` because it' 's not a directory.')
             continue

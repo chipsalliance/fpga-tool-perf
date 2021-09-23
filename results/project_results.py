@@ -48,40 +48,17 @@ class ProjectResults:
                 data = None
                 try:
                     data = json.loads(f.read())
+                    datas.append(data)
                 except Exception as e:
                     print(f'WARNING: couldn\'t load data from `{p}`: {e}')
-                if data:
-                    try:
-                        for board, toolchain in get_configs(data):
-                            configs[board].add(toolchain)
-                    except KeyError as e:
-                        print(f'Invalid config `{p}`, missing: {e}')
-                        continue
-
-                    datas.append(data)
 
         # Create test entries
         for data in sorted(datas, key=lambda d: datetime_from_str(d['date'])):
             self.test_dates.append(datetime_from_str(data['date']))
             configs_to_handle = {}
-            for board, toolchains in configs.items():
-                configs_to_handle[board] = toolchains.copy()
 
             for board, toolchain, entry in get_entries(data):
-                try:
-                    configs_to_handle[board].remove(toolchain)
-                except KeyError:
-                    print(
-                        f'WARNING: config `{config_name(board, toolchain)}` '
-                        f'repeated in data forproject `{project_name}, '
-                        f'date: {data["date"]}. Data will be ignoreed.'
-                    )
-                    continue
                 self.entries[board][toolchain].append(entry)
-
-            for board, toolchains in configs_to_handle.items():
-                for toolchain in toolchains:
-                    self.entries[board][toolchain].append(None)
 
     def get_all_configs(self):
         for board, toolchains in self.entries.items():

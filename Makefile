@@ -73,12 +73,12 @@ install_quicklogic:
 	tar -xf ${QUICKLOGIC_ARCHIVE} -C env/quicklogic
 	rm ${QUICKLOGIC_ARCHIVE}
 
-PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*")
+PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*" -not -path "./results/env/*")
 
 format: ${PYTHON_SRCS}
 	yapf -i $?
 
 clean::
-	rm -rf build/
+	$(IN_CONDA_ENV_BASE) rm -rf build/
 
 .PHONY: all env build-tools format run-all clean

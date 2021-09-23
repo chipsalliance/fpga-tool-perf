@@ -23,7 +23,7 @@ class Tasks:
         self.src_dir = os.path.join(root_dir, 'src')
         self.tasks = self.iter_options()
 
-    def iter_options(self):
+    def iter_options(self, all_combinations=False):
         """Returns all the possible combination of:
             - projects,
             - toolchains,
@@ -51,11 +51,17 @@ class Tasks:
                     board for board in project_boards if board in vendor_boards
                 ]
 
+                if all_combinations:
+                    boards = vendor_boards
+
                 for toolchain, board in list(product(toolchains, boards)):
-                    if toolchain not in skip_toolchains:
+                    if toolchain not in skip_toolchains or all_combinations:
                         combinations.add((project, toolchain, board))
 
         return combinations
+
+    def get_all_combinations(self):
+        return self.iter_options(all_combinations=True)
 
     def get_tasks(
         self,

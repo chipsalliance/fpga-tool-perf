@@ -71,15 +71,7 @@ class TestEntry:
     resources: Resources
     runtime: Runtime
     wirelength: 'int | None'
-
-
-def get_configs(json_data: dict):
-    zipped = zip(
-        json_data['results']['board'], json_data['results']['toolchain']
-    )
-    for board, toolchain_dict in zipped:
-        toolchain, _ = next(iter(toolchain_dict.items()))
-        yield board, toolchain
+    status: 'str'
 
 
 def null_generator():
@@ -127,17 +119,16 @@ def get_entries(json_data: dict):
         resources.sanitize()
         return resources
 
-    wirelength = results.get('wirelength')
-    if not wirelength:
-        wirelength = null_generator()
+    wirelength = results.get('wirelength', null_generator())
+    status = results.get('status', null_generator())
 
     zipped = zip(
         results['board'], results['toolchain'], results['max_freq'],
         results['maximum_memory_use'], results['resources'],
-        results['runtime'], wirelength
+        results['runtime'], wirelength, status
     )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
-            wirelength in zipped:
+            wirelength, status in zipped:
         toolchain, _ = next(iter(toolchain_dict.items()))
 
         # Some platforms are cursed and the tests return just a single float
@@ -150,5 +141,6 @@ def get_entries(json_data: dict):
         entry.maxfreq = make_clks(clk_config)
         entry.runtime = make_runtime(runtime)
         entry.resources = make_resources(resources)
+        entry.status = status if status is not None else 'succeeded'
 
         yield board, toolchain, entry

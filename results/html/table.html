@@ -1,19 +1,27 @@
 <table class="w3-table-all w3-responsive ">
   <tr class="w3-gray">
-    <th class="w3-center w3-border"> Toolchain  <br></br> Board</th>
-    {% for toolchain in toolchains %}
+    <th class="w3-center w3-border"> Toolchain  <br></br> Project</th>
+    {% for toolchain in toolchains[board] %}
       <th class="w3-center w3-border"> {{ toolchain }} </th>
     {% endfor %}
   </tr>
-  {% for board in boards %}
+  {% for project in boards[board] %}
     <tr>
-      <th> {{ board }} </th>
-      {% for toolchain in toolchains %}
-        <th class="w3-center w3-border">
-          {% if toolchain in boards[board] %}
-            X
+      <th> <a href="graphs/{{ project  }}.html">{{ project  }}</a></th>
+        {% for toolchain in boards[board][project] %}
+          {% if boards[board][project][toolchain] == "succeeded" %}
+            <th class="w3-center w3-border passed" style="background-color: lightgreen">
+              Passed
+            </th>
+          {% elif boards[board][project][toolchain] == "failed" %}
+            <th class="w3-center w3-border failed" style="background-color: red">
+              Failed
+            </th>
+          {% elif boards[board][project][toolchain] == "skip" %}
+            <th class="w3-center w3-border failed" style="background-color: lightblue">
+              Skipped
+            </th>
           {% endif %}
-        </th>
       {% endfor %}
     </tr>
   {% endfor %}

@@ -16,26 +16,23 @@
       </div>
 
       <div id="overview" class="w3-container w3-center">
-        <p>Click on a project to select it, click on its name to jump to the performance graphs.</p>
+        <p>Click on a board to select it.</p>
       </div>
 
       <div class="w3-row">
-        {% for project_name, boards in projects %}
-          <div id="{{project_name}}" class="w3-col m4 l3">
+        {% for board in boards %}
+          <div id="{{board}}" class="w3-col m4 l3">
 
-            <button id="{{project_name}}-button" class="project-button w3-button w3-light-gray w3-block w3-center" onclick="selectTable('{{project_name}}')">
-              <a href="graphs/{{ project_name }}.html">{{ project_name }}</a>
-              <!-- {{ project_name }} -->
-              <!-- <a href="graphs/{{ project_name }}.html"><span class="material-icons">bar_chart</span></a> -->
+            <button id="{{board}}-button" class="project-button w3-button w3-light-gray w3-block w3-center" onclick="selectTable('{{board}}')">
+            {{ board }}
             </button>
-
           </div>
         {% endfor %}
       </div>
 
       <div>
-        {% for project_name, boards in projects %}
-          <div id="{{project_name}}-table" class="project-table w3-container w3-hide w3-padding-16">
+        {% for board in boards %}
+          <div id="{{ board }}-table" class="board-table w3-container w3-hide w3-padding-16">
             {% include 'table.html' %}
           </div>
         {% endfor %}
@@ -61,16 +58,16 @@ function toggleVisibility(id) {
   setVisibility(elem, elem.className.indexOf("w3-show") == -1);
 }
 
-function selectTable(project_name) {
-  var table_id = project_name + "-table";
-  var button_id = project_name + "-button";
+function selectTable(board_name) {
+  var table_id = board_name + "-table";
+  var button_id = board_name + "-button";
 
-  var tables = document.getElementsByClassName("project-table");
+  var tables = document.getElementsByClassName("board-table");
   for (var i = tables.length - 1; i >= 0; i--) {
     setVisibility(tables[i], tables[i].id == table_id);
   }
 
-  var buttons = document.getElementsByClassName("project-button");
+  var buttons = document.getElementsByClassName("board-button");
   for (var i = buttons.length - 1; i >= 0; i--) {
     if (buttons[i].id == button_id) {
       buttons[i].className = buttons[i].className.replace(" w3-gray", "");
@@ -85,7 +82,7 @@ function selectTable(project_name) {
 }
 
 // select first table on start
-selectTable("{{ projects[0][0] }}");
+selectTable("{{ boards_list[0] }}");
 
 </script>
 </html>

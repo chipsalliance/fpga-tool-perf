@@ -9,11 +9,14 @@
 #
 # SPDX-License-Identifier: ISC
 
+import json
+import os
 from typing import List
 
 import jinja2
 
 from project_results import ProjectResults
+from infrastructure.tasks import Tasks
 
 
 def generate_index_html(
@@ -21,20 +24,51 @@ def generate_index_html(
 ):
     print('Generating index page...')
 
-    projects_dict = {}
-    all_toolchains = set()
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.join(cur_dir, '..')
+    tasks = Tasks(root_dir)
+    combinations = sorted(
+        tasks.get_all_combinations(), key=lambda tup: (tup[2], tup[0], tup[1])
+    )
+
+    boards = dict()
+    toolchains_dict = dict()
+    projects = set()
+    for project, toolchain, board in combinations:
+        print(project, toolchain, board)
+        if board not in boards:
+            boards[board] = dict()
+
+        board_dict = boards[board]
+        if project not in board_dict:
+            board_dict[project] = dict()
+
+        proj_dict = board_dict[project]
+
+        proj_dict[toolchain] = "skip"
+
+        if board not in toolchains_dict:
+            toolchains_dict[board] = set()
+
+        toolchains_dict[board].add(toolchain)
+
+        projects.add(project)
+
     for project_results in results:
-        boards = {}
-        for board, toolchains in project_results.entries.items():
-            board_toolchains = []
+        entries = project_results.entries
+        project = project_results.project_name
+
+        for board, toolchains in entries.items():
             for toolchain in toolchains.keys():
-                board_toolchains.append(toolchain)
-                all_toolchains.add(toolchain)
-            boards[board] = board_toolchains
+                status = entries[board][toolchain][0].status
+                boards[board][project][toolchain] = status
 
-        projects_dict[project_results.project_name] = boards
+    for board, tool_list in toolchains_dict.items():
+        toolchains_dict[board] = sorted(list(tool_list))
 
-    projects_list = sorted(list(projects_dict.items()), key=lambda t: t[0])
-    toolchain_list = sorted(list(all_toolchains))
-
-    return template.render(projects=projects_list, toolchains=toolchain_list)
+    return template.render(
+        boards=boards,
+        boards_list=list(boards.keys()),
+        toolchains=toolchains_dict,
+        projects=projects
+    )
