@@ -19,11 +19,11 @@ from contextlib import redirect_stdout
 from terminaltables import AsciiTable
 
 from toolchains.icestorm import NextpnrIcestorm
-from toolchains.oxide import NextpnrOxide
+from toolchains.nextpnr import NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchange
 from toolchains.vivado import Vivado
 from toolchains.vivado import VivadoYosys
 from toolchains.vivado import VivadoYosysUhdm
-from toolchains.symbiflow import VPR, NextpnrXilinx, NextpnrFPGAInterchange, Quicklogic
+from toolchains.symbiflow import VPR, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 
 # to find data files
@@ -41,9 +41,9 @@ class NotAvailable:
 def print_stats(t):
     def print_section_header(title):
         print('')
-        print('===============================')
+        print('=' * len(title))
         print(title)
-        print('===============================')
+        print('=' * len(title))
         print('')
 
     print_section_header('Setting')
@@ -102,15 +102,18 @@ def print_stats(t):
     table = AsciiTable(table_data)
     print(table.table)
 
-    print_section_header('FPGA resource utilization')
-    table_data = [['Resource', 'Used']]
+    resource_map = {"synth": "Post synthesys", "impl": "Post place and route"}
 
     for k, v in sorted(t.resources().items()):
-        value = v if v else "N/A"
-        table_data.append([k, value])
+        print_section_header(f"FPGA {resource_map[k]} resource utilization")
+        table_data = [['Resource', 'Used']]
 
-    table = AsciiTable(table_data)
-    print(table.table)
+        for res_type, res_count in v.items():
+            value = res_count if res_count else "N/A"
+            table_data.append([res_type, value])
+
+        table = AsciiTable(table_data)
+        print(table.table)
 
 
 toolchains = {

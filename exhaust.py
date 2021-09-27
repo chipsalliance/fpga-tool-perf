@@ -70,7 +70,7 @@ def print_summary_table(
         # Example: oneblink_vpr_xc7_a35tcsg326-1_arty_generic-build_0_options
         pattern = ''
         for i in range(0, len(table_data[0]) - 1):
-            pattern += '([^_]*)_'
+            pattern += '([^_]*)_?'
         pattern += '(.*)'
 
         row = list(re.match(pattern, build).groups())

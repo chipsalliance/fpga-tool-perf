@@ -96,6 +96,28 @@ def get_vivado_max_freq(report_file):
     return freqs
 
 
+def get_yosys_resources(yosys_log):
+    with open(yosys_log, "r") as f:
+        data = f.readlines()
+
+    resources = dict()
+    print_stats = False
+    proc_cells = False
+    for line in data:
+        print_stats = "Printing statistics" in line or print_stats
+
+        if not print_stats:
+            continue
+
+        if proc_cells and line.strip():
+            cell, count = line.split()
+            resources[cell] = count
+
+        proc_cells = ("Number of cells" in line or proc_cells) and line.strip()
+
+    return resources
+
+
 def have_exec(mybin):
     return which(mybin) != None
 

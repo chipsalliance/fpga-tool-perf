@@ -11,19 +11,11 @@
 
 import os
 import subprocess
-import time
-import collections
-import json
 import re
-import shutil
-import sys
-import glob
-import datetime
-import asciitable
 import edalize
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed, have_exec
+from utils.utils import Timed, have_exec, get_yosys_resources
 
 
 class Icestorm(Toolchain):
@@ -33,10 +25,44 @@ class Icestorm(Toolchain):
         self.edam = None
         self.backend = None
 
+        self.resources_map = {
+            'LUT': (
+                'LUT',
+                'SB_LUT4',
+            ),
+            'DFF':
+                (
+                    'DFF',
+                    'SB_DFF',
+                    'SB_DFFE',
+                    'SB_DFFESR',
+                    'SB_DFFESS',
+                    'SB_DFFN',
+                    'SB_DFFSR',
+                    'SB_DFFSS',
+                ),
+            'CARRY': (
+                'CARRY',
+                'SB_CARRY',
+            ),
+            'IOB': ('IOB', ),
+            'PLL': ('PLL', ),
+            'BRAM': ('BRAM', ),
+        }
+
     def resources(self):
-        return self.icebox_stat(
-            self.backend, self.out_dir + "/" + self.project_name + ".stat"
+        synth_resources = get_yosys_resources(
+            os.path.join(os.path.join(self.out_dir, "yosys.log"))
         )
+        synth_resources = self.get_resources_count(synth_resources)
+
+        impl_resources = self.icebox_stat(
+            self.backend,
+            os.path.join(self.out_dir, f"{self.project_name}.stat")
+        )
+        impl_resources = self.get_resources_count(impl_resources)
+
+        return {"synth": synth_resources, "impl": impl_resources}
 
     def yosys_ver(self):
         # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
@@ -147,8 +173,6 @@ class Icestorm(Toolchain):
 
 class NextpnrIcestorm(Icestorm):
     '''Nextpnr PnR + Yosys synthesis'''
-    carries = (True, False)
-
     def __init__(self, rootdir):
         Icestorm.__init__(self, rootdir)
         self.toolchain = "nextpnr-ice40"
@@ -199,8 +223,6 @@ class NextpnrIcestorm(Icestorm):
 
 class Arachne(Icestorm):
     '''Arachne PnR + Yosys synthesis'''
-    carries = (True, False)
-
     def __init__(self, rootdir):
         Icestorm.__init__(self, rootdir)
         self.toolchain = 'arachne'

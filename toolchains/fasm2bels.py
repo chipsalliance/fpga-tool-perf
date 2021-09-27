@@ -15,7 +15,8 @@ import subprocess
 import edalize
 
 from toolchains.toolchain import Toolchain
-from toolchains.symbiflow import VPR, NextpnrXilinx
+from toolchains.symbiflow import VPR
+from toolchains.nextpnr import NextpnrXilinx
 from utils.utils import Timed, get_vivado_max_freq, which, have_exec
 
 
@@ -76,8 +77,6 @@ class VPRFasm2Bels(VPR):
 
 class NextpnrXilinxFasm2Bels(NextpnrXilinx):
     '''nextpnr using Yosys for synthesis'''
-    carries = (False, )
-
     def __init__(self, rootdir):
         NextpnrXilinx.__init__(self, rootdir)
         self.toolchain = 'nextpnr-xilinx-fasm2bels'
