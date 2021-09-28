@@ -17,3 +17,4 @@ required_toolchains:
   - yosys-vivado
   - vpr
   - vpr-fasm2bels
+  - nextpnr-fpga-interchange
