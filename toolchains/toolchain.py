@@ -354,55 +354,52 @@ class Toolchain:
         synth_tool, pr_tool = TOOLCHAIN_MAP[self.toolchain]
 
         date_str = self.date.replace(microsecond=0).isoformat()
-        json_data = {
-            'design': self.design(),
-            'family': self.family,
-            'device': self.device,
-            'package': self.package,
-            'board': self.board,
-            'vendor': self.vendor,
-            'project': self.project_name,
-            'optstr': self.optstr(),
-            'pcf': os.path.basename(self.pcf) if self.pcf else None,
-            'sdc': os.path.basename(self.sdc) if self.sdc else None,
-            'xdc': os.path.basename(self.xdc) if self.xdc else None,
-            'carry': self.carry,
-            'seed': self.seed,
-            'build': self.build,
-            'build_type': self.build_type,
-            'date': date_str,
-            'toolchain':
-                {
-                    self.toolchain:
-                        {
-                            'synthesis_tool': synth_tool,
-                            'pr_tool': pr_tool,
-                        },
-                },
-            'strategy': self.strategy,
-            'parameters': self.params_file or self.params_string,
 
-            # canonicalize
-            'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
-            'top': self.top,
-            "versions": self.versions(),
-            "cmds": self.cmds,
-        }
+        json_data = dict()
 
-        if output_error:
-            json_data['error_msg'] = output_error
-            json_data['status'] = "failed"
-        else:
-            max_freq, resources = self.get_metrics()
+        max_freq, resources = (None,
+                               None) if output_error else self.get_metrics()
+        runtimes = None if output_error else self.get_runtimes()
 
-            # add metrics
-            json_data['runtime'] = self.get_runtimes()
-            json_data['max_freq'] = max_freq
-            json_data['resources'] = resources
-            json_data['wirelength'] = self.wirelength
-            json_data['maximum_memory_use'] = self.maximum_memory_use
+        tools = dict(synth_tool=synth_tool, pr_tool=pr_tool)
 
-            json_data['status'] = "succeeded"
+        # Meta information
+        json_data['date'] = date_str
+        json_data['status'] = "failed" if output_error else "succeeded"
+        json_data['error_msg'] = output_error
+
+        # Task information
+        json_data['design'] = self.design()
+        json_data['family'] = self.family
+        json_data['device'] = self.device
+        json_data['package'] = self.package
+        json_data['board'] = self.board
+        json_data['vendor'] = self.vendor
+        json_data['project'] = self.project_name
+        json_data['toolchain'] = {self.toolchain: tools}
+
+        # Detailed task information
+        json_data['optstr'] = self.optstr()
+        json_data['pcf'] = os.path.basename(self.pcf) if self.pcf else None
+        json_data['sdc'] = os.path.basename(self.sdc) if self.sdc else None
+        json_data['xdc'] = os.path.basename(self.xdc) if self.xdc else None
+        json_data['carry'] = self.carry
+        json_data['seed'] = self.seed
+        json_data['build'] = self.build
+        json_data['build_type'] = self.build_type
+        json_data['strategy'] = self.strategy
+        json_data['parameters'] = self.params_file or self.params_string
+        json_data['sources'] = [x.replace(os.getcwd(), '.') for x in self.srcs]
+        json_data['top'] = self.top
+        json_data['versions'] = self.versions()
+        json_data['cmds'] = self.cmds
+
+        # Results
+        json_data['runtime'] = runtimes
+        json_data['max_freq'] = max_freq
+        json_data['resources'] = resources
+        json_data['wirelength'] = self.wirelength
+        json_data['maximum_memory_use'] = self.maximum_memory_use
 
         with open(out_dir + '/meta.json', 'w') as f:
             json.dump(json_data, f, sort_keys=True, indent=4)
