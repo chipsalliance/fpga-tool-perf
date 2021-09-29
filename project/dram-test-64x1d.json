@@ -15,7 +15,7 @@
         "clk": 10.0
     },
     "clock_aliases": {
-        "clk": ["dram_test.cl"]
+        "clk": ["dram_test.clk"]
     },
     "vendors": {
         "xilinx": ["basys3", "nexys-video"]

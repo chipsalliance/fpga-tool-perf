@@ -10,6 +10,8 @@ dependencies:
   - litex-hub::nextpnr-ice40=0.0.0_3403_g3fd1ee77=20210722_152338_py37
   - litex-hub::nextpnr-xilinx=v0.0_2840_g86500ec6=20210722_152338_py37
   - litex-hub::nextpnr-nexus=0.0.0_3403_g3fd1ee77=20210813_070938_py37
+    # FIXME: Pin prjoxide as newer packages require glibc 2.29
+  - litex-hub::prjoxide=v0.0_407_g026e545=20210923_082942
   - litex-hub::prjxray-db=0.0_252_g8372b58=20210723_083625
   - litex-hub::prjxray-tools=0.1_2842_g6867429c=20210301_104249
   - litex-hub::capnproto=0.8.0=20210316_201220

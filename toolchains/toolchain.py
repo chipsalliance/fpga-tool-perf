@@ -23,6 +23,20 @@ import shutil
 
 from utils.utils import Timed, have_exec
 
+TOOLCHAIN_MAP = {
+    'vpr': ('yosys', 'vpr'),
+    'vpr-fasm2bels': ('yosys', 'vpr'),
+    'yosys-vivado': ('yosys', 'vivado'),
+    'yosys-vivado-uhdm': ('yosys', 'vivado'),
+    'vivado': ('vivado', 'vivado'),
+    'nextpnr-ice40': ('yosys', 'nextpnr'),
+    'nextpnr-xilinx': ('yosys', 'nextpnr'),
+    'nextpnr-nexus': ('yosys', 'nextpnr'),
+    'nextpnr-fpga-interchange': ('yosys', 'nextpnr'),
+    'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
+    'quicklogic': ('yosys', 'vpr'),
+}
+
 
 class Toolchain:
     '''A toolchain takes in verilog files and produces a .bitstream'''
@@ -226,10 +240,6 @@ class Toolchain:
         print("Running: %s %s" % (cmd, argstr))
         self.cmds.append('%s %s' % (cmd, argstr))
 
-        # Use this to checkpoint various stages
-        # If a command fails, we'll have everything up to it
-        self.write_metadata(all=False)
-
         cmd_base = os.path.basename(cmd)
         with open("%s/%s.txt" % (self.out_dir, cmd_base), "w") as f:
             f.write("Running: %s %s\n\n" % (cmd_base, argstr))
@@ -298,9 +308,7 @@ class Toolchain:
 
         return runtimes
 
-    def write_metadata(self, all=True):
-        out_dir = self.out_dir
-
+    def get_metrics(self):
         # If an intermediate write, tolerate missing resource tally
         try:
             resources = self.resources()
@@ -336,98 +344,65 @@ class Toolchain:
                 ]
             )
 
-        assert max_freq, "ERROR: no clocks assigned for this test design!"
+        assert max_freq, f"ERROR: no clocks assigned for this test design! {self.design()}"
 
-        toolchain_map = {
-            'vpr': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vpr'
-            },
-            'vpr-fasm2bels': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vpr'
-            },
-            'yosys-vivado': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vivado'
-            },
-            'yosys-vivado-uhdm':
-                {
-                    'synthesis_tool': 'yosys',
-                    'pr_tool': 'vivado'
-                },
-            'vivado': {
-                'synthesis_tool': 'vivado',
-                'pr_tool': 'vivado'
-            },
-            'nextpnr-ice40': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'nextpnr'
-            },
-            'nextpnr-xilinx': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'nextpnr'
-            },
-            'nextpnr-nexus': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'nextpnr'
-            },
-            'nextpnr-fpga-interchange':
-                {
-                    'synthesis_tool': 'yosys',
-                    'pr_tool': 'nextpnr'
-                },
-            'nextpnr-xilinx-fasm2bels':
-                {
-                    'synthesis_tool': 'yosys',
-                    'pr_tool': 'nextpnr'
-                },
-            'quicklogic': {
-                'synthesis_tool': 'yosys',
-                'pr_tool': 'vpr'
-            }
-        }
+        return max_freq, resources
+
+    def write_metadata(self, output_error):
+        out_dir = self.out_dir
+
+        synth_tool, pr_tool = TOOLCHAIN_MAP[self.toolchain]
 
         date_str = self.date.replace(microsecond=0).isoformat()
-        j = {
-            'design': self.design(),
-            'family': self.family,
-            'device': self.device,
-            'package': self.package,
-            'board': self.board,
-            'vendor': self.vendor,
-            'project': self.project_name,
-            'optstr': self.optstr(),
-            'pcf': os.path.basename(self.pcf) if self.pcf else None,
-            'sdc': os.path.basename(self.sdc) if self.sdc else None,
-            'xdc': os.path.basename(self.xdc) if self.xdc else None,
-            'carry': self.carry,
-            'seed': self.seed,
-            'build': self.build,
-            'build_type': self.build_type,
-            'date': date_str,
-            'toolchain': {
-                self.toolchain: toolchain_map[self.toolchain]
-            },
-            'strategy': self.strategy,
-            'parameters': self.params_file or self.params_string,
 
-            # canonicalize
-            'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
-            'top': self.top,
-            "runtime": self.get_runtimes(),
-            "max_freq": max_freq,
-            "resources": resources,
-            "versions": self.versions(),
-            "cmds": self.cmds,
-            "wirelength": self.wirelength,
-            "maximum_memory_use": self.maximum_memory_use,
-        }
+        json_data = dict()
 
-        print
+        max_freq, resources = (None,
+                               None) if output_error else self.get_metrics()
+        runtimes = None if output_error else self.get_runtimes()
+
+        tools = dict(synth_tool=synth_tool, pr_tool=pr_tool)
+
+        # Meta information
+        json_data['date'] = date_str
+        json_data['status'] = "failed" if output_error else "succeeded"
+        json_data['error_msg'] = output_error
+
+        # Task information
+        json_data['design'] = self.design()
+        json_data['family'] = self.family
+        json_data['device'] = self.device
+        json_data['package'] = self.package
+        json_data['board'] = self.board
+        json_data['vendor'] = self.vendor
+        json_data['project'] = self.project_name
+        json_data['toolchain'] = {self.toolchain: tools}
+
+        # Detailed task information
+        json_data['optstr'] = self.optstr()
+        json_data['pcf'] = os.path.basename(self.pcf) if self.pcf else None
+        json_data['sdc'] = os.path.basename(self.sdc) if self.sdc else None
+        json_data['xdc'] = os.path.basename(self.xdc) if self.xdc else None
+        json_data['carry'] = self.carry
+        json_data['seed'] = self.seed
+        json_data['build'] = self.build
+        json_data['build_type'] = self.build_type
+        json_data['strategy'] = self.strategy
+        json_data['parameters'] = self.params_file or self.params_string
+        json_data['sources'] = [x.replace(os.getcwd(), '.') for x in self.srcs]
+        json_data['top'] = self.top
+        json_data['versions'] = self.versions()
+        json_data['cmds'] = self.cmds
+
+        # Results
+        json_data['runtime'] = runtimes
+        json_data['max_freq'] = max_freq
+        json_data['resources'] = resources
+        json_data['wirelength'] = self.wirelength
+        json_data['maximum_memory_use'] = self.maximum_memory_use
 
         with open(out_dir + '/meta.json', 'w') as f:
-            json.dump(j, f, sort_keys=True, indent=4)
+            json.dump(json_data, f, sort_keys=True, indent=4)
 
         # Provide some context when comparing runtimes against systems
         subprocess.check_call(
