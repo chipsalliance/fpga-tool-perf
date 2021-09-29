@@ -81,7 +81,7 @@ def merge_results(metas, filter=None):
 
     res_types = [
         'board', 'toolchain', 'runtime', 'resources', 'maximum_memory_use',
-        'max_freq', 'device', 'status'
+        'max_freq', 'device', 'status', 'versions'
     ]
 
     for meta in metas:

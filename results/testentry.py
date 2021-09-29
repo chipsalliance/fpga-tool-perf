@@ -72,6 +72,9 @@ class TestEntry:
     runtime: Runtime
     wirelength: 'int | None'
     status: 'str'
+    date: 'str'
+    toolchain: 'dict'
+    versions: 'dict'
 
 
 def null_generator():
@@ -80,8 +83,6 @@ def null_generator():
 
 
 def get_entries(json_data: dict):
-    results = json_data['results']
-
     def make_clks(clkdef: 'dict | float | None'):
         def get_clk(freq):
             clk = Clk()
@@ -127,16 +128,20 @@ def get_entries(json_data: dict):
             resources.sanitize()
         return resources
 
+    results = json_data['results']
+    date = json_data['date']
+
     wirelength = results.get('wirelength', null_generator())
     status = results.get('status', null_generator())
 
     zipped = zip(
         results['board'], results['toolchain'], results['max_freq'],
         results['maximum_memory_use'], results['resources'],
-        results['runtime'], wirelength, status
+        results['runtime'], wirelength, status, results['toolchain'],
+        results['versions']
     )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
-            wirelength, status in zipped:
+            wirelength, status, toolchain, versions in zipped:
         toolchain, _ = next(iter(toolchain_dict.items()))
 
         # Some platforms are cursed and the tests return just a single float
@@ -149,6 +154,10 @@ def get_entries(json_data: dict):
         entry.maxfreq = make_clks(clk_config)
         entry.runtime = make_runtime(runtime)
         entry.resources = make_resources(resources)
+
+        entry.toolchain = toolchain
+        entry.versions = versions
         entry.status = status if status is not None else 'succeeded'
+        entry.date = date
 
         yield board, toolchain, entry

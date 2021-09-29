@@ -40,7 +40,7 @@ def generate_index_html(
 
         board_dict = boards[board]
         if project not in board_dict:
-            board_dict[project] = dict()
+            board_dict[project] = dict(all_failed=True)
 
         proj_dict = board_dict[project]
 
@@ -61,6 +61,8 @@ def generate_index_html(
             for toolchain in toolchains.keys():
                 status = entries[board][toolchain][0].status
                 boards[board][project][toolchain] = status
+                boards[board][project]["all_failed"
+                                       ] = not status == "succeeded"
 
     for board, tool_list in toolchains_dict.items():
         toolchains_dict[board] = sorted(list(tool_list))
@@ -69,5 +71,5 @@ def generate_index_html(
         boards=boards,
         boards_list=list(boards.keys()),
         toolchains=toolchains_dict,
-        projects=projects
+        projects=sorted(projects)
     )

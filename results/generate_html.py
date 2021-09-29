@@ -16,6 +16,7 @@ import shutil
 
 from generate_graph_page import generate_graph_html
 from generate_index_page import generate_index_html
+from generate_stats_page import generate_stats_html
 from project_results import ProjectResults
 
 
@@ -31,11 +32,7 @@ def main():
         help='Directory containing json data files'
     )
     parser.add_argument(
-        '-o',
-        '--out-dir',
-        nargs=1,
-        type=str,
-        help='Save outputs in a given directory'
+        '-o', '--out-dir', type=str, help='Save outputs in a given directory'
     )
 
     args = parser.parse_args()
@@ -43,12 +40,13 @@ def main():
     if not os.path.isdir(args.in_dir):
         os.makedirs(args.in_dir)
 
-    graph_pages = {}
-
-    graph_viz_template = env.get_template('graphviz.html')
+    graph_template = env.get_template('graphs.html')
+    stats_template = env.get_template('stats.html')
     index_template = env.get_template('index.html')
 
     results = list()
+    graph_pages = dict()
+    stats_pages = dict()
 
     for project_name in os.listdir(args.in_dir):
         project_dir = os.path.join(args.in_dir, project_name)
@@ -60,26 +58,38 @@ def main():
         project_results = ProjectResults(project_name, project_dir, False)
         results.append(project_results)
 
-        # Filter failed tests
+        stats = generate_stats_html(stats_template, project_results)
+        stats_pages[project_name] = stats
+
         project_results = ProjectResults(project_name, project_dir, True)
-        graph_pages[project_name] = \
-            generate_graph_html(graph_viz_template, project_results)
+        graph = generate_graph_html(graph_template, project_results)
+        graph_pages[project_name] = graph
 
     index_page = generate_index_html(index_template, results)
 
     if args.out_dir:
-        graphs_dir = os.path.join(args.out_dir[0], 'graphs')
+        graphs_dir = os.path.join(args.out_dir, 'graphs')
+        stats_dir = os.path.join(args.out_dir, 'stats')
+
         os.makedirs(graphs_dir, exist_ok=True)
+        os.makedirs(stats_dir, exist_ok=True)
+
+        # Write graph pages
         for project_name, html in graph_pages.items():
             page_path = os.path.join(graphs_dir, f'{project_name}.html')
-            try:
+            with open(page_path, 'w') as out_file:
+                out_file.write(html)
+
+        # Write stats pages
+        for project_name, boards in stats_pages.items():
+            for board, html in boards.items():
+                page_path = os.path.join(
+                    stats_dir, f'{project_name}_{board}.html'
+                )
                 with open(page_path, 'w') as out_file:
                     out_file.write(html)
-            except Exception as e:
-                print(f'Unable to write to the output file {page_path}: {e}')
-                exit(-1)
 
-        index_path = os.path.join(args.out_dir[0], 'index.html')
+        index_path = os.path.join(args.out_dir, 'index.html')
         with open(index_path, 'w') as out_file:
             out_file.write(index_page)
 

@@ -16,9 +16,22 @@
       </div>
 
       <div id="overview" class="w3-container w3-center">
-        <p>Click on a board to select it.</p>
+        <p>Click on a project to jump to the graph visualization.</p>
       </div>
 
+      <div class="w3-row">
+        {% for project in projects %}
+          <div class="w3-col m4 l3">
+
+            <a href="graphs/{{ project }}.html" class="w3-light-gray w3-block w3-center">{{ project }}</a>
+          </div>
+        {% endfor %}
+      </div>
+      </br>
+      </br>
+      <div id="overview" class="w3-container w3-center">
+        <p>Click on a board to select it.</p>
+      </div>
       <div class="w3-row">
         {% for board in boards %}
           <div id="{{board}}" class="w3-col m4 l3">
@@ -30,6 +43,9 @@
         {% endfor %}
       </div>
 
+      <div id="overview" class="w3-container w3-center">
+        <p>To check the latest statistics, click on a project name.</p>
+      </div>
       <div>
         {% for board in boards %}
           <div id="{{ board }}-table" class="board-table w3-container w3-hide w3-padding-16">
