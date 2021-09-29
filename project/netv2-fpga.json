@@ -1,0 +1,28 @@
+{
+    "srcs": [
+	"src/netv2-fpga/i2c_snoop.v",
+	"src/netv2-fpga/hdcp_block.v",
+	"src/netv2-fpga/diff_network.v",
+	"src/netv2-fpga/shuffle_network.v",
+	"src/netv2-fpga/hdcp_cipher.v",
+	"src/netv2-fpga/hdcp_lfsr.v",
+	"src/netv2-fpga/hdcp_mod.v",
+	"third_party/vexriscv-verilog/VexRiscv_Debug.v",
+	"src/netv2-fpga/top.v"
+        ],
+    "top": "top",
+    "name": "netv2-fpga",
+    "data": [
+        "src/netv2-fpga/mem.init",
+        "src/netv2-fpga/edid_mem_1.init",
+        "src/netv2-fpga/mem_2.init",
+        "src/netv2-fpga/edid_mem.init"
+    ],
+    "clocks": {
+        "IO_CLK": 10.0
+    },
+    "vendors": {
+        "xilinx": ["netv2"]
+    },
+    "required_toolchains": ["vivado", "yosys-vivado"]
+}

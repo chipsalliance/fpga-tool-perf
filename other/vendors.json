@@ -1,6 +1,6 @@
 {
     "xilinx": {
-        "boards": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video"],
+        "boards": ["arty-a35t", "arty-a100t", "basys3", "zybo", "nexys-video", "netv2"],
         "toolchains": ["vivado", "yosys-vivado", "yosys-vivado-uhdm", "vpr", "vpr-fasm2bels", "nextpnr-xilinx", "nextpnr-fpga-interchange", "nextpnr-xilinx-fasm2bels"]
     },
     "lattice-ice40": {

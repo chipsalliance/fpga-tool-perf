@@ -29,6 +29,11 @@
         "device": "a200t",
         "package": "sbg484-1"
     },
+    "netv2": {
+        "family": "xc7",
+        "device": "a100t",
+        "package": "fgg484-2"
+    },
     "icebreaker": {
         "family": "ice40",
         "device": "up5k",
