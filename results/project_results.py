@@ -30,7 +30,7 @@ class ProjectResults:
     test_dates: 'list[datetime]'
     entries: 'defaultdict[str, defaultdict[str, list[TestEntry]]]'
 
-    def __init__(self, project_name: str, data_dir: str):
+    def __init__(self, project_name: str, data_dir: str, filter_failed: bool):
         self.project_name = project_name
         self.test_dates = []
         self.entries = defaultdict(lambda: defaultdict(lambda: []))
@@ -58,6 +58,9 @@ class ProjectResults:
             configs_to_handle = {}
 
             for board, toolchain, entry in get_entries(data):
+                if entry.status == "failed" and filter_failed:
+                    continue
+
                 self.entries[board][toolchain].append(entry)
 
     def get_all_configs(self):

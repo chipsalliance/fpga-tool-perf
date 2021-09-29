@@ -82,7 +82,17 @@ def null_generator():
 def get_entries(json_data: dict):
     results = json_data['results']
 
-    def make_clks(clkdef: 'dict | float'):
+    def make_clks(clkdef: 'dict | float | None'):
+        def get_clk(freq):
+            clk = Clk()
+            clk.actual = freq
+            clk.hold_violation = 0.0
+            clk.met = False
+            clk.requested = 0.0
+            clk.setup_violation = 0.0
+
+            return clk
+
         clks = {}
         if type(clkdef) is dict:
             for clkname, clkvals in clkdef.items():
@@ -91,32 +101,30 @@ def get_entries(json_data: dict):
                     setattr(clk, k, v)
                 clks[clkname] = clk
         elif type(clkdef) is float:
-            clk = Clk()
-            clk.actual = clkdef
-            clk.hold_violation = 0.0
-            clk.met = False
-            clk.requested = 0.0
-            clk.setup_violation = 0.0
-            clks['clk'] = clk
+            clks['clk'] = get_clk(clkdef)
+        elif clkdef is None:
+            clks['clk'] = get_clk(0.0)
         else:
             raise Exception('Wrong type for clock definition')
         return clks
 
-    def make_runtime(runtimedef: dict):
+    def make_runtime(runtimedef: 'dict | None'):
         runtime = Runtime()
-        for k, v in runtimedef.items():
-            k = k.replace(' ', '_')
-            setattr(runtime, k, v)
+        if type(runtimedef) is dict:
+            for k, v in runtimedef.items():
+                k = k.replace(' ', '_')
+                setattr(runtime, k, v)
         return runtime
 
-    def make_resources(resourcesdef: dict):
+    def make_resources(resourcesdef: 'dict | None'):
         resources = Resources()
-        for k, v in resourcesdef.items():
-            k = k.lower()
-            if v is None:
-                v = 'null'
-            setattr(resources, k, v)
-        resources.sanitize()
+        if type(resourcesdef) is dict:
+            for k, v in resourcesdef.items():
+                k = k.lower()
+                if v is None:
+                    v = 'null'
+                setattr(resources, k, v)
+            resources.sanitize()
         return resources
 
     wirelength = results.get('wirelength', null_generator())

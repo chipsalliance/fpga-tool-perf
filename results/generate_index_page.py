@@ -35,7 +35,6 @@ def generate_index_html(
     toolchains_dict = dict()
     projects = set()
     for project, toolchain, board in combinations:
-        print(project, toolchain, board)
         if board not in boards:
             boards[board] = dict()
 

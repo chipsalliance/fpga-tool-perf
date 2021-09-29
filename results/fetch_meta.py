@@ -79,6 +79,11 @@ def merge_results(metas, filter=None):
     earliest_dt = datetime.now()
     projects = defaultdict(lambda: {'results': defaultdict(lambda: [])})
 
+    res_types = [
+        'board', 'toolchain', 'runtime', 'resources', 'maximum_memory_use',
+        'max_freq', 'device', 'status'
+    ]
+
     for meta in metas:
         try:
             dt = datetime_from_str(meta['date'])
@@ -92,13 +97,8 @@ def merge_results(metas, filter=None):
                     continue
 
             # This is a rather incomplete list, but it should do the job
-            results['board'].append(meta['board'])
-            results['toolchain'].append(meta['toolchain'])
-            results['runtime'].append(meta['runtime'])
-            results['resources'].append(meta['resources'])
-            results['maximum_memory_use'].append(meta['maximum_memory_use'])
-            results['max_freq'].append(meta['max_freq'])
-            results['device'].append(meta['device'])
+            for res_type in res_types:
+                results[res_type].append(meta[res_type])
 
         except KeyError as e:
             print(f'Skipping a meta file because of {e}')
@@ -147,26 +147,17 @@ def download_and_split_compound(gcs_compound_path: str):
     projects = defaultdict(lambda: {'results': defaultdict(lambda: [])})
 
     meta_results = meta['results']
-    zipped = zip(
-        meta_results['board'], meta_results['project'],
-        meta_results['toolchain'], meta_results['runtime'],
-        meta_results['resources'], meta_results['maximum_memory_use'],
-        meta_results['max_freq'], meta_results['device'],
-        meta_results['wirelength']
-    )
 
-    for board, project, toolchain, runtime, resources, maximum_mem_use, \
-            max_freq, device, wirelength in zipped:
+    meta_projects = meta_results['project']
 
+    for idx, project in enumerate(meta_projects):
         project_res = projects[project]['results']
-        project_res['board'].append(board)
-        project_res['toolchain'].append(toolchain)
-        project_res['runtime'].append(runtime)
-        project_res['resources'].append(resources)
-        project_res['maximum_memory_use'].append(maximum_mem_use)
-        project_res['max_freq'].append(max_freq)
-        project_res['device'].append(device)
-        project_res['wirelength'].append(wirelength)
+
+        for k, v in meta_results.items():
+            if k in ['project']:
+                continue
+
+            project_res[k].append(v[idx])
 
     for project in projects.values():
         project['date'] = meta['date']

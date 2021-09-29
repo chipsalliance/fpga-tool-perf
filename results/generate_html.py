@@ -48,7 +48,7 @@ def main():
     graph_viz_template = env.get_template('graphviz.html')
     index_template = env.get_template('index.html')
 
-    results = []
+    results = list()
 
     for project_name in os.listdir(args.in_dir):
         project_dir = os.path.join(args.in_dir, project_name)
@@ -56,9 +56,12 @@ def main():
             print(f'Skipping `{project_dir}` because it' 's not a directory.')
             continue
 
-        project_results = ProjectResults(project_name, project_dir)
+        # Do not filter failed tests
+        project_results = ProjectResults(project_name, project_dir, False)
         results.append(project_results)
 
+        # Filter failed tests
+        project_results = ProjectResults(project_name, project_dir, True)
         graph_pages[project_name] = \
             generate_graph_html(graph_viz_template, project_results)
 
