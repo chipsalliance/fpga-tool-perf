@@ -24,7 +24,7 @@ import edalize
 import glob
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed, get_vivado_max_freq, have_exec, get_yosys_resources
+from utils.utils import Timed, get_vivado_max_freq, have_exec, get_yosys_resources, get_file_dict
 
 
 class Vivado(Toolchain):
@@ -105,63 +105,36 @@ class Vivado(Toolchain):
         for t in impl_times:
             self.add_runtime(t, impl_times[t])
 
+    def prepare_edam(self):
+        chip = self.family + self.device + self.package
+
+        vivado_settings = os.getenv('VIVADO_SETTINGS')
+
+        options = dict()
+        options['part'] = chip
+        options['synth'] = self.synthtool
+        options['vivado-settings'] = vivado_settings
+        options['yosys_synth_options'] = self.synthoptions
+
+        params = dict(paramtype='vlogdefine', datatype='int', default=1)
+
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(vivado=options)
+        edam['parameters'] = dict(VIVADO=params)
+
+        return edam
+
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 os.makedirs(self.out_dir, exist_ok=True)
-                for f in self.srcs:
-                    if f.endswith(".vhd") or f.endswith(".vhdl"):
-                        self.files.append(
-                            {
-                                'name': os.path.realpath(f),
-                                'file_type': 'vhdlSource'
-                            }
-                        )
-                    elif f.endswith(".v"):
-                        self.files.append(
-                            {
-                                'name': os.path.realpath(f),
-                                'file_type': 'verilogSource'
-                            }
-                        )
 
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.xdc),
-                        'file_type': 'xdc'
-                    }
-                )
-
-                chip = self.family + self.device + self.package
-
-                vivado_settings = os.getenv('VIVADO_SETTINGS')
-
-                vivado_options = {
-                    'part': chip,
-                    'synth': self.synthtool,
-                    'vivado-settings': vivado_settings,
-                    'yosys_synth_options': self.synthoptions,
-                }
-
-                self.edam = {
-                    'files': self.files,
-                    'name': self.project_name,
-                    'toplevel': self.top,
-                    'parameters':
-                        {
-                            'VIVADO':
-                                {
-                                    'paramtype': 'vlogdefine',
-                                    'datatype': 'int',
-                                    'default': 1,
-                                },
-                        },
-                    'tool_options': {
-                        'vivado': vivado_options
-                    }
-                }
+                edam = self.prepare_edam()
                 self.backend = edalize.get_edatool('vivado')(
-                    edam=self.edam, work_root=self.out_dir
+                    edam=edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
 
@@ -343,7 +316,6 @@ class VivadoYosys(Vivado):
         assert False, "No run time found for yosys."
 
     def add_runtimes(self):
-
         synth_times = self.get_yosys_runtimes(
             os.path.join(self.out_dir, 'yosys.log')
         )

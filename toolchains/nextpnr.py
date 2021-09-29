@@ -15,7 +15,7 @@ import re
 import subprocess
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed, have_exec, get_vivado_max_freq, get_yosys_resources
+from utils.utils import Timed, have_exec, get_file_dict, get_vivado_max_freq, get_yosys_resources
 
 YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
 
@@ -37,6 +37,7 @@ class NextpnrGeneric(Toolchain):
         self.schema_dir = None
         self.device_file = None
         self.fasm2bels = False
+        self.symbiflow_options = dict()
 
         self.nextpnr_log = "nextpnr.log"
 
@@ -57,30 +58,11 @@ class NextpnrGeneric(Toolchain):
         return os.path.join(nextpnr_location, '..', 'share')
 
     def configure(self):
+        assert self.xdc
+
         os.makedirs(self.out_dir, exist_ok=True)
 
-        for f in self.srcs:
-            self.files.append(
-                {
-                    'name': os.path.realpath(f),
-                    'file_type': 'verilogSource'
-                }
-            )
-
-        assert self.xdc
-        self.files.append(
-            {
-                'name': os.path.realpath(self.xdc),
-                'file_type': 'xdc'
-            }
-        )
-
-        self.files.append(
-            {
-                'name': os.path.realpath(self.chipdb),
-                'file_type': 'bba'
-            }
-        )
+        self.files.append(get_file_dict(self.chipdb, 'bba'))
 
         if len(self.yosys_synth_opts) == 0:
             self.yosys_synth_opts = [
@@ -103,44 +85,26 @@ class NextpnrGeneric(Toolchain):
                 '{}_test'.format(chip_replace)
             )
 
-            self.files.append(
-                {
-                    'name':
-                        os.path.realpath(
-                            os.path.join(device_path, '*rr_graph.real.bin')
-                        ),
-                    'file_type':
-                        'RRGraph'
-                }
-            )
+            rr_graph_path = os.path.join(device_path, '*rr_graph.real.bin')
+            vpr_grid_path = os.path.join(device_path, 'vpr_grid_map.csv')
+            self.files.append(get_file_dict(rr_graph_path, 'RRGraph'))
+            self.files.append(get_file_dict(vpr_grid_path, 'VPRGrid'))
 
-            self.files.append(
-                {
-                    'name':
-                        os.path.realpath(
-                            os.path.join(device_path, 'vpr_grid_map.csv')
-                        ),
-                    'file_type':
-                        'VPRGrid'
-                }
-            )
-
-        self.symbiflow_options = {
-            'arch': self.arch,
-            'part': self.chip,
-            'package': self.package,
-            'vendor': self.vendor,
-            'builddir': self.builddir,
-            'pnr': 'nextpnr',
-            'yosys_synth_options': self.yosys_synth_opts,
-            'yosys_additional_commands': self.yosys_additional_commands,
-            'fasm2bels': self.fasm2bels,
-            'dbroot': self.dbroot,
-            'schema_dir': self.schema_dir,
-            'device': self.device_file,
-            'clocks': self.clocks,
-            'nextpnr_options': self.options
-        }
+        options = self.symbiflow_options
+        options['arch'] = self.arch
+        options['part'] = self.chip
+        options['package'] = self.package
+        options['vendor'] = self.vendor
+        options['builddir'] = self.builddir
+        options['pnr'] = 'nextpnr'
+        options['yosys_synth_options'] = self.yosys_synth_opts
+        options['yosys_additional_commands'] = self.yosys_additional_commands
+        options['fasm2bels'] = self.fasm2bels
+        options['dbroot'] = self.dbroot
+        options['schema_dir'] = self.schema_dir
+        options['device'] = self.device_file
+        options['clocks'] = self.clocks
+        options['nextpnr_options'] = self.options
 
         if self.fasm2bels and self.arch is not "fpga_interchange":
             bitstream_device = None
@@ -438,12 +402,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             self.rootdir, 'env', 'interchange', 'devices', self.chip,
             '{}.device'.format(self.chip)
         )
-        self.files.append(
-            {
-                'name': os.path.realpath(self.device_file),
-                'file_type': 'device'
-            }
-        )
+        self.files.append(get_file_dict(self.device_file, 'device'))
 
         self.yosys_additional_commands = ["setundef -zero -params"]
         self.options = f"--log {self.nextpnr_log} --disable-lut-mapping-cache"
@@ -461,12 +420,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             'lib_{}.v'.format(self.family)
         )
         if os.path.isfile(lib_file):
-            self.files.append(
-                {
-                    'name': os.path.realpath(lib_file),
-                    'file_type': 'yosys_lib'
-                }
-            )
+            self.files.append(get_file_dict(lib_file, 'yosys_lib'))
 
         techmap_file = os.path.join(
             self.rootdir, 'env', 'interchange', 'techmaps',
@@ -490,14 +444,11 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         NextpnrGeneric.configure(self)
 
         # Assemble edam
-        edam = {
-            'files': self.files,
-            'name': self.project_name,
-            'toplevel': self.top,
-            'tool_options': {
-                'symbiflow': self.symbiflow_options,
-            }
-        }
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(symbiflow=self.symbiflow_options)
 
         return edam
 
@@ -578,12 +529,7 @@ class NextpnrXilinx(NextpnrGeneric):
             share_dir, 'nextpnr-xilinx',
             '{}{}.bin'.format(self.family, self.part)
         )
-        self.files.append(
-            {
-                'name': os.path.realpath(self.chipdb),
-                'file_type': 'bba'
-            }
-        )
+        self.files.append(get_file_dict(self.chipdb, 'bba'))
 
         self.env_script = os.path.abspath(
             'env.sh'
@@ -593,14 +539,11 @@ class NextpnrXilinx(NextpnrGeneric):
         # Run generic configure before constructing an edam
         NextpnrGeneric.configure(self)
 
-        edam = {
-            'files': self.files,
-            'name': self.project_name,
-            'toplevel': self.top,
-            'tool_options': {
-                'symbiflow': self.symbiflow_options,
-            }
-        }
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(symbiflow=self.symbiflow_options)
 
         return edam
 
@@ -626,36 +569,17 @@ class NextpnrOxide(NextpnrGeneric):
 
     def prepare_edam(self):
         os.makedirs(self.out_dir, exist_ok=True)
-        for f in self.srcs:
-            self.files.append(
-                {
-                    'name': os.path.realpath(f),
-                    'file_type': 'verilogSource'
-                }
-            )
-        if self.pdc is not None:
-            self.files.append(
-                {
-                    'name': os.path.realpath(self.pdc),
-                    'file_type': 'PDC'
-                }
-            )
-
         args = f"--device {self.device} "
         args += "--timing-allow-fail "
         if self.seed:
             args += " --seed %u" % (self.seed, )
+        options = dict(nextpnr_options=args.split())
 
-        edam = {
-            'files': self.files,
-            'name': self.project_name,
-            'toplevel': self.top,
-            'tool_options': {
-                'oxide': {
-                    'nextpnr_options': args.split(),
-                }
-            }
-        }
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(oxide=options)
 
         self.env_script = os.path.abspath(
             'env.sh'

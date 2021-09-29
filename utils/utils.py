@@ -148,3 +148,7 @@ def safe_get_dict_value(dict, key, default):
         return dict[key]
     else:
         return default
+
+
+def get_file_dict(file_name, file_type):
+    return dict(name=os.path.realpath(file_name), file_type=file_type)

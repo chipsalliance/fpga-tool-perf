@@ -15,7 +15,7 @@ import subprocess
 import edalize
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed, have_exec, which, get_yosys_resources
+from utils.utils import Timed, have_exec, which, get_file_dict, get_yosys_resources
 from infrastructure.tool_parameters import ToolParametersHelper
 
 YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
@@ -26,6 +26,7 @@ class VPR(Toolchain):
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
         self.toolchain = 'vpr'
+        self.builddir = '.'
         self.files = []
         self.fasm2bels = False
         self.dbroot = None
@@ -60,6 +61,50 @@ class VPR(Toolchain):
                 ),
         }
 
+    def prepare_edam(self, part):
+        if self.fasm2bels and self.vendor == "xilinx":
+            symbiflow = os.getenv('SYMBIFLOW', None)
+            assert symbiflow
+
+            device_aliases = {"a35t": "a50t"}
+
+            chip_replace = part
+            for k, v in device_aliases.items():
+                chip_replace = part.replace(k, v)
+
+            device_path = os.path.join(
+                symbiflow, 'share', 'symbiflow', 'arch',
+                '{}_test'.format(chip_replace)
+            )
+
+            rr_graph_path = os.path.join(device_path, '*rr_graph.real.bin')
+            vpr_grid_path = os.path.join(device_path, 'vpr_grid_map.csv')
+            self.files.append(get_file_dict(rr_graph_path, 'RRGraph'))
+            self.files.append(get_file_dict(vpr_grid_path, 'VPRGrid'))
+
+        seed = f"--seed {self.seed}" if self.seed else ""
+
+        tool_params = self.get_tool_params()
+
+        options = dict()
+        options['part'] = part
+        options['package'] = self.package
+        options['vendor'] = self.vendor
+        options['builddir'] = self.builddir
+        options['pnr'] = 'vpr'
+        options['vpr_options'] = tool_params + seed
+        options['fasm2bels'] = self.fasm2bels
+        options['dbroot'] = self.dbroot
+        options['clocks'] = self.clocks
+
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(symbiflow=options)
+
+        return edam
+
     def run_steps(self):
         try:
             self.backend.build_main(self.top + '.eblif')
@@ -86,112 +131,9 @@ class VPR(Toolchain):
                 ] = f"source {os.path.abspath('env.sh') + ' xilinx-' + self.device} &&"
                 os.makedirs(self.out_dir, exist_ok=True)
 
-                for f in self.srcs:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(f),
-                            'file_type': 'verilogSource'
-                        }
-                    )
-
-                if self.pcf:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.pcf),
-                            'file_type': 'PCF'
-                        }
-                    )
-                if self.sdc:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.sdc),
-                            'file_type': 'SDC'
-                        }
-                    )
-
-                if self.xdc:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.xdc),
-                            'file_type': 'xdc'
-                        }
-                    )
-
-                chip = self.family + self.device
-
-                tool_params = self.get_tool_params()
-
-                if self.fasm2bels:
-                    symbiflow = os.getenv('SYMBIFLOW', None)
-                    assert symbiflow
-
-                    device_aliases = {"a35t": "a50t"}
-
-                    chip_replace = chip
-                    for k, v in device_aliases.items():
-                        chip_replace = chip.replace(k, v)
-
-                    device_path = os.path.join(
-                        symbiflow, 'share', 'symbiflow', 'arch',
-                        '{}_test'.format(chip_replace)
-                    )
-
-                    self.files.append(
-                        {
-                            'name':
-                                os.path.realpath(
-                                    os.path.join(
-                                        device_path, '*rr_graph.real.bin'
-                                    )
-                                ),
-                            'file_type':
-                                'RRGraph'
-                        }
-                    )
-
-                    self.files.append(
-                        {
-                            'name':
-                                os.path.realpath(
-                                    os.path.join(
-                                        device_path, 'vpr_grid_map.csv'
-                                    )
-                                ),
-                            'file_type':
-                                'VPRGrid'
-                        }
-                    )
-                symbiflow_options = {
-                    'part':
-                        chip,
-                    'package':
-                        self.package,
-                    'vendor':
-                        'xilinx',
-                    'builddir':
-                        '.',
-                    'pnr':
-                        'vpr',
-                    'vpr_options':
-                        tool_params +
-                        f"--seed {self.seed}" if self.seed else "",
-                    'fasm2bels':
-                        self.fasm2bels,
-                    'dbroot':
-                        self.dbroot,
-                    'clocks':
-                        self.clocks,
-                }
-                self.edam = {
-                    'files': self.files,
-                    'name': self.project_name,
-                    'toplevel': self.top,
-                    'tool_options': {
-                        'symbiflow': symbiflow_options
-                    }
-                }
+                edam = self.prepare_edam(self.family + self.device)
                 self.backend = edalize.get_edatool('symbiflow')(
-                    edam=self.edam, work_root=self.out_dir
+                    edam=edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
 
@@ -596,63 +538,9 @@ class Quicklogic(VPR):
                 ] = f"source {os.path.abspath('env.sh') + ' quicklogic'} &&"
                 os.makedirs(self.out_dir, exist_ok=True)
 
-                for f in self.srcs:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(f),
-                            'file_type': 'verilogSource'
-                        }
-                    )
-
-                if self.pcf:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.pcf),
-                            'file_type': 'PCF'
-                        }
-                    )
-                if self.sdc:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.sdc),
-                            'file_type': 'SDC'
-                        }
-                    )
-
-                if self.xdc:
-                    self.files.append(
-                        {
-                            'name': os.path.realpath(self.xdc),
-                            'file_type': 'xdc'
-                        }
-                    )
-
-                chip = self.family + self.device
-
-                tool_params = []
-                symbiflow_options = {
-                    'part': self.device,
-                    'package': self.package,
-                    'vendor': 'quicklogic',
-                    'builddir': '.',
-                    'pnr': 'vpr',
-                    'vpr_options': tool_params,
-                    'fasm2bels': self.fasm2bels,
-                    'dbroot': self.dbroot,
-                    'clocks': self.clocks,
-                    'seed': self.seed,
-                }
-
-                self.edam = {
-                    'files': self.files,
-                    'name': self.project_name,
-                    'toplevel': self.top,
-                    'tool_options': {
-                        'symbiflow': symbiflow_options
-                    }
-                }
+                edam = self.prepare_edam(self.device)
                 self.backend = edalize.get_edatool('symbiflow')(
-                    edam=self.edam, work_root=self.out_dir
+                    edam=edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
 

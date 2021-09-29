@@ -21,7 +21,7 @@ import glob
 import datetime
 import shutil
 
-from utils.utils import Timed, have_exec
+from utils.utils import Timed, have_exec, get_file_dict
 
 TOOLCHAIN_MAP = {
     'vpr': ('yosys', 'vpr'),
@@ -47,9 +47,12 @@ class Toolchain:
         self.toolchain = None
         self.verbose = False
         self.cmds = []
+
         self.pcf = None
         self.sdc = None
         self.xdc = None
+        self.pdc = None
+
         self.params_file = None
         self.params_string = None
         self.seed = None
@@ -76,19 +79,6 @@ class Toolchain:
     def canonicalize(self, fns):
         return [os.path.realpath(self.rootdir + '/' + fn) for fn in fns]
 
-    def optstr(self):
-        tokens = []
-
-        if self.pcf:
-            tokens.append('pcf')
-        if self.sdc:
-            tokens.append('sdc')
-        if self.xdc:
-            tokens.append('xdc')
-        if self.seed:
-            tokens.append('seed-%08X' % (self.seed, ))
-        return '_'.join(tokens)
-
     def add_runtime(self, name, dt, parent=None, unprinted_runtime=False):
         collection = self.runtimes
         if unprinted_runtime:
@@ -101,6 +91,51 @@ class Toolchain:
             if parent not in collection:
                 collection[parent] = collections.OrderedDict()
             collection[parent][name] = dt
+
+    def add_common_files(self):
+        """
+        Adds common files for the EDAM configuration
+        """
+
+        for f in self.srcs:
+            vhdl_type = 'vhdlSource'
+            verilog_type = 'verilogSource'
+
+            is_vhdl = f.endswith(".vhd") or f.endswith(".vhdl")
+            is_verilog = f.endswith(".v")
+
+            if is_vhdl:
+                file_type = vhdl_type
+            elif is_verilog:
+                file_type = verilog_type
+
+            self.files.append(get_file_dict(f, file_type))
+
+        # Constraints files
+        if self.pcf:
+            self.files.append(get_file_dict(self.pcf, 'PCF'))
+
+        if self.sdc:
+            self.files.append(get_file_dict(self.sdc, 'SDC'))
+
+        if self.xdc:
+            self.files.append(get_file_dict(self.xdc, 'xdc'))
+
+        if self.pdc:
+            self.files.append(get_file_dict(self.pdc, 'PDC'))
+
+    def optstr(self):
+        tokens = []
+
+        if self.pcf:
+            tokens.append('pcf')
+        if self.sdc:
+            tokens.append('sdc')
+        if self.xdc:
+            tokens.append('xdc')
+        if self.seed:
+            tokens.append('seed-%08X' % (self.seed, ))
+        return '_'.join(tokens)
 
     def design(self):
         ret = "{}_{}_{}_{}_{}".format(
@@ -152,6 +187,8 @@ class Toolchain:
         for src in self.srcs:
             if not os.path.exists(src):
                 raise ValueError("Missing source file %s" % src)
+        self.add_common_files()
+
         self.top = project['top']
 
         self.clocks = project.get('clocks', None)

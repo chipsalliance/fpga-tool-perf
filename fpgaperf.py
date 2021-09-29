@@ -219,6 +219,7 @@ def run(
                 str(e)[-1000:]
             ) if len(str(e)) > 1000 else str(e)
             output_error = output_error.split("\n")
+            logger.debug(f"ERROR: {output_error}")
 
     logger.debug("Printing Stats")
     if not output_error:

@@ -15,7 +15,7 @@ import re
 import edalize
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed, have_exec, get_yosys_resources
+from utils.utils import Timed, have_exec, get_yosys_resources, get_file_dict
 
 
 class Icestorm(Toolchain):
@@ -50,30 +50,37 @@ class Icestorm(Toolchain):
             'BRAM': ('BRAM', ),
         }
 
-    def resources(self):
-        synth_resources = get_yosys_resources(
-            os.path.join(os.path.join(self.out_dir, "yosys.log"))
+    def prepare_edam(self, pnr, args):
+        options = dict(
+            nextpnr_options=args.split(),
+            arachne_pnr_options=args.split(),
+            pnr=pnr,
+            part=self.device
         )
-        synth_resources = self.get_resources_count(synth_resources)
 
-        impl_resources = self.icebox_stat(
-            self.backend,
-            os.path.join(self.out_dir, f"{self.project_name}.stat")
-        )
-        impl_resources = self.get_resources_count(impl_resources)
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(icestorm=options)
 
-        return {"synth": synth_resources, "impl": impl_resources}
+        return edam
 
-    def yosys_ver(self):
-        # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
-        return subprocess.check_output(
-            "yosys -V", shell=True, universal_newlines=True
-        ).strip()
+    def run(self, pnr, args):
+        with Timed(self, 'total'):
+            os.makedirs(self.out_dir, exist_ok=True)
 
-    def device_simple(self):
-        # hx8k => 8k
-        assert len(self.device) == 4
-        return self.device[2:]
+            self.env_script = os.path.abspath('env.sh') + ' nextpnr'
+            os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
+
+            edam = self.prepare_edam(pnr, args)
+            self.backend = edalize.get_edatool('icestorm')(
+                edam=edam, work_root=self.out_dir
+            )
+            self.backend.configure("")
+            self.backend.build()
+            self.backend.build_main('timing')
+        del os.environ["EDALIZE_LAUNCHER"]
 
     def icebox_stat(self, backend, stat_file):
         os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
@@ -100,6 +107,20 @@ class Icestorm(Toolchain):
         assert 'LUT' in ret
         return ret
 
+    def resources(self):
+        synth_resources = get_yosys_resources(
+            os.path.join(os.path.join(self.out_dir, "yosys.log"))
+        )
+        synth_resources = self.get_resources_count(synth_resources)
+
+        impl_resources = self.icebox_stat(
+            self.backend,
+            os.path.join(self.out_dir, f"{self.project_name}.stat")
+        )
+        impl_resources = self.get_resources_count(impl_resources)
+
+        return {"synth": synth_resources, "impl": impl_resources}
+
     def icetime_parse(self, f):
         ret = {}
         for l in f:
@@ -125,50 +146,16 @@ class Icestorm(Toolchain):
 
             return {"clk": clk_data}
 
-    def run(self, pnr, args):
-        with Timed(self, 'total'):
-            os.makedirs(self.out_dir, exist_ok=True)
-            for f in self.srcs:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(f),
-                        'file_type': 'verilogSource'
-                    }
-                )
+    def yosys_ver(self):
+        # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
+        return subprocess.check_output(
+            "yosys -V", shell=True, universal_newlines=True
+        ).strip()
 
-            if self.pcf is not None:
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.pcf),
-                        'file_type': 'PCF'
-                    }
-                )
-
-            self.edam = {
-                'files': self.files,
-                'name': self.project_name,
-                'toplevel': self.top,
-                'tool_options':
-                    {
-                        'icestorm':
-                            {
-                                'nextpnr_options': args.split(),
-                                'arachne_pnr_options': args.split(),
-                                'pnr': pnr,
-                                'part': self.device,
-                            }
-                    }
-            }
-            self.env_script = os.path.abspath('env.sh') + ' nextpnr'
-            os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
-
-            self.backend = edalize.get_edatool('icestorm')(
-                edam=self.edam, work_root=self.out_dir
-            )
-            self.backend.configure("")
-            self.backend.build()
-            self.backend.build_main('timing')
-        del os.environ["EDALIZE_LAUNCHER"]
+    def device_simple(self):
+        # hx8k => 8k
+        assert len(self.device) == 4
+        return self.device[2:]
 
 
 class NextpnrIcestorm(Icestorm):
