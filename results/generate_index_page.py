@@ -58,11 +58,14 @@ def generate_index_html(
         project = project_results.project_name
 
         for board, toolchains in entries.items():
+            all_failed = False
             for toolchain in toolchains.keys():
                 status = entries[board][toolchain][0].status
                 boards[board][project][toolchain] = status
-                boards[board][project]["all_failed"
-                                       ] = not status == "succeeded"
+
+                all_failed |= status == "passed"
+
+            boards[board][project]["all_failed"] = all_failed
 
     for board, tool_list in toolchains_dict.items():
         toolchains_dict[board] = sorted(list(tool_list))

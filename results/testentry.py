@@ -34,7 +34,6 @@ class Resources:
         # FIXME: currenly oxide uses FF instead of DFF, lacks GLB and has LRAM
         # https://github.com/SymbiFlow/fpga-tool-perf/pull/342
         if hasattr(self, 'ff'):
-            print('Sanitizing: FF->DFF')
             # rename FF to DFF
             assert not hasattr(self, 'dff')
             self.dff = self.ff
@@ -142,7 +141,7 @@ def get_entries(json_data: dict):
     )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
             wirelength, status, toolchain, versions in zipped:
-        toolchain, _ = next(iter(toolchain_dict.items()))
+        toolchain_name, _ = next(iter(toolchain_dict.items()))
 
         # Some platforms are cursed and the tests return just a single float
         # instead of a dict
@@ -160,4 +159,4 @@ def get_entries(json_data: dict):
         entry.status = status if status is not None else 'succeeded'
         entry.date = date
 
-        yield board, toolchain, entry
+        yield board, toolchain_name, entry

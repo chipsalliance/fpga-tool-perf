@@ -16,15 +16,15 @@
       </th>
         {% for toolchain in boards[board][project] %}
           {% if boards[board][project][toolchain] == "succeeded" %}
-            <th class="w3-center w3-border passed" style="background-color: lightgreen">
+            <th class="w3-center w3-border passed" style="color: green">
               Passed
             </th>
           {% elif boards[board][project][toolchain] == "failed" %}
-            <th class="w3-center w3-border failed" style="background-color: red">
+            <th class="w3-center w3-border failed" style="color: red">
               Failed
             </th>
           {% elif boards[board][project][toolchain] == "skip" %}
-            <th class="w3-center w3-border failed" style="background-color: lightblue">
+            <th class="w3-center w3-border failed" style="color: orange">
               Skipped
             </th>
           {% endif %}
