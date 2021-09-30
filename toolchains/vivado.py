@@ -244,13 +244,13 @@ class Vivado(Toolchain):
         return {"synth": synth_resources, "impl": impl_resources}
 
     def vivado_ver(self):
+        cmd = "source $(find /opt -wholename \"*Xilinx/Vivado/*/settings64.sh\" 2>/dev/null | sort | head -n 1);"
+        cmd += "which vivado"
         output = subprocess.check_output(
-            "echo \"exit\" | vivado -mode batch",
-            shell=True,
-            universal_newlines=True
+            cmd, shell=True, universal_newlines=True, executable="/bin/bash"
         ).strip()
 
-        version_re = re.compile(".*Vivado (v[0-9]+\.[0-9]+) .*")
+        version_re = re.compile(".*/Vivado/([0-9]+\.[0-9]+)/.*")
         match = version_re.match(output)
 
         if match:
