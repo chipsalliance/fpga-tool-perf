@@ -9,13 +9,13 @@
 #
 # SPDX-License-Identifier: ISC
 
-import os
-import json
 import itertools
+import os
+import yaml
 
 
 class ToolParametersHelper:
-    def __init__(self, toolchain, params_file='params.json'):
+    def __init__(self, toolchain, params_file='params.yaml'):
         self.params_path = os.path.join(
             os.getcwd(), 'tool_parameters', toolchain, params_file
         )
@@ -26,7 +26,7 @@ class ToolParametersHelper:
         ), "Parameters file {} does not exist.".format(self.params_path)
 
         with open(self.params_path, 'r') as params_file:
-            self.params = json.load(params_file)
+            self.params = yaml.safe_load(params_file)
 
     def get_all_params_combinations(self):
         all_params = []

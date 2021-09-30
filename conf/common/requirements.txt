@@ -5,6 +5,7 @@ lxml
 pandas
 pytest
 python-constraint
+pyyaml
 requests
 simplejson
 termcolor

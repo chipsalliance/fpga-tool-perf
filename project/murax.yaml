@@ -1,0 +1,26 @@
+srcs:
+  - third_party/murax/Murax.v
+  - src/murax/toplevel.v
+data:
+  - src/murax/Murax.v_toplevel_system_ram_ram_symbol0.bin
+  - src/murax/Murax.v_toplevel_system_ram_ram_symbol2.bin
+  - src/murax/Murax.v_toplevel_system_ram_ram_symbol1.bin
+  - src/murax/Murax.v_toplevel_system_ram_ram_symbol3.bin
+top: toplevel
+name: murax
+clocks:
+  io_mainClk: 10.0
+clock_aliases:
+  io_mainClk:
+    - clk
+    - io_mainClk_bufg
+vendors:
+  xilinx:
+    - basys3
+    - nexys-video
+required_toolchains:
+  - vivado
+  - yosys-vivado
+  - vpr
+  - vpr-fasm2bels
+  - nextpnr-fpga-interchange

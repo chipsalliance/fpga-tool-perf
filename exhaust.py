@@ -15,6 +15,7 @@ import glob
 import time
 import re
 import logging
+import yaml
 from terminaltables import AsciiTable
 from termcolor import colored
 from multiprocessing import cpu_count
@@ -164,7 +165,7 @@ def parse_args():
     )
     parser.add_argument('--build', default=0, help='Build number')
     parser.add_argument(
-        '--parameters', default=None, help='Tool parameters json file'
+        '--parameters', default=None, help='Tool parameters YAML file'
     )
     parser.add_argument(
         '--seed', default=None, help='Seed to assign when running the tools'
@@ -172,7 +173,7 @@ def parse_args():
     parser.add_argument(
         '--run_config',
         default=None,
-        help="Run configuration file in JSON format."
+        help="Run configuration file in YAML format."
     )
     parser.add_argument('--fail', action='store_true', help='fail on error')
     parser.add_argument(
@@ -221,7 +222,7 @@ def main():
     seeds = list()
     if args.run_config:
         with open(args.run_config, 'r') as f:
-            run_config = json.load(f)
+            run_config = yaml.safe_load(f)
             project = safe_get_dict_value(run_config, "project", None)
             toolchain = safe_get_dict_value(run_config, "toolchain", None)
             seeds = [

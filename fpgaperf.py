@@ -10,11 +10,11 @@
 # SPDX-License-Identifier: ISC
 
 import os
-import json
 import re
 import sys
 import glob
 import logging
+import yaml
 from contextlib import redirect_stdout
 from terminaltables import AsciiTable
 
@@ -158,10 +158,8 @@ def run(
 
     logger.debug("Preparing Project")
     project_dict = get_project(project)
-    with open(os.path.join(root_dir, 'other', 'boards.json'), 'r') as boards:
-        boards_info = json.load(boards)
 
-    board_info = boards_info[board]
+    board_info = get_boards()[board]
     family = board_info['family']
     device = board_info['device']
     package = board_info['package']
@@ -259,9 +257,9 @@ def list_combinations(
 
 def get_vendors(toolchain=None, board=None):
     '''Return vendor information'''
-    with open(os.path.join(root_dir, 'other', 'vendors.json'),
+    with open(os.path.join(root_dir, 'other', 'vendors.yaml'),
               'r') as vendors_file:
-        vendors = json.load(vendors_file)
+        vendors = yaml.safe_load(vendors_file)
     if toolchain is None and board is None:
         return vendors
     for v in vendors:
@@ -275,9 +273,9 @@ def get_vendors(toolchain=None, board=None):
 
 def get_boards(board=None):
     '''Query all supported boards'''
-    with open(os.path.join(root_dir, 'other', 'boards.json'),
+    with open(os.path.join(root_dir, 'other', 'boards.yaml'),
               'r') as boards_file:
-        boards = json.load(boards_file)
+        boards = yaml.safe_load(boards_file)
     if board is None:
         return boards
     elif board in boards:
@@ -315,7 +313,7 @@ def matching_pattern(path, pattern):
 def get_projects(project=None):
     '''Query all supported projects'''
     projects = matching_pattern(
-        os.path.join(project_dir, '*.json'), '/.*/(.*)[.]json'
+        os.path.join(project_dir, '*.yaml'), '/.*/(.*)[.]yaml'
     )
     if project is None:
         return projects
@@ -390,9 +388,9 @@ def get_constraint(project, board, toolchain, extension):
 
 
 def get_project(name):
-    project_fn = os.path.join(project_dir, '{}.json'.format(name))
+    project_fn = os.path.join(project_dir, '{}.yaml'.format(name))
     with open(project_fn, 'r') as f:
-        return json.load(f)
+        return yaml.safe_load(f)
 
 
 def add_bool_arg(parser, yes_arg, default=False, **kwargs):

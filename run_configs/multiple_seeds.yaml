@@ -1,0 +1,6 @@
+toolchain: vpr
+seeds:
+  - 0
+  - 1000
+  - 100000
+project: blinky
