@@ -22,19 +22,11 @@ import jinja2
 from color import hsl_to_rgb, rgb_to_hex
 from jinja2_templates import gen_datasets_def
 import testentry
-from project_results import ProjectResults
-
-
-def datetime_from_str(s: str):
-    return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
+from project_results import ProjectResults, datetime_from_str, config_name
 
 
 def fmt_list(l: list, fmt: str):
     return ', '.join(fmt.format(e) for e in l)
-
-
-def config_name(board: str, toolchain: str):
-    return f'{board}-{toolchain}'
 
 
 # Generate an HSL color unique for a given config
@@ -77,9 +69,17 @@ def generate_graph_html(
                 color_hex = rgb_to_hex(r, g, b)
 
                 for d_dict, fmt, selector in ds_defs:
+                    data = dict()
+                    for e in entries:
+                        if e and e.status == "succeeded":
+                            data[datetime_from_str(e.date)] = selector(e)
+
+                    final_data = list()
+                    for date in project_results.test_dates:
+                        final_data.append(data.get(date, 'null'))
+
                     d_dict[gname] = {
-                        'data': fmt_list([selector(e) if e else 'null' \
-                                        for e in entries], fmt),
+                        'data': fmt_list(final_data, fmt),
                         'color': color_hex
                     }
 
