@@ -1,34 +1,34 @@
-<table class="w3-table-all w3-responsive ">
+<table class="w3-table-all">
   <tr class="w3-gray">
-    <th class="w3-center w3-border"> Toolchain  <br></br> Project</th>
-    {% for toolchain in toolchains[board] %}
-      <th class="w3-center w3-border"> {{ toolchain }} </th>
+    <th class="w3-center w3-border">Project</th>
+  {% for toolchain in toolchains[device] %}
+    <th class="w3-center w3-border"> {{ toolchain }} </th>
+  {% endfor %}
+  </tr>
+  {% for project in devices[device] %}
+  <tr>
+    <th>
+    {% if devices[device][project]["all_failed"] %}
+      <p>{{ project }}</p>
+    {% else %}
+      <a href="stats/{{ project }}_{{ device }}.html">{{ project }}</a>
+    {% endif %}
+    </th>
+      {% for toolchain in devices[device][project] %}
+        {% if devices[device][project][toolchain] == "succeeded" %}
+          <th class="w3-center w3-border passed" style="color: green">
+            Passed
+          </th>
+        {% elif devices[device][project][toolchain] == "failed" %}
+          <th class="w3-center w3-border failed" style="color: red">
+            Failed
+          </th>
+        {% elif devices[device][project][toolchain] == "skip" %}
+          <th class="w3-center w3-border failed" style="color: orange">
+            Skipped
+          </th>
+        {% endif %}
     {% endfor %}
   </tr>
-  {% for project in boards[board] %}
-    <tr>
-      <th>
-      {% if boards[board][project]["all_failed"] %}
-        <p>{{ project }}</p>
-      {% else %}
-        <a href="stats/{{ project }}_{{ board }}.html">{{ project }}</a>
-      {% endif %}
-      </th>
-        {% for toolchain in boards[board][project] %}
-          {% if boards[board][project][toolchain] == "succeeded" %}
-            <th class="w3-center w3-border passed" style="color: green">
-              Passed
-            </th>
-          {% elif boards[board][project][toolchain] == "failed" %}
-            <th class="w3-center w3-border failed" style="color: red">
-              Failed
-            </th>
-          {% elif boards[board][project][toolchain] == "skip" %}
-            <th class="w3-center w3-border failed" style="color: orange">
-              Skipped
-            </th>
-          {% endif %}
-      {% endfor %}
-    </tr>
   {% endfor %}
 </table>

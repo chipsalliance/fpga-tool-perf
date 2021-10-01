@@ -74,6 +74,7 @@ class TestEntry:
     date: 'str'
     toolchain: 'dict'
     versions: 'dict'
+    device: 'str'
 
 
 def null_generator():
@@ -137,10 +138,10 @@ def get_entries(json_data: dict):
         results['board'], results['toolchain'], results['max_freq'],
         results['maximum_memory_use'], results['resources'],
         results['runtime'], wirelength, status, results['toolchain'],
-        results['versions']
+        results['versions'], results['family'], results['device']
     )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
-            wirelength, status, toolchain, versions in zipped:
+            wirelength, status, toolchain, versions, family, device in zipped:
         toolchain_name, _ = next(iter(toolchain_dict.items()))
 
         # Some platforms are cursed and the tests return just a single float
@@ -159,4 +160,10 @@ def get_entries(json_data: dict):
         entry.status = status if status is not None else 'succeeded'
         entry.date = date
 
-        yield board, toolchain_name, entry
+        # Sanitize family
+        if family == "lifcl":
+            family = "nexus"
+
+        entry.device = f"{family}-{device}".upper()
+
+        yield entry.device, toolchain_name, entry

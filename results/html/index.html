@@ -9,54 +9,64 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   </head>
   <body>
+    <div id="header" class="w3-container w3-left w3-padding">
+      <h1>FPGA Tool Perf results</h1>
+    </div>
 
-    <div id="home" class="w3-content">
-      <div id="header" class="w3-container w3-center w3-padding">
-        <h1>FPGA Tool Perf results</h1>
-      </div>
+    <div class="w3-row">
+      <div class="w3-col m3 l2 w3-padding">
+        <div id="overview" class="w3-container w3-center">
+          <p>Click on a project to jump to the graph visualization.</p>
+        </div>
 
-      <div id="overview" class="w3-container w3-center">
-        <p>Click on a project to jump to the graph visualization.</p>
-      </div>
-
-      <div class="w3-row">
-        {% for project in projects %}
-          <div class="w3-col m4 l3">
-
-            <a href="graphs/{{ project }}.html" class="w3-light-gray w3-block w3-center">{{ project }}</a>
+        <div class="w3-dropdown-hover w3-center" style="width: 100%">
+          <button class="w3-button w3-border" style="width: 100%">Projects</button>
+          <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
+          {% for project in projects %}
+            <a href="graphs/{{ project }}.html" class="w3-bar-item w3-button w3-center"><b>{{ project }}</b></a>
+          {% endfor %}
           </div>
-        {% endfor %}
-      </div>
-      </br>
-      </br>
-      <div id="overview" class="w3-container w3-center">
-        <p>Click on a board to select it.</p>
-      </div>
-      <div class="w3-row">
-        {% for board in boards %}
-          <div id="{{board}}" class="w3-col m4 l3">
+        </div>
+        </br>
+        </br>
 
-            <button id="{{board}}-button" class="project-button w3-button w3-light-gray w3-block w3-center" onclick="selectTable('{{board}}')">
-            {{ board }}
-            </button>
+        <div id="overview" class="w3-container w3-center">
+          <p>Click on a device to select it.</p>
+        </div>
+
+        <div class="w3-dropdown-hover w3-center" style="width: 100%">
+          <button class="w3-button w3-border" style="width: 100%">Devices</button>
+          <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
+          {% for device in devices_list %}
+            <div id="{{device}}">
+              <button id="{{device}}-button" class="w3-button w3-block w3-center" onclick="selectTable('{{device}}', 'status')">
+                <b>{{ device }}</b>
+              </button>
+            </div>
+          {% endfor %}
           </div>
-        {% endfor %}
+        </div>
       </div>
 
-      <div id="overview" class="w3-container w3-center">
-        <p>To check the latest statistics, click on a project name.</p>
-      </div>
-      <div>
-        {% for board in boards %}
-          <div id="{{ board }}-table" class="board-table w3-container w3-hide w3-padding-16">
-            {% include 'table.html' %}
-          </div>
-        {% endfor %}
+      <div class="w3-col m8 l9 w3-padding">
+        <div id="overview" class="w3-container w3-center">
+          <p>To check the latest statistics, click on a project name.</p>
+        </div>
+        <div>
+          {% for device in devices %}
+            <div id="{{ device }}-status" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
+              <h3 class="w3-center">{{ device }}</h3>
+              {% include 'table.html' %}
+            </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </body>
 
 <script charset="utf-8">
+
+var visible_elem = null;
 
 // sets visibility of an element with the w3-hide class by appending/removing w3-show class
 function setVisibility(elem, on) {
@@ -74,31 +84,21 @@ function toggleVisibility(id) {
   setVisibility(elem, elem.className.indexOf("w3-show") == -1);
 }
 
-function selectTable(board_name) {
-  var table_id = board_name + "-table";
-  var button_id = board_name + "-button";
+function selectTable(device_name, elem_type) {
+  var elem_id = device_name + "-" + elem_type;
 
-  var tables = document.getElementsByClassName("board-table");
-  for (var i = tables.length - 1; i >= 0; i--) {
-    setVisibility(tables[i], tables[i].id == table_id);
+  var elem = document.getElementById(elem_id);
+  setVisibility(elem, true);
+
+  if (visible_elem != null && visible_elem != elem) {
+    setVisibility(visible_elem, false);
   }
 
-  var buttons = document.getElementsByClassName("board-button");
-  for (var i = buttons.length - 1; i >= 0; i--) {
-    if (buttons[i].id == button_id) {
-      buttons[i].className = buttons[i].className.replace(" w3-gray", "");
-      buttons[i].className = buttons[i].className.replace(" w3-light-gray", "");
-      buttons[i].className += " w3-gray";
-    } else {
-      buttons[i].className = buttons[i].className.replace(" w3-gray", "");
-      buttons[i].className = buttons[i].className.replace(" w3-light-gray", "");
-      buttons[i].className += " w3-light-gray";
-    }
-  }
+  visible_elem = elem;
 }
 
 // select first table on start
-selectTable("{{ boards_list[0] }}");
+selectTable("{{ devices_list[0] }}", 'status');
 
 </script>
 </html>

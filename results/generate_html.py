@@ -55,13 +55,12 @@ def main():
             continue
 
         # Do not filter failed tests
-        project_results = ProjectResults(project_name, project_dir, False)
+        project_results = ProjectResults(project_name, project_dir)
         results.append(project_results)
 
         stats = generate_stats_html(stats_template, project_results)
         stats_pages[project_name] = stats
 
-        project_results = ProjectResults(project_name, project_dir, False)
         graph = generate_graph_html(graph_template, project_results)
         graph_pages[project_name] = graph
 

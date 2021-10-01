@@ -21,12 +21,13 @@ def color(val):
 def generate_stats_html(template: jinja2.Template, results: ProjectResults):
     print("Generating stats page...")
 
-    boards = dict()
+    devices = dict()
 
     results_entries = results.entries
     project_name = results.project_name
+    resources_list = ["LUT", "DFF", "CARRY", "PLL", "GLB"]
 
-    for board, toolchains in results_entries.items():
+    for device, toolchains in results_entries.items():
         toolchains_dict = dict()
         versions = dict()
 
@@ -63,18 +64,27 @@ def generate_stats_html(template: jinja2.Template, results: ProjectResults):
 
             runtime = ("N/A", 'grey')
             memory = ("N/A", 'grey')
+
+            resources = dict.fromkeys(resources_list, ("N/A", "grey"))
+
             if passed:
                 runtime = (entry.runtime.total, "black")
-                max_mem = entry.maximum_memory_use
 
+                max_mem = entry.maximum_memory_use
                 if max_mem != 'null':
                     memory = (
                         "{:.2f}".format(float(entry.maximum_memory_use)),
                         "black"
                     )
 
+                for res in resources_list:
+                    count = getattr(entry.resources, res.lower())
+                    count = count if count != "null" else 0
+                    resources[res] = (count, "black")
+
             toolchains_dict[toolchain]["runtime"] = runtime
             toolchains_dict[toolchain]["memory"] = memory
+            toolchains_dict[toolchain]["resources"] = resources
 
             for k, v in entry.versions.items():
                 if k not in versions:
@@ -85,12 +95,13 @@ def generate_stats_html(template: jinja2.Template, results: ProjectResults):
                     versions[k] = v
 
         html = template.render(
-            title=f"{project_name} {board.upper()}",
+            title=f"{project_name} {device.upper()}",
             versions=versions,
             date=entry.date,
             toolchains=toolchains_dict,
+            resources=resources_list,
         )
 
-        boards[board] = html
+        devices[device] = html
 
-    return boards
+    return devices
