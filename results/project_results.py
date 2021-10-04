@@ -58,7 +58,8 @@ class ProjectResults:
             configs_to_handle = {}
 
             added = dict()
-            for device, toolchain, entry in get_entries(data):
+            for board, device, toolchain, entry in sorted(get_entries(
+                    data, project_name), key=lambda k: k[0]):
                 key = (device, toolchain)
                 if key not in added:
                     self.entries[device][toolchain].append(entry)

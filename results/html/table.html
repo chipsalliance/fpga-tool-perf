@@ -11,7 +11,7 @@
     {% if devices[device][project]["all_failed"] %}
       <p>{{ project }}</p>
     {% else %}
-      <a href="stats/{{ project }}_{{ device }}.html">{{ project }}</a>
+    <a href="#" onclick="selectStat('{{ project }}-{{ device }}-stats', '{{ device }}', '{{ project }}')">{{ project }}</a>
     {% endif %}
     </th>
       {% for toolchain in devices[device][project] %}

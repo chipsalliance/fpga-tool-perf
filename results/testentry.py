@@ -82,7 +82,7 @@ def null_generator():
         yield None
 
 
-def get_entries(json_data: dict):
+def get_entries(json_data: dict, project: str):
     def make_clks(clkdef: 'dict | float | None'):
         def get_clk(freq):
             clk = Clk()
@@ -104,7 +104,7 @@ def get_entries(json_data: dict):
         elif type(clkdef) is float:
             clks['clk'] = get_clk(clkdef)
         elif clkdef is None:
-            clks['clk'] = get_clk(0.0)
+            return clks
         else:
             raise Exception('Wrong type for clock definition')
         return clks
@@ -134,6 +134,7 @@ def get_entries(json_data: dict):
     wirelength = results.get('wirelength', null_generator())
     status = results.get('status', null_generator())
 
+    entries = list()
     zipped = zip(
         results['board'], results['toolchain'], results['max_freq'],
         results['maximum_memory_use'], results['resources'],
@@ -146,12 +147,11 @@ def get_entries(json_data: dict):
 
         # Some platforms are cursed and the tests return just a single float
         # instead of a dict
-        clk_config = max_freq
         entry = TestEntry()
         entry.maximum_memory_use =\
             max_mem_use if max_mem_use is not None else 'null'
         entry.wirelength = wirelength if wirelength is not None else 'null'
-        entry.maxfreq = make_clks(clk_config)
+        entry.maxfreq = make_clks(max_freq)
         entry.runtime = make_runtime(runtime)
         entry.resources = make_resources(resources)
 
@@ -166,4 +166,6 @@ def get_entries(json_data: dict):
 
         entry.device = f"{family}-{device}".upper()
 
-        yield entry.device, toolchain_name, entry
+        entries.append((board, entry.device, toolchain_name, entry))
+
+    return entries

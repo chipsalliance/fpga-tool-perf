@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FPGA tool perf results: index</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.1.1/dist/chartjs-plugin-zoom.min.js"></script>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   </head>
@@ -16,21 +18,6 @@
     <div class="w3-row">
       <div class="w3-col m3 l2 w3-padding">
         <div id="overview" class="w3-container w3-center">
-          <p>Click on a project to jump to the graph visualization.</p>
-        </div>
-
-        <div class="w3-dropdown-hover w3-center" style="width: 100%">
-          <button class="w3-button w3-border" style="width: 100%">Projects</button>
-          <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
-          {% for project in projects %}
-            <a href="graphs/{{ project }}.html" class="w3-bar-item w3-button w3-center"><b>{{ project }}</b></a>
-          {% endfor %}
-          </div>
-        </div>
-        </br>
-        </br>
-
-        <div id="overview" class="w3-container w3-center">
           <p>Click on a device to select it.</p>
         </div>
 
@@ -39,7 +26,7 @@
           <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
           {% for device in devices_list %}
             <div id="{{device}}">
-              <button id="{{device}}-button" class="w3-button w3-block w3-center" onclick="selectTable('{{device}}', 'status')">
+              <button id="{{device}}-button" class="w3-button w3-block w3-center" onclick="selectElem('{{device}}-status')">
                 <b>{{ device }}</b>
               </button>
             </div>
@@ -49,21 +36,28 @@
       </div>
 
       <div class="w3-col m8 l9 w3-padding">
-        <div id="overview" class="w3-container w3-center">
-          <p>To check the latest statistics, click on a project name.</p>
-        </div>
-        <div>
           {% for device in devices %}
             <div id="{{ device }}-status" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
               <h3 class="w3-center">{{ device }}</h3>
+              <div id="overview" class="w3-container w3-center">
+                <p>To check the latest statistics, click on a project name.</p>
+              </div>
               {% include 'table.html' %}
             </div>
           {% endfor %}
-        </div>
+          
+          {% for project, devices in device_data.items() %}
+            {% for device, data in devices.items() %}
+            <div id="{{ project }}-{{ device }}-stats" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
+              {% include 'stats.html' %}
+            </div>
+            {% endfor %}
+          {% endfor %}
       </div>
     </div>
   </body>
 
+<script type="text/javascript" src="data/data.js"></script>
 <script charset="utf-8">
 
 var visible_elem = null;
@@ -84,9 +78,7 @@ function toggleVisibility(id) {
   setVisibility(elem, elem.className.indexOf("w3-show") == -1);
 }
 
-function selectTable(device_name, elem_type) {
-  var elem_id = device_name + "-" + elem_type;
-
+function selectElem(elem_id) {
   var elem = document.getElementById(elem_id);
   setVisibility(elem, true);
 
@@ -97,8 +89,79 @@ function selectTable(device_name, elem_type) {
   visible_elem = elem;
 }
 
-// select first table on start
-selectTable("{{ devices_list[0] }}", 'status');
+// TODO: add the remaining charts
+var charts = []
 
+function selectStat(elem_id, device, project) {
+  selectElem(elem_id);
+
+  charts.push(new LineChart(
+    project + "-" + device + "-runtime-chart",
+    "Total Runtime",
+    " s",
+    data[project][device]["dates"],
+    data[project][device]["runtime"],
+    false
+  ));
+
+  charts[0].update();
+
+}
+
+// select first table on start
+selectElem("{{ devices_list[0] }}-status");
+
+function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
+  return new Chart(document.getElementById(canvas_name), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      spanGaps: true,
+      animation: false,
+      normailzed: true,
+      plugins: {
+        title: {
+          display: true,
+          text: title
+        },
+        legend: {
+          display: legend,
+        },
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true,
+              modifierKey: "shift"
+            },
+            drag: {
+              enabled: true,
+              modifierKey: "shift"
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: "x"
+          },
+          pan: {
+            enabled: true,
+            mode: "x"
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function(v, idx, vx) {
+              return v + unitstr;
+            }
+          }
+        }
+      }
+    }
+  });
+}
 </script>
 </html>
