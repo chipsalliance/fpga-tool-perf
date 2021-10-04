@@ -39,7 +39,7 @@
       <th class="w3-center w3-border">{{ res }}</th>
 {% endfor %}
     </tr>
-{% for toolchain, tool_data in data["toolchains"].items() %}
+{% for toolchain, tool_data in data["toolchains_data"].items() %}
     <tr>
       <th class="w3-border">{{ toolchain }}</th>
       <th class="w3-border">{{ tool_data["synth_tool"] }}</th>
@@ -68,14 +68,14 @@
   <table id="table-id" class="w3-table-all" style="display: content; table-layout: fixed">
     <tr class="w3-gray">
       <th class="w3-border">Toolchain</th>
-{% for toolchain in data["toolchains"] %}
+{% for toolchain, color in data["toolchains_color"] %}
       <th class="w3-border">{{ toolchain }}</th>
 {% endfor %}
     </tr>
     <tr>
       <th class="w3-border">Color</th>
-{% for toolchain, tool_data in data["toolchains"].items() %}
-      <th class="w3-border" style="background-color: {{ tool_data["color"] }}"></th>
+{% for toolchain, color in data["toolchains_color"] %}
+      <th class="w3-border" style="background-color: {{ color }}"></th>
 {% endfor %}
     </tr>
   </table>

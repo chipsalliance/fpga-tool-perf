@@ -14,7 +14,6 @@ import jinja2
 import math
 import os
 import zlib
-from color import hsl_to_rgb, rgb_to_hex
 from typing import List
 
 import testentry
@@ -24,18 +23,38 @@ from jinja2_templates import gen_datasets_def
 from project_results import ProjectResults
 
 
+class ColorGen:
+    def __init__(self):
+        self.colors = [
+            "#2f4f4f", "#a0522d", "#006400", "#000080", "#ff0000", "#00ced1",
+            "#ffa500", "#ffff00", "#c71585", "#00ff00", "#0000ff", "#d8bfd8",
+            "#ff00ff", "#1e90ff", "#98fb98"
+        ]
+        self.idx = -1
+        self.keys = dict()
+
+    def get_next_color(self, key):
+        self.idx += 1
+        assert self.idx < len(self.colors), (self.idx, self.colors)
+
+        color = self.colors[self.idx]
+        self.keys[key] = color
+        return color
+
+    def get_color(self, key):
+        if key not in self.keys:
+            color = self.get_next_color(key)
+        else:
+            color = self.keys[key]
+
+        return color
+
+
+COLOR_GENERATOR = ColorGen()
+
+
 def datetime_from_str(s: str):
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
-
-
-# Generate an HSL color unique for a given config
-def gen_config_color(config_name: str):
-    hash = zlib.crc32(config_name.encode()) & 0xffffff
-    h = float(hash & 0x0000ff) / 255.0 * math.pi * 2.0
-    s = float((hash & 0x00ff00) >> 8) / 255.0 * 0.25 + 0.375
-    l = float((hash & 0xff0000) >> 16) / 255.0 * 0.5 + 0.25
-
-    return min(h, math.pi * 2.0), min(s, 1.0), min(l, 1.0)
 
 
 def fmt_list(l: list):
@@ -46,9 +65,7 @@ def generate_graph_data(device, toolchain, dates, entries):
     datasets = dict()
 
     # Generate color for this toolchain
-    label = f"{toolchain}"
-    r, g, b = hsl_to_rgb(*gen_config_color(label))
-    color_hex = rgb_to_hex(r, g, b)
+    color_hex = COLOR_GENERATOR.get_color(toolchain)
 
     def generate_datasets(selector):
 
@@ -116,8 +133,11 @@ def generate_device_data(results: ProjectResults):
     dates = results.test_dates
     resources_list = ["LUT", "DFF", "CARRY", "PLL", "GLB"]
 
+    color_generator = ColorGen()
+
     for device, toolchains in results_entries.items():
-        toolchains_dict = dict()
+        toolchains_data = dict()
+        toolchains_color = list()
         versions = dict()
 
         graph_data = dict()
@@ -130,32 +150,34 @@ def generate_device_data(results: ProjectResults):
                 device, toolchain, dates, entries
             )
 
+            toolchains_color.append((toolchain, hex_color))
+
             if "fasm2bels" in toolchain:
                 orig_toolchain = toolchain.strip("-fasm2bels")
-                if orig_toolchain not in toolchains_dict:
-                    toolchains_dict[orig_toolchain] = dict()
+                if orig_toolchain not in toolchains_data:
+                    toolchains_data[orig_toolchain] = dict()
 
-                toolchains_dict[orig_toolchain]["validation"] = color(passed)
+                toolchains_data[orig_toolchain]["validation"] = color(passed)
                 continue
 
-            if toolchain not in toolchains_dict:
-                toolchains_dict[toolchain] = dict()
+            if toolchain not in toolchains_data:
+                toolchains_data[toolchain] = dict()
 
-            toolchains_dict[toolchain]["passed"] = color(passed)
+            toolchains_data[toolchain]["passed"] = color(passed)
 
-            if "validation" not in toolchains_dict:
-                toolchains_dict[toolchain]["validation"] = color(passed)
+            if "validation" not in toolchains_data:
+                toolchains_data[toolchain]["validation"] = color(passed)
 
             clk_met = True and passed
             for clk, data in entry.maxfreq.items():
                 clk_met = clk_met and data.met
 
-            toolchains_dict[toolchain]["clk_met"] = color(clk_met)
+            toolchains_data[toolchain]["clk_met"] = color(clk_met)
 
             synth_tool = entry.toolchain[toolchain]["synth_tool"]
             pr_tool = entry.toolchain[toolchain]["pr_tool"]
-            toolchains_dict[toolchain]["synth_tool"] = synth_tool
-            toolchains_dict[toolchain]["pr_tool"] = pr_tool
+            toolchains_data[toolchain]["synth_tool"] = synth_tool
+            toolchains_data[toolchain]["pr_tool"] = pr_tool
 
             runtime = ("N/A", 'grey')
             memory = ("N/A", 'grey')
@@ -177,10 +199,9 @@ def generate_device_data(results: ProjectResults):
                     count = count if count != "null" else 0
                     resources[res] = (count, "black")
 
-            toolchains_dict[toolchain]["runtime"] = runtime
-            toolchains_dict[toolchain]["memory"] = memory
-            toolchains_dict[toolchain]["resources"] = resources
-            toolchains_dict[toolchain]["color"] = hex_color
+            toolchains_data[toolchain]["runtime"] = runtime
+            toolchains_data[toolchain]["memory"] = memory
+            toolchains_data[toolchain]["resources"] = resources
 
             for k, v in entry.versions.items():
                 if k not in versions:
@@ -195,7 +216,8 @@ def generate_device_data(results: ProjectResults):
             device=device,
             versions=versions,
             date=entry.date,
-            toolchains=toolchains_dict,
+            toolchains_color=sorted(toolchains_color),
+            toolchains_data=toolchains_data,
             resources=resources_list,
             graph_data=graph_data,
             dates=[f"{x}" for x in dates]
@@ -220,7 +242,7 @@ def generate_index_html(
     devices = dict()
     projects = set()
     device_data = dict()
-    toolchains_dict = dict()
+    toolchains_data = dict()
 
     all_boards = get_boards()
 
@@ -240,10 +262,10 @@ def generate_index_html(
 
         proj_dict[toolchain] = "skip"
 
-        if device not in toolchains_dict:
-            toolchains_dict[device] = set()
+        if device not in toolchains_data:
+            toolchains_data[device] = set()
 
-        toolchains_dict[device].add(toolchain)
+        toolchains_data[device].add(toolchain)
 
         projects.add(project)
 
@@ -274,14 +296,14 @@ def generate_index_html(
     for d, p in del_proj:
         del devices[d][p]
 
-    for device, tool_list in toolchains_dict.items():
-        toolchains_dict[device] = sorted(list(tool_list))
+    for device, tool_list in toolchains_data.items():
+        toolchains_data[device] = sorted(list(tool_list))
 
     index_page = index_template.render(
         devices=devices,
         devices_list=sorted(devices),
         device_data=device_data,
-        toolchains=toolchains_dict,
+        toolchains=toolchains_data,
         projects=sorted(projects)
     )
 
