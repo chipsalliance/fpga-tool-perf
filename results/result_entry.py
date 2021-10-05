@@ -64,7 +64,7 @@ class Runtime:
     total: 'float | None'
 
 
-class TestEntry:
+class ResultEntry:
     maxfreq: 'dict[str, Clk]'
     maximum_memory_use: float
     resources: Resources
@@ -147,7 +147,7 @@ def get_entries(json_data: dict, project: str):
 
         # Some platforms are cursed and the tests return just a single float
         # instead of a dict
-        entry = TestEntry()
+        entry = ResultEntry()
         entry.maximum_memory_use =\
             max_mem_use if max_mem_use is not None else 'null'
         entry.wirelength = wirelength if wirelength is not None else 'null'

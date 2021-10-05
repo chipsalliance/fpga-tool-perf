@@ -16,10 +16,9 @@ import os
 import zlib
 from typing import List
 
-import testentry
+import result_entry
 from fpgaperf import get_boards
 from infrastructure.tasks import Tasks
-from jinja2_templates import gen_datasets_def
 from project_results import ProjectResults
 
 
@@ -91,7 +90,7 @@ def generate_graph_data(device, toolchain, dates, entries):
     datasets['freq'] = dict()
     for clkname in clocks:
 
-        def selector(e: testentry.TestEntry):
+        def selector(e: result_entry.ResultEntry):
             nonlocal clkname
             clk = e.maxfreq.get(clkname)
             return clk.actual if clk else 'null'

@@ -14,7 +14,7 @@ import json
 from datetime import datetime
 from collections import defaultdict
 
-from testentry import *
+from result_entry import *
 
 
 def config_name(board: str, toolchain: str):
