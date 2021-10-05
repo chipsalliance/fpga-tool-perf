@@ -126,7 +126,7 @@ def generate_device_data(results: ProjectResults):
     results_entries = results.entries
     project_name = results.project_name
     dates = results.test_dates
-    resources_list = ["LUT", "DFF", "CARRY", "PLL", "GLB"]
+    resources_list = ["LUT", "DFF", "CARRY", "IOB", "PLL", "GLB"]
 
     color_generator = ColorGen()
 
@@ -257,6 +257,9 @@ def generate_index_html(
     all_boards = get_boards()
 
     for project, toolchain, board in combinations:
+        if "fasm2bels" in toolchain:
+            continue
+
         board = all_boards[board]
         device = f"{board['family']}-{board['device']}"
         device = device.upper()
@@ -286,6 +289,9 @@ def generate_index_html(
         for device, toolchains in entries.items():
             all_failed = True
             for toolchain in toolchains.keys():
+                if "fasm2bels" in toolchain:
+                    continue
+
                 status = entries[device][toolchain][0].status
                 devices[device][project][toolchain] = status
 
@@ -309,9 +315,11 @@ def generate_index_html(
     for device, tool_list in toolchains_data.items():
         toolchains_data[device] = sorted(list(tool_list))
 
+    devices_list = [k for k, v in devices.items() if v]
+
     index_page = index_template.render(
         devices=devices,
-        devices_list=sorted(devices),
+        devices_list=sorted(devices_list),
         device_data=device_data,
         toolchains=toolchains_data,
         projects=sorted(projects)

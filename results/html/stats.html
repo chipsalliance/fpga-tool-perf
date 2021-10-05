@@ -1,94 +1,92 @@
-<div class="w3-container w3-center w3-padding">
-  <h1>{{ data["project"] }} {{ data["device"] }}</h1>
-</div>
-<div class="w3-container w3-center w3-padding">
-  <h3>{{ data["date"] }}</h3>
-</div>
+              <div class="w3-container w3-center w3-padding">
+                <h1><b>{{ data["project"] }} {{ data["device"] }}<b></h1>
+              </div>
+              <div class="w3-container w3-center w3-padding">
+                <h3>Latest build on: <i>{{ data["date"] }}</i></h3>
+              </div>
 
-<div id="header" class="w3-container w3-center w3-padding">
-  <a href="#" onclick="selectElem('{{ device }}-status')">Return</a>
-</div>
+              <div id="header" class="w3-container w3-center w3-padding">
+                <h3><b><a href="#" onclick="selectElem('{{ device }}-status')">Return</a></b></h3>
+              </div>
 
-<div class="w3-container w3-content" style="max-width: 90%">
-  <table id="table-id" class="w3-table-all" style="display: content">
-    <tr class="w3-gray">
-      <th class="w3-border">Tool</th>
-      <th class="w3-border">Version</th>
-    </tr>
-{% for tool, version in data["versions"].items() %}
-    <tr>
-      <th class="w3-border">{{ tool }}</th>
-      <th class="w3-border">{{ version }}</th>
-    </tr>
-{% endfor %}
-  </table>
-</div>
+              <div class="w3-container w3-content" style="max-width: 90%">
+                <table id="table-id" class="w3-table-all" style="display: content">
+                  <tr class="w3-gray">
+                    <th class="w3-border">Tool</th>
+                    <th class="w3-border">Version</th>
+                  </tr>
+{% for tool, version in data["versions"].items() -%}
+                  <tr>
+                    <th class="w3-border">{{ tool }}</th>
+                    <th class="w3-border">{{ version }}</th>
+                  </tr>
+{%- endfor %}
+                </table>
+              </div>
 
-<div class="w3-container w3-content" style="max-width: 90%">
-  <table id="table-id" class="w3-table-all" style="display: content">
-    <tr class="w3-gray">
-      <th class="w3-border">Toolchain</th>
-      <th class="w3-border">Synth</th>
-      <th class="w3-border">PnR</th>
-      <th class="w3-border">Passes</th>
-      <th class="w3-border">Meets timing</th>
-      <th class="w3-border">Fasm2Bels</th>
-      <th class="w3-border">Total Runtime (s)</th>
-      <th class="w3-border">Memory Usage (MB)</th>
-{% for res in data["resources"] %}
-      <th class="w3-center w3-border">{{ res }}</th>
-{% endfor %}
-    </tr>
-{% for toolchain, tool_data in data["toolchains_data"].items() %}
-    <tr>
-      <th class="w3-border">{{ toolchain }}</th>
-      <th class="w3-border">{{ tool_data["synth_tool"] }}</th>
-      <th class="w3-border">{{ tool_data["pr_tool"] }}</th>
-      <th class="w3-border" style="color: {{ tool_data["passed"][1] }}">{{ tool_data["passed"][0] }}</th>
-      <th class="w3-border" style="color: {{ tool_data["clk_met"][1] }}">{{ tool_data["clk_met"][0] }}</th>
-      <th class="w3-border" style="color: {{ tool_data["validation"][1] }}">{{ tool_data["validation"][0] }}</th>
-      <th class="w3-border" style="color: {{ tool_data["runtime"][1] }}">{{ tool_data["runtime"][0] }}</th>
-      <th class="w3-border" style="color: {{ tool_data["memory"][1] }}">{{ tool_data["memory"][0] }}</th>
-  {% for res, count in tool_data["resources"].items() %}
-      <th class="w3-border" style="color: {{ count[1] }}">{{ count[0] }}</th>
-  {% endfor %}
-    </tr>
-{% endfor %}
-  </table>
-</div>
+              <div class="w3-container w3-content" style="max-width: 90%">
+                <table id="table-id" class="w3-table-all" style="display: content">
+                  <tr class="w3-gray">
+                    <th class="w3-border">Toolchain</th>
+                    <th class="w3-border">Synth</th>
+                    <th class="w3-border">PnR</th>
+                    <th class="w3-border">Passes</th>
+                    <th class="w3-border">Meets timing</th>
+                    <th class="w3-border">Fasm2Bels</th>
+                    <th class="w3-border">Total Runtime (s)</th>
+                    <th class="w3-border">Memory Usage (MB)</th>{% for res in data["resources"] %}
+                    <th class="w3-center w3-border">{{ res }}</th>{% endfor %}
+                  </tr>
+{% for toolchain, tool_data in data["toolchains_data"].items() -%}
+                  <tr>
+                    <th class="w3-border">{{ toolchain }}</th>
+                    <th class="w3-border">{{ tool_data["synth_tool"] }}</th>
+                    <th class="w3-border">{{ tool_data["pr_tool"] }}</th>
+                    <th class="w3-border" style="color: {{ tool_data["passed"][1] }}">{{ tool_data["passed"][0] }}</th>
+                    <th class="w3-border" style="color: {{ tool_data["clk_met"][1] }}">{{ tool_data["clk_met"][0] }}</th>
+                    <th class="w3-border" style="color: {{ tool_data["validation"][1] }}">{{ tool_data["validation"][0] }}</th>
+                    <th class="w3-border" style="color: {{ tool_data["runtime"][1] }}">{{ tool_data["runtime"][0] }}</th>
+                    <th class="w3-border" style="color: {{ tool_data["memory"][1] }}">{{ tool_data["memory"][0] }}</th>
+{% for res, count in tool_data["resources"].items() -%}
+                    <th class="w3-border" style="color: {{ count[1] }}">{{ count[0] }}</th>
+{%- endfor %}
+                  </tr>
+{%- endfor %}
+                </table>
+              </div>
 
-</br>
-<div class="w3-container w3-content" style="max-width: 90%">
-  <div class="w3-container w3-center w3-padding">
-    <h2>Historical Data Graphs</h2>
-  </div>
-  <div class="w3-container w3-center w3-padding">
-    <h3>Legend</h3>
-  </div>
-  <table id="table-id" class="w3-table-all" style="display: content; table-layout: fixed">
-    <tr class="w3-gray">
-      <th class="w3-border">Toolchain</th>
-{% for toolchain, color in data["toolchains_color"] %}
-      <th class="w3-border">{{ toolchain }}</th>
-{% endfor %}
-    </tr>
-    <tr>
-      <th class="w3-border">Color</th>
-{% for toolchain, color in data["toolchains_color"] %}
-      <th class="w3-border" style="background-color: {{ color }}"></th>
-{% endfor %}
-    </tr>
-  </table>
-  </br>
-  <canvas id="{{ data["project"] }}-{{ data["device"] }}-runtime-chart"></canvas>
-{% for clock in data["clocks"] %}
-  <canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ clock }}-frequency-chart"></canvas>
-{% endfor %}
-  <div class="resource-graphs">
-{% for res in data["resources"] %}
-    <div><canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ res|lower }}-usage-chart""></canvas></div>
-{% endfor %}
-  <canvas id="{{ data["project"] }}-{{ data["device"] }}-memory-chart"></canvas>
-  <canvas id="{{ data["project"] }}-{{ data["device"] }}-wirelength-chart"></canvas>
-  </div>
-</div>
+              </br>
+              <div class="w3-container w3-content" style="max-width: 90%">
+                <div class="w3-container w3-center w3-padding">
+                  <h2><b>Historical Data Graphs</b></h2>
+                </div>
+                <div class="w3-container w3-center w3-padding">
+                  <h3>Legend</h3>
+                </div>
+                <table id="table-id" class="w3-table-all" style="display: content; table-layout: fixed">
+                  <tr class="w3-gray">
+                    <th class="w3-border">Toolchain</th>
+{% for toolchain, color in data["toolchains_color"] -%}
+                    <th class="w3-border">{{ toolchain }}</th>
+{%- endfor %}
+                  </tr>
+                  <tr>
+                    <th class="w3-border">Color</th>
+{% for toolchain, color in data["toolchains_color"] -%}
+                    <th class="w3-border" style="background-color: {{ color }}"></th>
+{%- endfor %}
+                  </tr>
+                </table>
+                </br>
+                <canvas id="{{ data["project"] }}-{{ data["device"] }}-runtime-chart"></canvas>
+{% for clock in data["clocks"] -%}
+                <canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ clock }}-frequency-chart"></canvas>
+{%- endfor %}
+                <div class="resource-graphs">
+{% for res in data["resources"] -%}
+                  <div><canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ res|lower }}-usage-chart""></canvas></div>
+{%- endfor %}
+                <canvas id="{{ data["project"] }}-{{ data["device"] }}-memory-chart"></canvas>
+                <canvas id="{{ data["project"] }}-{{ data["device"] }}-wirelength-chart"></canvas>
+                </div>
+              </div>

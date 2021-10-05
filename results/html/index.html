@@ -38,35 +38,35 @@
         <div class="w3-dropdown-hover w3-center" style="width: 100%">
           <button class="w3-button w3-border" style="width: 100%">Devices</button>
           <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
-          {% for device in devices_list %}
+          {% for device in devices_list -%}
             <div id="{{device}}">
               <button id="{{device}}-button" class="w3-button w3-block w3-center" onclick="selectElem('{{device}}-status')">
                 <b>{{ device }}</b>
               </button>
             </div>
-          {% endfor %}
+          {%- endfor %}
           </div>
         </div>
       </div>
 
-      <div class="w3-col m8 l9 w3-padding">
-          {% for device in devices %}
+      <div class="w3-col m10 l10 w3-padding">
+          {% for device in devices -%}
             <div id="{{ device }}-status" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
-              <h3 class="w3-center">{{ device }}</h3>
+              <h2 class="w3-center"><b>{{ device }}</b></h2>
               <div id="overview" class="w3-container w3-center">
-                <p>To check the latest statistics, click on a project name.</p>
+                <h4>To check the latest statistics of a project for the selected board, please <b>click</b> on the project's name.</h4>
               </div>
               {% include 'table.html' %}
             </div>
-          {% endfor %}
+          {%- endfor %}
 
-          {% for project, devices in device_data.items() %}
-            {% for device, data in devices.items() %}
+          {% for project, devices in device_data.items() -%}
+            {% for device, data in devices.items() -%}
             <div id="{{ project }}-{{ device }}-stats" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
               {% include 'stats.html' %}
             </div>
-            {% endfor %}
-          {% endfor %}
+            {%- endfor %}
+          {%- endfor %}
       </div>
     </div>
   </body>
@@ -174,6 +174,7 @@ function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
       datasets: datasets
     },
     options: {
+      pointRadius: 1.5,
       spanGaps: true,
       animation: false,
       normailzed: true,

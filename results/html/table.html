@@ -1,34 +1,34 @@
-<table class="w3-table-all">
-  <tr class="w3-gray">
-    <th class="w3-center w3-border">Project</th>
-  {% for toolchain in toolchains[device] %}
-    <th class="w3-center w3-border"> {{ toolchain }} </th>
-  {% endfor %}
-  </tr>
-  {% for project in devices[device] %}
-  <tr>
-    <th>
-    {% if devices[device][project]["all_failed"] %}
-      <p>{{ project }}</p>
-    {% else %}
-    <a href="#" onclick="selectStat('{{ project }}-{{ device }}-stats', '{{ device }}', '{{ project }}')">{{ project }}</a>
-    {% endif %}
-    </th>
-      {% for toolchain in devices[device][project] %}
-        {% if devices[device][project][toolchain] == "succeeded" %}
-          <th class="w3-center w3-border passed" style="color: green">
-            Passed
-          </th>
-        {% elif devices[device][project][toolchain] == "failed" %}
-          <th class="w3-center w3-border failed" style="color: red">
-            Failed
-          </th>
-        {% elif devices[device][project][toolchain] == "skip" %}
-          <th class="w3-center w3-border failed" style="color: orange">
-            Skipped
-          </th>
-        {% endif %}
-    {% endfor %}
-  </tr>
-  {% endfor %}
-</table>
+              <table class="w3-table-all">
+                <tr class="w3-gray">
+                  <th class="w3-center w3-border">Project</th>
+{% for toolchain in toolchains[device] -%}
+                  <th class="w3-center w3-border"> {{ toolchain }} </th>
+{%- endfor %}
+                </tr>
+{% for project in devices[device] -%}
+                <tr>
+                  <th>
+{% if devices[device][project]["all_failed"] -%}
+                    <p>{{ project }}</p>
+{%- else -%}
+                    <a href="#" onclick="selectStat('{{ project }}-{{ device }}-stats', '{{ device }}', '{{ project }}')">{{ project }}</a>
+{%- endif %}
+                  </th>
+{% for toolchain in devices[device][project] -%}
+{% if devices[device][project][toolchain] == "succeeded" -%}
+                  <th class="w3-center w3-border passed" style="color: green">
+                    Passed
+                  </th>
+{%- elif devices[device][project][toolchain] == "failed" -%}
+                  <th class="w3-center w3-border failed" style="color: red">
+                    Failed
+                  </th>
+{%- elif devices[device][project][toolchain] == "skip" -%}
+                  <th class="w3-center w3-border failed" style="color: orange">
+                    Skipped
+                  </th>
+{%- endif %}
+{%- endfor %}
+                </tr>
+{%- endfor %}
+              </table>
