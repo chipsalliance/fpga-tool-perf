@@ -10,6 +10,20 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   </head>
+  <style>
+    .resource-graphs {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .resource-graphs div {
+      width: 25vw;
+      max-width: 25vw;
+      max-height: 50vh;
+      margin: 1vh 1vw 1vw 1vh;
+    }
+  </style>
   <body>
     <div id="header" class="w3-container w3-left w3-padding">
       <h1>FPGA Tool Perf results</h1>
@@ -45,7 +59,7 @@
               {% include 'table.html' %}
             </div>
           {% endfor %}
-          
+
           {% for project, devices in device_data.items() %}
             {% for device, data in devices.items() %}
             <div id="{{ project }}-{{ device }}-stats" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
@@ -89,22 +103,63 @@ function selectElem(elem_id) {
   visible_elem = elem;
 }
 
-// TODO: add the remaining charts
-var charts = []
+function selectStat(elem_id, device, project, ) {
+  var charts = [];
 
-function selectStat(elem_id, device, project) {
   selectElem(elem_id);
+
+  labels = data[project][device]["dates"];
 
   charts.push(new LineChart(
     project + "-" + device + "-runtime-chart",
     "Total Runtime",
     " s",
-    data[project][device]["dates"],
+    labels,
     data[project][device]["runtime"],
     false
   ));
 
-  charts[0].update();
+  for (const [ key, value ] of Object.entries(data[project][device]["freq"])) {
+    charts.push(new LineChart(
+      project + "-" + device + "-" + key + "-frequency-chart",
+      key + " frequency",
+      " MHz",
+      labels,
+      value,
+      false
+    ));
+  }
+
+  for (const [ key, value ] of Object.entries(data[project][device]["resources"])) {
+    charts.push(new LineChart(
+      project + "-" + device + "-" + key + "-usage-chart",
+      key.toUpperCase() + " Usage",
+      "",
+      labels,
+      value,
+      false
+    ));
+  }
+
+  charts.push(new LineChart(
+    project + "-" + device + "-wirelength-chart",
+    "Total Wirelength",
+    "",
+    labels,
+    data[project][device]["wirelength"],
+    false
+  ));
+
+  charts.push(new LineChart(
+    project + "-" + device + "-memory-chart",
+    "Total Memory Usage",
+    "",
+    labels,
+    data[project][device]["memory"],
+    false
+  ));
+
+  charts.forEach(elem => elem.update());
 
 }
 
@@ -125,7 +180,12 @@ function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
       plugins: {
         title: {
           display: true,
-          text: title
+          text: title,
+          font: {
+            size: 24,
+            family: '"Segoe UI", "Arial", "sans-serif"',
+            color: "black",
+          },
         },
         legend: {
           display: legend,

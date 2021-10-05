@@ -81,4 +81,14 @@
   </table>
   </br>
   <canvas id="{{ data["project"] }}-{{ data["device"] }}-runtime-chart"></canvas>
+{% for clock in data["clocks"] %}
+  <canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ clock }}-frequency-chart"></canvas>
+{% endfor %}
+  <div class="resource-graphs">
+{% for res in data["resources"] %}
+    <div><canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ res|lower }}-usage-chart""></canvas></div>
+{% endfor %}
+  <canvas id="{{ data["project"] }}-{{ data["device"] }}-memory-chart"></canvas>
+  <canvas id="{{ data["project"] }}-{{ data["device"] }}-wirelength-chart"></canvas>
+  </div>
 </div>

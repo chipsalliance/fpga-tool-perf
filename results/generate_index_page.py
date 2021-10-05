@@ -57,10 +57,6 @@ def datetime_from_str(s: str):
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
 
 
-def fmt_list(l: list):
-    return ', '.join('{}'.format(e) for e in l)
-
-
 def generate_graph_data(device, toolchain, dates, entries):
     datasets = dict()
 
@@ -80,7 +76,7 @@ def generate_graph_data(device, toolchain, dates, entries):
             final_data.append(data.get(date, 'null'))
 
         dataset = dict()
-        dataset["data"] = fmt_list(final_data)
+        dataset["data"] = final_data
         dataset["color"] = color_hex
 
         return dataset
@@ -211,6 +207,20 @@ def generate_device_data(results: ProjectResults):
                 if k in versions and len(v) < len(versions[k]):
                     versions[k] = v
 
+        # Unify clock names
+        clocks = set()
+        for toolchain, data in graph_data.items():
+            for clock in data["freq"]:
+                clocks.add(clock)
+
+        for toolchain, data in graph_data.items():
+            for clock in clocks:
+                if clock not in data["freq"]:
+                    data["freq"][clock] = dict(
+                        data=["null" for _ in dates],
+                        color=COLOR_GENERATOR.get_color(toolchain)
+                    )
+
         device_data[device] = dict(
             project=project_name,
             device=device,
@@ -220,6 +230,7 @@ def generate_device_data(results: ProjectResults):
             toolchains_data=toolchains_data,
             resources=resources_list,
             graph_data=graph_data,
+            clocks=clocks,
             dates=[f"{x}" for x in dates]
         )
 
