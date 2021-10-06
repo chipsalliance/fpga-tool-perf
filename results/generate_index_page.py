@@ -121,7 +121,12 @@ def generate_graph_data(device, toolchain, dates, entries):
     attrs['runtime'] = ['total']
     attrs['maximum_memory_use'] = list()
     attrs['wirelength'] = list()
-    attrs['resources'] = ['lut', 'dff', 'carry', 'iob', 'bram', 'pll', 'glb']
+    attrs['synth_resources'] = [
+        'lut', 'dff', 'carry', 'iob', 'bram', 'pll', 'glb'
+    ]
+    attrs['impl_resources'] = [
+        'lut', 'dff', 'carry', 'iob', 'bram', 'pll', 'glb'
+    ]
 
     for k, v in attrs.items():
         datasets[k] = dict()
@@ -152,7 +157,7 @@ def generate_device_data(results: ProjectResults):
     results_entries = results.entries
     project_name = results.project_name
     dates = results.test_dates
-    resources_list = ["LUT", "DFF", "CARRY", "IOB", "PLL", "GLB"]
+    resources_list = ["LUT", "DFF", "CARRY", "IOB", "BRAM", "PLL", "GLB"]
 
     for device, toolchains in results_entries.items():
         toolchains_data = dict()
@@ -216,7 +221,7 @@ def generate_device_data(results: ProjectResults):
                     )
 
                 for res in resources_list:
-                    count = getattr(entry.resources, res.lower())
+                    count = getattr(entry.impl_resources, res.lower())
                     count = count if count != "null" else 0
                     resources[res] = (count, "black")
 
