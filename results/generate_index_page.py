@@ -8,12 +8,14 @@
 # https://opensource.org/licenses/ISC
 #
 # SPDX-License-Identifier: ISC
+"""
+This script is responsible for generating the index page and the
+corresponding data file containing all the historical data.
+"""
 
 import datetime
 import jinja2
-import math
 import os
-import zlib
 from typing import List
 
 import result_entry
@@ -23,6 +25,13 @@ from project_results import ProjectResults
 
 
 class ColorGen:
+    """
+    Class defining a color scheme for each different key. Once a key
+    gets assigned with a color, the color cannot be changed.
+
+    The list of colors has been generated so that they are as distant as possible
+    avoiding low contrast between any of them.
+    """
     def __init__(self):
         self.colors = [
             "#2f4f4f", "#a0522d", "#006400", "#000080", "#ff0000", "#00ced1",
@@ -57,12 +66,18 @@ def datetime_from_str(s: str):
 
 
 def generate_graph_data(device, toolchain, dates, entries):
+    """
+    Generates the data for one a specific project/device/toolchain
+    combination, that will be added to the various charts containing
+    the historical data runs.
+    """
+
     datasets = dict()
 
     # Generate color for this toolchain
     color_hex = COLOR_GENERATOR.get_color(toolchain)
 
-    def generate_datasets(selector):
+    def generate_datasets(selector, fill_null=False):
 
         data = dict()
         for e in entries:
@@ -72,7 +87,12 @@ def generate_graph_data(device, toolchain, dates, entries):
         final_data = list()
 
         for date in dates:
-            final_data.append(data.get(date, 'null'))
+            if fill_null:
+                data_point = 'null'
+            else:
+                data_point = data.get(date, 'null')
+
+            final_data.append(data_point)
 
         dataset = dict()
         dataset["data"] = final_data
@@ -110,14 +130,20 @@ def generate_graph_data(device, toolchain, dates, entries):
             continue
 
         for elem in v:
+            # fasm2bels runtime is not interesting as a metric to visualize
+            fill_null = 'fasm2bels' in toolchain and k == 'runtime'
             datasets[k][elem] = generate_datasets(
-                lambda e: getattr(getattr(e, k), elem)
+                lambda e: getattr(getattr(e, k), elem), fill_null
             )
 
-    return datasets, color_hex
+    return datasets
 
 
 def generate_device_data(results: ProjectResults):
+    """
+    Generates the data for one a specific project/device/toolchain
+    combination which is then represented in a summary table.
+    """
     def color(val):
         return (val, "green" if val else "red")
 
@@ -127,8 +153,6 @@ def generate_device_data(results: ProjectResults):
     project_name = results.project_name
     dates = results.test_dates
     resources_list = ["LUT", "DFF", "CARRY", "IOB", "PLL", "GLB"]
-
-    color_generator = ColorGen()
 
     for device, toolchains in results_entries.items():
         toolchains_data = dict()
@@ -141,11 +165,13 @@ def generate_device_data(results: ProjectResults):
             entry = entries[-1]
             passed = entry.status == "succeeded"
 
-            graph_data[toolchain], hex_color = generate_graph_data(
+            graph_data[toolchain] = generate_graph_data(
                 device, toolchain, dates, entries
             )
 
-            toolchains_color.append((toolchain, hex_color))
+            toolchains_color.append(
+                (toolchain, COLOR_GENERATOR.get_color(toolchain))
+            )
 
             if "fasm2bels" in toolchain:
                 orig_toolchain = toolchain.strip("-fasm2bels")
@@ -206,7 +232,7 @@ def generate_device_data(results: ProjectResults):
                 if k in versions and len(v) < len(versions[k]):
                     versions[k] = v
 
-        # Unify clock names
+        # Unify clock names and add missing data to each toolchain
         clocks = set()
         for toolchain, data in graph_data.items():
             for clock in data["freq"]:

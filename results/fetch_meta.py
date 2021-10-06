@@ -11,10 +11,11 @@
 
 # Fetch test results from Google Storage
 
-import os
-import json
-import requests
 import gzip
+import json
+import logging
+import os
+import requests
 from argparse import ArgumentParser
 from datetime import datetime
 from collections import defaultdict
@@ -25,6 +26,8 @@ STORAGE_API_AT = 'https://www.googleapis.com/storage/v1/b/fpga-tool-perf/o'
 TESTRES_PREFIX = 'artifacts/prod/foss-fpga-tools/fpga-tool-perf'
 TEST_RESULT_DELIMITER = 'results-generic-all.json.gz'
 DOWNLOAD_BASE_URL = 'https://storage.googleapis.com/fpga-tool-perf'
+
+logger = logging.getLogger(__name__)
 
 
 # Iterage over all result pages in GCS JSON API.
@@ -55,7 +58,7 @@ def get_compound_result_file_path(test_run: int, builds: str):
 
 
 def download_meta(path: str, binary: bool = False):
-    print(f'Downloading `{path}`')
+    logger.debug(f'Downloading `{path}`')
 
     req_url = f'{DOWNLOAD_BASE_URL}/{path}'
     resp = requests.get(
@@ -101,7 +104,7 @@ def merge_results(metas, filter=None):
                 results[res_type].append(meta[res_type])
 
         except KeyError as e:
-            print(f'Skipping a meta file because of {e}')
+            logger.debug(f'Skipping a meta file because of {e}')
 
     for project in projects.values():
         project['date'] = \
@@ -116,14 +119,13 @@ def get_legacy_metas(gcs_paths: list, test_no: int):
         try:
             meta_json = download_meta(path)
         except requests.exceptions.ConnectionError as e:
-            print(f'ERROR: failed to download {path}: {e}')
+            logger.error(f'failed to download {path}: {e}')
             continue
         meta: dict
         try:
             meta = json.loads(meta_json)
         except json.decoder.JSONDecodeError:
-            # Yes this has actually happened once for some reason
-            print('ERROR: CAN\'T DECODE THE JSON FROM GCS')
+            logger.debug('Cannot decode the json from GCS')
             with open(f'faulty_json-{test_no}.json', 'w') as f:
                 f.write(meta_json)
             continue
@@ -182,13 +184,12 @@ def get_download_specs(test_info):
     test_no = test_info['test_no']
     builds = test_info['builds']
 
-    print(f'Preparing downloads for test {test_no}')
+    logger.debug(f'Preparing downloads for test {test_no}')
     gcs_compound_path = None
-    gcs_paths = None
     try:
         gcs_compound_path = get_compound_result_file_path(test_no, builds)
     except Exception as e:
-        print(
+        logging.error(
             f'Failed to fetch patches for test run no. {test_no}, cause: {e}'
         )
         return None
@@ -214,7 +215,7 @@ def download_from_specs(specs):
         with open(out_filename, 'w') as f:
             f.write(merged_json)
 
-    print(f'Downloaded test no. {test_no}')
+    logger.debug(f'Downloaded test no. {test_no}')
 
 
 def main():
@@ -235,26 +236,38 @@ def main():
     parser.add_argument(
         '--pool-size', type=int, default=8, help='Size of thread pool'
     )
+    parser.add_argument(
+        '--verbose', action='store_true', help='Print DEBUG Statements'
+    )
     args = parser.parse_args()
 
+    if args.verbose:
+        global logger
+        logger = logging.getLogger('MyLogger')
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(levelname)s: %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
     if not os.path.isdir(args.output_dir):
-        print('ERROR: Output path is not a directory!')
+        logger.error('Output path is not a directory!')
         exit(-1)
 
-    print(f'Using {args.pool_size} parallel threads.')
+    logger.debug(f'Using {args.pool_size} parallel threads.')
     pool = ThreadPool(args.pool_size)
     test_numbers = list(
         get_test_run_numbers(args.from_build, args.to_build, args.builds)
     )
 
-    print('Preparing downloads ...', flush=True)
+    logger.debug('Preparing downloads ...')
     tests = [
         dict(test_no=test_no, builds=args.builds) for test_no in test_numbers
     ]
     download_specs = pool.map(get_download_specs, tests)
     download_specs = list(
         filter(None, download_specs)
-    )  # remove None resulting from errors
+    )  # removelogger.debug None resulting from errors
 
     for specs in download_specs:
         specs['output_dir'] = args.output_dir
@@ -266,10 +279,10 @@ def main():
         else:
             url_count += 1
 
-    print(f'Downloading {url_count} URLs ...', flush=True)
-    results = pool.map(download_from_specs, download_specs)
+    logger.debug(f'Downloading {url_count} URLs ...')
+    pool.map(download_from_specs, download_specs)
 
-    print('Done')
+    logger.debug('Download completed!')
 
 
 if __name__ == "__main__":

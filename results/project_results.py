@@ -14,11 +14,7 @@ import json
 from datetime import datetime
 from collections import defaultdict
 
-from result_entry import *
-
-
-def config_name(board: str, toolchain: str):
-    return f'{board}-{toolchain}'
+from result_entry import ResultEntry, get_entries
 
 
 def datetime_from_str(s: str):
@@ -28,14 +24,13 @@ def datetime_from_str(s: str):
 class ProjectResults:
     project_name: str
     test_dates: 'list[datetime]'
-    entries: 'defaultdict[str, defaultdict[str, list[TestEntry]]]'
+    entries: 'defaultdict[str, defaultdict[str, list[ResultEntry]]]'
 
     def __init__(self, project_name: str, data_dir: str):
         self.project_name = project_name
         self.test_dates = []
         self.entries = defaultdict(lambda: defaultdict(lambda: []))
 
-        configs = defaultdict(lambda: set())
         datas = []
 
         # Load data
@@ -55,7 +50,6 @@ class ProjectResults:
         # Create test entries
         for data in sorted(datas, key=lambda d: datetime_from_str(d['date'])):
             self.test_dates.append(datetime_from_str(data['date']))
-            configs_to_handle = {}
 
             added = dict()
             for board, device, toolchain, entry in sorted(get_entries(
