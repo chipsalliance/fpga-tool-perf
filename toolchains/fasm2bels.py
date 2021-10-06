@@ -36,12 +36,9 @@ class VPRFasm2Bels(VPR):
           In addition, this flow makes use of Vivado.
     """
     def __init__(self, rootdir):
-        Toolchain.__init__(self, rootdir)
+        VPR.__init__(self, rootdir)
         self.toolchain = 'vpr-fasm2bels'
-        self.builddir = '.'
-        self.files = []
         self.fasm2bels = True
-
         self.dbroot = subprocess.check_output(
             'prjxray-config', shell=True
         ).decode('utf-8').strip()

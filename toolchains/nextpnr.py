@@ -37,7 +37,7 @@ class NextpnrGeneric(Toolchain):
         self.schema_dir = None
         self.device_file = None
         self.fasm2bels = False
-        self.symbiflow_options = dict()
+        self.tool_options = dict()
 
         self.nextpnr_log = "nextpnr.log"
 
@@ -67,10 +67,10 @@ class NextpnrGeneric(Toolchain):
         if len(self.yosys_synth_opts) == 0:
             self.yosys_synth_opts = [
                 "-flatten", "-nowidelut", "-abc9",
-                "-arch {}".format(self.family), "-nocarry", "-nodsp"
+                "-arch {}".format(self.family), "-nodsp"
             ]
 
-        if self.fasm2bels and self.arch is not "fpga_interchange":
+        if self.fasm2bels and self.arch != "fpga_interchange":
             symbiflow = os.getenv('SYMBIFLOW', None)
             assert symbiflow
 
@@ -90,7 +90,7 @@ class NextpnrGeneric(Toolchain):
             self.files.append(get_file_dict(rr_graph_path, 'RRGraph'))
             self.files.append(get_file_dict(vpr_grid_path, 'VPRGrid'))
 
-        options = self.symbiflow_options
+        options = self.tool_options
         options['arch'] = self.arch
         options['part'] = self.chip
         options['package'] = self.package
@@ -105,31 +105,6 @@ class NextpnrGeneric(Toolchain):
         options['device'] = self.device_file
         options['clocks'] = self.clocks
         options['nextpnr_options'] = self.options
-
-        if self.fasm2bels and self.arch is not "fpga_interchange":
-            bitstream_device = None
-            if self.device.startswith('a'):
-                bitstream_device = 'artix7'
-            if self.device.startswith('z'):
-                bitstream_device = 'zynq7'
-            if self.device.startswith('k'):
-                bitstream_device = 'kintex7'
-
-            assert bitstream_device
-
-            part_json = os.path.join(
-                self.dbroot, bitstream_device, self.family + self.part,
-                'part.json'
-            )
-            self.symbiflow_options['yosys_additional_commands'] = [
-                "plugin -i xdc",
-                "yosys -import",
-                "read_xdc -part_json {} {}".format(
-                    part_json, os.path.realpath(self.xdc)
-                ),
-                "clean",
-                "write_blif -attr -param {}.eblif".format(self.project_name),
-            ]
 
     def run_steps(self):
         with Timed(self, 'bitstream'):
@@ -345,7 +320,7 @@ class NextpnrGeneric(Toolchain):
         return {
             'yosys':
                 NextpnrGeneric.yosys_ver(),
-            'nextpnr-{}'.format(self.toolchain_bin):
+            '{}'.format(self.toolchain_bin):
                 self.nextpnr_version(self.toolchain_bin),
         }
 
@@ -357,8 +332,7 @@ class NextpnrGeneric(Toolchain):
     def check_env(toolchain):
         return {
             'yosys': have_exec('yosys'),
-            'nextpnr': have_exec('{}'.format(toolchain)),
-            'prjxray-config': have_exec('prjxray-config'),
+            'nextpnr': have_exec(f'{toolchain}'),
         }
 
 
@@ -372,15 +346,21 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
 
         self.resources_map = dict(families=dict())
         self.resources_map['families']['xc7'] = {
-            'LUT': ('LUTS', ),
-            'DFF': ('FLIP_FLOPS', ),
-            'CARRY': ('CARRY', ),
+            'LUT': ('LUTS', 'LUT1', 'LUT2', 'LUT3', 'LUT4', 'LUT5', 'LUT6'),
+            'DFF': ('FLIP_FLOPS', 'FDRE', 'FDSE', 'FDPE', 'FDCE'),
+            'CARRY': ('CARRY', 'CARRY4'),
             'IOB': (
                 'IBUFs',
                 'OBUFs',
+                'IBUF',
+                'OBUF',
             ),
-            'PLL': ('PLL', ),
-            'BRAM': ('BRAMS', ),
+            'PLL': ('PLL', 'PLLE2_ADV', 'MMCME2_ADV'),
+            'BRAM': (
+                'BRAMS',
+                'RAMB18E1',
+                ('RAMB36E1', 2),
+            )
         }
 
     def prepare_edam(self):
@@ -448,7 +428,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         edam['files'] = self.files
         edam['name'] = self.project_name
         edam['toplevel'] = self.top
-        edam['tool_options'] = dict(symbiflow=self.symbiflow_options)
+        edam['tool_options'] = dict(symbiflow=self.tool_options)
 
         return edam
 
@@ -497,7 +477,7 @@ class NextpnrXilinx(NextpnrGeneric):
         self.resources_map = {
             'LUT':
                 ('SLICE_LUTX', 'LUT1', 'LUT2', 'LUT3', 'LUT4', 'LUT5', 'LUT6'),
-            'DFF': ('SLICE_FFX', 'FDRE', 'FDSE', 'FDPE', "FDCE"),
+            'DFF': ('SLICE_FFX', 'FDRE', 'FDSE', 'FDPE', 'FDCE'),
             'CARRY': ('CARRY4', ),
             'IOB':
                 (
@@ -543,7 +523,7 @@ class NextpnrXilinx(NextpnrGeneric):
         edam['files'] = self.files
         edam['name'] = self.project_name
         edam['toplevel'] = self.top
-        edam['tool_options'] = dict(symbiflow=self.symbiflow_options)
+        edam['tool_options'] = dict(symbiflow=self.tool_options)
 
         return edam
 
@@ -556,6 +536,7 @@ class NextpnrOxide(NextpnrGeneric):
     def __init__(self, rootdir):
         NextpnrGeneric.__init__(self, rootdir)
         self.toolchain = "nextpnr-nexus"
+        self.toolchain_bin = "nextpnr-nexus"
         self.nextpnr_log = "next.log"
 
         self.resources_map = {
@@ -606,37 +587,6 @@ class NextpnrOxide(NextpnrGeneric):
 
         self.add_runtimes()
         self.add_wirelength()
-
-    @staticmethod
-    def yosys_ver():
-        # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
-        yosys_version = subprocess.check_output(
-            "yosys -V", shell=True, universal_newlines=True
-        ).strip()
-
-        m = YOSYS_REGEXP.match(yosys_version)
-
-        assert m
-
-        return "{} {} {})".format(m.group(1), m.group(2), m.group(3))
-
-    @staticmethod
-    def nextpnr_version():
-        '''
-        nextpnr-nexus -V
-        '''
-        return subprocess.check_output(
-            "nextpnr-nexus -V || true",
-            shell=True,
-            universal_newlines=True,
-            stderr=subprocess.STDOUT
-        ).strip()
-
-    def versions(self):
-        return {
-            'yosys': self.yosys_ver(),
-            'nextpnr-nexus': self.nextpnr_version(),
-        }
 
     @staticmethod
     def seedable():

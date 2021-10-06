@@ -17,6 +17,8 @@ import edalize
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec, get_yosys_resources, get_file_dict
 
+YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
+
 
 class Icestorm(Toolchain):
     def __init__(self, rootdir):
@@ -146,11 +148,18 @@ class Icestorm(Toolchain):
 
             return {"clk": clk_data}
 
-    def yosys_ver(self):
+    @staticmethod
+    def yosys_ver():
         # Yosys 0.7+352 (git sha1 baddb017, clang 3.8.1-24 -fPIC -Os)
-        return subprocess.check_output(
+        yosys_version = subprocess.check_output(
             "yosys -V", shell=True, universal_newlines=True
         ).strip()
+
+        m = YOSYS_REGEXP.match(yosys_version)
+
+        assert m
+
+        return "{} {} {})".format(m.group(1), m.group(2), m.group(3))
 
     def device_simple(self):
         # hx8k => 8k
