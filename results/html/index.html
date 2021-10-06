@@ -5,42 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FPGA tool perf results: index</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.1.1/dist/chartjs-plugin-zoom.min.js"></script>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   </head>
+  <style>
+    .resource-graphs {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .resource-graphs div {
+      width: 25vw;
+      max-width: 25vw;
+      max-height: 50vh;
+      margin: 1vh 1vw 1vw 1vh;
+    }
+  </style>
   <body>
+    <div id="header" class="w3-container w3-left w3-padding">
+      <h1>FPGA Tool Perf results</h1>
+    </div>
 
-    <div id="home" class="w3-content">
-      <div id="header" class="w3-container w3-center w3-padding">
-        <h1>FPGA Tool Perf results</h1>
-      </div>
+    <div class="w3-row">
+      <div class="w3-col m3 l2 w3-padding">
+        <div id="overview" class="w3-container w3-center">
+          <p>Click on a device to select it.</p>
+        </div>
 
-      <div id="overview" class="w3-container w3-center">
-        <p>Click on a board to select it.</p>
-      </div>
-
-      <div class="w3-row">
-        {% for board in boards %}
-          <div id="{{board}}" class="w3-col m4 l3">
-
-            <button id="{{board}}-button" class="project-button w3-button w3-light-gray w3-block w3-center" onclick="selectTable('{{board}}')">
-            {{ board }}
-            </button>
+        <div class="w3-dropdown-hover w3-center" style="width: 100%">
+          <button class="w3-button w3-border" style="width: 100%">Devices</button>
+          <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
+          {% for device in devices_list -%}
+            <div id="{{device}}">
+              <button id="{{device}}-button" class="w3-button w3-block w3-center" onclick="selectElem('{{device}}-status')">
+                <b>{{ device }}</b>
+              </button>
+            </div>
+          {%- endfor %}
           </div>
-        {% endfor %}
+        </div>
       </div>
 
-      <div>
-        {% for board in boards %}
-          <div id="{{ board }}-table" class="board-table w3-container w3-hide w3-padding-16">
-            {% include 'table.html' %}
-          </div>
-        {% endfor %}
+      <div class="w3-col m10 l10 w3-padding">
+          {% for device in devices -%}
+            <div id="{{ device }}-status" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
+              <h2 class="w3-center"><b>{{ device }}</b></h2>
+              <div id="overview" class="w3-container w3-center">
+                <h4>To check the latest statistics of a project for the selected board, please <b>click</b> on the project's name.</h4>
+              </div>
+              {% include 'table.html' %}
+            </div>
+          {%- endfor %}
+
+          {% for project, devices in device_data.items() -%}
+            {% for device, data in devices.items() -%}
+            <div id="{{ project }}-{{ device }}-stats" class="device-table w3-container w3-hide w3-content" style="max-width: 90%">
+              {% include 'stats.html' %}
+            </div>
+            {%- endfor %}
+          {%- endfor %}
       </div>
     </div>
   </body>
 
+<script type="text/javascript" src="data/data.js"></script>
 <script charset="utf-8">
+
+var visible_elem = null;
 
 // sets visibility of an element with the w3-hide class by appending/removing w3-show class
 function setVisibility(elem, on) {
@@ -58,31 +92,137 @@ function toggleVisibility(id) {
   setVisibility(elem, elem.className.indexOf("w3-show") == -1);
 }
 
-function selectTable(board_name) {
-  var table_id = board_name + "-table";
-  var button_id = board_name + "-button";
+function selectElem(elem_id) {
+  var elem = document.getElementById(elem_id);
+  setVisibility(elem, true);
 
-  var tables = document.getElementsByClassName("board-table");
-  for (var i = tables.length - 1; i >= 0; i--) {
-    setVisibility(tables[i], tables[i].id == table_id);
+  if (visible_elem != null && visible_elem != elem) {
+    setVisibility(visible_elem, false);
   }
 
-  var buttons = document.getElementsByClassName("board-button");
-  for (var i = buttons.length - 1; i >= 0; i--) {
-    if (buttons[i].id == button_id) {
-      buttons[i].className = buttons[i].className.replace(" w3-gray", "");
-      buttons[i].className = buttons[i].className.replace(" w3-light-gray", "");
-      buttons[i].className += " w3-gray";
-    } else {
-      buttons[i].className = buttons[i].className.replace(" w3-gray", "");
-      buttons[i].className = buttons[i].className.replace(" w3-light-gray", "");
-      buttons[i].className += " w3-light-gray";
-    }
+  visible_elem = elem;
+}
+
+function selectStat(elem_id, device, project, ) {
+  var charts = [];
+
+  selectElem(elem_id);
+
+  labels = data[project][device]["dates"];
+
+  charts.push(new LineChart(
+    project + "-" + device + "-runtime-chart",
+    "Total Runtime",
+    " s",
+    labels,
+    data[project][device]["runtime"],
+    false
+  ));
+
+  for (const [ key, value ] of Object.entries(data[project][device]["freq"])) {
+    charts.push(new LineChart(
+      project + "-" + device + "-" + key + "-frequency-chart",
+      key + " frequency",
+      " MHz",
+      labels,
+      value,
+      false
+    ));
   }
+
+  for (const [ key, value ] of Object.entries(data[project][device]["resources"])) {
+    charts.push(new LineChart(
+      project + "-" + device + "-" + key + "-usage-chart",
+      key.toUpperCase() + " Usage",
+      "",
+      labels,
+      value,
+      false
+    ));
+  }
+
+  charts.push(new LineChart(
+    project + "-" + device + "-wirelength-chart",
+    "Total Wirelength",
+    "",
+    labels,
+    data[project][device]["wirelength"],
+    false
+  ));
+
+  charts.push(new LineChart(
+    project + "-" + device + "-memory-chart",
+    "Total Memory Usage",
+    "",
+    labels,
+    data[project][device]["memory"],
+    false
+  ));
+
+  charts.forEach(elem => elem.update());
+
 }
 
 // select first table on start
-selectTable("{{ boards_list[0] }}");
+selectElem("{{ devices_list[0] }}-status");
 
+function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
+  return new Chart(document.getElementById(canvas_name), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      pointRadius: 1.5,
+      spanGaps: true,
+      animation: false,
+      normailzed: true,
+      plugins: {
+        title: {
+          display: true,
+          text: title,
+          font: {
+            size: 24,
+            family: '"Segoe UI", "Arial", "sans-serif"',
+            color: "black",
+          },
+        },
+        legend: {
+          display: legend,
+        },
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true,
+              modifierKey: "shift"
+            },
+            drag: {
+              enabled: true,
+              modifierKey: "shift"
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: "x"
+          },
+          pan: {
+            enabled: true,
+            mode: "x"
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function(v, idx, vx) {
+              return v + unitstr;
+            }
+          }
+        }
+      }
+    }
+  });
+}
 </script>
 </html>

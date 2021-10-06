@@ -34,7 +34,6 @@ class Resources:
         # FIXME: currenly oxide uses FF instead of DFF, lacks GLB and has LRAM
         # https://github.com/SymbiFlow/fpga-tool-perf/pull/342
         if hasattr(self, 'ff'):
-            print('Sanitizing: FF->DFF')
             # rename FF to DFF
             assert not hasattr(self, 'dff')
             self.dff = self.ff
@@ -65,13 +64,17 @@ class Runtime:
     total: 'float | None'
 
 
-class TestEntry:
+class ResultEntry:
     maxfreq: 'dict[str, Clk]'
     maximum_memory_use: float
     resources: Resources
     runtime: Runtime
     wirelength: 'int | None'
     status: 'str'
+    date: 'str'
+    toolchain: 'dict'
+    versions: 'dict'
+    device: 'str'
 
 
 def null_generator():
@@ -79,9 +82,7 @@ def null_generator():
         yield None
 
 
-def get_entries(json_data: dict):
-    results = json_data['results']
-
+def get_entries(json_data: dict, project: str):
     def make_clks(clkdef: 'dict | float | None'):
         def get_clk(freq):
             clk = Clk()
@@ -103,7 +104,7 @@ def get_entries(json_data: dict):
         elif type(clkdef) is float:
             clks['clk'] = get_clk(clkdef)
         elif clkdef is None:
-            clks['clk'] = get_clk(0.0)
+            return clks
         else:
             raise Exception('Wrong type for clock definition')
         return clks
@@ -127,28 +128,44 @@ def get_entries(json_data: dict):
             resources.sanitize()
         return resources
 
+    results = json_data['results']
+    date = json_data['date']
+
     wirelength = results.get('wirelength', null_generator())
     status = results.get('status', null_generator())
 
+    entries = list()
     zipped = zip(
         results['board'], results['toolchain'], results['max_freq'],
         results['maximum_memory_use'], results['resources'],
-        results['runtime'], wirelength, status
+        results['runtime'], wirelength, status, results['toolchain'],
+        results['versions'], results['family'], results['device']
     )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
-            wirelength, status in zipped:
-        toolchain, _ = next(iter(toolchain_dict.items()))
+            wirelength, status, toolchain, versions, family, device in zipped:
+        toolchain_name, _ = next(iter(toolchain_dict.items()))
 
         # Some platforms are cursed and the tests return just a single float
         # instead of a dict
-        clk_config = max_freq
-        entry = TestEntry()
+        entry = ResultEntry()
         entry.maximum_memory_use =\
             max_mem_use if max_mem_use is not None else 'null'
         entry.wirelength = wirelength if wirelength is not None else 'null'
-        entry.maxfreq = make_clks(clk_config)
+        entry.maxfreq = make_clks(max_freq)
         entry.runtime = make_runtime(runtime)
         entry.resources = make_resources(resources)
-        entry.status = status if status is not None else 'succeeded'
 
-        yield board, toolchain, entry
+        entry.toolchain = toolchain
+        entry.versions = versions
+        entry.status = status if status is not None else 'succeeded'
+        entry.date = date
+
+        # Sanitize family
+        if family == "lifcl":
+            family = "nexus"
+
+        entry.device = f"{family}-{device}".upper()
+
+        entries.append((board, entry.device, toolchain_name, entry))
+
+    return entries

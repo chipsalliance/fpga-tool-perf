@@ -14,7 +14,7 @@ import json
 from datetime import datetime
 from collections import defaultdict
 
-from testentry import *
+from result_entry import *
 
 
 def config_name(board: str, toolchain: str):
@@ -30,7 +30,7 @@ class ProjectResults:
     test_dates: 'list[datetime]'
     entries: 'defaultdict[str, defaultdict[str, list[TestEntry]]]'
 
-    def __init__(self, project_name: str, data_dir: str, filter_failed: bool):
+    def __init__(self, project_name: str, data_dir: str):
         self.project_name = project_name
         self.test_dates = []
         self.entries = defaultdict(lambda: defaultdict(lambda: []))
@@ -57,13 +57,20 @@ class ProjectResults:
             self.test_dates.append(datetime_from_str(data['date']))
             configs_to_handle = {}
 
-            for board, toolchain, entry in get_entries(data):
-                if entry.status == "failed" and filter_failed:
-                    continue
-
-                self.entries[board][toolchain].append(entry)
+            added = dict()
+            for board, device, toolchain, entry in sorted(get_entries(
+                    data, project_name), key=lambda k: k[0]):
+                key = (device, toolchain)
+                if key not in added:
+                    self.entries[device][toolchain].append(entry)
+                    added[key] = entry
+                elif added[key
+                           ].status == "failed" and entry.status == "succeeded":
+                    self.entries[device][toolchain].pop()
+                    self.entries[device][toolchain].append(entry)
+                    added[key] = entry
 
     def get_all_configs(self):
-        for board, toolchains in self.entries.items():
+        for device, toolchains in self.entries.items():
             for toolchain in toolchains.keys():
-                yield board, toolchain
+                yield device, toolchain
