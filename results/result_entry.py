@@ -8,9 +8,10 @@
 # https://opensource.org/licenses/ISC
 #
 # SPDX-License-Identifier: ISC
-
-import re
-from collections import defaultdict
+"""
+This file contains the definition of a result entry, specifying
+all the possible data present within it, as well as their types.
+"""
 
 
 class Clk:
