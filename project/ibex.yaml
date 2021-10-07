@@ -29,6 +29,7 @@ clock_aliases:
   clk_sys:
     - clk_50_unbuf
     - clkgen.clk_50_unbuf
+    - clkgen.clk_sys
     - u_ram.clk_i
     - clk
 vendors:
