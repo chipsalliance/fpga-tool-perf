@@ -177,23 +177,26 @@ class VPR(Toolchain):
                     if l.startswith('clock') and not l.startswith(
                         ('clock source latency', 'clock uncertainty')):
                         clock = l.split()[1]
-                        if clock in clocks:
-                            if critical_paths is None:
-                                critical_paths = dict()
 
-                            if clock not in critical_paths:
-                                critical_paths[clock] = dict()
-                                critical_paths[clock]['requested'] = float(
-                                    l.split()[-1]
-                                )
+                        keys = list(clocks.keys())
+                        if len(keys) == 1 and 'clk' in keys:
+                            clock = 'clk'
+
+                        if critical_paths is None:
+                            critical_paths = dict()
+
+                        if clock not in critical_paths:
+                            critical_paths[clock] = dict()
+                            critical_paths[clock]['requested'] = float(
+                                l.split()[-1]
+                            )
 
                     if l.startswith('slack'):
                         if critical_paths is None:
                             in_block = False
                             processing = False
                             continue
-                        if clock in clocks and not 'met' in critical_paths[
-                                clock]:
+                        if 'met' not in critical_paths[clock]:
                             critical_paths[clock]['met'] = '(MET)' in l
                             critical_paths[clock]['violation'] = float(
                                 l.split()[-1]
@@ -266,23 +269,42 @@ class VPR(Toolchain):
         clocks = dict()
         route_log = os.path.join(self.out_dir, 'route.log')
 
-        intra_domain_processing = False
+        intra_domain_cpd_processing = False
+        intra_domain_slack_processing = False
 
         with open(route_log, 'r') as fp:
             for l in fp:
+                if "Final intra-domain worst hold" in l:
+                    intra_domain_slack_processing = True
+                    continue
+
                 if "Final critical path" in l and "Fmax" in l:
-                    clk = 'clk'
+                    assert len(freqs.keys()) <= 1, (freqs, self.design())
+
+                    if len(freqs.keys()) < 1:
+                        clk = 'clk'
+                    else:
+                        clk = list(freqs.keys())[0]
+
                     fields = l.split(",")
                     cpd = float(fields[0].split(":")[1].split()[0].strip())
                     freqs[clk] = safe_division_by_zero(1e9, cpd)
 
                 if l == "Final intra-domain critical path delays (CPDs):\n":
-                    intra_domain_processing = True
+                    intra_domain_cpd_processing = True
                     continue
 
-                if intra_domain_processing:
+                if intra_domain_slack_processing:
                     if len(l.strip('\n')) == 0:
-                        intra_domain_processing = False
+                        intra_domain_slack_processing = False
+                        continue
+
+                    clk = l.split()[0]
+                    freqs[clk] = None
+
+                if intra_domain_cpd_processing:
+                    if len(l.strip('\n')) == 0:
+                        intra_domain_cpd_processing = False
                         continue
 
                     fields = l.split(':')
@@ -295,17 +317,18 @@ class VPR(Toolchain):
             clocks[clk] = dict()
             clocks[clk]['actual'] = freqs[clk]
 
-            criticals = self.get_critical_paths(clk, 'setup')
-            if criticals is not None:
+            criticals = self.get_critical_paths(clocks, 'setup')
+            if criticals is not None and clk in criticals:
                 clocks[clk]['requested'] = safe_division_by_zero(
                     1e9, criticals[clk]['requested']
                 )
                 clocks[clk]['met'] = criticals[clk]['met']
                 clocks[clk]['setup_violation'] = criticals[clk]['violation']
 
-            criticals = self.get_critical_paths(clk, 'hold')
-            if criticals is not None:
+            criticals = self.get_critical_paths(clocks, 'hold')
+            if criticals is not None and clk in criticals:
                 clocks[clk]['hold_violation'] = criticals[clk]['violation']
+
                 if 'requested' not in clocks[clk]:
                     clocks[clk]['requested'] = safe_division_by_zero(
                         1e9, criticals[clk]['requested']

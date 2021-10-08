@@ -12,6 +12,7 @@ clocks:
 clock_aliases:
   clk:
     - clk_bufg
+    - soc.simpleuart.clk
 vendors:
   xilinx:
     - basys3
