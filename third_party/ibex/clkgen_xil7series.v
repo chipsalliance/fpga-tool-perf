@@ -17,6 +17,7 @@ module clkgen_xil7series (
 	wire clk_pll_fb;
 	(* LOC="PLLE2_ADV_X1Y1" *)
 	PLLE2_ADV #(
+		.CLKIN1_PERIOD(10.0),
 		.BANDWIDTH("OPTIMIZED"),
 		.COMPENSATION("INTERNAL"),
 		.STARTUP_WAIT("FALSE"),
