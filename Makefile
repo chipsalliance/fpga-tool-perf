@@ -28,8 +28,8 @@ SYMBIFLOW_DEVICES = xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 QUICKLOGIC_ARCHIVE = quicklogic.tar.gz
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
-INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/continuous/44/20210909-090121
-INTERCHANGE_VERSION = 839e153
+INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/continuous/50/20211008-072036
+INTERCHANGE_VERSION = 6ff4159
 INTERCHANGE_DEVICES = xc7a35t xc7a100t xc7a200t xc7z010
 RAPIDWRIGHT_PATH = $(TOP_DIR)/third_party/RapidWright
 

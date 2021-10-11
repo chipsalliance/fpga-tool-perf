@@ -30,5 +30,3 @@ vendors:
     - nexys
 required_toolchains:
   - vivado
-skip_toolchains:
-  - nextpnr-fpga-interchange
