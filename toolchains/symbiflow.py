@@ -103,7 +103,7 @@ class VPR(Toolchain):
         edam['toplevel'] = self.top
         edam['tool_options'] = dict(symbiflow=options)
 
-        return edam
+        return edam, tool_params
 
     def run_steps(self):
         try:
@@ -131,7 +131,14 @@ class VPR(Toolchain):
                 ] = f"source {os.path.abspath('env.sh') + ' xilinx-' + self.device} &&"
                 os.makedirs(self.out_dir, exist_ok=True)
 
-                edam = self.prepare_edam(self.family + self.device)
+                edam, tool_params = self.prepare_edam(
+                    self.family + self.device
+                )
+
+                if tool_params:
+                    os.environ["EDALIZE_LAUNCHER"
+                               ] += ' VPR_OPTIONS="--echo_file on"'
+
                 self.backend = edalize.get_edatool('symbiflow')(
                     edam=edam, work_root=self.out_dir
                 )
@@ -561,7 +568,7 @@ class Quicklogic(VPR):
                 ] = f"source {os.path.abspath('env.sh') + ' quicklogic'} &&"
                 os.makedirs(self.out_dir, exist_ok=True)
 
-                edam = self.prepare_edam(self.device)
+                edam, _ = self.prepare_edam(self.device)
                 self.backend = edalize.get_edatool('symbiflow')(
                     edam=edam, work_root=self.out_dir
                 )
