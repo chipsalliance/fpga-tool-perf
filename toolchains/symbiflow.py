@@ -1054,14 +1054,14 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         )
 
         self.yosys_additional_commands = ["setundef -zero -params"]
-        self.options = f"--log {self.nextpnr_log}"
+        self.options = f"--log {self.nextpnr_log} --disable-lut-mapping-cache"
         self.env_script = os.path.abspath(
             'env.sh'
         ) + ' nextpnr fpga_interchange-' + self.device
 
         self.yosys_synth_opts = [
             "-flatten", "-nowidelut", "-arch {}".format(self.family), "-nodsp",
-            "-nolutram", "-nosrl"
+            "-nosrl"
         ]
 
         lib_file = os.path.join(

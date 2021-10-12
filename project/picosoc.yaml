@@ -17,9 +17,8 @@ vendors:
     - basys3
     - nexys
 required_toolchains:
+  - nextpnr-fpga-interchange
   - vivado
-  - yosys-vivado
   - vpr
   - vpr-fasm2bels
-skip_toolchains:
-  - nextpnr-fpga-interchange
+  - yosys-vivado

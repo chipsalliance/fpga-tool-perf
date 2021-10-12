@@ -6,7 +6,7 @@ dependencies:
   - litex-hub::yosys=0.9_5530_gc016f6a4=20210730_085634_py37
   - litex-hub::yosys-symbiflow-plugins=1.0.0_7_368_gfc33276=20210730_085634
   - litex-hub::vtr-optimized=8.0.0_3614_gb3b34e77a=20210507_125510
-  - litex-hub::nextpnr-fpga_interchange=v0.0_3787_g67bd349e=20210818_135210_py37
+  - litex-hub::nextpnr-fpga_interchange=v0.0_3848_g9c32e2d8=20211001_162618_py37
   - litex-hub::nextpnr-ice40=0.0.0_3403_g3fd1ee77=20210722_152338_py37
   - litex-hub::nextpnr-xilinx=v0.0_2840_g86500ec6=20210722_152338_py37
   - litex-hub::nextpnr-nexus=0.0.0_3403_g3fd1ee77=20210813_070938_py37
