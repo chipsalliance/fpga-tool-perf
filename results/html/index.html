@@ -40,7 +40,7 @@
           <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
           {% for device in devices_list -%}
             <div id="{{device}}">
-              <button id="{{device}}-button" class="w3-button w3-block w3-center" onclick="selectElem('{{device}}-status')">
+              <button id="{{device}}-button" class="w3-button w3-block w3-center" onclick="updateSearchQuery('{{device}}-status', null, null)">
                 <b>{{ device }}</b>
               </button>
             </div>
@@ -103,10 +103,14 @@ function selectElem(elem_id) {
   visible_elem = elem;
 }
 
-function selectStat(elem_id, device, project, ) {
+function selectStat(elem_id, device, project) {
   var charts = [];
 
   selectElem(elem_id);
+
+  if (device == null || project == null) {
+    return;
+  }
 
   labels = data[project][device]["dates"];
 
@@ -162,9 +166,6 @@ function selectStat(elem_id, device, project, ) {
   charts.forEach(elem => elem.update());
 
 }
-
-// select first table on start
-selectElem("{{ devices_list[0] }}-status");
 
 function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
   return new Chart(document.getElementById(canvas_name), {
@@ -224,5 +225,36 @@ function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
     }
   });
 }
+
+function handleSearchQuery() {
+  var search_query = window.location.search;
+  const params = new URLSearchParams(search_query);
+
+  var elem_id = params.get('elem_id');
+
+  var elem = document.getElementById(elem_id);
+  if (elem == visible_elem) {
+    return;
+  }
+
+  var device = params.get('device');
+  var project = params.get('project');
+  if (elem_id) {
+    selectStat(elem_id, device, project);
+  }
+}
+
+function updateSearchQuery(elem_id, device, project) {
+  var device_str = device == null ? "" : "&device=" + device;
+  var project_str = project == null ? "" : "&project=" + project;
+
+  var params = "?elem_id=" + elem_id;
+  params += device_str;
+  params += project_str;
+
+  window.location.search = params;
+}
+
+handleSearchQuery();
 </script>
 </html>
