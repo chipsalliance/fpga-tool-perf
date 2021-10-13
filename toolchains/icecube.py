@@ -18,7 +18,6 @@ from utils.utils import Timed, have_exec
 # no seed support?
 class Icecube2(Toolchain):
     '''Lattice Icecube2 based toolchains'''
-    carries = None
 
     ICECUBEDIR_DEFAULT = os.getenv("ICECUBEDIR", "/opt/lscc/iCEcube2.2017.08")
 
@@ -81,8 +80,6 @@ class Icecube2(Toolchain):
 
 class Icecube2Synpro(Icecube2):
     '''Lattice Icecube2 using Synplify for synthesis'''
-    carries = (True, )
-
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'synpro-icecube2'
@@ -100,8 +97,6 @@ class Icecube2Synpro(Icecube2):
 
 class Icecube2LSE(Icecube2):
     '''Lattice Icecube2 using LSE for synthesis'''
-    carries = (True, )
-
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'lse-icecube2'
@@ -119,8 +114,6 @@ class Icecube2LSE(Icecube2):
 
 class Icecube2Yosys(Icecube2):
     '''Lattice Icecube2 using Yosys for synthesis'''
-    carries = (True, False)
-
     def __init__(self):
         Icecube2.__init__(self)
         self.toolchain = 'yosys-icecube2'

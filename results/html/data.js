@@ -37,12 +37,22 @@ var data = { {% for project, device_data in devices_data.items() %}
                     },{% endfor %}
                 ],{% endfor %}
             },
-            "resources": { {% for res in data["resources"] %}
+            "synth_resources": { {% for res in data["resources"] %}
                 "{{ res|lower }}": [{% for toolchain, graph_data in data["graph_data"].items() %}
                     {
-                        "data": {{ graph_data["resources"][res|lower]['data'] }},
+                        "data": {{ graph_data["synth_resources"][res|lower]['data'] }},
                         "label": "{{ toolchain }}",
-                        "borderColor": "{{ graph_data["resources"][res|lower]['color'] }}",
+                        "borderColor": "{{ graph_data["synth_resources"][res|lower]['color'] }}",
+                        "fill": false
+                    },{% endfor %}
+                ],{% endfor %}
+            },
+            "impl_resources": { {% for res in data["resources"] %}
+                "{{ res|lower }}": [{% for toolchain, graph_data in data["graph_data"].items() %}
+                    {
+                        "data": {{ graph_data["impl_resources"][res|lower]['data'] }},
+                        "label": "{{ toolchain }}",
+                        "borderColor": "{{ graph_data["impl_resources"][res|lower]['color'] }}",
                         "fill": false
                     },{% endfor %}
                 ],{% endfor %}

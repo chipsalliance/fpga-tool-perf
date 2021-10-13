@@ -134,9 +134,20 @@ function selectStat(elem_id, device, project) {
     ));
   }
 
-  for (const [ key, value ] of Object.entries(data[project][device]["resources"])) {
+  for (const [ key, value ] of Object.entries(data[project][device]["synth_resources"])) {
     charts.push(new LineChart(
-      project + "-" + device + "-" + key + "-usage-chart",
+      project + "-" + device + "-synth-" + key + "-usage-chart",
+      key.toUpperCase() + " Usage",
+      "",
+      labels,
+      value,
+      false
+    ));
+  }
+
+  for (const [ key, value ] of Object.entries(data[project][device]["impl_resources"])) {
+    charts.push(new LineChart(
+      project + "-" + device + "-impl-" + key + "-usage-chart",
       key.toUpperCase() + " Usage",
       "",
       labels,

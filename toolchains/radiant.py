@@ -20,10 +20,6 @@ from utils.utils import Timed, have_exec
 # no seed support? -n just does more passes
 class Radiant(Toolchain):
     '''Lattice Radiant based toolchains'''
-    carries = None
-    # FIXME: strategy isn't being set correctly
-    # https://github.com/SymbiFlow/fpga-tool-perf/issues/14
-    strategies = ('Timing', 'Quick', 'Area')
 
     RADIANTDIR_DEFAULT = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
 
@@ -45,8 +41,6 @@ class Radiant(Toolchain):
             env["RADDEV"] = self.device + '-' + self.package
             syn = self.syn()
             args = "--syn %s" % (syn, )
-            if self.strategy:
-                args += " --strategy %s" % self.strategy
             self.cmd(root_dir + "/radiant.sh", args, env=env)
             self.cmd("iceunpack", "my.bin my.asc")
 
@@ -84,8 +78,6 @@ class Radiant(Toolchain):
 
 class RadiantLSE(Radiant):
     '''Lattice Radiant using LSE for synthesis'''
-    carries = (True, )
-
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'lse-radiant'
@@ -96,8 +88,6 @@ class RadiantLSE(Radiant):
 
 class RadiantSynpro(Radiant):
     '''Lattice Radiant using Synplify for synthesis'''
-    carries = (True, )
-
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'synpro-radiant'
@@ -109,8 +99,6 @@ class RadiantSynpro(Radiant):
 # @E: CG389 :"/home/mcmaster/.../impl/impl.v":18:4:18:7|Reference to undefined module SB_LUT4
 # didn't look into importing edif
 class RadiantYosys(Radiant):
-    carries = (True, False)
-
     def __init__(self):
         Radiant.__init__(self)
         self.toolchain = 'yosys-radiant'

@@ -24,13 +24,11 @@ import edalize
 import glob
 
 from toolchains.toolchain import Toolchain
-from utils.utils import Timed, get_vivado_max_freq, have_exec
+from utils.utils import Timed, get_vivado_max_freq, have_exec, get_yosys_resources, get_file_dict
 
 
 class Vivado(Toolchain):
     '''Vivado toolchain (synth and PnR)'''
-    carries = (False, False)
-
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
         self.toolchain = 'vivado'
@@ -39,6 +37,36 @@ class Vivado(Toolchain):
         self.files = []
         self.edam = None
         self.backend = None
+
+        self.resources_map = dict(families=dict())
+        self.resources_map["families"]["xc7"] = {
+            'LUT': (
+                'LUT1',
+                'LUT2',
+                'LUT3',
+                'LUT4',
+                'LUT5',
+                'LUT6',
+            ),
+            'DFF': (
+                'FDRE',
+                'FDSE',
+                'FDPE',
+                "FDCE",
+            ),
+            'CARRY': ('CARRY4', ),
+            'IOB': (
+                'IBUF',
+                'OBUF',
+                'OBUFT',
+                'IOBUF',
+            ),
+            'PLL': ('MMCME2_ADV', 'PLLE2_ADV'),
+            'BRAM': (
+                'RAMB18E1',
+                ('RAMB36E1', 2),
+            ),
+        }
 
     def get_vivado_runtimes(self, logfile):
         def get_seconds(time_str):
@@ -77,63 +105,36 @@ class Vivado(Toolchain):
         for t in impl_times:
             self.add_runtime(t, impl_times[t])
 
+    def prepare_edam(self):
+        chip = self.family + self.device + self.package
+
+        vivado_settings = os.getenv('VIVADO_SETTINGS')
+
+        options = dict()
+        options['part'] = chip
+        options['synth'] = self.synthtool
+        options['vivado-settings'] = vivado_settings
+        options['yosys_synth_options'] = self.synthoptions
+
+        params = dict(paramtype='vlogdefine', datatype='int', default=1)
+
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(vivado=options)
+        edam['parameters'] = dict(VIVADO=params)
+
+        return edam
+
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 os.makedirs(self.out_dir, exist_ok=True)
-                for f in self.srcs:
-                    if f.endswith(".vhd") or f.endswith(".vhdl"):
-                        self.files.append(
-                            {
-                                'name': os.path.realpath(f),
-                                'file_type': 'vhdlSource'
-                            }
-                        )
-                    elif f.endswith(".v"):
-                        self.files.append(
-                            {
-                                'name': os.path.realpath(f),
-                                'file_type': 'verilogSource'
-                            }
-                        )
 
-                self.files.append(
-                    {
-                        'name': os.path.realpath(self.xdc),
-                        'file_type': 'xdc'
-                    }
-                )
-
-                chip = self.family + self.device + self.package
-
-                vivado_settings = os.getenv('VIVADO_SETTINGS')
-
-                vivado_options = {
-                    'part': chip,
-                    'synth': self.synthtool,
-                    'vivado-settings': vivado_settings,
-                    'yosys_synth_options': self.synthoptions,
-                }
-
-                self.edam = {
-                    'files': self.files,
-                    'name': self.project_name,
-                    'toplevel': self.top,
-                    'parameters':
-                        {
-                            'VIVADO':
-                                {
-                                    'paramtype': 'vlogdefine',
-                                    'datatype': 'int',
-                                    'default': 1,
-                                },
-                        },
-                    'tool_options': {
-                        'vivado': vivado_options
-                    }
-                }
+                edam = self.prepare_edam()
                 self.backend = edalize.get_edatool('vivado')(
-                    edam=self.edam, work_root=self.out_dir
+                    edam=edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
 
@@ -218,55 +219,42 @@ class Vivado(Toolchain):
                             numpy=False
                         )
 
-        return report
+        prims = report["primitives"]
+        zip_it = zip(prims["Ref Name"], prims["Used"])
+
+        return dict(zip_it)
 
     def resources(self, report_file=None):
-        lut = 0
-        dff = 0
-        carry = 0
-        iob = 0
-        pll = 0
-        bram = 0
+        def get_report_file(step, suffix):
+            return os.path.join(
+                self.out_dir, f"{self.project_name}.runs", f"{step}_1",
+                f"{self.top}_utilization_{suffix}.rpt"
+            )
 
-        if report_file is None:
-            report_file_pattern = self.out_dir + "/" + self.project_name + ".runs/impl_1/*_utilization_placed.rpt"
-            report_file = glob.glob(report_file_pattern).pop()
+        synth_resources = self.vivado_resources(
+            get_report_file("synth", "synth")
+        )
+        synth_resources = self.get_resources_count(synth_resources)
 
-        report = self.vivado_resources(report_file)
+        impl_resources = self.vivado_resources(
+            get_report_file("impl", "placed")
+        )
+        impl_resources = self.get_resources_count(impl_resources)
 
-        for prim in report['primitives']:
-            if prim[2] == 'Flop & Latch':
-                dff += int(prim[1])
-            if prim[2] == 'CarryLogic':
-                carry += int(prim[1])
-            if prim[2] == 'IO':
-                if prim[0].startswith('OBUF') or prim[0].startswith('IBUF'):
-                    iob += int(prim[1])
-            if prim[2] == 'LUT':
-                lut += int(prim[1])
-
-        for prim in report['clocking']:
-            if prim[0] == 'MMCME2_ADV' or prim[0] == 'PLLE2_ADV':
-                pll += prim[1]
-
-        for prim in report['memory']:
-            if prim[0] == 'Block RAM Tile':
-                # Vivado reports RAMB36. Multiply it by 2 to get RAMB18
-                bram += prim[1] * 2
-
-        ret = {
-            "LUT": str(lut),
-            "DFF": str(dff),
-            "BRAM": str(bram),
-            "CARRY": str(carry),
-            "GLB": None,
-            "PLL": str(pll),
-            "IOB": str(iob),
-        }
-        return ret
+        return {"synth": synth_resources, "impl": impl_resources}
 
     def vivado_ver(self):
-        return self.backend.get_version()
+        cmd = "source $(find /opt -wholename \"*Xilinx/Vivado/*/settings64.sh\" 2>/dev/null | sort | head -n 1);"
+        cmd += "which vivado"
+        output = subprocess.check_output(
+            cmd, shell=True, universal_newlines=True, executable="/bin/bash"
+        ).strip()
+
+        version_re = re.compile(".*/Vivado/([0-9]+\.[0-9]+)/.*")
+        match = version_re.match(output)
+
+        if match:
+            return match.group(1)
 
     def versions(self):
         return {"vivado": self.vivado_ver()}
@@ -274,8 +262,6 @@ class Vivado(Toolchain):
 
 class VivadoYosys(Vivado):
     '''Vivado PnR + Yosys synthesis'''
-    carries = (False, False)
-
     def __init__(self, rootdir):
         Vivado.__init__(self, rootdir)
         self.synthtool = 'yosys'
@@ -296,6 +282,25 @@ class VivadoYosys(Vivado):
             "yosys -V", shell=True, universal_newlines=True
         ).strip()
 
+    def resources(self):
+        def get_report_file(step, suffix):
+            return os.path.join(
+                self.out_dir, f"{self.project_name}.runs", f"{step}_1",
+                f"{self.project_name}_utilization_{suffix}.rpt"
+            )
+
+        synth_resources = get_yosys_resources(
+            os.path.join(self.out_dir, "yosys.log")
+        )
+        synth_resources = self.get_resources_count(synth_resources)
+
+        impl_resources = self.vivado_resources(
+            get_report_file("impl", "placed")
+        )
+        impl_resources = self.get_resources_count(impl_resources)
+
+        return {"synth": synth_resources, "impl": impl_resources}
+
     def get_yosys_runtimes(self, logfile):
         log = dict()
         commands = list()
@@ -311,7 +316,6 @@ class VivadoYosys(Vivado):
         assert False, "No run time found for yosys."
 
     def add_runtimes(self):
-
         synth_times = self.get_yosys_runtimes(
             os.path.join(self.out_dir, 'yosys.log')
         )

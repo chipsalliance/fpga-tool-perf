@@ -15,7 +15,8 @@ import subprocess
 import edalize
 
 from toolchains.toolchain import Toolchain
-from toolchains.symbiflow import VPR, NextpnrXilinx
+from toolchains.symbiflow import VPR
+from toolchains.nextpnr import NextpnrXilinx
 from utils.utils import Timed, get_vivado_max_freq, which, have_exec
 
 
@@ -35,11 +36,9 @@ class VPRFasm2Bels(VPR):
           In addition, this flow makes use of Vivado.
     """
     def __init__(self, rootdir):
-        Toolchain.__init__(self, rootdir)
+        VPR.__init__(self, rootdir)
         self.toolchain = 'vpr-fasm2bels'
-        self.files = []
         self.fasm2bels = True
-
         self.dbroot = subprocess.check_output(
             'prjxray-config', shell=True
         ).decode('utf-8').strip()
@@ -57,10 +56,6 @@ class VPRFasm2Bels(VPR):
 
         assert self.dbroot
 
-    def max_freq(self):
-        report_file = os.path.join(self.out_dir, 'timing_summary.rpt')
-        return get_vivado_max_freq(report_file)
-
     def run_steps(self):
         self.backend.build_main(self.top + '.eblif')
         self.backend.build_main(self.top + '.net')
@@ -73,14 +68,17 @@ class VPRFasm2Bels(VPR):
         with Timed(self, 'fasm2bels'):
             self.backend.build_main('timing_summary.rpt')
 
+    def max_freq(self):
+        report_file = os.path.join(self.out_dir, 'timing_summary.rpt')
+        return get_vivado_max_freq(report_file)
+
 
 class NextpnrXilinxFasm2Bels(NextpnrXilinx):
     '''nextpnr using Yosys for synthesis'''
-    carries = (False, )
-
     def __init__(self, rootdir):
         NextpnrXilinx.__init__(self, rootdir)
         self.toolchain = 'nextpnr-xilinx-fasm2bels'
+        self.builddir = '.'
         self.files = []
         self.fasm2bels = True
 
@@ -101,13 +99,13 @@ class NextpnrXilinxFasm2Bels(NextpnrXilinx):
 
         assert self.dbroot
 
-    def max_freq(self):
-        report_file = os.path.join(self.out_dir, 'timing_summary.rpt')
-        return get_vivado_max_freq(report_file)
-
     def run_steps(self):
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.project_name + '.bit')
 
         with Timed(self, 'fasm2bels'):
             self.backend.build_main('timing_summary.rpt')
+
+    def max_freq(self):
+        report_file = os.path.join(self.out_dir, 'timing_summary.rpt')
+        return get_vivado_max_freq(report_file)

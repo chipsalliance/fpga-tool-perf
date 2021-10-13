@@ -21,7 +21,7 @@ import glob
 import datetime
 import shutil
 
-from utils.utils import Timed, have_exec
+from utils.utils import Timed, have_exec, get_file_dict
 
 TOOLCHAIN_MAP = {
     'vpr': ('yosys', 'vpr'),
@@ -40,11 +40,6 @@ TOOLCHAIN_MAP = {
 
 class Toolchain:
     '''A toolchain takes in verilog files and produces a .bitstream'''
-    # List of supported carry modes
-    # Default to first item
-    carries = None
-    strategies = None
-
     def __init__(self, rootdir):
         self.rootdir = rootdir
         self.runtimes = collections.OrderedDict()
@@ -52,13 +47,14 @@ class Toolchain:
         self.toolchain = None
         self.verbose = False
         self.cmds = []
+
         self.pcf = None
         self.sdc = None
         self.xdc = None
+        self.pdc = None
+
         self.params_file = None
         self.params_string = None
-        self._strategy = None
-        self._carry = None
         self.seed = None
         self.build = None
         self.build_type = None
@@ -83,24 +79,6 @@ class Toolchain:
     def canonicalize(self, fns):
         return [os.path.realpath(self.rootdir + '/' + fn) for fn in fns]
 
-    def optstr(self):
-        tokens = []
-
-        if self.pcf:
-            tokens.append('pcf')
-        if self.sdc:
-            tokens.append('sdc')
-        if self.xdc:
-            tokens.append('xdc')
-        # omit carry if not explicitly given?
-        if self.carry is not None:
-            tokens.append('carry-%c' % ('y' if self.carry else 'n', ))
-        if self.strategy:
-            tokens.append(self.strategy)
-        if self.seed:
-            tokens.append('seed-%08X' % (self.seed, ))
-        return '_'.join(tokens)
-
     def add_runtime(self, name, dt, parent=None, unprinted_runtime=False):
         collection = self.runtimes
         if unprinted_runtime:
@@ -113,6 +91,51 @@ class Toolchain:
             if parent not in collection:
                 collection[parent] = collections.OrderedDict()
             collection[parent][name] = dt
+
+    def add_common_files(self):
+        """
+        Adds common files for the EDAM configuration
+        """
+
+        for f in self.srcs:
+            vhdl_type = 'vhdlSource'
+            verilog_type = 'verilogSource'
+
+            is_vhdl = f.endswith(".vhd") or f.endswith(".vhdl")
+            is_verilog = f.endswith(".v")
+
+            if is_vhdl:
+                file_type = vhdl_type
+            elif is_verilog:
+                file_type = verilog_type
+
+            self.files.append(get_file_dict(f, file_type))
+
+        # Constraints files
+        if self.pcf:
+            self.files.append(get_file_dict(self.pcf, 'PCF'))
+
+        if self.sdc:
+            self.files.append(get_file_dict(self.sdc, 'SDC'))
+
+        if self.xdc:
+            self.files.append(get_file_dict(self.xdc, 'xdc'))
+
+        if self.pdc:
+            self.files.append(get_file_dict(self.pdc, 'PDC'))
+
+    def optstr(self):
+        tokens = []
+
+        if self.pcf:
+            tokens.append('pcf')
+        if self.sdc:
+            tokens.append('sdc')
+        if self.xdc:
+            tokens.append('xdc')
+        if self.seed:
+            tokens.append('seed-%08X' % (self.seed, ))
+        return '_'.join(tokens)
 
     def design(self):
         ret = "{}_{}_{}_{}_{}".format(
@@ -134,56 +157,6 @@ class Toolchain:
             ret += '_seed_' + str(self.seed)
 
         return ret
-
-    @property
-    def carry(self):
-        return self.carries[0] if self._carry is None else self._carry
-
-    @carry.setter
-    def carry(self, value):
-        assert value is None or value in self.carries, 'Carry modes supported: %s, got: %s' % (
-            self.carries, value
-        )
-        self._carry = value
-
-    def ycarry(self):
-        if self.carry:
-            return ""
-        else:
-            return " -nocarry"
-
-    def yscript(self, cmds):
-        def process(cmd):
-            if cmd.find('synth_ice40') == 0:
-                cmd += self.ycarry()
-            return cmd
-
-        yscript = '; '.join([process(cmd) for cmd in cmds])
-        self.cmd("yosys", "-p '%s' %s" % (yscript, ' '.join(self.srcs)))
-
-    @property
-    def strategy(self):
-        # Use given strategy first
-        if self._strategy is not None:
-            return self._strategy
-        # Default
-        elif self.strategies is not None:
-            return self.strategies[0]
-        # Not supported
-        else:
-            return None
-
-    @strategy.setter
-    def strategy(self, value):
-        if self.strategies is None:
-            assert value is None, "Strategies not supported, got %s" % (
-                value,
-            )
-        else:
-            assert value is None or value in self.strategies, 'Strategies supported: %s, got: %s' % (
-                self.strategies, value
-            )
-        self._strategy = value
 
     def project(
         self,
@@ -214,6 +187,8 @@ class Toolchain:
         for src in self.srcs:
             if not os.path.exists(src):
                 raise ValueError("Missing source file %s" % src)
+        self.add_common_files()
+
         self.top = project['top']
 
         self.clocks = project.get('clocks', None)
@@ -308,6 +283,36 @@ class Toolchain:
 
         return runtimes
 
+    def get_resources_count(self, resources):
+        """
+        Get the standard resources count using the resources mapping and the total
+        resources count from the various log files.
+        """
+
+        if "families" in self.resources_map:
+            res_map = self.resources_map["families"][self.family]
+        else:
+            res_map = self.resources_map
+
+        resources_count = dict([(x, 0) for x in res_map])
+
+        for res_type, res_names in res_map.items():
+            for res_name in res_names:
+                if isinstance(res_name, tuple):
+                    res_name, multiplier = res_name
+                else:
+                    multiplier = 1
+
+                if res_name in resources:
+                    resources_count[res_type] += int(
+                        resources[res_name]
+                    ) * multiplier
+
+        for res_type, res_count in resources_count.items():
+            resources_count[res_type] = str(res_count)
+
+        return resources_count
+
     def get_metrics(self):
         # If an intermediate write, tolerate missing resource tally
         try:
@@ -337,12 +342,14 @@ class Toolchain:
         except FileNotFoundError:
             if all:
                 raise
-            resources = dict(
-                [
-                    (x, None) for x in
-                    ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
-                ]
-            )
+            resources = dict()
+            for source in ["synth", "impl"]:
+                resources[source] = dict(
+                    [
+                        (x, None) for x in
+                        ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
+                    ]
+                )
 
         assert max_freq, f"ERROR: no clocks assigned for this test design! {self.design()}"
 
@@ -383,7 +390,6 @@ class Toolchain:
         json_data['pcf'] = os.path.basename(self.pcf) if self.pcf else None
         json_data['sdc'] = os.path.basename(self.sdc) if self.sdc else None
         json_data['xdc'] = os.path.basename(self.xdc) if self.xdc else None
-        json_data['carry'] = self.carry
         json_data['seed'] = self.seed
         json_data['build'] = self.build
         json_data['build_type'] = self.build_type

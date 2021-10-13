@@ -3,13 +3,13 @@ channels:
   - defaults
   - litex-hub
 dependencies:
-  - litex-hub::yosys=0.9_5530_gc016f6a4=20210730_085634_py37
-  - litex-hub::yosys-symbiflow-plugins=1.0.0_7_368_gfc33276=20210730_085634
-  - litex-hub::vtr-optimized=8.0.0_3614_gb3b34e77a=20210507_125510
+  - litex-hub::yosys
+  - litex-hub::yosys-symbiflow-plugins
+  - litex-hub::vtr-optimized
+  - litex-hub::nextpnr-ice40
+  - litex-hub::nextpnr-nexus
   - litex-hub::nextpnr-fpga_interchange=v0.0_3848_g9c32e2d8=20211001_162618_py37
-  - litex-hub::nextpnr-ice40=0.0.0_3403_g3fd1ee77=20210722_152338_py37
   - litex-hub::nextpnr-xilinx=v0.0_2840_g86500ec6=20210722_152338_py37
-  - litex-hub::nextpnr-nexus=0.0.0_3403_g3fd1ee77=20210813_070938_py37
     # FIXME: Pin prjoxide as newer packages require glibc 2.29
   - litex-hub::prjoxide=v0.0_407_g026e545=20210923_082942
   - litex-hub::prjxray-db=0.0_252_g8372b58=20210723_083625

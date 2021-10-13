@@ -39,12 +39,12 @@ class Resources:
             assert not hasattr(self, 'dff')
             self.dff = self.ff
             del self.ff
-            # empty GLB
-            if not hasattr(self, 'glb'):
-                self.glb = 0
-            # ignore LRAM
-            if hasattr(self, 'lram'):
-                del self.lram
+        # empty GLB
+        if not hasattr(self, 'glb'):
+            self.glb = 0
+        # ignore LRAM
+        if hasattr(self, 'lram'):
+            del self.lram
 
 
 class Runtime:
@@ -68,7 +68,8 @@ class Runtime:
 class ResultEntry:
     maxfreq: 'dict[str, Clk]'
     maximum_memory_use: float
-    resources: Resources
+    synth_resources: Resources
+    impl_resources: Resources
     runtime: Runtime
     wirelength: 'int | None'
     status: 'str'
@@ -154,7 +155,16 @@ def get_entries(json_data: dict, project: str):
         entry.wirelength = wirelength if wirelength is not None else 'null'
         entry.maxfreq = make_clks(max_freq)
         entry.runtime = make_runtime(runtime)
-        entry.resources = make_resources(resources)
+
+        if resources is None or "synth" not in resources:
+            # Backwards compatibility with older results
+            synth_res = impl_res = resources
+        else:
+            synth_res = resources["synth"]
+            impl_res = resources["impl"]
+
+        entry.synth_resources = make_resources(synth_res)
+        entry.impl_resources = make_resources(impl_res)
 
         entry.toolchain = toolchain
         entry.versions = versions
