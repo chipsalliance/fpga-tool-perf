@@ -44,13 +44,14 @@ class VPR(Toolchain):
                 (
                     'IBUF_VPR',
                     'OBUFT_VPR',
-                    'IOBUF_VPR',
                     'OBUFTDS_M_VPR',
-                    'OBUFTDS_S_VPR',
-                    'IOBUFDS_M_VPR',
-                    'IOBUFDS_S_VPR',
+                    ('IOBUFDS_M_VPR', 2),
+                    ('IOBUF_VPR', 2),
                 ),
-            'PLL': ('PLLE2_ADV'),
+            'PLL': (
+                'PLLE2_ADV_VPR',
+                'MMCME2_ADV_VPR',
+            ),
             'BRAM':
                 (
                     'RAMB18E1_Y0',

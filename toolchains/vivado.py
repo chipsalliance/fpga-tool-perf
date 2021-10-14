@@ -55,12 +55,17 @@ class Vivado(Toolchain):
                 "FDCE",
             ),
             'CARRY': ('CARRY4', ),
-            'IOB': (
-                'IBUF',
-                'OBUF',
-                'OBUFT',
-                'IOBUF',
-            ),
+            'IOB':
+                (
+                    'IBUF',
+                    'OBUF',
+                    'OBUFT',
+                    'IOBUF',
+                    'OBUFTDS',
+                    'OBUFDS',
+                    ('IOBUF', 2),
+                    ('IOBUFDS', 2),
+                ),
             'PLL': ('MMCME2_ADV', 'PLLE2_ADV'),
             'BRAM': (
                 'RAMB18E1',
