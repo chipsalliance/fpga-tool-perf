@@ -349,12 +349,19 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             'LUT': ('LUTS', 'LUT1', 'LUT2', 'LUT3', 'LUT4', 'LUT5', 'LUT6'),
             'DFF': ('FLIP_FLOPS', 'FDRE', 'FDSE', 'FDPE', 'FDCE'),
             'CARRY': ('CARRY', 'CARRY4'),
-            'IOB': (
-                'IBUFs',
-                'OBUFs',
-                'IBUF',
-                'OBUF',
-            ),
+            'IOB':
+                (
+                    'IBUFs',
+                    'OBUFs',
+                    'IBUF',
+                    'OBUF',
+                    'OBUFT',
+                    'IOBUF',
+                    'OBUFTDS',
+                    'OBUFDS',
+                    ('IOBUF', 2),
+                    ('IOBUFDS', 2),
+                ),
             'PLL': ('PLL', 'PLLE2_ADV', 'MMCME2_ADV'),
             'BRAM': (
                 'BRAMS',
