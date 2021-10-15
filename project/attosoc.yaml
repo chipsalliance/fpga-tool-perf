@@ -10,6 +10,7 @@ clock_aliases:
   clk_i:
     - clk
     - clk_bufg
+    - soc_i.cpu.cpuregs.clk
 top: top
 name: attosoc
 vendors:
