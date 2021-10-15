@@ -48,10 +48,13 @@ class VPR(Toolchain):
                     ('IOBUFDS_M_VPR', 2),
                     ('IOBUF_VPR', 2),
                 ),
-            'PLL': (
-                'PLLE2_ADV_VPR',
-                'MMCME2_ADV_VPR',
-            ),
+            'PLL':
+                (
+                    'PLLE2_ADV_VPR',
+                    'MMCME2_ADV_VPR',
+                    'PLLE2_ADV',
+                    'MMCME2_ADV',
+                ),
             'BRAM':
                 (
                     'RAMB18E1_Y0',

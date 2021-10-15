@@ -1,0 +1,26 @@
+srcs:
+  - src/attosoc/attosoc_top.v
+  - third_party/picorv32_wrappers/attosoc.v
+  - third_party/picorv32/picorv32.v
+data:
+  - src/attosoc/firmware.hex
+clocks:
+  clk_i: 10.0
+clock_aliases:
+  clk_i:
+    - clk
+    - clk_bufg
+    - soc_i.cpu.cpuregs.clk
+top: top
+name: attosoc
+vendors:
+  xilinx:
+    - arty-a35t
+    - arty-a100t
+required_toolchains:
+  - vivado
+  - yosys-vivado
+  - vpr
+  - vpr-fasm2bels
+  - nextpnr-xilinx
+  - nextpnr-fpga-interchange
