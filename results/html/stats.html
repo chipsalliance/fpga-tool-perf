@@ -1,3 +1,6 @@
+{% macro sentence_case(text) -%}
+    {{ text[0]|upper }}{{text[1:] }}
+{%- endmacro %}
               <div class="w3-container w3-center w3-padding">
                 <h1><b>{{ data["project"] }} {{ data["device"] }}<b></h1>
               </div>
@@ -45,7 +48,7 @@
                     <th class="w3-border" style="color: {{ tool_data["passed"][1] }}">{{ tool_data["passed"][0] }}</th>
                     <th class="w3-border" style="color: {{ tool_data["clk_met"][1] }}">{{ tool_data["clk_met"][0] }}</th>
                     <th class="w3-border" style="color: {{ tool_data["validation"][1] }}">{{ tool_data["validation"][0] }}</th>
-                    <th class="w3-border" style="color: {{ tool_data["runtime"][1] }}">{{ tool_data["runtime"][0] }}</th>
+                    <th class="w3-border" style="color: {{ tool_data["runtime"]["total"][1] }}">{{ tool_data["runtime"]["total"][0] }}</th>
                     <th class="w3-border" style="color: {{ tool_data["memory"][1] }}">{{ tool_data["memory"][0] }}</th>
 {% for res, count in tool_data["resources"].items() -%}
                     <th class="w3-border" style="color: {{ count[1] }}">{{ count[0] }}</th>
@@ -78,26 +81,72 @@
                   </tr>
                 </table>
                 </br>
-                <canvas id="{{ data["project"] }}-{{ data["device"] }}-runtime-chart"></canvas>
+                <div class="w3-dropdown-hover w3-center" style="width: 100%">
+                  <button class="w3-button w3-border" style="width: 100%">Metrics</button>
+                  <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
+{% for metric in data["metrics"] -%}
+                    <div class="w3-col" id="{{ metric }}">
+                      <button id="{{ metric }}-button" class="w3-button w3-block w3-center" onclick="selectGraph('{{ metric }}', '{{ data["device"] }}', '{{ data["project"] }}')">
+                        <b>{{ sentence_case(metric) }}</b>
+                      </button>
+                    </div>
+{%- endfor %}
+                  </div>
+                </div>
+                <!-- Runtime Graphs -->
+                <div id="{{ data["project"]  }}-{{ data["device"] }}-runtime">
+                  <div class="w3-container w3-center w3-padding">
+                    <h2><b>Runtimes</b></h2>
+                  </div>
+{% for runtime in data["runtime"] -%}
+                <canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ runtime }}-runtime-chart"></canvas>
+{%- endfor %}
+                </div>
+                <!-- End Runtime Graphs -->
+                <!-- Clock frequencies Graphs -->
+                <div id="{{ data["project"]  }}-{{ data["device"] }}-freq">
+                  <div class="w3-container w3-center w3-padding">
+                    <h2><b>Clock Frequencies</b></h2>
+                  </div>
 {% for clock in data["clocks"] -%}
-                <canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ clock }}-frequency-chart"></canvas>
+                  <canvas id="{{ data["project"] }}-{{ data["device"] }}-{{ clock }}-frequency-chart"></canvas>
 {%- endfor %}
-                <div class="w3-container w3-center w3-padding">
-                  <h2><b>Post-synthesis Resources</b></h2>
                 </div>
-                <div class="resource-graphs">
+                <!-- End Clock Frequencies Graphs -->
+                <!-- Resources Graphs -->
+                <div id="{{ data["project"]  }}-{{ data["device"] }}-resources">
+                  <div class="w3-container w3-center w3-padding">
+                    <h2><b>Post-synthesis Resources</b></h2>
+                  </div>
+                  <div class="resource-graphs">
 {% for res in data["resources"] -%}
-                  <div><canvas id="{{ data["project"] }}-{{ data["device"] }}-synth-{{ res|lower }}-usage-chart""></canvas></div>
+                    <div><canvas id="{{ data["project"] }}-{{ data["device"] }}-synth-{{ res|lower }}-usage-chart"></canvas></div>
 {%- endfor %}
+                  </div>
+                  <div class="w3-container w3-center w3-padding">
+                    <h2><b>Post-implementation Resources</b></h2>
+                  </div>
+                  <div class="resource-graphs">
+  {% for res in data["resources"] -%}
+                    <div><canvas id="{{ data["project"] }}-{{ data["device"] }}-impl-{{ res|lower }}-usage-chart"></canvas></div>
+  {%- endfor %}
+                  </div>
                 </div>
-                <div class="w3-container w3-center w3-padding">
-                  <h2><b>Post-implementation Resources</b></h2>
+                <!-- End Resources Graphs -->
+                <!-- Memory Graphs -->
+                <div id="{{ data["project"]  }}-{{ data["device"] }}-memory">
+                  <div class="w3-container w3-center w3-padding">
+                    <h2><b>Post-synthesis Resources</b></h2>
+                  </div>
+                  <canvas id="{{ data["project"] }}-{{ data["device"] }}-memory-chart"></canvas>
                 </div>
-                <div class="resource-graphs">
-{% for res in data["resources"] -%}
-                  <div><canvas id="{{ data["project"] }}-{{ data["device"] }}-impl-{{ res|lower }}-usage-chart""></canvas></div>
-{%- endfor %}
+                <!-- End Memory Graphs -->
+                <!-- Wirelength Graphs -->
+                <div id="{{ data["project"]  }}-{{ data["device"] }}-wirelength">
+                  <div class="w3-container w3-center w3-padding">
+                    <h2><b>Post-synthesis Resources</b></h2>
+                  </div>
+                  <canvas id="{{ data["project"] }}-{{ data["device"] }}-wirelength-chart"></canvas>
                 </div>
-                <canvas id="{{ data["project"] }}-{{ data["device"] }}-memory-chart"></canvas>
-                <canvas id="{{ data["project"] }}-{{ data["device"] }}-wirelength-chart"></canvas>
+                <!-- End Wirelenght Graphs -->
               </div>

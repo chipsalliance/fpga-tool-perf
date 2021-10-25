@@ -3,14 +3,16 @@ var data = { {% for project, device_data in devices_data.items() %}
     "{{ project }}": { {% for device, data in device_data.items() %}
         "{{ device }}": {
             "dates": {{ data["dates"] }},
-            "runtime": [{% for toolchain, graph_data in data["graph_data"].items() %}
-                {
-                    "data": {{ graph_data["runtime"]["total"]['data'] }},
-                    "label": "{{ toolchain }}",
-                    "borderColor": "{{ graph_data["runtime"]['total']['color'] }}",
-                    "fill": false
-                },{% endfor %}
-            ],
+            "runtime": { {% for runtime in data["runtime"] %}
+                "{{ runtime }}": [{% for toolchain, graph_data in data["graph_data"].items() %}
+                    {
+                        "data": {{ graph_data["runtime"][runtime]['data'] }},
+                        "label": "{{ toolchain }}",
+                        "borderColor": "{{ graph_data["runtime"][runtime]['color'] }}",
+                        "fill": false
+                    },{% endfor %}
+                ],{% endfor %}
+            },
             "wirelength": [{% for toolchain, graph_data in data["graph_data"].items() %}
                 {
                     "data": {{ graph_data["wirelength"]['data'] }},
