@@ -106,7 +106,6 @@ echo "----------------------------------------"
 	java -version
 	echo "----------------------------------------"
 
-	echo
 	echo " Installing symbiflow and quicklogic"
 	echo "----------------------------------------"
 	make install_symbiflow
