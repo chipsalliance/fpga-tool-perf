@@ -31,10 +31,6 @@
 
     <div class="w3-row">
       <div class="w3-col m3 l2 w3-padding">
-        <div id="overview" class="w3-container w3-center">
-          <p>Click on a device to select it.</p>
-        </div>
-
         <div class="w3-dropdown-hover w3-center" style="width: 100%">
           <button class="w3-button w3-border" style="width: 100%">Devices</button>
           <div class="w3-dropdown-content w3-bar-block w3-border" style="width: 100%">
@@ -114,14 +110,17 @@ function selectStat(elem_id, device, project) {
 
   labels = data[project][device]["dates"];
 
-  charts.push(new LineChart(
-    project + "-" + device + "-runtime-chart",
-    "Total Runtime",
-    " s",
-    labels,
-    data[project][device]["runtime"],
-    false
-  ));
+  for (const [ key, value ] of Object.entries(data[project][device]["runtime"])) {
+    charts.push(new LineChart(
+      project + "-" + device + "-" + key + "-runtime-chart",
+      key + " runtime",
+      " s",
+      labels,
+      value,
+      false
+    ));
+  }
+
 
   for (const [ key, value ] of Object.entries(data[project][device]["freq"])) {
     charts.push(new LineChart(
@@ -252,6 +251,7 @@ function handleSearchQuery() {
   var project = params.get('project');
   if (elem_id) {
     selectStat(elem_id, device, project);
+    selectGraph("runtime", device, project)
   }
 }
 
@@ -264,6 +264,17 @@ function updateSearchQuery(elem_id, device, project) {
   params += project_str;
 
   window.location.search = params;
+}
+
+function selectGraph(metric, device, project) {
+  var metrics = ["runtime", "freq", "resources", "memory", "wirelength"];
+  metrics.forEach(m => {
+    var elem = document.getElementById(project + "-" + device + "-" + m);
+
+    setVisibility(elem, m == metric);
+    elem.style.display = m == metric ? "flex" : "none";
+  });
+
 }
 
 handleSearchQuery();

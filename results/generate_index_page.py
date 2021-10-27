@@ -82,7 +82,8 @@ def generate_graph_data(device, toolchain, dates, entries):
         data = dict()
         for e in entries:
             if e and e.status == "succeeded":
-                data[datetime_from_str(e.date)] = selector(e)
+                data_point = selector(e) if selector(e) is not None else 'null'
+                data[datetime_from_str(e.date)] = data_point
 
         final_data = list()
 
@@ -118,7 +119,10 @@ def generate_graph_data(device, toolchain, dates, entries):
         datasets['freq'][clkname] = generate_datasets(selector)
 
     attrs = dict()
-    attrs['runtime'] = ['total']
+    attrs['runtime'] = [
+        'total', 'fasm', 'synthesis', 'packing', 'placement', 'routing',
+        'bitstream', 'overhead'
+    ]
     attrs['maximum_memory_use'] = list()
     attrs['wirelength'] = list()
     attrs['synth_resources'] = [
@@ -158,6 +162,12 @@ def generate_device_data(results: ProjectResults):
     project_name = results.project_name
     dates = results.test_dates
     resources_list = ["LUT", "DFF", "CARRY", "IOB", "BRAM", "PLL", "GLB"]
+    runtimes_list = [
+        'total', 'fasm', 'synthesis', 'packing', 'placement', 'routing',
+        'bitstream', 'overhead'
+    ]
+
+    metrics = ["runtime", "freq", "resources", "memory", "wirelength"]
 
     for device, toolchains in results_entries.items():
         toolchains_data = dict()
@@ -209,10 +219,9 @@ def generate_device_data(results: ProjectResults):
             memory = ("N/A", 'grey')
 
             resources = dict.fromkeys(resources_list, ("N/A", "grey"))
+            runtimes = dict.fromkeys(runtimes_list, ("N/A", "grey"))
 
             if passed:
-                runtime = (entry.runtime.total, "black")
-
                 max_mem = entry.maximum_memory_use
                 if max_mem != 'null':
                     memory = (
@@ -225,9 +234,13 @@ def generate_device_data(results: ProjectResults):
                     count = count if count != "null" else 0
                     resources[res] = (count, "black")
 
-            toolchains_data[toolchain]["runtime"] = runtime
+                for runtime in runtimes_list:
+                    val = getattr(entry.runtime, runtime)
+                    runtimes[runtime] = (val, "black")
+
             toolchains_data[toolchain]["memory"] = memory
             toolchains_data[toolchain]["resources"] = resources
+            toolchains_data[toolchain]["runtime"] = runtimes
 
             for k, v in entry.versions.items():
                 if k not in versions:
@@ -259,8 +272,10 @@ def generate_device_data(results: ProjectResults):
             toolchains_color=sorted(toolchains_color),
             toolchains_data=toolchains_data,
             resources=resources_list,
+            runtime=runtimes_list,
             graph_data=graph_data,
             clocks=clocks,
+            metrics=metrics,
             dates=[f"{x}" for x in dates]
         )
 
