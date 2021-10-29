@@ -42,3 +42,7 @@ lifcl-40:
   family: nexus
   device: LIFCL-40-9BG400CES
   package: None
+lifcl-17:
+  family: nexus
+  device: LIFCL-17-8UWG72C
+  package: None
