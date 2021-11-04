@@ -559,6 +559,7 @@ class NextpnrOxide(NextpnrGeneric):
         os.makedirs(self.out_dir, exist_ok=True)
         args = f"--device {self.device} "
         args += "--timing-allow-fail "
+        args += "--router router1 "
         if self.seed:
             args += " --seed %u" % (self.seed, )
         options = dict(nextpnr_options=args.split())

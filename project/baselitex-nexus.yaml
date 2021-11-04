@@ -1,0 +1,20 @@
+srcs:
+  - third_party/vexriscv-verilog/VexRiscv_Full.v
+  - src/baselitex-nexus/baselitex_nexus.v
+top: top
+name: baselitex
+data:
+  - src/baselitex-nexus/mem.init
+  - src/baselitex-nexus/mem_1.init
+clocks:
+  PLL_0_P: 13.33333
+clock_aliases:
+  sys_clk:
+    - sys_clk
+    - sys_clk$glb_clk
+vendors:
+  lattice-nexus:
+    - lifcl-40
+    - lifcl-17
+required_toolchains:
+  - nextpnr-nexus

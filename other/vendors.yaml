@@ -23,6 +23,7 @@ lattice-ice40:
 lattice-nexus:
   boards:
     - lifcl-40
+    - lifcl-17
   toolchains:
     - nextpnr-nexus
 quicklogic:
