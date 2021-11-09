@@ -41,8 +41,8 @@ chandalar:
 lifcl-40:
   family: nexus
   device: LIFCL-40-9BG400CES
-  package: None
+  package: null
 lifcl-17:
   family: nexus
   device: LIFCL-17-8UWG72C
-  package: None
+  package: null

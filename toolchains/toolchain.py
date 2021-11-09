@@ -175,7 +175,10 @@ class Toolchain:
         self.family = family
         self.device = device
         self.package = package
-        self.part = "".join((device, package))
+
+        self.part = "".join(
+            (device, package)
+        ) if package is not None else device
         self.board = board
         self.vendor = vendor
 

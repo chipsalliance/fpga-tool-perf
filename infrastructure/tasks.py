@@ -37,8 +37,8 @@ class Tasks:
         combinations = set()
 
         vendors = get_vendors()
-        for project in get_projects():
-            project_dict = get_project(project)
+        for project_file in get_projects():
+            project_dict = get_project(project_file)
             project_name = project_dict["name"]
 
             for vendor in project_dict["vendors"]:
@@ -57,7 +57,9 @@ class Tasks:
 
                 for toolchain, board in list(product(toolchains, boards)):
                     if toolchain not in skip_toolchains or all_combinations:
-                        combinations.add((project_name, toolchain, board))
+                        combinations.add(
+                            (project_file, project_name, toolchain, board)
+                        )
 
         return combinations
 
@@ -87,14 +89,18 @@ class Tasks:
                     take_task = False
                     break
 
+            prj_file, prj_name, toolchain, board = task
+
+            runner_task = (prj_file, toolchain, board)
+
             if take_task:
                 if only_required:
-                    required_toolchains = get_project(task[0]
+                    required_toolchains = get_project(prj_file
                                                       )["required_toolchains"]
-                    if task[1] in required_toolchains:
-                        tasks.append(task)
+                    if toolchain in required_toolchains:
+                        tasks.append(runner_task)
                 else:
-                    tasks.append(task)
+                    tasks.append(runner_task)
 
         tasks = self.add_extra_entry(seeds, tasks, create_new_tasks=True)
         tasks = self.add_extra_entry(options, tasks)

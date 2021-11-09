@@ -292,7 +292,7 @@ def generate_index_html(
     root_dir = os.path.join(cur_dir, '..')
     tasks = Tasks(root_dir)
     combinations = sorted(
-        tasks.get_all_combinations(), key=lambda tup: (tup[2], tup[0], tup[1])
+        tasks.get_all_combinations(), key=lambda tup: (tup[3], tup[1], tup[2])
     )
 
     devices = dict()
@@ -302,7 +302,7 @@ def generate_index_html(
 
     all_boards = get_boards()
 
-    for project, toolchain, board in combinations:
+    for _, project, toolchain, board in combinations:
         if "fasm2bels" in toolchain:
             continue
 
