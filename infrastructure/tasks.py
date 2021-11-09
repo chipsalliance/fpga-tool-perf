@@ -39,6 +39,7 @@ class Tasks:
         vendors = get_vendors()
         for project in get_projects():
             project_dict = get_project(project)
+            project_name = project_dict["name"]
 
             for vendor in project_dict["vendors"]:
                 project_boards = project_dict["vendors"][vendor]
@@ -56,7 +57,7 @@ class Tasks:
 
                 for toolchain, board in list(product(toolchains, boards)):
                     if toolchain not in skip_toolchains or all_combinations:
-                        combinations.add((project, toolchain, board))
+                        combinations.add((project_name, toolchain, board))
 
         return combinations
 
