@@ -225,6 +225,7 @@ function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
       },
       scales: {
         y: {
+          min: 0,
           ticks: {
             callback: function(v, idx, vx) {
               return v + unitstr;
