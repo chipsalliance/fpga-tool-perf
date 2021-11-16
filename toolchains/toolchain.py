@@ -349,8 +349,10 @@ class Toolchain:
             for source in ["synth", "impl"]:
                 resources[source] = dict(
                     [
-                        (x, None) for x in
-                        ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
+                        (x, None) for x in (
+                            'LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB',
+                            'DSP'
+                        )
                     ]
                 )
 

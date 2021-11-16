@@ -63,6 +63,7 @@ class VPR(Toolchain):
                     ('RAMB36E1', 2),
                     ('RAMB36E1_PRIM', 2),
                 ),
+            'DSP': (),
         }
 
     def prepare_edam(self, part):
@@ -562,6 +563,7 @@ class Quicklogic(VPR):
             ),
             'PLL': (),
             'BRAM': (),
+            'DSP': (),
         }
 
     def run(self):

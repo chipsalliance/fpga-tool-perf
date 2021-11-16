@@ -126,10 +126,10 @@ def generate_graph_data(device, toolchain, dates, entries):
     attrs['maximum_memory_use'] = list()
     attrs['wirelength'] = list()
     attrs['synth_resources'] = [
-        'lut', 'dff', 'carry', 'iob', 'bram', 'pll', 'glb'
+        'lut', 'dff', 'carry', 'iob', 'bram', 'dsp', 'pll', 'glb'
     ]
     attrs['impl_resources'] = [
-        'lut', 'dff', 'carry', 'iob', 'bram', 'pll', 'glb'
+        'lut', 'dff', 'carry', 'iob', 'bram', 'dsp', 'pll', 'glb'
     ]
 
     for k, v in attrs.items():
@@ -161,7 +161,9 @@ def generate_device_data(results: ProjectResults):
     results_entries = results.entries
     project_name = results.project_name
     dates = results.test_dates
-    resources_list = ["LUT", "DFF", "CARRY", "IOB", "BRAM", "PLL", "GLB"]
+    resources_list = [
+        "LUT", "DFF", "CARRY", "IOB", "BRAM", "DSP", "PLL", "GLB"
+    ]
     runtimes_list = [
         'total', 'fasm', 'synthesis', 'packing', 'placement', 'routing',
         'bitstream', 'overhead'

@@ -30,6 +30,7 @@ class Resources:
     iob: int
     lut: int
     pll: int
+    dsp: int
 
     def sanitize(self):
         # FIXME: currenly oxide uses FF instead of DFF, lacks GLB and has LRAM
@@ -42,6 +43,8 @@ class Resources:
         # empty GLB
         if not hasattr(self, 'glb'):
             self.glb = 0
+        if not hasattr(self, 'dsp'):
+            self.dsp = 0
         # ignore LRAM
         if hasattr(self, 'lram'):
             del self.lram

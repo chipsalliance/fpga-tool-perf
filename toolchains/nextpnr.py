@@ -367,7 +367,8 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
                 'BRAMS',
                 'RAMB18E1',
                 ('RAMB36E1', 2),
-            )
+            ),
+            'DSP': ('DSP48E1')
         }
 
     def prepare_edam(self):
@@ -503,6 +504,7 @@ class NextpnrXilinx(NextpnrGeneric):
                     'RAMB18E1',
                     ('RAMB36E1', 2),
                 ),
+            'DSP': ('DSP48E1_DSP48E1', 'DSP48E1')
         }
 
     def prepare_edam(self):

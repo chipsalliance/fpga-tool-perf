@@ -71,6 +71,7 @@ class Vivado(Toolchain):
                 'RAMB18E1',
                 ('RAMB36E1', 2),
             ),
+            'DSP': ('DSP48E1', ),
         }
 
     def get_vivado_runtimes(self, logfile):
