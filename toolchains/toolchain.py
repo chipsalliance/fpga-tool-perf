@@ -9,17 +9,17 @@
 #
 # SPDX-License-Identifier: ISC
 
-import os
-import subprocess
-import time
 import collections
+import datetime
+import glob
 import json
+import math
+import os
 import re
 import shutil
+import subprocess
 import sys
-import glob
-import datetime
-import shutil
+import time
 
 from utils.utils import Timed, have_exec, get_file_dict
 
@@ -307,9 +307,9 @@ class Toolchain:
                     multiplier = 1
 
                 if res_name in resources:
-                    resources_count[res_type] += int(
-                        resources[res_name]
-                    ) * multiplier
+                    resources_count[res_type] += math.floor(
+                        int(resources[res_name]) * multiplier
+                    )
 
         for res_type, res_count in resources_count.items():
             resources_count[res_type] = str(res_count)
@@ -349,8 +349,10 @@ class Toolchain:
             for source in ["synth", "impl"]:
                 resources[source] = dict(
                     [
-                        (x, None) for x in
-                        ('LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB')
+                        (x, None) for x in (
+                            'LUT', 'DFF', 'BRAM', 'CARRY', 'GLB', 'PLL', 'IOB',
+                            'DSP'
+                        )
                     ]
                 )
 

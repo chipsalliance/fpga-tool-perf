@@ -367,7 +367,8 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
                 'BRAMS',
                 'RAMB18E1',
                 ('RAMB36E1', 2),
-            )
+            ),
+            'DSP': ('DSP48E1')
         }
 
     def prepare_edam(self):
@@ -503,6 +504,7 @@ class NextpnrXilinx(NextpnrGeneric):
                     'RAMB18E1',
                     ('RAMB36E1', 2),
                 ),
+            'DSP': ('DSP48E1_DSP48E1', 'DSP48E1')
         }
 
     def prepare_edam(self):
@@ -547,12 +549,50 @@ class NextpnrOxide(NextpnrGeneric):
         self.nextpnr_log = "next.log"
 
         self.resources_map = {
-            'LUT': ('OXIDE_COMB'),
-            'DFF': ('OXIDE_FF'),
-            'CARRY': ('CCU2'),
-            'IOB': ('SEIO33_CORE'),
-            'PLL': ('PLL_CORE'),
-            'BRAM': ('OXIDE_EBR', 'LRAM_CORE'),
+            'LUT': (
+                'OXIDE_COMB',
+                'LUT4',
+            ),
+            'DFF': (
+                'OXIDE_FF',
+                'FD1P3IX',
+                'FD1P3BX',
+                'FD1P3JX',
+            ),
+            'CARRY': (
+                ('OXIDE_COMB', 0.5),
+                'CCU2',
+            ),
+            'IOB':
+                (
+                    'SEIO33_CORE',
+                    'SEIO18_CORE',
+                    ('DIFFIO18_CORE', 2),
+                    'IB',
+                    'OB',
+                ),
+            'PLL': (
+                'OSC_CORE',
+                'PLL_CORE',
+                'OSCA',
+            ),
+            'BRAM':
+                (
+                    'OXIDE_EBR',
+                    'LRAM_CORE',
+                    'PDP16K',
+                    'PDPSC16K',
+                    'SP512K',
+                ),
+            'DSP':
+                (
+                    'MULT18_CORE',
+                    'MULT18X36_CORE',
+                    'MULT36_CORE',
+                    'MULT18X18',
+                    'MULT36X36',
+                    'MULT9X9',
+                )
         }
 
     def prepare_edam(self):
