@@ -61,7 +61,8 @@ jobs:
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
-          export RW_LINK=$(echo ${{needs.Matrix.output.rw-jars-link}})
+          export RW_LINK=$(echo ${{needs.Matrix.outputs.rw-jars-link}})
+          echo $RW_LINK
           # Make environments
           make install_symbiflow
           make install_quicklogic
