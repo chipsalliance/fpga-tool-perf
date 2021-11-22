@@ -229,6 +229,30 @@ def run(
     t.write_metadata(output_error)
 
 
+def get_combinations():
+    """ Returns a list of tuples with all the possible combinations of supported builds """
+    combs = list()
+    for p in get_projects():
+        toolchain_info = get_project(p)["required_toolchains"]
+        vendor_info = get_project(p)["vendors"]
+        for t in get_toolchains():
+            vendor = get_vendors(t)
+            if vendor not in vendor_info:
+                continue
+
+            board_info = vendor_info[vendor]
+            for b in get_boards():
+                if b not in get_vendors()[vendor]["boards"]:
+                    continue
+
+                if board_info is None or b not in board_info:
+                    continue
+
+                combs.append((p, t, b))
+
+    return combs
+
+
 def list_combinations(
     project=None,
     toolchain=None,

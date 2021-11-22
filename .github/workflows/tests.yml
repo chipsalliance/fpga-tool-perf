@@ -1,0 +1,76 @@
+on: [push, pull_request]
+
+name: Full Test Suite
+
+jobs:
+
+  Matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate.outputs.matrix }}
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Generate Matrix
+        id: generate
+        run: |
+          python3 -m pip install -r conf/common/requirements.txt
+          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py
+
+  Test:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Install
+        run: |
+          apt update
+          ln -s /mnt/aux/Xilinx /opt/Xilinx
+          source /opt/Xilinx/Vivado/2017.2/settings64.sh
+          vivado -version
+          # Make environments
+          make install_symbiflow
+          make install_quicklogic
+          make install_interchange
+          TOOLCHAIN=symbiflow make env
+          TOOLCHAIN=quicklogic make env
+          TOOLCHAIN=nextpnr make env
+
+      - name: Run Test
+        run: |
+          source env.sh
+          # Testing all projects/toolchains/boards
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/*.txt
+            **/plot_*.svg
