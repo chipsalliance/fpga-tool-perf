@@ -18,6 +18,15 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
 
+      - name: RW Jars link
+        runs-on: ubuntu-latest
+        id: rw-jars-link
+        run: |
+          apt update
+          apt install -y curl wget
+          export LINK=$(curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \")
+          echo “::set-output name=rw-jars-link::$LINK”
+
       - name: Generate Matrix
         id: generate
         run: |
@@ -53,6 +62,7 @@ jobs:
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
+          export RW_LINK=$(echo ${{needs.Matrix.output.rw-jars-link}})
           # Make environments
           make install_symbiflow
           make install_quicklogic

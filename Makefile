@@ -64,6 +64,11 @@ install_interchange:
 		wget -qO- ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
 	done
 	pushd ${RAPIDWRIGHT_PATH} && \
+		rm -rf jars && \
+		wget $(RW_LINK) && \
+		unzip rapidwright_jars.zip && \
+		rm jars/qtjambi-win64-msvc2005x64-4.5.2_01.jar rapidwright_jars.zip && \
+		make -C . compile
 		make update_jars && \
 		popd
 
