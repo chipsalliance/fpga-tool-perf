@@ -33,7 +33,7 @@ jobs:
         include: ${{ fromJson(needs.Matrix.outputs.matrix) }}
 
     env:
-      GHA_EXTERNAL_DISK: "tools"
+      # GHA_EXTERNAL_DISK: "tools"
       GHA_PREEMPTIBLE: "false"
 
     container: ubuntu:bionic

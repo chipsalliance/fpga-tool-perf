@@ -17,7 +17,7 @@ for combination in get_combinations():
 
     # TODO: different matrices need to be produced, otherwise the 256 jobs limit is reached
     #       for now test only vivado and vpr tests
-    if toolchain not in ["vivado", "vpr"]:
+    if toolchain not in ["vpr"]:
         continue
 
     jobs.append(dict(project=project, toolchain=toolchain, board=board))
