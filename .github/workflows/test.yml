@@ -1,0 +1,34 @@
+on: [push]
+
+name: test
+
+jobs:
+  ubuntu:
+    strategy:
+      fail-fast: false
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+    container: ubuntu:bionic
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+    - run: hostname
+    - run: printenv
+    - run: |
+        apt update
+        apt install -y wget python3 python3-pip git ninja-build
+        ln -s /mnt/aux/Xilinx /opt/Xilinx
+        source /opt/Xilinx/Vivado/2017.2/settings64.sh
+        vivado -version
+        wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
+        chmod +x litex_setup.py
+        ./litex_setup.py --init --install
+        pip3 install meson
+        ./litex_setup.py --gcc=riscv
+        export PATH=$(pwd)/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin:$PATH
+        python3 litex-boards/litex_boards/targets/digilent_arty.py --build
+    - uses: actions/upload-artifact@v2
+      with:
+        path: |
+          **/*.txt
+          **/plot_*.svg
