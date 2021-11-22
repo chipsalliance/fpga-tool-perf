@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-python@v2
 
       - name: RW Jars link
-        runs-on: ubuntu-latest
         id: rw-jars-link
         run: |
           apt update
