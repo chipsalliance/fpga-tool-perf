@@ -15,6 +15,11 @@ jobs = list()
 for combination in get_combinations():
     project, toolchain, board = combination
 
+    # TODO: different matrices need to be produced, otherwise the 256 jobs limit is reached
+    #       for now test only vivado and vpr tests
+    if toolchain not in ["vivado", "vpr"]:
+        continue
+
     jobs.append(dict(project=project, toolchain=toolchain, board=board))
 
 print('::set-output name=matrix::' + str(jobs))
