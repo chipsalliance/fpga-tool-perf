@@ -27,7 +27,7 @@ for combination in get_combinations():
     if toolchain not in tools:
         continue
 
-    if toolchain not in tools:
+    if toolchain not in jobs:
         jobs[toolchain] = list()
 
     jobs[toolchain].append(dict(project=project, toolchain=toolchain, board=board))
