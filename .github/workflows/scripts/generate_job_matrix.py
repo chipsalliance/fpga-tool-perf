@@ -32,7 +32,9 @@ for combination in get_combinations():
     if toolchain not in jobs:
         jobs[toolchain] = list()
 
-    jobs[toolchain].append(dict(project=project, toolchain=toolchain, board=board))
+    jobs[toolchain].append(
+        dict(project=project, toolchain=toolchain, board=board)
+    )
 
 for tool, matrix in jobs.items():
     print(f"::set-output name=matrix_{tool.replace('-', '_')}:: {matrix}")
