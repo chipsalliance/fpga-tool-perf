@@ -23,14 +23,14 @@ ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
 SYMBIFLOW_LATEST_URL_BASE = https://storage.googleapis.com/symbiflow-arch-defs-gha
 SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-toolchain-latest
-SYMBIFLOW_DEVICES = xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
+SYMBIFLOW_DEVICES ?= xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 
 QUICKLOGIC_ARCHIVE = quicklogic.tar.gz
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
 INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/continuous/50/20211008-072036
 INTERCHANGE_VERSION = 6ff4159
-INTERCHANGE_DEVICES = xc7a35t xc7a100t xc7a200t xc7z010
+INTERCHANGE_DEVICES ?= xc7a35t xc7a100t xc7a200t xc7z010
 RAPIDWRIGHT_PATH = $(TOP_DIR)/third_party/RapidWright
 RW_LINK ?= $(shell curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")
 
