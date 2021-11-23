@@ -35,7 +35,7 @@ jobs:
           PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py vpr
           PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py vivado
 
-  Test VPR:
+  Test_VPR:
     needs: Matrix
 
     strategy:
@@ -86,7 +86,7 @@ jobs:
             **/*.txt
             **/plot_*.svg
 
-  Test Vivado:
+  Test_Vivado:
     needs: Matrix
 
     strategy:
@@ -136,3 +136,4 @@ jobs:
           path: |
             **/*.txt
             **/plot_*.svg
+
