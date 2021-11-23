@@ -7,7 +7,8 @@ jobs:
   Matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.generate.outputs.matrix }}
+      matrix_vpr: ${{ steps.generate.outputs.matrix_vpr }}
+      matrix_vivado: ${{ steps.generate.outputs.matrix_vivado }}
       link: ${{ steps.link.outputs.link }}
 
     steps:
@@ -31,15 +32,67 @@ jobs:
         id: generate
         run: |
           python3 -m pip install -r conf/common/requirements.txt
-          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py
+          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py vpr
+          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py vivado
 
-  Test:
+  Test VPR:
     needs: Matrix
 
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr) }}
+
+    env:
+      #GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip default-jdk
+          #ln -s /mnt/aux/Xilinx /opt/Xilinx
+          #source /opt/Xilinx/Vivado/2017.2/settings64.sh
+          #vivado -version
+          export RW_LINK=$(echo ${{needs.Matrix.outputs.link}})
+          echo $RW_LINK
+          # Make environments
+          make install_symbiflow
+          make install_quicklogic
+          make install_interchange
+          TOOLCHAIN=symbiflow make env
+          TOOLCHAIN=quicklogic make env
+          TOOLCHAIN=nextpnr make env
+
+      - name: Run Test
+        run: |
+          source env.sh
+          # Testing all projects/toolchains/boards
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/*.txt
+            **/plot_*.svg
+
+  Test Vivado:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_vivado) }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
