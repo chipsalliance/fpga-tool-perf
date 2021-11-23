@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
+      link: ${{ steps.link.outputs.link }}
 
     steps:
 
@@ -19,12 +20,12 @@ jobs:
         uses: actions/setup-python@v2
 
       - name: RW Jars link
-        id: rw-jars-link
+        id: link
         run: |
           sudo apt update
           sudo apt install -y curl wget
           export LINK=$(curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")
-          echo ::set-output name=rw-jars-link::$LINK
+          echo ::set-output name=link::$LINK
 
       - name: Generate Matrix
         id: generate
@@ -61,7 +62,7 @@ jobs:
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
-          export RW_LINK=$(echo ${{needs.Matrix.outputs.rw-jars-link}})
+          export RW_LINK=$(echo ${{needs.Matrix.outputs.link}})
           echo $RW_LINK
           # Make environments
           make install_symbiflow
