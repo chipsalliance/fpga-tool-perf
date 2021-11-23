@@ -8,7 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix_vpr: ${{ steps.generate.outputs.matrix_vpr }}
+      matrix_vpr_fasm2bels: ${{ steps.generate.outputs.matrix_vpr_fasm2bels }}
       matrix_vivado: ${{ steps.generate.outputs.matrix_vivado }}
+      matrix_yosys_vivado: ${{ steps.generate.outputs.matrix_yosys_vivado }}
+      matrix_yosys_uhdm_vivado: ${{ steps.generate.outputs.matrix_yosys_uhdm_vivado }}
+      matrix_nextpnr_fpga_interchange: ${{ steps.generate.outputs.matrix_nextpnr_fpga_interchange }}
+      matrix_nextpnr_ice40: ${{ steps.generate.outputs.matrix_nextpnr_ice40 }}
+      matrix_nextpnr_nexus: ${{ steps.generate.outputs.matrix_nextpnr_nexus }}
+      matrix_nextpnr_xilinx: ${{ steps.generate.outputs.matrix_nextpnr_xilinx }}
+      matrix_nextpnr_xilinx_fasm2bels: ${{ steps.generate.outputs.matrix_nextpnr_xilinx_fasm2bels }}
+      matrix_quicklogic: ${{ steps.generate.outputs.matrix_quicklogic }}
       link: ${{ steps.link.outputs.link }}
 
     steps:
@@ -32,9 +41,9 @@ jobs:
         id: generate
         run: |
           python3 -m pip install -r conf/common/requirements.txt
-          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py vpr
-          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py vivado
+          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py all
 
+  # Symbiflow tests
   Test_VPR:
     needs: Matrix
 
@@ -44,7 +53,6 @@ jobs:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr) }}
 
     env:
-      #GHA_EXTERNAL_DISK: "tools"
       GHA_PREEMPTIBLE: "false"
 
     container: ubuntu:bionic
@@ -60,32 +68,102 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip wget git curl unzip default-jdk
-          #ln -s /mnt/aux/Xilinx /opt/Xilinx
-          #source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          #vivado -version
-          export RW_LINK=$(echo ${{needs.Matrix.outputs.link}})
-          echo $RW_LINK
-          # Make environments
-          make install_symbiflow
-          make install_quicklogic
-          make install_interchange
-          TOOLCHAIN=symbiflow make env
-          TOOLCHAIN=quicklogic make env
-          TOOLCHAIN=nextpnr make env
+          apt install -y python3 python3-pip wget git curl unzip
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
         run: |
           source env.sh
-          # Testing all projects/toolchains/boards
           python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2
         with:
           path: |
-            **/*.txt
+            **/results*.gz
             **/plot_*.svg
 
+  Test_VPRFASM2Bels:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr_fasm2bels) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  # Quicklogic tests
+  Test_QuickLogic:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_quicklogic) }}
+
+    env:
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          ln -s /mnt/aux/Xilinx /opt/Xilinx
+          source /opt/Xilinx/Vivado/2017.2/settings64.sh
+          vivado -version
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  # Vivado
   Test_Vivado:
     needs: Matrix
 
@@ -111,29 +189,304 @@ jobs:
       - name: Install
         run: |
           apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          ln -s /mnt/aux/Xilinx /opt/Xilinx
+          source /opt/Xilinx/Vivado/2017.2/settings64.sh
+          vivado -version
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  Test_YosysVivado:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_vivado) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          ln -s /mnt/aux/Xilinx /opt/Xilinx
+          source /opt/Xilinx/Vivado/2017.2/settings64.sh
+          vivado -version
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  Test_YosysUHDMVivado:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_uhdm_vivado) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          ln -s /mnt/aux/Xilinx /opt/Xilinx
+          source /opt/Xilinx/Vivado/2017.2/settings64.sh
+          vivado -version
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  # Nextpnr
+  Test_NextpnrFPGAInterchange:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_fpga_interchange) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
           apt install -y python3 python3-pip wget git curl unzip default-jdk
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
           export RW_LINK=$(echo ${{needs.Matrix.outputs.link}})
           echo $RW_LINK
-          # Make environments
-          make install_symbiflow
-          make install_quicklogic
-          make install_interchange
-          TOOLCHAIN=symbiflow make env
-          TOOLCHAIN=quicklogic make env
-          TOOLCHAIN=nextpnr make env
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
         run: |
           source env.sh
-          # Testing all projects/toolchains/boards
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2
         with:
           path: |
-            **/*.txt
+            **/results*.gz
             **/plot_*.svg
 
+  Test_NextpnrIce40:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_ice40) }}
+
+    env:
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  Test_NextpnrNexus:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_nexus) }}
+
+    env:
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  Test_NextpnrXilinx:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx) }}
+
+    env:
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  Test_NextpnrXilinxFASM2Bels:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx_fasm2bels) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMPTIBLE: "false"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: |
+          apt update
+          apt install -y python3 python3-pip wget git curl unzip
+          ln -s /mnt/aux/Xilinx /opt/Xilinx
+          source /opt/Xilinx/Vivado/2017.2/settings64.sh
+          vivado -version
+          source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
+
+      - name: Run Test
+        run: |
+          source env.sh
+          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
