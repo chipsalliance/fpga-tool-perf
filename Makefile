@@ -69,7 +69,6 @@ install_interchange:
 		unzip rapidwright_jars.zip && \
 		rm jars/qtjambi-win64-msvc2005x64-4.5.2_01.jar rapidwright_jars.zip && \
 		make -C . compile
-		make update_jars && \
 		popd
 
 install_quicklogic:
