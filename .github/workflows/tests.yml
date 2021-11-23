@@ -53,7 +53,7 @@ jobs:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr) }}
 
     env:
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -92,7 +92,7 @@ jobs:
 
     env:
       GHA_EXTERNAL_DISK: "tools"
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -131,7 +131,7 @@ jobs:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_quicklogic) }}
 
     env:
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -171,7 +171,7 @@ jobs:
 
     env:
       GHA_EXTERNAL_DISK: "tools"
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -213,7 +213,7 @@ jobs:
 
     env:
       GHA_EXTERNAL_DISK: "tools"
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -255,7 +255,7 @@ jobs:
 
     env:
       GHA_EXTERNAL_DISK: "tools"
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -298,7 +298,7 @@ jobs:
 
     env:
       GHA_EXTERNAL_DISK: "tools"
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -341,7 +341,7 @@ jobs:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_ice40) }}
 
     env:
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -379,7 +379,7 @@ jobs:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_nexus) }}
 
     env:
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -417,7 +417,7 @@ jobs:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx) }}
 
     env:
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
@@ -456,7 +456,7 @@ jobs:
 
     env:
       GHA_EXTERNAL_DISK: "tools"
-      GHA_PREEMPTIBLE: "false"
+      GHA_PREEMTIBLE: "true"
 
     container: ubuntu:bionic
 
