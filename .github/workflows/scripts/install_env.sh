@@ -19,7 +19,7 @@ SYMBIFLOW_LIST="vpr vpr-fasm2bels"
 NEXTPNR_LIST="nextpnr-ice40 nextpnr-nexus nextpnr-xilinx nextpnr-xilinx-fasm2bels"
 INTERCHANGE_LIST="nextpnr-fpga-interchange"
 QUICKLOGIC_LIST="quicklogic"
-VIVADO_LIST="vivado yosys-vivado yosys-uhdm-vivado"
+VIVADO_LIST="vivado yosys-vivado yosys-vivado-uhdm"
 
 if echo $SYMBIFLOW_LIST | grep -F -wq $TOOL; then
     TOOLCHAIN=symbiflow make env

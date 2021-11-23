@@ -11,7 +11,7 @@ jobs:
       matrix_vpr_fasm2bels: ${{ steps.generate.outputs.matrix_vpr_fasm2bels }}
       matrix_vivado: ${{ steps.generate.outputs.matrix_vivado }}
       matrix_yosys_vivado: ${{ steps.generate.outputs.matrix_yosys_vivado }}
-      matrix_yosys_uhdm_vivado: ${{ steps.generate.outputs.matrix_yosys_uhdm_vivado }}
+      matrix_yosys_vivado_uhdm: ${{ steps.generate.outputs.matrix_yosys_vivado_uhdm }}
       matrix_nextpnr_fpga_interchange: ${{ steps.generate.outputs.matrix_nextpnr_fpga_interchange }}
       matrix_nextpnr_ice40: ${{ steps.generate.outputs.matrix_nextpnr_ice40 }}
       matrix_nextpnr_nexus: ${{ steps.generate.outputs.matrix_nextpnr_nexus }}
@@ -270,13 +270,13 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  YosysUHDMVivado:
+  YosysVivadoUHDM:
     needs: Matrix
 
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_uhdm_vivado) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_vivado_uhdm) }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
