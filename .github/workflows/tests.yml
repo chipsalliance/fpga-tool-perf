@@ -147,14 +147,11 @@ jobs:
         run: |
           apt update
           apt install -y python3 python3-pip wget git curl unzip
-          ln -s /mnt/aux/Xilinx /opt/Xilinx
-          source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          vivado -version
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
         run: |
-          source env.sh
+          source env.sh quicklogic
           python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2
@@ -326,7 +323,7 @@ jobs:
 
       - name: Run Test
         run: |
-          source env.sh
+          source env.sh nextpnr
           python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2
@@ -364,7 +361,7 @@ jobs:
 
       - name: Run Test
         run: |
-          source env.sh
+          source env.sh nextpnr
           python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2
@@ -402,7 +399,7 @@ jobs:
 
       - name: Run Test
         run: |
-          source env.sh
+          source env.sh nextpnr
           python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2
@@ -440,7 +437,7 @@ jobs:
 
       - name: Run Test
         run: |
-          source env.sh
+          source env.sh nextpnr
           python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2
@@ -482,7 +479,7 @@ jobs:
 
       - name: Run Test
         run: |
-          source env.sh
+          source env.sh nextpnr
           python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
 
       - uses: actions/upload-artifact@v2

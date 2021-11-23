@@ -16,7 +16,8 @@ fi
 TOOL=$1
 
 SYMBIFLOW_LIST="vpr vpr-fasm2bels"
-NEXTPNR_LIST="nextpnr-ice40 nextpnr-nexus nextpnr-fpga-interchange nextpnr-xilinx nextpnr-xilinx-fasm2bels"
+NEXTPNR_LIST="nextpnr-ice40 nextpnr-nexus nextpnr-xilinx nextpnr-xilinx-fasm2bels"
+INTERCHANGE_LIST="nextpnr-fpga-interchange"
 QUICKLOGIC_LIST="quicklogic"
 VIVADO_LIST="vivado yosys-vivado yosys-uhdm-vivado"
 
@@ -26,6 +27,8 @@ if echo $SYMBIFLOW_LIST | grep -F -wq $TOOL; then
 elif echo $VIVADO_LIST | grep -F -wq $TOOL; then
     TOOLCHAIN=symbiflow make env
 elif echo $NEXTPNR_LIST | grep -F -wq $TOOL; then
+    TOOLCHAIN=nextpnr make env
+elif echo $INTERCHANGE_LIST | grep -F -wq $TOOL; then
     TOOLCHAIN=nextpnr make env
     make install_interchange
 elif echo $QUICKLOGIC_LIST | grep -F -wq $TOOL; then
