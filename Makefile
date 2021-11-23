@@ -32,6 +32,7 @@ INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/art
 INTERCHANGE_VERSION = 6ff4159
 INTERCHANGE_DEVICES = xc7a35t xc7a100t xc7a200t xc7z010
 RAPIDWRIGHT_PATH = $(TOP_DIR)/third_party/RapidWright
+RW_LINK ?= $(shell curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")
 
 
 third_party/make-env/conda.mk:
