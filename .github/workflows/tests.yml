@@ -72,9 +72,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -112,9 +116,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -152,9 +160,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh quicklogic
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh quicklogic &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -196,9 +208,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -239,9 +255,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -282,9 +302,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -328,9 +352,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh nextpnr
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -367,9 +395,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh nextpnr
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -406,9 +438,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh nextpnr
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -445,9 +481,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh nextpnr
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -488,9 +528,13 @@ jobs:
           source ./.github/workflows/scripts/install_env.sh ${{ matrix.toolchain }}
 
       - name: Run Test
-        run: |
-          source env.sh nextpnr
-          python3 exhaust.py --project ${{ matrix.project }} --toolchain ${{ matrix.toolchain }} --board ${{ matrix.board }} --build_type generic-all --fail
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
         with:
