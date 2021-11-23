@@ -44,7 +44,7 @@ jobs:
           PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py all
 
   # Symbiflow tests
-  Test_VPR:
+  VPR:
     needs: Matrix
 
     strategy:
@@ -82,7 +82,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  Test_VPRFASM2Bels:
+  VPRFASM2Bels:
     needs: Matrix
 
     strategy:
@@ -122,7 +122,7 @@ jobs:
             **/plot_*.svg
 
   # Quicklogic tests
-  Test_QuickLogic:
+  QuickLogic:
     needs: Matrix
 
     strategy:
@@ -161,7 +161,7 @@ jobs:
             **/plot_*.svg
 
   # Vivado
-  Test_Vivado:
+  Vivado:
     needs: Matrix
 
     strategy:
@@ -203,7 +203,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  Test_YosysVivado:
+  YosysVivado:
     needs: Matrix
 
     strategy:
@@ -245,7 +245,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  Test_YosysUHDMVivado:
+  YosysUHDMVivado:
     needs: Matrix
 
     strategy:
@@ -288,7 +288,7 @@ jobs:
             **/plot_*.svg
 
   # Nextpnr
-  Test_NextpnrFPGAInterchange:
+  NextpnrFPGAInterchange:
     needs: Matrix
 
     strategy:
@@ -332,7 +332,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  Test_NextpnrIce40:
+  NextpnrIce40:
     needs: Matrix
 
     strategy:
@@ -370,7 +370,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  Test_NextpnrNexus:
+  NextpnrNexus:
     needs: Matrix
 
     strategy:
@@ -408,7 +408,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  Test_NextpnrXilinx:
+  NextpnrXilinx:
     needs: Matrix
 
     strategy:
@@ -446,7 +446,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
-  Test_NextpnrXilinxFASM2Bels:
+  NextpnrXilinxFASM2Bels:
     needs: Matrix
 
     strategy:
