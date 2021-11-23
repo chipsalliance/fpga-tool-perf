@@ -16,7 +16,7 @@ if len(sys.argv) < 2:
     print("Usage {} <tool>".format(sys.argv[0]))
     sys.exit(1)
 
-tools = sys.arg[1:]
+tools = sys.argv[1:]
 
 jobs = dict()
 for combination in get_combinations():
