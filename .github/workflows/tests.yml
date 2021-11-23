@@ -68,7 +68,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
 
       - name: Run Test
@@ -112,7 +113,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
@@ -159,7 +161,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
 
       - name: Run Test
@@ -204,7 +207,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
@@ -251,7 +255,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
@@ -298,7 +303,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
@@ -346,7 +352,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip default-jdk
+          apt install -y python3 python3-pip wget git curl unzip default-jdk
+          python3 -m pip install -r conf/common/requirements.txt
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
@@ -394,7 +401,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
 
       - name: Run Test
@@ -437,7 +445,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
 
       - name: Run Test
@@ -480,7 +489,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
 
       - name: Run Test
@@ -524,7 +534,8 @@ jobs:
       - name: Install
         run: |
           apt update
-          apt install -y python3 python3-pip python3-yaml wget git curl unzip
+          apt install -y python3 python3-pip wget git curl unzip
+          python3 -m pip install -r conf/common/requirements.txt
           ln -s /mnt/aux/Xilinx /opt/Xilinx
           source /opt/Xilinx/Vivado/2017.2/settings64.sh
           vivado -version
