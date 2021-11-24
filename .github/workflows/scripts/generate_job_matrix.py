@@ -29,6 +29,9 @@ for combination in get_combinations():
     if toolchain not in tools and not all_toolchains:
         continue
 
+    if project != "oneblink":
+        continue
+
     if toolchain not in jobs:
         jobs[toolchain] = list()
 
