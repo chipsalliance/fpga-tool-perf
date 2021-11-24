@@ -52,7 +52,7 @@ elif tool in quicklogic:
     install = "make install_quicklogic"
 else:
     print("ERROR: toolchain did not match any available ones!")
-    sys.exit(1)
+    raise ValueError()
 
 cmd = f"TOOLCHAIN={toolchain} make env"
 if install:

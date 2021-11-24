@@ -66,11 +66,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -111,14 +107,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          ln -s /mnt/aux/Xilinx /opt/Xilinx
-          source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          vivado -version
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -159,11 +148,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -205,14 +190,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          ln -s /mnt/aux/Xilinx /opt/Xilinx
-          source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          vivado -version
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -253,14 +231,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          ln -s /mnt/aux/Xilinx /opt/Xilinx
-          source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          vivado -version
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -301,14 +272,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          ln -s /mnt/aux/Xilinx /opt/Xilinx
-          source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          vivado -version
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -350,16 +314,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip default-jdk
-          python3 -m pip install -r conf/common/requirements.txt
-          ln -s /mnt/aux/Xilinx /opt/Xilinx
-          source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          vivado -version
-          export RW_LINK=$(echo ${{needs.Matrix.outputs.link}})
-          echo $RW_LINK
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -399,11 +354,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -443,11 +394,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -487,11 +434,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -532,14 +475,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: |
-          apt update
-          apt install -y python3 python3-pip wget git curl unzip
-          python3 -m pip install -r conf/common/requirements.txt
-          ln -s /mnt/aux/Xilinx /opt/Xilinx
-          source /opt/Xilinx/Vivado/2017.2/settings64.sh
-          vivado -version
-          eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/install_env.py ${{ matrix.toolchain }} ${{ matrix.board }})
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
