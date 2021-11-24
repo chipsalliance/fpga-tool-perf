@@ -505,7 +505,9 @@ jobs:
       - uses: actions/download-artifact@v2
 
       - name: Results Aggregation
-        run: python3 ./utils/aggregate_results.py build/_exhaust-runs results.json.gz
+        run: |
+          find . -name "*.json.gz"
+          python3 ./utils/aggregate_results.py artifact/build/_exhaust-runs results.json.gz
 
       - uses: actions/upload-artifact@v2
         name: aggregated-results
