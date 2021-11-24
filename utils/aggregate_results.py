@@ -17,14 +17,15 @@ import sys
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage {} <directory>".format(sys.argv[0]))
+    if len(sys.argv) < 3:
+        print("Usage {} <directory> <out dir>".format(sys.argv[0]))
         sys.exit(1)
 
     directory = sys.argv[1]
     now = datetime.datetime.now()
     date_str = now.strftime("%Y%m%d-%H%M%S")
     out_file = f"results-{date_str}.json.gz"
+    out_path = os.path.join(sys.argv[2], out_file)
 
     results = dict()
     for f in os.listdir(directory):
@@ -50,7 +51,7 @@ def main():
     json_str = json.dumps(json_data)
     json_byte = json_str.encode("utf-8")
 
-    with gzip.open(out_file, "wb") as f:
+    with gzip.open(out_path, "wb") as f:
         f.write(json_byte)
 
 

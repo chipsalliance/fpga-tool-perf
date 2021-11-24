@@ -493,7 +493,8 @@ jobs:
             **/plot_*.svg
 
   AggregateResults:
-    needs: [VPR, VPRFASM2Bels, Vivado, YosysVivado, YosysVivadoUHDM, QuickLogic, NextpnrFPGAInterchange, NextpnrIce40, NextpnrNexus, NextpnrXilinx, NextpnrXilinxFASM2Bels]
+    # Restore all the others once this works
+    needs: [Vivado]
 
     runs-on: ubuntu-latest
 
@@ -507,11 +508,19 @@ jobs:
       - name: Results Aggregation
         run: |
           find . -name "*.json.gz"
-          python3 ./utils/aggregate_results.py artifact/build/_exhaust-runs results.json.gz
+          mkdir results
+          python3 ./utils/aggregate_results.py artifact/build/_exhaust-runs results
 
       - uses: actions/upload-artifact@v2
         name: aggregated-results
         with:
           path: |
-            **/results.json.gz
+            **/results*.json.gz
+
+      - name: Upload to GCP
+        uses: weslenng/gcp-storage-sync@master
+        env:
+          GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
+          GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
+          SOURCE_DIR: "results"
 
