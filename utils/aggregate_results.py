@@ -17,12 +17,14 @@ import sys
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage {} <directory> <output file>".format(sys.argv[0]))
+    if len(sys.argv) < 2:
+        print("Usage {} <directory>".format(sys.argv[0]))
         sys.exit(1)
 
     directory = sys.argv[1]
-    out_file = sys.argv[2]
+    now = datetime.datetime.now()
+    date_str = now.strftime("%Y%m%d-%H%M%S")
+    out_file = f"results-{date_str}.json.gz"
 
     results = dict()
     for f in os.listdir(directory):
