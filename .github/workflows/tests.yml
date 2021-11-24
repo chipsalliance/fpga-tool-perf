@@ -508,8 +508,8 @@ jobs:
       - name: Results Aggregation
         run: |
           find . -name "*.json.gz"
-          mkdir results
-          python3 ./utils/aggregate_results.py artifact/build/_exhaust-runs results
+          mkdir upload
+          python3 ./utils/aggregate_results.py artifact/build/_exhaust-runs upload
 
       - uses: actions/upload-artifact@v2
         name: aggregated-results
@@ -522,5 +522,5 @@ jobs:
         env:
           GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
           GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
-          SOURCE_DIR: "results"
+          SOURCE_DIR: "upload"
 
