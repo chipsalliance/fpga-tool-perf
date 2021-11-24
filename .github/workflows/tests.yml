@@ -491,3 +491,25 @@ jobs:
           path: |
             **/results*.gz
             **/plot_*.svg
+
+  AggregateResults:
+    needs: [VPR, VPRFASM2Bels, Vivado, YosysVivado, YosysVivadoUHDM, QuickLogic, NextpnrFPGAInterchange, NextpnrIce40, NextpnrNexus, NextpnrXilinx, NextpnrXilinxFASM2Bels]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+
+      - uses: actions/download-artifact@v2
+
+      - name: Results Aggregation
+        run: python3 ./utils/aggregate_results.py build/_exhaust-runs results.json.gz
+
+      - uses: actions/upload-artifact@v2
+        name: aggregated-results
+        with:
+          path: |
+            **/results.json.gz
+
