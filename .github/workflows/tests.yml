@@ -487,6 +487,7 @@ jobs:
           --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
 
       - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
         with:
           path: |
             **/results*.gz
@@ -494,7 +495,7 @@ jobs:
 
   AggregateResults:
     # Restore all the others once this works
-    needs: [Vivado]
+    needs: [VPR, VPRFASM2Bels, Vivado, YosysVivado, YosysVivadoUHDM, QuickLogic, NextpnrFPGAInterchange, NextpnrIce40, NextpnrNexus, NextpnrXilinx, NextpnrXilinxFASM2Bels]
 
     runs-on: ubuntu-latest
 
@@ -518,47 +519,11 @@ jobs:
             **/results*.json.gz
 
       - name: Upload to GCP
+        if: ${{ (github.event_name == 'push' || github.event_name == 'schedule') &&
+                github.ref == 'refs/heads/master' }}
         uses: weslenng/gcp-storage-sync@master
         env:
           GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
           GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
           SOURCE_DIR: "upload"
-
-  TestGeneratingDashboard:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
-
-      - name: Make environment
-        run: |
-          python3 -m pip install virtualenv
-          cd results
-          make env
-
-      - name: Use gcloud CLI
-        run: |
-          cd results
-          gsutil cp gs://${{ secrets.GCP_STORAGE_BUCKET }}/results.tar.gz .
-          tar -xvf results.tar.gz
-
-      - name: Build HTML
-        run: |
-          cd results
-          make preprocess
-          make build
-          tar -cvf dashboard.tar.gz build
-
-      - uses: actions/upload-artifact@v2
-        name: dashboard
-        with:
-          path: |
-            **/dashboard.tar.gz
-
-
 

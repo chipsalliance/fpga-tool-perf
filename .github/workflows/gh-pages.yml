@@ -3,8 +3,6 @@ name: Generate results page
 on:
   pull_request:
   push:
-    branches:
-      - master
   schedule:
     - cron: '0 3 * * *'
 
@@ -12,10 +10,12 @@ jobs:
   generate-results-page:
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
 
       - name: Make environment
         run: |
@@ -23,10 +23,16 @@ jobs:
           cd results
           make env
 
+      - name: Use gcloud CLI
+        run: |
+          cd results
+          mkdir build-results
+          gsutil cp gs://${{ secrets.GCP_STORAGE_BUCKET }}/* build-results
+
       - name: Build HTML
         run: |
           cd results
-          make fetch
+          make preprocess
           make build
 
       - uses: actions/upload-artifact@v2
@@ -46,4 +52,3 @@ jobs:
           git config --local user.name "GHA"
           git commit -am "update ${{ github.sha  }}"
           git push -u origin +HEAD:gh-pages
-
