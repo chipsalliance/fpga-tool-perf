@@ -27,7 +27,7 @@ jobs:
         run: |
           cd results
           mkdir build-results
-          gsutil cp gs://${{ secrets.GCP_STORAGE_BUCKET }}/* build-results
+          gsutil cp gs://${{ secrets.GCP_STORAGE_BUCKET }}/*.json.gz build-results
 
       - name: Build HTML
         run: |
