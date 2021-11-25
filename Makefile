@@ -64,13 +64,9 @@ install_interchange:
 	for device in ${INTERCHANGE_DEVICES}; do \
 		wget -qO- ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
 	done
-	pushd ${RAPIDWRIGHT_PATH} && \
-		rm -rf jars && \
-		wget $(RW_LINK) && \
-		unzip rapidwright_jars.zip && \
-		rm jars/qtjambi-win64-msvc2005x64-4.5.2_01.jar rapidwright_jars.zip && \
-		make -C . compile && \
-		popd
+	pushd ${RAPIDWRIGHT_PATH}
+	JARS_LINK=$(RW_LINK) make update_jars
+	popd
 
 install_quicklogic:
 	mkdir -p env/quicklogic
