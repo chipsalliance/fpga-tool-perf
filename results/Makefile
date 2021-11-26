@@ -10,15 +10,17 @@ SHELL = bash
 
 PYTHON := python3
 
+RESULTS_DIR ?= build-results
+
 IN_ENV = if [ -e env/bin/activate ]; then . env/bin/activate; fi;
 env:
 	git submodule update --init --recursive
 	virtualenv --python=$(PYTHON) env
 	$(IN_ENV) pip install --no-cache-dir --upgrade -r requirements.txt
 
-fetch:
+preprocess:
 	mkdir -p meta
-	$(IN_ENV) python3 fetch_meta.py --builds nightly --from-build 1138 --output-dir meta --pool-size $$(nproc)
+	$(IN_ENV) python3 process_results.py --in-dir $(RESULTS_DIR) --out-dir meta
 
 build:
 	mkdir -p build

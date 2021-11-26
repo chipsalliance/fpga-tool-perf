@@ -1,0 +1,533 @@
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 0 * * *'
+
+name: Full Test Suite
+
+jobs:
+
+  Matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_vpr: ${{ steps.generate.outputs.matrix_vpr }}
+      matrix_vpr_fasm2bels: ${{ steps.generate.outputs.matrix_vpr_fasm2bels }}
+      matrix_vivado: ${{ steps.generate.outputs.matrix_vivado }}
+      matrix_yosys_vivado: ${{ steps.generate.outputs.matrix_yosys_vivado }}
+      matrix_yosys_vivado_uhdm: ${{ steps.generate.outputs.matrix_yosys_vivado_uhdm }}
+      matrix_nextpnr_fpga_interchange: ${{ steps.generate.outputs.matrix_nextpnr_fpga_interchange }}
+      matrix_nextpnr_ice40: ${{ steps.generate.outputs.matrix_nextpnr_ice40 }}
+      matrix_nextpnr_nexus: ${{ steps.generate.outputs.matrix_nextpnr_nexus }}
+      matrix_nextpnr_xilinx: ${{ steps.generate.outputs.matrix_nextpnr_xilinx }}
+      matrix_nextpnr_xilinx_fasm2bels: ${{ steps.generate.outputs.matrix_nextpnr_xilinx_fasm2bels }}
+      matrix_quicklogic: ${{ steps.generate.outputs.matrix_quicklogic }}
+      link: ${{ steps.link.outputs.link }}
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: RW Jars link
+        id: link
+        run: |
+          sudo apt update
+          sudo apt install -y curl wget
+          export LINK=$(curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")
+          echo ::set-output name=link::$LINK
+
+      - name: Generate Matrix
+        id: generate
+        run: |
+          python3 -m pip install -r conf/common/requirements.txt
+          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py all
+
+  # Symbiflow tests
+  VPR:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr) }}
+
+    env:
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  VPRFASM2Bels:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr_fasm2bels) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  # Quicklogic tests
+  QuickLogic:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_quicklogic) }}
+
+    env:
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh quicklogic &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  # Vivado
+  Vivado:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_vivado) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  YosysVivado:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_vivado) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  YosysVivadoUHDM:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_vivado_uhdm) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  # Nextpnr
+  NextpnrFPGAInterchange:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_fpga_interchange) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  NextpnrIce40:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_ice40) }}
+
+    env:
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  NextpnrNexus:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_nexus) }}
+
+    env:
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  NextpnrXilinx:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx) }}
+
+    env:
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  NextpnrXilinxFASM2Bels:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx_fasm2bels) }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+      GHA_PREEMTIBLE: "true"
+
+    container: ubuntu:bionic
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install
+        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
+
+  AggregateResults:
+    # Restore all the others once this works
+    needs: [VPR, VPRFASM2Bels, Vivado, YosysVivado, YosysVivadoUHDM, QuickLogic, NextpnrFPGAInterchange, NextpnrIce40, NextpnrNexus, NextpnrXilinx, NextpnrXilinxFASM2Bels]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+
+      - uses: actions/download-artifact@v2
+
+      - name: Results Aggregation
+        run: |
+          find . -name "*.json.gz"
+          mkdir upload
+          python3 ./utils/aggregate_results.py artifact/build/_exhaust-runs upload
+
+      - uses: actions/upload-artifact@v2
+        name: aggregated-results
+        with:
+          path: |
+            **/results*.json.gz
+
+      - name: Upload to GCP
+        if: ${{ (github.event_name == 'push' || github.event_name == 'schedule') &&
+                github.ref == 'refs/heads/master' }}
+        uses: weslenng/gcp-storage-sync@master
+        env:
+          GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
+          GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
+          SOURCE_DIR: "upload"
+
