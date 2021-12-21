@@ -24,8 +24,8 @@ nexys-video:
   package: sbg484-1
 icebreaker:
   family: ice40
-  device: up5k
-  package: sg48
+  device: iCE40UP5K
+  package: SG48I
 tinyfpgab2:
   family: ice40
   device: lp8k
@@ -40,9 +40,9 @@ chandalar:
   package: PD64
 lifcl-40:
   family: nexus
-  device: LIFCL-40-9BG400CES
-  package: null
+  device: LIFCL-40
+  package: 9BG400C
 lifcl-17:
   family: nexus
-  device: LIFCL-17-8UWG72C
-  package: null
+  device: LIFCL-17
+  package: 8UWG72C

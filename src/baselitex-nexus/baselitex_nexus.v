@@ -4,7 +4,21 @@
 module top(
 	input wire serial_rx,
 	output reg serial_tx,
-	input wire gsrn
+	input wire gsrn,
+	output reg user_led0,
+	output reg user_led1,
+	output reg user_led2,
+	output reg user_led3,
+	output reg user_led4,
+	output reg user_led5,
+	output reg user_led6,
+	output reg user_led7,
+	output reg user_led8,
+	output reg user_led9,
+	output reg user_led10,
+	output reg user_led11,
+	output reg user_led12,
+	output reg user_led13
 );
 
 reg main_basesoc_soc_rst = 1'd0;

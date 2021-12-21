@@ -43,6 +43,8 @@ TOOLCHAIN_MAP = {
     'nextpnr-fpga-interchange': ('yosys', 'nextpnr'),
     'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
     'quicklogic': ('yosys', 'vpr'),
+    'lse-radiant': ('lse', 'radiant'),
+    'synpro-radiant': ('synplify', 'radiant')
 }
 
 

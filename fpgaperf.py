@@ -33,6 +33,7 @@ from toolchains.vivado import VivadoYosys
 from toolchains.vivado import VivadoYosysUhdm
 from toolchains.symbiflow import VPR, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
+from toolchains.radiant import RadiantSynpro, RadiantLSE
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -140,8 +141,8 @@ toolchains = {
     #'synpro-icecube2': Icecube2Synpro,
     #'lse-icecube2': Icecube2LSE,
     #'yosys-icecube2': Icecube2Yosys,
-    #'synpro-radiant': RadiantSynpro,
-    #'lse-radiant': RadiantLSE,
+    'synpro-radiant': RadiantSynpro,
+    'lse-radiant': RadiantLSE,
     #'yosys-radiant': RadiantYosys,
     #'radiant': VPR,
 }
@@ -217,7 +218,6 @@ def run(
         out_prefix=out_prefix,
         overwrite=overwrite,
     )
-
     output_error = ""
     with redirect_stdout(open(os.devnull, 'w')):
         try:
@@ -272,21 +272,22 @@ def list_combinations(
         toolchain_info = get_project(p)["required_toolchains"]
         vendor_info = get_project(p)["vendors"]
         for t in get_toolchains(toolchain):
-            vendor = get_vendors(t)
-            if vendor not in vendor_info:
-                continue
-            text = "Supported"
-            board_info = vendor_info[vendor]
-            if t not in toolchain_info:
-                text = "Missing"
-            for b in get_boards(board):
-                if b not in get_vendors()[vendor]["boards"]:
+            vendors = get_vendors(t)
+            for vendor in vendors:
+                if vendor not in vendor_info:
                     continue
-                text2 = text
-                if board_info is None or b not in board_info:
-                    text2 = "Missing"
-                row = [p, t, b, text2]
-                table_data.append(row)
+                text = "Supported"
+                board_info = vendor_info[vendor]
+                if t not in toolchain_info:
+                    text = "Missing"
+                for b in get_boards(board):
+                    if b not in get_vendors()[vendor]["boards"]:
+                        continue
+                    text2 = text
+                    if board_info is None or b not in board_info:
+                        text2 = "Missing"
+                    row = [p, t, b, text2]
+                    table_data.append(row)
     table = AsciiTable(table_data)
     print(table.table)
 
@@ -298,13 +299,18 @@ def get_vendors(toolchain=None, board=None):
         vendors = yaml.safe_load(vendors_file)
     if toolchain is None and board is None:
         return vendors
+
+    _vendors=list()
     for v in vendors:
         if toolchain in vendors[v]["toolchains"]:
-            return v
-        if board in vendors[v]["boards"]:
-            return v
+            _vendors.append(v)
+            continue
 
-    return None
+        if board in vendors[v]["boards"]:
+            _vendors.append(v)
+            continue
+
+    return _vendors
 
 
 def get_boards(board=None):

@@ -20,12 +20,16 @@ lattice-ice40:
     - tinyfpgab2
   toolchains:
     - nextpnr-ice40
+    - synpro-radiant
+    - lse-radiant
 lattice-nexus:
   boards:
     - lifcl-40
     - lifcl-17
   toolchains:
     - nextpnr-nexus
+    - synpro-radiant
+    - lse-radiant
 quicklogic:
   boards:
     - quickfeather
