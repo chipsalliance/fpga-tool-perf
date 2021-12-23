@@ -58,7 +58,7 @@ class Radiant(Toolchain):
     def prepare_edam(self):
         os.makedirs(self.out_dir, exist_ok=True)
         radiant_options = {
-            'part': self.device+"-"+self.package,
+            'part': f'{self.device}-{self.package}',
             'synth': self.synth_tool(),
             'strategy': self.strategy
         }
@@ -89,13 +89,12 @@ class Radiant(Toolchain):
                     edam=self.edam, work_root=self.out_dir
                 )
                 self.backend.configure("")
-            with Timed(self, 'bitstream'):
                 self.backend.build()
             self.add_maximum_memory_use()
 
     def add_maximum_memory_use(self):
         log_file = os.path.join(
-            self.out_dir + "/impl/", self.project_name + "_impl.par"
+            self.out_dir, "impl", self.project_name + "_impl.par"
         )
         with open(log_file, 'r') as file:
             for line in file:
@@ -105,7 +104,7 @@ class Radiant(Toolchain):
                     return
 
     def radiant_ver(self):
-        for l in open(self.radiantdir + '/data/ispsys.ini'):
+        for l in open(os.path.join(self.radiantdir, 'data', 'ispsys.ini')):
             if l.find('ProductType') == 0:
                 return l.split('=')[1].strip()
 
@@ -120,7 +119,7 @@ class Radiant(Toolchain):
 
     def resources(self):
         res_file = os.path.join(
-            self.out_dir + "/impl/", self.project_name + "_impl.par"
+            self.out_dir, "impl", self.project_name + "_impl.par"
         )
         resources = dict()
         with open(res_file, "r") as file:
@@ -151,45 +150,46 @@ class Radiant(Toolchain):
 
     def max_freq(self):
         freqs = dict()
-        freq_file = os.path.join(
-            self.out_dir + "/impl/", self.project_name + "_impl.srr"
-        )
-        resources = dict()
-        with open(freq_file, "r") as file:
-            processing = False
+        res_name = None
+
+        freq_file_exts = ["twr", "tws"]
+
+        path = ""
+        for ext in freq_file_exts:
+            temp_path = os.path.join(
+                self.out_dir, "impl", self.project_name + "_impl.twr"
+            )
+
+            if os.path.isfile(temp_path):
+                path = temp_path
+                break
+
+        assert path, "Path to the timing report file is empty"
+
+        with open(path, "r") as file:
             for line in file:
                 line = line.strip()
-                if "Starting Clock" in line:
-                    processing = True
-                    next(file)
-                    continue
-                if not processing:
-                    continue
-                else:
-                    if len(line) == 0 or line.startswith('==='):
-                        break
-                res = line.split()
-                freqs[res[0]] = dict()
-                freqs[res[0]]['requested'] = float(res[1]) if re.search(r'\d', res[1]) else 0
-                freqs[res[0]]['actual'] = float(res[3]) if re.search(r'\d', res[3]) else 0
-                freqs[res[0]]['met'] = freqs[res[0]]['actual'] > freqs[
-                    res[0]]['requested']
-                time_file = freq_file = os.path.join(
-                    self.out_dir + "/impl/", self.project_name + "_impl.tws"
-                )
-                with open(time_file, "r") as file:
-                    setup_viol = float(0)
-                    hold_viol = float(0)
-                    for line in file:
-                        line = line.strip()
-                        match = re.match(
-                            "^Total.* *.(\d+\.\d+).* *.(\d+\.\d+).*", line
-                        )
-                        if match:
-                            setup_viol = float(match.groups()[0])
-                            hold_viol = float(match.groups()[1])
-                    freqs[res[0]]['setup_violation'] = setup_viol
-                    freqs[res[0]]['hold_violation'] = hold_viol
+                if "From" in line:
+                    res = line.split()
+                    res_name = res[1]
+                    freqs[res_name] = dict()
+                    freqs[res_name]['requested'] = float(res[8])
+                    line = next(file)
+                    res = line.split()
+                    freqs[res_name]['actual'] = float(res[8])
+                    freqs[res_name]['met'] = freqs[res_name]['actual'] > freqs[
+                        res_name]['requested']
+                if "Total N" in line:
+                    print(line)
+                    match = re.match(
+                        "^Total.* *.(\d+\.\d+).* *.(\d+\.\d+).*", line
+                    )
+                    if match and res_name is not None:
+                        setup_viol = float(match.groups()[0])
+                        hold_viol = float(match.groups()[1])
+                        freqs[res_name]['setup_violation'] = setup_viol
+                        freqs[res_name]['hold_violation'] = hold_viol
+
         return freqs
 
 
@@ -199,33 +199,6 @@ class RadiantLSE(Radiant):
         Radiant.__init__(self, rootdir)
         self.toolchain = 'lse-radiant'
         self.synthtool = 'lse'
-
-    def max_freq(self):
-        freqs = dict()
-        res_name=None
-        time_file = freq_file = os.path.join(self.out_dir + "/impl/", self.project_name + "_impl.twr")
-        with open(time_file, "r") as file:
-            for line in file:
-                line = line.strip()
-                if "From" in line:
-                    res = line.split()
-                    res_name = res[1]
-                    freqs[res_name] = dict()
-                    freqs[res_name]['requested'] = float(res[8])
-                    line=next(file)
-                    res = line.split()
-                    freqs[res_name]['actual'] = float(res[8])
-                    freqs[res_name]['met'] = freqs[res_name]['actual'] > freqs[res_name]['requested']
-                if "Total N" in line:
-                    print(line)
-                    match = re.match("^Total.* *.(\d+\.\d+).* *.(\d+\.\d+).*", line)
-                    if match:
-                        setup_viol = float(match.groups()[0])
-                        hold_viol = float(match.groups()[1])
-                        freqs[res_name]['setup_violation'] = setup_viol
-                        freqs[res_name]['hold_violation'] = hold_viol
-
-        return freqs
 
     def synth_tool(self):
         return self.synthtool

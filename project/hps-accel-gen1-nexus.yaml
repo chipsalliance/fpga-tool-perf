@@ -16,4 +16,3 @@ vendors:
     - lifcl-17
 required_toolchains:
   - nextpnr-nexus
-  - lse-radiant

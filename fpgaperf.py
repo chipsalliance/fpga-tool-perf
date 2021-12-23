@@ -244,19 +244,20 @@ def get_combinations():
         toolchain_info = get_project(p)["required_toolchains"]
         vendor_info = get_project(p)["vendors"]
         for t in get_toolchains():
-            vendor = get_vendors(t)
-            if vendor not in vendor_info:
-                continue
-
-            board_info = vendor_info[vendor]
-            for b in get_boards():
-                if b not in get_vendors()[vendor]["boards"]:
+            vendors = get_vendors(t)
+            for vendor in vendors:
+                if vendor not in vendor_info:
                     continue
 
-                if board_info is None or b not in board_info:
-                    continue
+                board_info = vendor_info[vendor]
+                for b in get_boards():
+                    if b not in get_vendors()[vendor]["boards"]:
+                        continue
 
-                combs.append((p, t, b))
+                    if board_info is None or b not in board_info:
+                        continue
+
+                    combs.append((p, t, b))
 
     return combs
 
@@ -276,6 +277,7 @@ def list_combinations(
             for vendor in vendors:
                 if vendor not in vendor_info:
                     continue
+
                 text = "Supported"
                 board_info = vendor_info[vendor]
                 if t not in toolchain_info:
@@ -300,7 +302,7 @@ def get_vendors(toolchain=None, board=None):
     if toolchain is None and board is None:
         return vendors
 
-    _vendors=list()
+    _vendors = list()
     for v in vendors:
         if toolchain in vendors[v]["toolchains"]:
             _vendors.append(v)

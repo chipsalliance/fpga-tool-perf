@@ -366,7 +366,7 @@ class Toolchain:
                     ]
                 )
 
-        assert max_freq, f"ERROR: no clocks assigned for this test design! {self.design()}"
+            max_freq = 0.0
 
         return max_freq, resources
 

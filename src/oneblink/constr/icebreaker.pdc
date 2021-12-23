@@ -1,0 +1,4 @@
+ldc_set_location -site {44} [get_ports clk]
+ldc_set_location -site {6} [get_ports out]
+
+create_clock -name clk -period 13.333 [get_ports clk]
