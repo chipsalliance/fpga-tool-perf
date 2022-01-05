@@ -1,0 +1,18 @@
+srcs:
+  - third_party/vexriscv-custom/VexRiscv_SlimCfu.v
+  - src/hps-accel-gen2-nexus/hps_proto2_platform.v
+  - src/hps-accel-gen2-nexus/cfu.v
+top: top
+name: hps-accel-gen2
+data:
+clocks:
+  PLL_0_P: 20.0000
+clock_aliases:
+  por_clk:
+    - por_clk
+    - por_clk$glb_clk
+vendors:
+  lattice-nexus:
+    - lifcl-17
+required_toolchains:
+  - nextpnr-nexus
