@@ -605,7 +605,7 @@ class NextpnrOxide(NextpnrGeneric):
 
     def prepare_edam(self):
         os.makedirs(self.out_dir, exist_ok=True)
-        args = f"--device {self.device} "
+        args = f"--device {self.device}-{self.package} "
         args += "--timing-allow-fail "
         args += "--router router1 "
         if self.seed:
