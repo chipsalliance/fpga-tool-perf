@@ -11,6 +11,7 @@ clock_aliases:
   por_clk:
     - por_clk
     - por_clk$glb_clk
+    - sys_clk[0]
 vendors:
   lattice-nexus:
     - lifcl-17

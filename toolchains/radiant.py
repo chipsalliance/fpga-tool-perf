@@ -157,7 +157,7 @@ class Radiant(Toolchain):
         path = ""
         for ext in freq_file_exts:
             temp_path = os.path.join(
-                self.out_dir, "impl", self.project_name + "_impl.twr"
+                self.out_dir, "impl", self.project_name + "_impl." + ext
             )
 
             if os.path.isfile(temp_path):
@@ -180,7 +180,6 @@ class Radiant(Toolchain):
                     freqs[res_name]['met'] = freqs[res_name]['actual'] > freqs[
                         res_name]['requested']
                 if "Total N" in line:
-                    print(line)
                     match = re.match(
                         "^Total.* *.(\d+\.\d+).* *.(\d+\.\d+).*", line
                     )

@@ -8,6 +8,7 @@ clocks:
 clock_aliases:
   clk:
     - dut.clk
+    - sys_clk[0]
 vendors:
   xilinx:
     - arty-a35t
