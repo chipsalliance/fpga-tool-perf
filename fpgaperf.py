@@ -211,7 +211,7 @@ def run(
         device,
         package,
         board,
-        get_vendors(board=board),
+        get_vendor(toolchain=toolchain, board=board),
         params_file,
         params_string,
         out_dir=out_dir,
@@ -294,21 +294,32 @@ def list_combinations(
     print(table.table)
 
 
+def get_vendor(toolchain, board):
+    vendors = get_vendors(toolchain=toolchain, board=board)
+
+    assert len(vendors) == 1, (vendors, toolchain, board)
+    return vendors[0]
+
+
 def get_vendors(toolchain=None, board=None):
     '''Return vendor information'''
     with open(os.path.join(root_dir, 'other', 'vendors.yaml'),
               'r') as vendors_file:
         vendors = yaml.safe_load(vendors_file)
+
     if toolchain is None and board is None:
         return vendors
 
     _vendors = list()
     for v in vendors:
-        if toolchain in vendors[v]["toolchains"]:
+        toolchains = vendors[v]["toolchains"]
+        boards = vendors[v]["boards"]
+
+        if toolchain in toolchains:
             _vendors.append(v)
             continue
 
-        if board in vendors[v]["boards"]:
+        if board in boards:
             _vendors.append(v)
             continue
 
