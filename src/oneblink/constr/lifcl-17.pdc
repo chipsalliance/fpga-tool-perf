@@ -1,0 +1,8 @@
+ldc_set_location -site {B4} [get_ports clk]
+ldc_set_location -site {A3} [get_ports out]
+
+ldc_set_port -iobuf {IO_TYPE=LVCMOS33} [get_ports clk]
+ldc_set_port -iobuf {IO_TYPE=LVCMOS33} [get_ports out]
+
+create_clock -name clk -period 13.333 [get_ports clk]
+
