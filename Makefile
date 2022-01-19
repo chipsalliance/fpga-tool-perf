@@ -61,6 +61,8 @@ install_symbiflow: | $(CONDA_ENV_PYTHON)
 		true
 	cat conf/common/requirements.txt conf/symbiflow/requirements.txt > env/symbiflow/requirements.txt
 	@$(IN_CONDA_ENV_BASE) conda env update --name symbiflow-env --file env/symbiflow/environment.yml
+	# List the actual package versions installed
+	@$(CONDA_ACTIVATE) symbiflow-env && conda list
 	# Install all devices
 	for device in ${SYMBIFLOW_DEVICES}; do \
 		curl -s ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs wget -qO- | tar -xJC env/symbiflow; \
