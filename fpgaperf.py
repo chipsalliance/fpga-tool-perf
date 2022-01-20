@@ -310,10 +310,19 @@ def get_vendors(toolchain=None, board=None):
     if toolchain is None and board is None:
         return vendors
 
+    both_specified = all([toolchain, board])
+
     _vendors = list()
     for v in vendors:
         toolchains = vendors[v]["toolchains"]
         boards = vendors[v]["boards"]
+
+        if both_specified and toolchain in toolchains and board in boards:
+            _vendors.append(v)
+            return _vendors
+
+        if both_specified:
+            continue
 
         if toolchain in toolchains:
             _vendors.append(v)
