@@ -18,98 +18,203 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import edalize
+import re
+import subprocess
 
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec
 
 
-# .asc version field just says "DiamondNG"
-# guess that was the code name...
-# no seed support? -n just does more passes
 class Radiant(Toolchain):
     '''Lattice Radiant based toolchains'''
 
-    RADIANTDIR_DEFAULT = os.getenv("RADIANTDIR", "/opt/lscc/radiant/1.0")
+    strategies = ('Timing', 'Area')
 
-    def __init__(self):
-        Toolchain.__init__(self)
-        self.radiantdir = Radiant.RADIANTDIR_DEFAULT
+    def __init__(self, rootdir):
+        Toolchain.__init__(self, rootdir)
+        self.radiantdir = os.getenv(
+            "RADIANT",
+            os.path.expanduser("~") + "/lscc/radiant/3.0"
+        )
+        self.files = []
+        self.edam = None
+        self.backend = None
+        self.resources_map = {
+            'LUT':
+                (
+                    'LUT', 'LUTS', 'LUT1', 'LUT2', 'LUT3', 'LUT4', 'LUT5',
+                    'LUT6'
+                ),
+            'DFF': ('DFF', 'SB_DFF'),
+            'CARRY': ('CARRY', 'SB_CARRY'),
+            'IOB': ('SEIO33', 'IOB'),
+            'PLL': ('PLL'),
+            'BRAM': ('BRAM', 'LRAM', 'EBR'),
+            'DSP': ('PREADD9', 'MULT9', 'MULT18', 'MULT18X36', 'MULT36'),
+            'GLB': ('GLB'),
+        }
+
+    def prepare_edam(self):
+        os.makedirs(self.out_dir, exist_ok=True)
+        radiant_options = {
+            'part': f'{self.device}-{self.package}',
+            'synth': self.synth_tool(),
+            'strategy': self.strategy
+        }
+        edam = {
+            'files': self.files,
+            'name': self.project_name,
+            'toplevel': self.top,
+            'parameters':
+                {
+                    'RADIANT':
+                        {
+                            'paramtype': 'vlogdefine',
+                            'datatype': 'int',
+                            'default': 1,
+                        },
+                },
+            'tool_options': {
+                'radiant': radiant_options
+            }
+        }
+        return edam
 
     def run(self):
-        # acceptable for either device
-        assert (self.device, self.package) in [
-            ('up3k', 'uwg30'), ('up5k', 'uwg30'), ('up5k', 'sg48')
-        ]
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                self.edam = self.prepare_edam()
+                self.backend = edalize.get_edatool('radiant')(
+                    edam=self.edam, work_root=self.out_dir
+                )
+                self.backend.configure("")
+                self.backend.build()
+            self.add_maximum_memory_use()
 
-        with Timed(self, 'bit-all'):
-            env = os.environ.copy()
-            env["SRCS"] = ' '.join(self.srcs)
-            env["TOP"] = self.top
-            env["RADIANTDIR"] = self.radiantdir
-            env["RADDEV"] = self.device + '-' + self.package
-            syn = self.syn()
-            args = "--syn %s" % (syn, )
-            self.cmd(root_dir + "/radiant.sh", args, env=env)
-            self.cmd("iceunpack", "my.bin my.asc")
-
-        self.cmd("icetime", "-tmd up5k my.asc")
-
-    def max_freq(self):
-        with open(self.out_dir + '/icetime.txt') as f:
-            return icetime_parse(f)['max_freq']
-
-    def resources(self):
-        return icebox_stat("my.asc", self.out_dir)
+    def add_maximum_memory_use(self):
+        log_file = os.path.join(
+            self.out_dir, "impl", self.project_name + "_impl.par"
+        )
+        with open(log_file, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if "Peak Memory Usage:" in line:
+                    self.maximum_memory_use = line.split()[3]
+                    return
 
     def radiant_ver(self):
-        # a lot of places where this is, but not sure whats authoritative
-        for l in open(self.radiantdir + '/data/ispsys.ini'):
-            # ./data/ispsys.ini:19:ProductType=1.0.0.350.6
+        for l in open(os.path.join(self.radiantdir, 'data', 'ispsys.ini')):
             if l.find('ProductType') == 0:
                 return l.split('=')[1].strip()
-        assert 0
 
-    def versions(self):
+    def check_env():
         return {
-            'yosys': yosys_ver(),
-            'radiant': self.radiant_ver(),
+            'Radiant': have_exec('radiantc'),
         }
 
     @staticmethod
-    def check_env():
-        return {
-            'RADIANTDIR': os.path.exists(Radiant.RADIANTDIR_DEFAULT),
-            'iceunpack': have_exec('iceunpack'),
-            'icetime': have_exec('icetime'),
-        }
+    def seedable():
+        return False
+
+    def resources(self):
+        res_file = os.path.join(
+            self.out_dir, "impl", self.project_name + "_impl.par"
+        )
+        resources = dict()
+        with open(res_file, "r") as file:
+            processing = False
+            for line in file:
+                line = line.strip()
+                if "Device utilization" in line:
+                    processing = True
+                    next(file)
+                    continue
+                if not processing:
+                    continue
+                else:
+                    if len(line) == 0:
+                        break
+                    res = line.split()
+                    if len(res) == 3:
+                        continue
+                    res_type = res[0]
+                    regex = "(\d+)"
+                    match = re.search(regex, line)
+                    assert match
+                    res_count = int(match.groups()[0])
+                    resources[res_type] = res_count
+
+        resources = self.get_resources_count(resources)
+        return {"synth": resources, "impl": resources}
+
+    def max_freq(self):
+        freqs = dict()
+        res_name = None
+
+        freq_file_exts = ["twr", "tws"]
+
+        path = ""
+        for ext in freq_file_exts:
+            temp_path = os.path.join(
+                self.out_dir, "impl", self.project_name + "_impl." + ext
+            )
+
+            if os.path.isfile(temp_path):
+                path = temp_path
+                break
+
+        assert path, "Path to the timing report file is empty"
+
+        with open(path, "r") as file:
+            for line in file:
+                line = line.strip()
+                if "From" in line:
+                    res = line.split()
+                    res_name = res[1]
+                    freqs[res_name] = dict()
+                    freqs[res_name]['requested'] = float(res[8])
+                    line = next(file)
+                    res = line.split()
+                    freqs[res_name]['actual'] = float(res[8])
+                    freqs[res_name]['met'] = freqs[res_name]['actual'] > freqs[
+                        res_name]['requested']
+                if "Total N" in line:
+                    match = re.match(
+                        "^Total.* *.(\d+\.\d+).* *.(\d+\.\d+).*", line
+                    )
+                    if match and res_name is not None:
+                        setup_viol = float(match.groups()[0])
+                        hold_viol = float(match.groups()[1])
+                        freqs[res_name]['setup_violation'] = setup_viol
+                        freqs[res_name]['hold_violation'] = hold_viol
+
+        return freqs
 
 
 class RadiantLSE(Radiant):
     '''Lattice Radiant using LSE for synthesis'''
-    def __init__(self):
-        Radiant.__init__(self)
+    def __init__(self, rootdir):
+        Radiant.__init__(self, rootdir)
         self.toolchain = 'lse-radiant'
+        self.synthtool = 'lse'
 
-    def syn(self):
-        return "lse"
+    def synth_tool(self):
+        return self.synthtool
+
+    def versions(self):
+        return {'Radiant': self.radiant_ver()}
 
 
 class RadiantSynpro(Radiant):
     '''Lattice Radiant using Synplify for synthesis'''
-    def __init__(self):
-        Radiant.__init__(self)
+    def __init__(self, rootdir):
+        Radiant.__init__(self, rootdir)
         self.toolchain = 'synpro-radiant'
+        self.synthtool = 'synplify'
 
-    def syn(self):
-        return "synplify"
+    def versions(self):
+        return {'Radiant': self.radiant_ver()}
 
-
-# @E: CG389 :"/home/mcmaster/.../impl/impl.v":18:4:18:7|Reference to undefined module SB_LUT4
-# didn't look into importing edif
-class RadiantYosys(Radiant):
-    def __init__(self):
-        Radiant.__init__(self)
-        self.toolchain = 'yosys-radiant'
-
-    def syn(self):
-        return "yosys-synpro"
+    def synth_tool(self):
+        return self.synthtool

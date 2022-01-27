@@ -13,6 +13,7 @@ clock_aliases:
   sys_clk:
     - sys_clk
     - soc_pll_sys
+    - sys_clk[0]
   clk200_clk:
     - clk200_clk
     - soc_pll_clk200

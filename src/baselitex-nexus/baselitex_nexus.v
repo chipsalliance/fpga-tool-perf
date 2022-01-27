@@ -7,6 +7,22 @@ module top(
 	input wire gsrn
 );
 
+// Dummy regs to avoid Radiant failing if they are not defined
+reg user_led0;
+reg user_led1;
+reg user_led2;
+reg user_led3;
+reg user_led4;
+reg user_led5;
+reg user_led6;
+reg user_led7;
+reg user_led8;
+reg user_led9;
+reg user_led10;
+reg user_led11;
+reg user_led12;
+reg user_led13;
+
 reg main_basesoc_soc_rst = 1'd0;
 wire main_basesoc_cpu_rst;
 reg [1:0] main_basesoc_reset_storage = 2'd0;

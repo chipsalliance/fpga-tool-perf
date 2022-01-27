@@ -182,6 +182,9 @@ class NextpnrIcestorm(Icestorm):
         self.toolchain = "nextpnr-ice40"
 
     def run(self):
+        self.device = self.device.lower().lstrip("ice40")
+        self.package = self.package.lower().rstrip("i")
+
         args = ''
         args += " --" + self.device
         args += " --package " + self.package

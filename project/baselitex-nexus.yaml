@@ -12,9 +12,12 @@ clock_aliases:
   sys_clk:
     - sys_clk
     - sys_clk$glb_clk
+    - sys_clk[0]
 vendors:
   lattice-nexus:
     - lifcl-40
     - lifcl-17
 required_toolchains:
   - nextpnr-nexus
+  - synpro-radiant
+  - lse-radiant

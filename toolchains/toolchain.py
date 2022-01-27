@@ -43,6 +43,8 @@ TOOLCHAIN_MAP = {
     'nextpnr-fpga-interchange': ('yosys', 'nextpnr'),
     'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
     'quicklogic': ('yosys', 'vpr'),
+    'lse-radiant': ('lse', 'radiant'),
+    'synpro-radiant': ('synplify', 'radiant')
 }
 
 
@@ -364,7 +366,7 @@ class Toolchain:
                     ]
                 )
 
-        assert max_freq, f"ERROR: no clocks assigned for this test design! {self.design()}"
+            max_freq = 0.0
 
         return max_freq, resources
 
