@@ -90,7 +90,11 @@ class ResultEntry:
     device: 'str'
 
     def sanitize_device(self):
-        dev_map = {"ICE40-ICE40UP5K": "ICE40-UP5K"}
+        dev_map = {
+            "ICE40-ICE40UP5K": "ICE40-UP5K",
+            "NEXUS-LIFCL-17-8UWG72C": "NEXUS-LIFCL-17",
+            "NEXUS-LIFCL-40-9BG400CES": "NEXUS-LIFCL-40"
+        }
 
         if self.device in dev_map:
             self.device = dev_map[self.device]
