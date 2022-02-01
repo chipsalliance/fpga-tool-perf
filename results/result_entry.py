@@ -89,6 +89,15 @@ class ResultEntry:
     versions: 'dict'
     device: 'str'
 
+    def sanitize_device(self):
+        dev_map = {"ICE40-ICE40UP5K": "ICE40-UP5K"}
+
+        if self.device in dev_map:
+            self.device = dev_map[self.device]
+
+    def sanitize(self):
+        self.sanitize_device()
+
 
 def null_generator():
     while True:
@@ -187,6 +196,9 @@ def get_entries(json_data: dict, project: str):
             family = "nexus"
 
         entry.device = f"{family}-{device}".upper()
+
+        # Sanitize entry
+        entry.sanitize()
 
         entries.append((board, entry.device, toolchain_name, entry))
 

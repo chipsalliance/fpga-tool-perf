@@ -24,8 +24,8 @@ nexys-video:
   package: sbg484-1
 icebreaker:
   family: ice40
-  device: iCE40UP5K
-  package: SG48I
+  device: up5k
+  package: sg48I
 tinyfpgab2:
   family: ice40
   device: lp8k

@@ -57,8 +57,13 @@ class Radiant(Toolchain):
 
     def prepare_edam(self):
         os.makedirs(self.out_dir, exist_ok=True)
+
+        part = f'{self.device}-{self.package}'.upper()
+        if self.family == "ice40":
+            part = "iCE40" + part
+
         radiant_options = {
-            'part': f'{self.device}-{self.package}',
+            'part': part,
             'synth': self.synth_tool(),
             'strategy': self.strategy
         }
