@@ -103,8 +103,9 @@ class Tasks:
 
             if take_task:
                 if only_required:
-                    required_toolchains = get_project(prj_file
-                                                      )["required_toolchains"]
+                    required_toolchains = get_project(prj_file).get(
+                        "required_toolchains", []
+                    )
                     if toolchain in required_toolchains:
                         tasks.append(runner_task)
                 else:
