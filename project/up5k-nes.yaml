@@ -26,5 +26,6 @@ data:
 vendors:
   lattice-ice40:
     - icebreaker
-required_toolchains:
-  - nextpnr-ice40
+# TODO: yosys seems to infer more RAM blocks than the available ones
+#required_toolchains:
+#  - nextpnr-ice40

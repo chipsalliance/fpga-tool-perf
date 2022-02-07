@@ -458,7 +458,8 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 self.edam = self.prepare_edam()
-                os.environ["EDALIZE_LAUNCHER"] = f"source {self.env_script} &&"
+                os.environ["EDALIZE_LAUNCHER"
+                           ] = f"source {self.env_script} nextpnr &&"
                 self.backend = edalize.get_edatool('symbiflow')(
                     edam=self.edam, work_root=self.out_dir
                 )
