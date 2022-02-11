@@ -17,11 +17,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-import re
-import sys
 import glob
 import logging
+import os
+import re
+import signal
+import sys
 import yaml
 from contextlib import redirect_stdout
 from terminaltables import AsciiTable
@@ -148,6 +149,10 @@ toolchains = {
 }
 
 
+def timeout_handler(signum, frame):
+    raise Exception("ERROR: Timeout reached!")
+
+
 def run(
     board,
     toolchain,
@@ -163,6 +168,7 @@ def run(
     carry=None,
     build=None,
     build_type=None,
+    timeout=0
 ):
     assert board is not None
     assert toolchain is not None
@@ -221,7 +227,10 @@ def run(
     output_error = ""
     with redirect_stdout(open(os.devnull, 'w')):
         try:
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(timeout)
             t.run()
+            signal.alarm(0)
         except Exception as e:
             output_error = "[...]\n{}".format(
                 str(e)[-1000:]

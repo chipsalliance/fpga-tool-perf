@@ -38,8 +38,16 @@ class Runner:
     runs all of them parallely.
     """
     def __init__(
-        self, task_list, verbose, out_prefix, root_dir, build_type,
-        build_numbers, overwrite, num_cpu
+        self,
+        task_list,
+        verbose,
+        out_prefix,
+        root_dir,
+        build_type,
+        build_numbers,
+        overwrite,
+        num_cpu,
+        timeout=0
     ):
         self.verbose = verbose
         self.out_prefix = out_prefix
@@ -51,6 +59,7 @@ class Runner:
         self.build_numbers = build_numbers
         self.overwrite = overwrite
         self.num_cpu = num_cpu
+        self.timeout = timeout
 
     def worker(self, arglist):
         """Single worker function that is run in the Pool of workers.
@@ -80,6 +89,7 @@ class Runner:
                 None,  #carry
                 build,
                 self.build_type,
+                self.timeout
             )
 
     def run(self):

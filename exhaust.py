@@ -203,6 +203,12 @@ def parse_args():
         type=int,
         help='Number of CPUs to use in parallel to run the tests'
     )
+    parser.add_argument(
+        '--timeout',
+        default=0,
+        type=int,
+        help='Timeout in seconds to prevent infinite running tests'
+    )
 
     return parser.parse_args()
 
@@ -283,7 +289,7 @@ def main():
 
     runner = Runner(
         task_list, args.verbose, args.out_prefix, root_dir, args.build_type,
-        build_numbers, args.overwrite, num_cpu
+        build_numbers, args.overwrite, num_cpu, args.timeout
     )
 
     logger.debug("Running Projects")

@@ -6,6 +6,9 @@ on:
 
 name: Full Test Suite
 
+env:
+  timeout: 7200
+
 jobs:
 
   Matrix:
@@ -76,7 +79,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -116,7 +121,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -154,7 +161,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -195,7 +204,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -235,7 +246,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -275,7 +288,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -316,7 +331,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -353,7 +370,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -390,7 +409,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -427,7 +448,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -467,7 +490,9 @@ jobs:
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }} --fail
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
