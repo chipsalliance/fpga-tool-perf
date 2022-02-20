@@ -359,7 +359,7 @@ class VivadoYosysUhdm(VivadoYosys):
         ]
         self.toolchain = 'yosys-vivado-uhdm'
         uhdm_yosys_path = shutil.which("uhdm-yosys")
-        # by default assume, uhdm-yosys is installed in symbiflow env
+        # by default assume, uhdm-yosys is installed in f4pga env
         if uhdm_yosys_path is None:
             print(
                 "Could not find uhdm-yosys binary. Please execute 'source env.sh' or reinstall conda environments."

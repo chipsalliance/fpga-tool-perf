@@ -1,4 +1,4 @@
-name: symbiflow-env
+name: f4pga-env
 channels:
   - defaults
   - litex-hub

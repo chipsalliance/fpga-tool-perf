@@ -1,11 +1,11 @@
 # fpga-tool-perf
 
-Analyze FPGA tool performance (MHz, resources, runtime, etc)
+Analyze FPGA tool performance (MHz, resources, runtime, etc).
 
 ## Setup
 
-fpga-tool-perf uses the conda package manager to download and get all the required tools.
-Currently, the following tools that are available in conda are:
+fpga-tool-perf uses the Miniconda (conda) package manager to install and get all the required tools.
+Currently, the following tools are available in conda:
 
 - vtr
 - nextpnr-xilinx
@@ -167,9 +167,10 @@ These are the basic steps to inserting an existing project into fpga-tool-perf:
 
 #### *Step 1.*
 
-Add a folder within `fpga-tool-perf/src` under the name of the project (make sure there are no underscores - '\_' - in the name). For example, for the project named counter:
+Add a folder within `fpga-tool-perf/src` under the name of the project (make sure there are no underscores - '\_' - in the name).
+For example, for the project named counter:
 
-```
+```bash
 cd ~/fpga-tool-perf/src
 mkdir counter
 cd counter
@@ -177,15 +178,17 @@ cd counter
 
 Add the source (Verilog) and data/memory files to this directory.
 
-Create a `constr` subdirectory, and within it, add the project's `.pcf` (for F4PGA) and `.xdc` (for Vivado) files under the name of the board it uses.
+Create a `constr` subdirectory, and within it, add the project's `.pcf` (for F4PGA) and `.xdc` (for Vivado) files under
+the name of the board it uses.
 
-```
+```bash
 mkdir constr
 touch constr/basys3.pcf
 touch constr/basys3.xdc
 ```
 
-If you don't have both the `.pcf` and `.xdc` files, you can look at the other projects for examples of how the `.xdc` and `.pcf` code correspond.
+If you don't have both the `.pcf` and `.xdc` files, you can look at the other projects for examples of how the `.xdc`
+and `.pcf` code correspond.
 
 #### *Step 2.*
 

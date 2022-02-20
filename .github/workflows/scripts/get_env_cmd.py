@@ -29,7 +29,7 @@ if len(sys.argv) < 3:
 tool = sys.argv[1]
 board = get_boards()[sys.argv[2]]
 
-symbiflow = ["vpr", "vpr-fasm2bels"]
+f4pga = ["vpr", "vpr-fasm2bels"]
 vivado = ["vivado", "yosys-vivado", "yosys-vivado-uhdm"]
 nextpnr = [
     "nextpnr-ice40", "nextpnr-nexus", "nextpnr-xilinx",
@@ -40,14 +40,14 @@ quicklogic = ["quicklogic"]
 
 toolchain = ""
 install = ""
-if tool in symbiflow:
-    toolchain = "symbiflow"
+if tool in f4pga:
+    toolchain = "f4pga"
     board_device = board["device"] if board["device"] != "a35t" else "a50t"
     board_family = board["family"]
-    install = f"SYMBIFLOW_DEVICES={board_family + board_device} make install_symbiflow"
+    install = f"F4PGA_DEVICES={board_family + board_device} make install_f4pga"
 elif tool in vivado:
-    # The basic symbiflow environment contains yosys and yosys-uhdm
-    toolchain = "symbiflow"
+    # The basic f4pga environment contains yosys and yosys-uhdm
+    toolchain = "f4pga"
 elif tool in nextpnr:
     toolchain = "nextpnr"
 elif tool in interchange:

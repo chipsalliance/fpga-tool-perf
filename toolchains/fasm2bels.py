@@ -23,7 +23,7 @@ import subprocess
 import edalize
 
 from toolchains.toolchain import Toolchain
-from toolchains.symbiflow import VPR
+from toolchains.f4pga import VPR
 from toolchains.nextpnr import NextpnrXilinx
 from utils.utils import Timed, get_vivado_max_freq, which, have_exec
 
