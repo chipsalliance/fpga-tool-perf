@@ -40,7 +40,6 @@ INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/art
 INTERCHANGE_VERSION = 6ff4159
 INTERCHANGE_DEVICES ?= xc7a35t xc7a100t xc7a200t xc7z010
 RAPIDWRIGHT_PATH = $(TOP_DIR)/third_party/RapidWright
-RW_LINK ?= $(shell curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")
 
 
 third_party/make-env/conda.mk:
@@ -75,7 +74,8 @@ install_interchange:
 		wget -qO- ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
 	done
 	pushd ${RAPIDWRIGHT_PATH} && \
-		JARS_LINK=$(RW_LINK) make update_jars && \
+		./gradlew updateJars --no-watch-fs && \
+		make compile && \
 		popd
 
 install_quicklogic:
