@@ -6,7 +6,9 @@ on:
     - cron: '0 3 * * *'
 
 jobs:
+
   generate-results-page:
+    if: ${{ !(github.actor == 'dependabot[bot]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
