@@ -83,7 +83,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -125,7 +125,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -165,7 +165,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -208,7 +208,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -250,7 +250,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -292,7 +292,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -335,7 +335,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -374,7 +374,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -413,7 +413,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -452,7 +452,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -494,7 +494,7 @@ jobs:
           --fail
           --timeout ${{ env.timeout }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           path: |
@@ -520,7 +520,7 @@ jobs:
           mkdir upload
           python3 ./utils/aggregate_results.py artifact/build/_exhaust-runs upload
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         name: aggregated-results
         with:
           path: |
