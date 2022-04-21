@@ -29,7 +29,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -65,7 +65,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -107,7 +107,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -147,7 +147,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -190,7 +190,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -232,7 +232,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -274,7 +274,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -317,7 +317,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -356,7 +356,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -395,7 +395,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -434,7 +434,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -476,7 +476,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: recursive
 
@@ -508,7 +508,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
 
       - uses: actions/setup-python@v2
 
