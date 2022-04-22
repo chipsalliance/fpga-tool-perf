@@ -1,10 +1,9 @@
+name: Full Test Suite
+
 on:
-  pull_request:
-  push:
+  workflow_call:
   schedule:
     - cron: '0 */4 * * *'
-
-name: Full Test Suite
 
 env:
   timeout: 7200

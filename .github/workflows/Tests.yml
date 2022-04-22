@@ -1,6 +1,7 @@
-name: CI tests
+name: CI Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
 
@@ -8,7 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8']
+        python-version:
+          - '3.6'
+          - '3.7'
+          - '3.8'
     steps:
 
     - uses: actions/checkout@v2
