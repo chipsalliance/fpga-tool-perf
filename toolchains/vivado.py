@@ -358,11 +358,3 @@ class VivadoYosysUhdm(VivadoYosys):
             '-iopad', '-arch xc7', '-flatten', 'frontend=surelog'
         ]
         self.toolchain = 'yosys-vivado-uhdm'
-        uhdm_yosys_path = shutil.which("uhdm-yosys")
-        # by default assume, uhdm-yosys is installed in symbiflow env
-        if uhdm_yosys_path is None:
-            print(
-                "Could not find uhdm-yosys binary. Please execute 'source env.sh' or reinstall conda environments."
-            )
-            sys.exit(1)
-        uhdm_yosys_path = os.path.dirname(uhdm_yosys_path)

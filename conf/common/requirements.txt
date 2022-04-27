@@ -12,4 +12,4 @@ termcolor
 terminaltables
 tqdm
 yapf==0.31.0
-git+https://github.com/SymbiFlow/edalize.git@symbiflow_update#egg=edalize
+git+https://github.com/antmicro/edalize.git@uhdm-use-upstream-yosys#egg=edalize
