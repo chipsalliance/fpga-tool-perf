@@ -527,7 +527,7 @@ jobs:
 
       - name: Upload to GCP
         if: ${{ (github.event_name == 'push' || github.event_name == 'schedule') &&
-                github.ref == 'refs/heads/master' }}
+                github.ref == 'refs/heads/main' }}
         uses: weslenng/gcp-storage-sync@master
         env:
           GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
