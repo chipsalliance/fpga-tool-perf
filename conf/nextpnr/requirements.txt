@@ -1,4 +1,5 @@
 # Can be removed after merging https://github.com/SymbiFlow/prjxray/pull/1550
+pycapnp==1.1.0
 pyyaml
 fasm
 git+https://github.com/SymbiFlow/prjxray.git#egg=prjxray
