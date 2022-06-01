@@ -13,10 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v0
         with:
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.6.0
 
       - name: Make environment
         run: |
@@ -43,7 +46,7 @@ jobs:
 
       - name: Deploy to GH pages
         if: ${{ (github.event_name == 'push' || github.event_name == 'schedule') &&
-                github.ref == 'refs/heads/master' }}
+                github.ref == 'refs/heads/main' }}
         run: |
           cd results/build
           git init
