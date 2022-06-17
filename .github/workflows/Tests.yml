@@ -6,7 +6,9 @@ on:
 jobs:
 
   Run-tests:
-    runs-on: ubuntu-latest
+    container: ubuntu:bionic
+    runs-on: [self-hosted, Linux, X64]
+
     strategy:
       matrix:
         python-version:
@@ -15,17 +17,20 @@ jobs:
           - '3.8'
     steps:
 
+    - name: Install dependencies
+      run: |
+        apt-get update -qq
+        apt install -y git python${{ matrix.python-version }} python3-pip wget curl
+        update-alternatives --install /usr/bin/python python /usr/bin/python${{ matrix.python-version }} 1
+        update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+
     - uses: actions/checkout@v3
       with:
         submodules: recursive
 
-    - name: Setup Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-
     - name: Check formatting
       run: |
+        python --version
         pip install yapf==0.31.0
         make format
         test $(git status --porcelain | wc -l) -eq 0 || { git diff; false;  }
@@ -51,3 +56,8 @@ jobs:
         # Testing multiple seeds
         python3 exhaust.py --build_type multiple-seeds --run_config run_configs/multiple_seeds.yaml --only_required --fail
 
+    - uses: actions/upload-artifact@v3
+      if: ${{ always() }}
+      with:
+        path: |
+          **/plot_*.svg
