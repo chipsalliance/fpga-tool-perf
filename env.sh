@@ -23,9 +23,6 @@ if [ -z "${VIVADO_SETTINGS}" ]; then
     #FIXME: to use the conda xilinx-vivado virtual package when available
     export VIVADO_SETTINGS=/opt/Xilinx/Vivado/2017.2/settings64.sh
 fi
-if [ -z "${SYMBIFLOW}" ]; then
-    export SYMBIFLOW=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
-fi
 if [ -z "${QUICKLOGIC}" ]; then
     export QUICKLOGIC=${FPGA_TOOL_PERF_BASE_DIR}/env/quicklogic
 fi
@@ -39,7 +36,6 @@ function path_remove {
 }
 
 #Remove all possible paths from PATH
-path_remove ${SYMBIFLOW}/bin
 path_remove ${QUICKLOGIC}/install/bin
 
 #Set now environment variables
@@ -52,9 +48,8 @@ if [ "quicklogic" == ${environment} ]; then
     export PATH=${QUICKLOGIC}/quicklogic-arch-defs/bin:${PATH}
 elif [ "nextpnr" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate nextpnr-env
-    export PATH=${SYMBIFLOW}/bin:${PATH}
 else
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate symbiflow-env
-    export SYMBIFLOW=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
-    export PATH=${SYMBIFLOW}/bin:${PATH}
+    export F4PGA_INSTALL_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
+    export F4PGA_ENV_SHARE=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow/share/symbiflow
 fi

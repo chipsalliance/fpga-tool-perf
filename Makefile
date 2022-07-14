@@ -28,8 +28,10 @@ TOOLCHAIN ?= symbiflow
 REQUIREMENTS_FILE ?= conf/${TOOLCHAIN}/requirements.txt
 ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
 
+# FIXME: move to use f4pga and rename all symbiflow instances
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
-SYMBIFLOW_LATEST_URL_BASE = https://storage.googleapis.com/symbiflow-arch-defs-gha
+# FIXME: currently the latest links are updated in the latest f4pga release. Fix this to point to the GCP URL bucket as soon as it is back online
+SYMBIFLOW_LATEST_URL_BASE = https://github.com/SymbiFlow/f4pga-arch-defs/releases/download/latest
 SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-toolchain-latest
 SYMBIFLOW_DEVICES ?= xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 
@@ -52,7 +54,7 @@ env:: | $(CONDA_ENV_PYTHON)
 
 install_symbiflow: | $(CONDA_ENV_PYTHON)
 	mkdir -p env/symbiflow
-	curl -s ${SYMBIFLOW_LATEST_URL} | xargs wget -qO- | tar -xJC env/symbiflow
+	curl -qL ${SYMBIFLOW_LATEST_URL} | xargs wget -qO- | tar -xJC env/symbiflow
 	# Adapt the environment file from symbiflow-arch-defs
 	test -e env/symbiflow/environment.yml && \
 		sed -i 's/symbiflow_arch_def_base/symbiflow-env/g' env/symbiflow/environment.yml && \
@@ -64,7 +66,7 @@ install_symbiflow: | $(CONDA_ENV_PYTHON)
 	@$(CONDA_ACTIVATE) symbiflow-env && conda list
 	# Install all devices
 	for device in ${SYMBIFLOW_DEVICES}; do \
-		curl -s ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs wget -qO- | tar -xJC env/symbiflow; \
+		curl -qL ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs wget -qO- | tar -xJC env/symbiflow; \
 	done
 
 install_interchange:
@@ -76,7 +78,7 @@ install_interchange:
 	pushd ${RAPIDWRIGHT_PATH} && \
 		./gradlew updateJars --no-watch-fs && \
 		make compile && \
-		popd
+	popd
 
 install_quicklogic:
 	mkdir -p env/quicklogic
