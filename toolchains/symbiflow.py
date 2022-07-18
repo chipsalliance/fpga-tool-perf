@@ -76,8 +76,8 @@ class VPR(Toolchain):
 
     def prepare_edam(self, part):
         if self.fasm2bels and self.vendor == "xilinx":
-            symbiflow = os.getenv('SYMBIFLOW', None)
-            assert symbiflow
+            f4pga = os.getenv('F4PGA_ENV_SHARE', None)
+            assert f4pga
 
             device_aliases = {"a35t": "a50t"}
 
@@ -86,8 +86,7 @@ class VPR(Toolchain):
                 chip_replace = part.replace(k, v)
 
             device_path = os.path.join(
-                symbiflow, 'share', 'symbiflow', 'arch',
-                '{}_test'.format(chip_replace)
+                f4pga, 'arch', '{}_test'.format(chip_replace)
             )
 
             rr_graph_path = os.path.join(device_path, '*rr_graph.real.bin')
