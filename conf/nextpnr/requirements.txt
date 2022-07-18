@@ -1,8 +1,9 @@
 # Can be removed after merging https://github.com/SymbiFlow/prjxray/pull/1550
+pycapnp==v1.1.0
 pyyaml
 fasm
-git+https://github.com/SymbiFlow/prjxray.git#egg=prjxray
-git+https://github.com/SymbiFlow/symbiflow-rr-graph.git#egg=rr-graph
-git+https://github.com/SymbiFlow/python-fpga-interchange.git#egg=python-fpga-interchange
-git+https://github.com/SymbiFlow/xc-fasm.git#egg=xc-fasm
-git+https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git#egg=fasm2bels
+rr-graph
+git+https://github.com/f4pga/prjxray.git#egg=prjxray
+git+https://github.com/chipsalliance/python-fpga-interchange.git#egg=python-fpga-interchange
+git+https://github.com/chipsalliance/f4pga-xc-fasm.git#egg=xc-fasm
+git+https://github.com/chipsalliance/f4pga-xc-fasm2bels.git#egg=fasm2bels

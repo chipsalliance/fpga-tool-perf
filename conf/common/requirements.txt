@@ -1,8 +1,10 @@
 asciitable
+cython
 intervaltree
 jinja2
 lxml
 pandas
+pkgconfig
 pytest
 python-constraint
 pyyaml
@@ -13,3 +15,4 @@ terminaltables
 tqdm
 yapf==0.31.0
 git+https://github.com/SymbiFlow/edalize.git@symbiflow_update#egg=edalize
+https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga

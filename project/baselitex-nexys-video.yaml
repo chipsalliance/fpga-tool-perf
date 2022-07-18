@@ -25,5 +25,6 @@ vendors:
     - nexys-video
 required_toolchains:
   - vivado
-  - vpr
-  - vpr-fasm2bels
+  # FIXME: https://github.com/chipsalliance/fpga-tool-perf/issues/444
+  #- vpr
+  #- vpr-fasm2bels

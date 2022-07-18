@@ -18,7 +18,8 @@ vendors:
     - basys3
     - nexys
 required_toolchains:
-  - nextpnr-fpga-interchange
+  # FIXME: https://github.com/chipsalliance/fpga-tool-perf/issues/443
+  #- nextpnr-fpga-interchange
   - vivado
   - vpr
   - vpr-fasm2bels
