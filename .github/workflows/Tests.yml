@@ -6,7 +6,7 @@ on:
 jobs:
 
   Run-tests:
-    container: ubuntu:bionic
+    container: ubuntu:focal
     runs-on: [self-hosted, Linux, X64]
 
     strategy:
