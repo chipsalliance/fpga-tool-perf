@@ -43,10 +43,10 @@ jobs:
         test $(git status --porcelain | wc -l) -eq 0 || { git diff; false;  }
 
     - name: Check license
-      run: source .github/workflows/scripts/check_license.sh
+      run: source .github/scripts/check_license.sh
 
     - name: Check python scripts
-      run: source .github/workflows/scripts/check_python_scripts.sh
+      run: source .github/scripts/check_python_scripts.sh
 
     - name: Prepare env
       run: |

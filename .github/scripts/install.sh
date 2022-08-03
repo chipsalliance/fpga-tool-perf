@@ -66,5 +66,5 @@ if [ ! -z "$RW_LINK" ]; then
 fi
 
 echo '::group::Generate Test environment'
-eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/get_env_cmd.py $TOOLCHAIN $BOARD)
+eval $(PYTHONPATH=$(pwd) ./.github/scripts/get_env_cmd.py $TOOLCHAIN $BOARD)
 echo '::endgroup::'
