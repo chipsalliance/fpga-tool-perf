@@ -32,7 +32,7 @@ ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
 SYMBIFLOW_ARCHIVE = symbiflow.tar.xz
 # FIXME: currently the latest links are updated in the latest f4pga release. Fix this to point to the GCP URL bucket as soon as it is back online
 SYMBIFLOW_LATEST_URL_BASE = https://github.com/SymbiFlow/f4pga-arch-defs/releases/download/latest
-SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-toolchain-latest
+SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-install-xc7-latest
 SYMBIFLOW_DEVICES ?= xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
@@ -53,7 +53,7 @@ env:: | $(CONDA_ENV_PYTHON)
 
 install_symbiflow: | $(CONDA_ENV_PYTHON)
 	mkdir -p env/symbiflow
-	curl -qL ${SYMBIFLOW_LATEST_URL} | xargs wget -qO- | tar -xJC env/symbiflow
+	curl -fsSL ${SYMBIFLOW_LATEST_URL} | xargs curl -fsSL | tar -xJC env/symbiflow
 	# Adapt the environment file from symbiflow-arch-defs
 	test -e env/symbiflow/environment.yml && \
 		sed -i 's/symbiflow_arch_def_base/symbiflow-env/g' env/symbiflow/environment.yml
