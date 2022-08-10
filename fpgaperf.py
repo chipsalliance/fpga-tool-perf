@@ -25,7 +25,6 @@ import re
 import signal
 import sys
 import yaml
-from contextlib import redirect_stdout
 from terminaltables import AsciiTable
 
 from toolchains.icestorm import NextpnrIcestorm
@@ -236,8 +235,7 @@ def run(
     try:
         signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(timeout)
-        with redirect_stdout(open(os.devnull, 'w')):
-            tch.run()
+        tch.run()
         signal.alarm(0)
     except Exception as e:
         err = str(e)
