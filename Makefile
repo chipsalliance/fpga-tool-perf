@@ -35,7 +35,6 @@ SYMBIFLOW_LATEST_URL_BASE = https://github.com/SymbiFlow/f4pga-arch-defs/release
 SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-toolchain-latest
 SYMBIFLOW_DEVICES ?= xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 
-QUICKLOGIC_ARCHIVE = quicklogic.tar.gz
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
 INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/continuous/50/20211008-072036
@@ -80,9 +79,7 @@ install_interchange:
 
 install_quicklogic:
 	mkdir -p env/quicklogic
-	wget -O ${QUICKLOGIC_ARCHIVE} ${QUICKLOGIC_URL}
-	tar -xf ${QUICKLOGIC_ARCHIVE} -C env/quicklogic
-	rm ${QUICKLOGIC_ARCHIVE}
+	curl -fsSL ${QUICKLOGIC_URL} | tar -xC env/quicklogic
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*" -not -path "./results/env/*")
 
