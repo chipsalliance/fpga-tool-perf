@@ -20,7 +20,6 @@
 import datetime
 import os
 import sys
-import tqdm
 import glob
 import gzip
 import json
@@ -95,9 +94,7 @@ class Runner:
         print('Writing to %s' % self.out_prefix)
 
         with Pool(self.num_cpu) as pool:
-            for _ in tqdm.tqdm(pool.imap_unordered(self.worker,
-                                                   self.task_list),
-                               total=len(self.task_list), unit='test'):
+            for _ in pool.imap_unordered(self.worker, self.task_list):
                 pass
 
     def get_reports(self):
