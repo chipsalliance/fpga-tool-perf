@@ -61,14 +61,14 @@ install_symbiflow: | $(CONDA_ENV_PYTHON)
 	@$(CONDA_ACTIVATE) symbiflow-env && conda list
 	# Install all devices
 	for device in ${SYMBIFLOW_DEVICES}; do \
-		curl -qL ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs wget -qO- | tar -xJC env/symbiflow; \
+		curl -fsSL ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs curl -fsSL | tar -xJC env/symbiflow; \
 	done
 
 install_interchange:
 	mkdir -p env/interchange/devices
-	wget -qO- ${INTERCHANGE_BASE_URL}/interchange-techmaps-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange; \
+	curl -fsSL ${INTERCHANGE_BASE_URL}/interchange-techmaps-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange; \
 	for device in ${INTERCHANGE_DEVICES}; do \
-		wget -qO- ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
+		curl -fsSL ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
 	done
 	pushd ${RAPIDWRIGHT_PATH} && \
 		./gradlew updateJars --no-watch-fs && \
