@@ -1,6 +1,4 @@
-# Can be removed after merging https://github.com/SymbiFlow/prjxray/pull/1550
 pycapnp==v1.1.0
-pyyaml
 fasm
 rr-graph
 git+https://github.com/f4pga/prjxray.git#egg=prjxray
