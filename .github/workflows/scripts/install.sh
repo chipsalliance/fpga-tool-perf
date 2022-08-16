@@ -22,8 +22,8 @@ echo
 echo "======================================="
 echo "Installing packages"
 echo "---------------------------------------"
-apt update -qq
-DEBIAN_FRONTEND=noninteractive apt install -qq -y --no-install-recommends \
+$(command -v sudo) apt update -qq
+DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-install-recommends \
   curl \
   git \
   make \
