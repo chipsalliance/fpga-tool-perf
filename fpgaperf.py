@@ -29,9 +29,7 @@ from terminaltables import AsciiTable
 
 from toolchains.icestorm import NextpnrIcestorm
 from toolchains.nextpnr import NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchange
-from toolchains.vivado import Vivado
-from toolchains.vivado import VivadoYosys
-from toolchains.vivado import VivadoYosysUhdm
+from toolchains.vivado import Vivado, VivadoYosys, VivadoYosysUhdm
 from toolchains.f4pga import VPR, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from toolchains.radiant import RadiantSynpro, RadiantLSE
@@ -42,6 +40,28 @@ project_dir = os.path.join(root_dir, 'project')
 src_dir = os.path.join(root_dir, 'src')
 
 logger = logging.getLogger(__name__)
+
+toolchains = {
+    'vivado': Vivado,
+    'yosys-vivado': VivadoYosys,
+    'yosys-vivado-uhdm': VivadoYosysUhdm,
+    'vpr': VPR,
+    'vpr-fasm2bels': VPRFasm2Bels,
+    'nextpnr-ice40': NextpnrIcestorm,
+    'nextpnr-xilinx': NextpnrXilinx,
+    'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
+    'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
+    'quicklogic': Quicklogic,
+    'nextpnr-nexus': NextpnrOxide,
+    # TODO: These are not extensively tested at the moment
+    #'synpro-icecube2': Icecube2Synpro,
+    #'lse-icecube2': Icecube2LSE,
+    #'yosys-icecube2': Icecube2Yosys,
+    'synpro-radiant': RadiantSynpro,
+    'lse-radiant': RadiantLSE,
+    #'yosys-radiant': RadiantYosys,
+    #'radiant': VPR,
+}
 
 
 class NotAvailable:
@@ -126,29 +146,6 @@ def print_stats(t):
         print(table.table)
 
 
-toolchains = {
-    'vivado': Vivado,
-    'yosys-vivado': VivadoYosys,
-    'yosys-vivado-uhdm': VivadoYosysUhdm,
-    'vpr': VPR,
-    'vpr-fasm2bels': VPRFasm2Bels,
-    'nextpnr-ice40': NextpnrIcestorm,
-    'nextpnr-xilinx': NextpnrXilinx,
-    'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
-    'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
-    'quicklogic': Quicklogic,
-    'nextpnr-nexus': NextpnrOxide,
-    # TODO: These are not currently be extensively tested
-    #'synpro-icecube2': Icecube2Synpro,
-    #'lse-icecube2': Icecube2LSE,
-    #'yosys-icecube2': Icecube2Yosys,
-    'synpro-radiant': RadiantSynpro,
-    'lse-radiant': RadiantLSE,
-    #'yosys-radiant': RadiantYosys,
-    #'radiant': VPR,
-}
-
-
 def timeout_handler(signum, frame):
     raise Exception("ERROR: Timeout reached!")
 
@@ -182,19 +179,19 @@ def run(
     device = board_info['device']
     package = board_info['package']
 
-    assert family == 'ice40' or family == 'xc7' or family == 'eos' or family == 'nexus'
+    assert family in ['ice40', 'xc7', 'eos', 'nexus']
 
     # some toolchains use signed 32 bit
     assert seed is None or 0 <= seed <= 0x7FFFFFFF
 
-    t = toolchains[toolchain](root_dir)
-    t.verbose = verbose
-    t.strategy = strategy
+    tch = toolchains[toolchain](root_dir)
+    tch.verbose = verbose
+    tch.strategy = strategy
 
-    if t.seedable():
-        t.seed = seed
+    if tch.seedable():
+        tch.seed = seed
 
-    t.carry = carry
+    tch.carry = carry
 
     # Constraint files shall be in their directories
     logger.debug("Getting Constraints")
@@ -204,14 +201,16 @@ def run(
     pdc = get_constraint(project, board, toolchain, 'pdc')
 
     # XXX: sloppy path handling here...
-    t.pcf = os.path.realpath(pcf) if pcf else None
-    t.sdc = os.path.realpath(sdc) if sdc else None
-    t.xdc = os.path.realpath(xdc) if xdc else None
-    t.pdc = os.path.realpath(pdc) if pdc else None
-    t.build = build
-    t.build_type = build_type
+    tch.pcf = os.path.realpath(pcf) if pcf else None
+    tch.sdc = os.path.realpath(sdc) if sdc else None
+    tch.xdc = os.path.realpath(xdc) if xdc else None
+    tch.pdc = os.path.realpath(pdc) if pdc else None
+
+    tch.build = build
+    tch.build_type = build_type
+
     logger.debug("Running Project")
-    t.project(
+    tch.project(
         project_dict,
         family,
         device,
@@ -224,26 +223,24 @@ def run(
         out_prefix=out_prefix,
         overwrite=overwrite,
     )
-    output_error = ""
-    with redirect_stdout(open(os.devnull, 'w')):
-        try:
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(timeout)
-            t.run()
-            signal.alarm(0)
-        except Exception as e:
-            output_error = "[...]\n{}".format(
-                str(e)[-1000:]
-            ) if len(str(e)) > 1000 else str(e)
-            output_error = output_error.split("\n")
-            logger.debug(f"ERROR: {output_error}")
-
-    logger.debug("Printing Stats")
-    if not output_error:
-        print_stats(t)
+    err = None
+    try:
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(timeout)
+        with redirect_stdout(open(os.devnull, 'w')):
+            tch.run()
+        signal.alarm(0)
+    except Exception as e:
+        err = "[...]\n{}".format(str(e)[-1000:]
+                                 ) if len(str(e)) > 1000 else str(e)
+        err = err.split("\n")
+        logger.debug(f"ERROR: {err}")
+    else:
+        logger.debug("Printing Stats")
+        print_stats(tch)
 
     logger.debug("Writing Metadata")
-    t.write_metadata(output_error)
+    tch.write_metadata(err)
 
 
 def get_combinations():
