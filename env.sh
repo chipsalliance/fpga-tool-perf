@@ -51,5 +51,5 @@ elif [ "nextpnr" == ${environment} ]; then
 else
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate symbiflow-env
     export F4PGA_INSTALL_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
-    export F4PGA_ENV_SHARE=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow/share/symbiflow
+    export F4PGA_SHARE_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow/share/f4pga
 fi

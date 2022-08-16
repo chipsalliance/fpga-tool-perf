@@ -76,7 +76,7 @@ class VPR(Toolchain):
 
     def prepare_edam(self, part):
         if self.fasm2bels and self.vendor == "xilinx":
-            f4pga = os.getenv('F4PGA_ENV_SHARE', None)
+            f4pga = os.getenv('F4PGA_SHARE_DIR', None)
             assert f4pga
 
             device_aliases = {"a35t": "a50t"}
