@@ -21,6 +21,9 @@ jobs:
   Suite:
     if: ${{ !(github.event_name != 'pull_request' && github.actor == 'dependabot[bot]') }}
     uses: ./.github/workflows/Suite.yml
+    secrets:
+      GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
+      GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
 
   Automerge:
     needs:
