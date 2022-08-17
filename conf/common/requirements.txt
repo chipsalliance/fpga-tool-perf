@@ -15,4 +15,4 @@ terminaltables
 tqdm
 yapf==0.31.0
 git+https://github.com/SymbiFlow/edalize.git@symbiflow_update#egg=edalize
-https://github.com/chipsalliance/f4pga/archive/60204c07600c7047ed4815acf73170bb22486358.zip#subdirectory=f4pga
+https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
