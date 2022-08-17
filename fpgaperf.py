@@ -171,6 +171,14 @@ def run(
     assert toolchain is not None
     assert project is not None
 
+    if verbose:
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter('[fpgaperf.run] %(levelname)s: %(message)s')
+        )
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
     logger.debug("Preparing Project")
     project_dict = get_project(project)
 
@@ -231,8 +239,9 @@ def run(
             tch.run()
         signal.alarm(0)
     except Exception as e:
-        err = "[...]\n{}".format(str(e)[-1000:]
-                                 ) if len(str(e)) > 1000 else str(e)
+        err = str(e)
+        if not verbose and len(err) > 1000:
+            err = f"[...]\n{err[-1000:]}"
         err = err.split("\n")
         logger.debug(f"ERROR: {err}")
     else:
