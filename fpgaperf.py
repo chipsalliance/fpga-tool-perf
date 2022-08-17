@@ -19,6 +19,7 @@
 
 import glob
 import logging
+from pathlib import Path
 import os
 import re
 import signal
@@ -317,8 +318,7 @@ def get_vendor(toolchain, board):
 
 def get_vendors(toolchain=None, board=None):
     '''Return vendor information'''
-    with open(os.path.join(root_dir, 'other', 'vendors.yaml'),
-              'r') as vendors_file:
+    with (Path(root_dir) / 'assets/vendors.yaml').open('r') as vendors_file:
         vendors = yaml.safe_load(vendors_file)
 
     if toolchain is None and board is None:
@@ -351,15 +351,13 @@ def get_vendors(toolchain=None, board=None):
 
 def get_boards(board=None):
     '''Query all supported boards'''
-    with open(os.path.join(root_dir, 'other', 'boards.yaml'),
-              'r') as boards_file:
+    with (Path(root_dir) / 'assets/boards.yaml').open('r') as boards_file:
         boards = yaml.safe_load(boards_file)
     if board is None:
         return boards
-    elif board in boards:
+    if board in boards:
         return [board]
-    else:
-        return []
+    return []
 
 
 def list_boards():
