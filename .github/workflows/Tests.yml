@@ -59,9 +59,9 @@ jobs:
         # Testing parameters injection feature
         python3 exhaust.py --parameters vpr.yml --toolchain vpr --project blinky --build_type parameters --only_required --fail
         # Testing multiple samples
-        python3 exhaust.py --build_type multiple-samples --run_config run_configs/multiple_samples.yaml --only_required --fail
+        python3 exhaust.py --build_type multiple-samples --run_config .github/run_configs/multiple_samples.yaml --only_required --fail
         # Testing multiple seeds
-        python3 exhaust.py --build_type multiple-seeds --run_config run_configs/multiple_seeds.yaml --only_required --fail
+        python3 exhaust.py --build_type multiple-seeds --run_config .github/run_configs/multiple_seeds.yaml --only_required --fail
 
     - uses: actions/upload-artifact@v3
       if: ${{ always() }}
