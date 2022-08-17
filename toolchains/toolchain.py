@@ -22,30 +22,15 @@ import datetime
 import glob
 import json
 import math
+from pathlib import Path
 import os
 import re
 import shutil
-import subprocess
+from subprocess import check_call
 import sys
 import time
 
 from utils.utils import Timed, have_exec, get_file_dict
-
-TOOLCHAIN_MAP = {
-    'vpr': ('yosys', 'vpr'),
-    'vpr-fasm2bels': ('yosys', 'vpr'),
-    'yosys-vivado': ('yosys', 'vivado'),
-    'yosys-vivado-uhdm': ('yosys', 'vivado'),
-    'vivado': ('vivado', 'vivado'),
-    'nextpnr-ice40': ('yosys', 'nextpnr'),
-    'nextpnr-xilinx': ('yosys', 'nextpnr'),
-    'nextpnr-nexus': ('yosys', 'nextpnr'),
-    'nextpnr-fpga-interchange': ('yosys', 'nextpnr'),
-    'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
-    'quicklogic': ('yosys', 'vpr'),
-    'lse-radiant': ('lse', 'radiant'),
-    'synpro-radiant': ('synplify', 'radiant')
-}
 
 
 class Toolchain:
@@ -136,7 +121,6 @@ class Toolchain:
 
     def optstr(self):
         tokens = []
-
         if self.pcf:
             tokens.append('pcf')
         if self.sdc:
@@ -240,7 +224,7 @@ class Toolchain:
                 print("  cwd: %s" % self.out_dir)
             else:
                 cmdstr = "(%s %s) >& %s.txt" % (cmd, argstr, cmd_base)
-            subprocess.check_call(
+            check_call(
                 cmdstr,
                 shell=True,
                 executable='bash',
@@ -277,22 +261,17 @@ class Toolchain:
             'phys opt design': ['phys_opt_design']
         }
 
+        runtimes = {k: None for k in RUNTIME_ALIASES.keys()}
+
         def get_standard_runtime(runtime):
             for k, v in RUNTIME_ALIASES.items():
                 for alias in v:
                     if runtime == alias:
                         return k
-
-            assert False, "Couldn't find the standard name for {}".format(
-                runtime
-            )
-
-        runtimes = {k: None for k in RUNTIME_ALIASES.keys()}
+            raise Exception(f"Couldn't find the standard name for {runtime!s}")
 
         for k, v in self.runtimes.items():
-            runtime = get_standard_runtime(k)
-
-            runtimes[runtime] = round(v, 3)
+            runtimes[get_standard_runtime(k)] = round(v, 3)
 
         return runtimes
 
@@ -302,10 +281,9 @@ class Toolchain:
         resources count from the various log files.
         """
 
-        if "families" in self.resources_map:
-            res_map = self.resources_map["families"][self.family]
-        else:
-            res_map = self.resources_map
+        res_map = self.resources_map["families"][
+            self.family
+        ] if "families" in self.resources_map else self.resources_map
 
         resources_count = dict([(x, 0) for x in res_map])
 
@@ -371,69 +349,80 @@ class Toolchain:
         return max_freq, resources
 
     def write_metadata(self, output_error):
-        out_dir = self.out_dir
-
-        synth_tool, pr_tool = TOOLCHAIN_MAP[self.toolchain]
-
-        date_str = self.date.replace(microsecond=0).isoformat()
-
-        json_data = dict()
+        synth_tool, pr_tool = {
+            'vpr': ('yosys', 'vpr'),
+            'vpr-fasm2bels': ('yosys', 'vpr'),
+            'yosys-vivado': ('yosys', 'vivado'),
+            'yosys-vivado-uhdm': ('yosys', 'vivado'),
+            'vivado': ('vivado', 'vivado'),
+            'nextpnr-ice40': ('yosys', 'nextpnr'),
+            'nextpnr-xilinx': ('yosys', 'nextpnr'),
+            'nextpnr-nexus': ('yosys', 'nextpnr'),
+            'nextpnr-fpga-interchange': ('yosys', 'nextpnr'),
+            'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
+            'quicklogic': ('yosys', 'vpr'),
+            'lse-radiant': ('lse', 'radiant'),
+            'synpro-radiant': ('synplify', 'radiant')
+        }[self.toolchain]
 
         max_freq, resources = (None,
                                None) if output_error else self.get_metrics()
-        runtimes = None if output_error else self.get_runtimes()
-
-        tools = dict(synth_tool=synth_tool, pr_tool=pr_tool)
 
         # Meta information
-        json_data['date'] = date_str
-        json_data['status'] = "failed" if output_error else "succeeded"
-        json_data['error_msg'] = output_error
+        json_data = {
+            'date': self.date.replace(microsecond=0).isoformat(),
+            'status': "failed" if output_error else "succeeded",
+            'error_msg': output_error,
 
-        # Task information
-        json_data['design'] = self.design()
-        json_data['family'] = self.family
-        json_data['device'] = self.device
-        json_data['package'] = self.package
-        json_data['board'] = self.board
-        json_data['vendor'] = self.vendor
-        json_data['project'] = self.project_name
-        json_data['toolchain'] = {self.toolchain: tools}
+            # Task information
+            'design': self.design(),
+            'family': self.family,
+            'device': self.device,
+            'package': self.package,
+            'board': self.board,
+            'vendor': self.vendor,
+            'project': self.project_name,
+            'toolchain':
+                {
+                    self.toolchain:
+                        {
+                            'synth_tool': synth_tool,
+                            'pr_tool': pr_tool
+                        }
+                },
 
-        # Detailed task information
-        json_data['optstr'] = self.optstr()
-        json_data['pcf'] = os.path.basename(self.pcf) if self.pcf else None
-        json_data['sdc'] = os.path.basename(self.sdc) if self.sdc else None
-        json_data['xdc'] = os.path.basename(self.xdc) if self.xdc else None
-        json_data['seed'] = self.seed
-        json_data['build'] = self.build
-        json_data['build_type'] = self.build_type
-        json_data['strategy'] = self.strategy
-        json_data['parameters'] = self.params_file or self.params_string
-        json_data['sources'] = [x.replace(os.getcwd(), '.') for x in self.srcs]
-        json_data['top'] = self.top
-        json_data['versions'] = self.versions()
-        json_data['cmds'] = self.cmds
+            # Detailed task information
+            'optstr': self.optstr(),
+            'pcf': os.path.basename(self.pcf) if self.pcf else None,
+            'sdc': os.path.basename(self.sdc) if self.sdc else None,
+            'xdc': os.path.basename(self.xdc) if self.xdc else None,
+            'seed': self.seed,
+            'build': self.build,
+            'build_type': self.build_type,
+            'strategy': self.strategy,
+            'parameters': self.params_file or self.params_string,
+            'sources': [x.replace(os.getcwd(), '.') for x in self.srcs],
+            'top': self.top,
+            'versions': self.versions(),
+            'cmds': self.cmds,
 
-        # Results
-        json_data['runtime'] = runtimes
-        json_data['max_freq'] = max_freq
-        json_data['resources'] = resources
-        json_data['wirelength'] = self.wirelength
-        json_data['maximum_memory_use'] = self.maximum_memory_use
+            # Results
+            'runtime': None if output_error else self.get_runtimes(),
+            'max_freq': max_freq,
+            'resources': resources,
+            'wirelength': self.wirelength,
+            'maximum_memory_use': self.maximum_memory_use,
+        }
 
-        with open(out_dir + '/meta.json', 'w') as f:
-            json.dump(json_data, f, sort_keys=True, indent=4)
+        with (Path(self.out_dir) / 'meta.json').open('w') as wfptr:
+            json.dump(json_data, wfptr, sort_keys=True, indent=4)
 
         # Provide some context when comparing runtimes against systems
-        subprocess.check_call(
-            'uname -a >uname.txt',
-            shell=True,
-            executable='bash',
-            cwd=self.out_dir
-        )
-        subprocess.check_call(
-            'lscpu >lscpu.txt',
+        check_call(
+            """
+uname -a >uname.txt
+lscpu >lscpu.txt
+            """,
             shell=True,
             executable='bash',
             cwd=self.out_dir
