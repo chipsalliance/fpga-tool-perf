@@ -32,7 +32,8 @@ DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-instal
   wget \
   unzip \
   default-jdk \
-  xz-utils
+  xz-utils \
+  libtinfo5
 echo "---------------------------------------"
 
 echo
