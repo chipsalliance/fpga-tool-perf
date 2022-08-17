@@ -19,5 +19,5 @@ dependencies:
   - pip
   - pip:
     # Packages installed from PyPI
-    - -r ../common/requirements.txt
+    - -r ../requirements.txt
     - -r requirements.txt

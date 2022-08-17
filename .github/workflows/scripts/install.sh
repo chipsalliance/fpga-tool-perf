@@ -40,7 +40,7 @@ echo
 echo "======================================="
 echo "Installing Python packages"
 echo "---------------------------------------"
-python3 -m pip install -r conf/common/requirements.txt
+python3 -m pip install -r conf/requirements.txt
 echo "---------------------------------------"
 
 USE_VIVADO=""
