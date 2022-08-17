@@ -46,7 +46,7 @@ jobs:
 
       - name: Deploy to GH pages
         if: ${{ (github.event_name == 'push' || github.event_name == 'schedule') &&
-                github.ref == 'refs/heads/master' }}
+                github.ref == 'refs/heads/main' }}
         run: |
           cd results/build
           git init
