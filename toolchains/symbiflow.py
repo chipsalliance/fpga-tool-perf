@@ -94,28 +94,47 @@ class VPR(Toolchain):
             self.files.append(get_file_dict(rr_graph_path, 'RRGraph'))
             self.files.append(get_file_dict(vpr_grid_path, 'VPRGrid'))
 
-        seed = f"--seed {self.seed}" if self.seed else ""
+        tool_params = []
+        if self.params_file:
+            opt_helper = ToolParametersHelper('vpr', self.params_file)
+            params = opt_helper.get_all_params_combinations()
+            assert len(params) == 1
+            tool_params = params[0]
+        elif self.params_string:
+            tool_params = self.params_string.split(' ')
 
-        tool_params = self.get_tool_params()
-
-        options = dict()
-        options['part'] = part
-        options['package'] = self.package
-        options['vendor'] = self.vendor
-        options['builddir'] = self.builddir
-        options['pnr'] = 'vpr'
-        options['vpr_options'] = tool_params + seed
-        options['fasm2bels'] = self.fasm2bels
-        options['dbroot'] = self.dbroot
-        options['clocks'] = self.clocks
-
-        edam = dict()
-        edam['files'] = self.files
-        edam['name'] = self.project_name
-        edam['toplevel'] = self.top
-        edam['tool_options'] = dict(symbiflow=options)
-
-        return edam, tool_params
+        return {
+            'files':
+                self.files,
+            'name':
+                self.project_name,
+            'toplevel':
+                self.top,
+            'tool_options':
+                dict(
+                    symbiflow={
+                        'part':
+                            part,
+                        'package':
+                            self.package,
+                        'vendor':
+                            self.vendor,
+                        'builddir':
+                            self.builddir,
+                        'pnr':
+                            'vpr',
+                        'vpr_options':
+                            tool_params +
+                            (["--seed", str(self.seed)] if self.seed else []),
+                        'fasm2bels':
+                            self.fasm2bels,
+                        'dbroot':
+                            self.dbroot,
+                        'clocks':
+                            self.clocks
+                    }
+                )
+        }, tool_params
 
     def run_steps(self):
         try:
@@ -161,18 +180,6 @@ class VPR(Toolchain):
         self.add_runtimes()
         self.add_wirelength()
         self.add_maximum_memory_use()
-
-    def get_tool_params(self):
-        if self.params_file:
-            opt_helper = ToolParametersHelper('vpr', self.params_file)
-            params = opt_helper.get_all_params_combinations()
-
-            assert len(params) == 1
-            return " ".join(params[0])
-        elif self.params_string:
-            return self.params_string
-        else:
-            return ""
 
     def get_critical_paths(self, clocks, timing):
 

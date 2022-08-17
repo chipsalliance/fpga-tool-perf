@@ -275,11 +275,9 @@ def main():
             params_strings.append(" ".join(params))
 
     logger.debug("Getting Tasks")
-    required_task_list = tasks.get_tasks(
-        args_dict, seeds, build_numbers, params_strings, True
-    )
     required_task_list = [
-        (task[0], task[1], task[2]) for task in required_task_list
+        (task[0], task[1], task[2]) for task in
+        tasks.get_tasks(args_dict, seeds, build_numbers, params_strings, True)
     ]
     task_list = tasks.get_tasks(
         args_dict, seeds, build_numbers, params_strings, args.only_required
