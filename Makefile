@@ -77,7 +77,7 @@ install_interchange:
 
 install_quicklogic:
 	mkdir -p env/quicklogic
-	curl -fsSL ${QUICKLOGIC_URL} | tar -xC env/quicklogic
+	curl -fsSL ${QUICKLOGIC_URL} | tar -xzC env/quicklogic
 
 PYTHON_SRCS=$(shell find . -name "*py" -not -path "./third_party/*" -not -path "./env/*" -not -path "./conf/*" -not -path "./results/env/*")
 
