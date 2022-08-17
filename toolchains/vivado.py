@@ -45,41 +45,46 @@ class Vivado(Toolchain):
         self.files = []
         self.edam = None
         self.backend = None
-
-        self.resources_map = dict(families=dict())
-        self.resources_map["families"]["xc7"] = {
-            'LUT': (
-                'LUT1',
-                'LUT2',
-                'LUT3',
-                'LUT4',
-                'LUT5',
-                'LUT6',
-            ),
-            'DFF': (
-                'FDRE',
-                'FDSE',
-                'FDPE',
-                "FDCE",
-            ),
-            'CARRY': ('CARRY4', ),
-            'IOB':
-                (
-                    'IBUF',
-                    'OBUF',
-                    'OBUFT',
-                    'IOBUF',
-                    'OBUFTDS',
-                    'OBUFDS',
-                    ('IOBUF', 2),
-                    ('IOBUFDS', 2),
-                ),
-            'PLL': ('MMCME2_ADV', 'PLLE2_ADV'),
-            'BRAM': (
-                'RAMB18E1',
-                ('RAMB36E1', 2),
-            ),
-            'DSP': ('DSP48E1', ),
+        self.resources_map = {
+            "families":
+                {
+                    "xc7":
+                        {
+                            'LUT':
+                                (
+                                    'LUT1',
+                                    'LUT2',
+                                    'LUT3',
+                                    'LUT4',
+                                    'LUT5',
+                                    'LUT6',
+                                ),
+                            'DFF': (
+                                'FDRE',
+                                'FDSE',
+                                'FDPE',
+                                "FDCE",
+                            ),
+                            'CARRY': ('CARRY4', ),
+                            'IOB':
+                                (
+                                    'IBUF',
+                                    'OBUF',
+                                    'OBUFT',
+                                    'IOBUF',
+                                    'OBUFTDS',
+                                    'OBUFDS',
+                                    ('IOBUF', 2),
+                                    ('IOBUFDS', 2),
+                                ),
+                            'PLL': ('MMCME2_ADV', 'PLLE2_ADV'),
+                            'BRAM': (
+                                'RAMB18E1',
+                                ('RAMB36E1', 2),
+                            ),
+                            'DSP': ('DSP48E1', ),
+                        }
+                }
         }
 
     def get_vivado_runtimes(self, logfile):
