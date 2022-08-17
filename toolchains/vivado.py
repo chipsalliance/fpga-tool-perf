@@ -124,41 +124,45 @@ class Vivado(Toolchain):
         for t in impl_times:
             self.add_runtime(t, impl_times[t])
 
-    def prepare_edam(self):
-        chip = self.family + self.device + self.package
-
-        vivado_settings = os.getenv('VIVADO_SETTINGS')
-
-        options = dict()
-        options['part'] = chip
-        options['synth'] = self.synthtool
-        options['vivado-settings'] = vivado_settings
-        options['yosys_synth_options'] = self.synthoptions
-
-        params = dict(paramtype='vlogdefine', datatype='int', default=1)
-
-        edam = dict()
-        edam['files'] = self.files
-        edam['name'] = self.project_name
-        edam['toplevel'] = self.top
-        edam['tool_options'] = dict(vivado=options)
-        edam['parameters'] = dict(VIVADO=params)
-
-        return edam
-
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 os.makedirs(self.out_dir, exist_ok=True)
-
-                edam = self.prepare_edam()
                 self.backend = edalize.get_edatool('vivado')(
-                    edam=edam, work_root=self.out_dir
+                    edam={
+                        'files':
+                            self.files,
+                        'name':
+                            self.project_name,
+                        'toplevel':
+                            self.top,
+                        'tool_options':
+                            dict(
+                                vivado={
+                                    'part':
+                                        self.family + self.device +
+                                        self.package,
+                                    'synth':
+                                        self.synthtool,
+                                    'vivado-settings':
+                                        os.getenv('VIVADO_SETTINGS'),
+                                    'yosys_synth_options':
+                                        self.synthoptions
+                                }
+                            ),
+                        'parameters':
+                            dict(
+                                VIVADO={
+                                    'paramtype': 'vlogdefine',
+                                    'datatype': 'int',
+                                    'default': 1
+                                }
+                            )
+                    },
+                    work_root=self.out_dir
                 )
                 self.backend.configure("")
-
             self.backend.build()
-
         self.add_runtimes()
         self.add_maximum_memory_use()
 
