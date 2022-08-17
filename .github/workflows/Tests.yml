@@ -57,7 +57,7 @@ jobs:
       run: |
         source env.sh
         # Testing parameters injection feature
-        python3 exhaust.py --parameters parameters.yaml --toolchain vpr --project blinky --build_type parameters --only_required --fail
+        python3 exhaust.py --parameters vpr.yml --toolchain vpr --project blinky --build_type parameters --only_required --fail
         # Testing multiple samples
         python3 exhaust.py --build_type multiple-samples --run_config run_configs/multiple_samples.yaml --only_required --fail
         # Testing multiple seeds
