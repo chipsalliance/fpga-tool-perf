@@ -25,7 +25,7 @@ import yaml
 
 class ToolParametersHelper:
     def __init__(self, toolchain, params_file=None):
-        ppath = Path(getcwd()) / 'tool_parameters' / (
+        ppath = Path(getcwd()) / 'assets/tool_parameters' / (
             f'{toolchain}.yml' if params_file is None else params_file
         )
         assert ppath.exists(), f"Parameters file {ppath!s} does not exist."
