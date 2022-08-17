@@ -37,7 +37,7 @@ from toolchains.radiant import RadiantSynpro, RadiantLSE
 
 # to find data files
 root_dir = os.path.dirname(os.path.abspath(__file__))
-project_dir = os.path.join(root_dir, 'project')
+project_dir = os.path.join(root_dir, 'assets', 'project')
 src_dir = os.path.join(root_dir, 'src')
 
 logger = logging.getLogger(__name__)
