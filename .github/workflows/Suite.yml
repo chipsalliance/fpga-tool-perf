@@ -58,7 +58,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr) }}
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -100,7 +100,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -140,7 +140,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_quicklogic) }}
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -183,7 +183,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -225,7 +225,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -267,7 +267,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -310,7 +310,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -349,7 +349,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_ice40) }}
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -388,7 +388,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_nexus) }}
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -427,7 +427,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx) }}
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -469,7 +469,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     runs-on: [self-hosted, Linux, X64]
 

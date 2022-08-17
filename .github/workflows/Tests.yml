@@ -6,22 +6,28 @@ on:
 jobs:
 
   Run-tests:
-    container: ubuntu:bionic
+    container: ubuntu:focal
     runs-on: [self-hosted, Linux, X64]
 
     strategy:
       fail-fast: false
       matrix:
         python-version:
-          - '3.6'
-          - '3.7'
           - '3.8'
+          - '3.9'
     steps:
 
     - name: Install dependencies
       run: |
-        apt-get update -qq
-        apt install -y git python${{ matrix.python-version }} python3-pip wget curl
+        apt update -qq
+        DEBIAN_FRONTEND=noninteractive apt install -qq -y --no-install-recommends \
+          git \
+          python${{ matrix.python-version }} \
+          python3-pip \
+          wget \
+          curl \
+          make \
+          xz-utils
         update-alternatives --install /usr/bin/python python /usr/bin/python${{ matrix.python-version }} 1
         update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 

@@ -22,8 +22,17 @@ echo
 echo "======================================="
 echo "Installing packages"
 echo "---------------------------------------"
-apt update
-apt install -y python3 python3-pip wget git curl unzip default-jdk
+$(command -v sudo) apt update -qq
+DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-install-recommends \
+  curl \
+  git \
+  make \
+  python3 \
+  python3-pip \
+  wget \
+  unzip \
+  default-jdk \
+  xz-utils
 echo "---------------------------------------"
 
 echo
