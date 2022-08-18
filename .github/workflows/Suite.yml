@@ -2,6 +2,13 @@ name: Full Test Suite
 
 on:
   workflow_call:
+    secrets:
+      GCP_SERVICE_ACCOUNT_KEY_FILE:
+        description: 'GCP SERVICE_ACCOUNT_KEY_FILE.'
+        required: false
+      GCP_STORAGE_BUCKET:
+        description: 'GCP STORAGE_BUCKET.'
+        required: false
   schedule:
     - cron: '0 */4 * * *'
 
