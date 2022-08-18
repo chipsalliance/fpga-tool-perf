@@ -24,14 +24,14 @@ MULTIPLE_RUN_ITERATIONS ?= 2
 all: format
 
 TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-TOOLCHAIN ?= symbiflow
+TOOLCHAIN ?= f4pga
 REQUIREMENTS_FILE ?= conf/${TOOLCHAIN}/requirements.txt
 ENVIRONMENT_FILE ?= conf/${TOOLCHAIN}/environment.yml
 
 # FIXME: currently the latest links are updated in the latest f4pga release. Fix this to point to the GCP URL bucket as soon as it is back online
-SYMBIFLOW_LATEST_URL_BASE = https://github.com/SymbiFlow/f4pga-arch-defs/releases/download/latest
-SYMBIFLOW_LATEST_URL = ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-install-xc7-latest
-SYMBIFLOW_DEVICES ?= xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
+F4PGA_LATEST_URL_BASE = https://github.com/SymbiFlow/f4pga-arch-defs/releases/download/latest
+F4PGA_LATEST_URL = ${F4PGA_LATEST_URL_BASE}/symbiflow-install-xc7-latest
+F4PGA_DEVICES ?= xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
@@ -49,19 +49,19 @@ include third_party/make-env/conda.mk
 
 env:: | $(CONDA_ENV_PYTHON)
 
-install_symbiflow: | $(CONDA_ENV_PYTHON)
-	mkdir -p env/symbiflow
-	curl -fsSL ${SYMBIFLOW_LATEST_URL} | xargs curl -fsSL | tar -xJC env/symbiflow
-	# Adapt the environment file from symbiflow-arch-defs
-	test -e env/symbiflow/xc7_env/xc7_environment.yml && \
-		sed -i 's/name: xc7/name: symbiflow-env/g' env/symbiflow/xc7_env/xc7_environment.yml
-	cat conf/common/requirements.txt conf/symbiflow/requirements.txt > env/symbiflow/xc7_env/xc7_requirements.txt
-	@$(IN_CONDA_ENV_BASE) conda env update --name symbiflow-env --file env/symbiflow/xc7_env/xc7_environment.yml
+install_f4pga: | $(CONDA_ENV_PYTHON)
+	mkdir -p env/f4pga
+	curl -fsSL ${F4PGA_LATEST_URL} | xargs curl -fsSL | tar -xJC env/f4pga
+	# Adapt the environment file from f4pga-arch-defs
+	test -e env/f4pga/xc7_env/xc7_environment.yml && \
+		sed -i 's/name: xc7/name: f4pga-env/g' env/f4pga/xc7_env/xc7_environment.yml
+	cat conf/common/requirements.txt conf/f4pga/requirements.txt > env/f4pga/xc7_env/xc7_requirements.txt
+	@$(IN_CONDA_ENV_BASE) conda env update --name f4pga-env --file env/f4pga/xc7_env/xc7_environment.yml
 	# List the actual package versions installed
-	@$(CONDA_ACTIVATE) symbiflow-env && conda list
+	@$(CONDA_ACTIVATE) f4pga-env && conda list
 	# Install all devices
-	for device in ${SYMBIFLOW_DEVICES}; do \
-		curl -fsSL ${SYMBIFLOW_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs curl -fsSL | tar -xJC env/symbiflow; \
+	for device in ${F4PGA_DEVICES}; do \
+		curl -fsSL ${F4PGA_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs curl -fsSL | tar -xJC env/f4pga; \
 	done
 
 install_interchange:

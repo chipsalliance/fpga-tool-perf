@@ -33,11 +33,11 @@ setuptools.setup(
             ]
     },
     author="F4PGA Authors",
-    author_email="symbiflow@lists.librecores.org",
+    author_email="f4pga-wg@lists.chipsalliance.org",
     description="Python library to run FPGA benchmarks on various toolchains",
     long_description=long_description,
     long_description_content_type="text/x-rst",
-    url="https://github.com/SymbiFlow/fpga-tool-perf",
+    url="https://github.com/chipsalliance/fpga-tool-perf",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

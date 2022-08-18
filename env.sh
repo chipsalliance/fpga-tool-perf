@@ -49,7 +49,7 @@ if [ "quicklogic" == ${environment} ]; then
 elif [ "nextpnr" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate nextpnr-env
 else
-    . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate symbiflow-env
-    export F4PGA_INSTALL_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow
-    export F4PGA_SHARE_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/symbiflow/share/f4pga
+    . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate f4pga-env
+    export F4PGA_INSTALL_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/f4pga
+    export F4PGA_SHARE_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/f4pga/share/f4pga
 fi

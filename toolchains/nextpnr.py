@@ -79,8 +79,8 @@ class NextpnrGeneric(Toolchain):
             ]
 
         if self.fasm2bels and self.arch != "fpga_interchange":
-            symbiflow = os.getenv('SYMBIFLOW', None)
-            assert symbiflow
+            f4pga = os.getenv('F4PGA', None)
+            assert f4pga
 
             device_aliases = {"a35t": "a50t"}
 
@@ -89,7 +89,7 @@ class NextpnrGeneric(Toolchain):
                 chip_replace = self.chip.replace(k, v)
 
             device_path = os.path.join(
-                symbiflow, 'share', 'symbiflow', 'arch',
+                f4pga, 'share', 'f4pga', 'arch',
                 '{}_test'.format(chip_replace)
             )
 

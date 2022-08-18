@@ -51,7 +51,7 @@ jobs:
     - name: Prepare env
       run: |
         make env
-        make install_symbiflow
+        make install_f4pga
 
     - name: Run tests
       run: |

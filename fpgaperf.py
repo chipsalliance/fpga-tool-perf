@@ -32,7 +32,7 @@ from toolchains.nextpnr import NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchan
 from toolchains.vivado import Vivado
 from toolchains.vivado import VivadoYosys
 from toolchains.vivado import VivadoYosysUhdm
-from toolchains.symbiflow import VPR, Quicklogic
+from toolchains.f4pga import VPR, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from toolchains.radiant import RadiantSynpro, RadiantLSE
 
