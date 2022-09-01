@@ -17,41 +17,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import itertools
-import os
+from itertools import product as it_product
+from pathlib import Path
+from os import getcwd
 import yaml
 
 
 class ToolParametersHelper:
-    def __init__(self, toolchain, params_file='params.yaml'):
-        self.params_path = os.path.join(
-            os.getcwd(), 'tool_parameters', toolchain, params_file
+    def __init__(self, toolchain, params_file=None):
+        ppath = Path(getcwd()) / 'assets/tool_parameters' / (
+            f'{toolchain}.yml' if params_file is None else params_file
         )
+        assert ppath.exists(), f"Parameters file {ppath!s} does not exist."
+
         self.params = None
-
-        assert os.path.exists(
-            self.params_path
-        ), "Parameters file {} does not exist.".format(self.params_path)
-
-        with open(self.params_path, 'r') as params_file:
-            self.params = yaml.safe_load(params_file)
+        with ppath.open('r') as rfptr:
+            self.params = yaml.safe_load(rfptr)
 
     def get_all_params_combinations(self):
-        all_params = []
-
         param_prefix = self.params['param_prefix']
-
-        for param, values in self.params['params'].items():
-            param_combinations = []
-
-            for value in values:
-                param_combinations.append(
-                    "{}{} {}".format(param_prefix, param, value)
-                )
-
-            all_params.append(param_combinations)
-
-        return list(itertools.product(*all_params))
+        all_params = [
+            [f"{param_prefix}{param} {value}"
+             for value in values]
+            for param, values in self.params['params'].items()
+        ]
+        return list(it_product(*all_params))
 
     def add_param(self, param, values=[], overwrite=True):
         if param in self.params and overwrite:

@@ -53,7 +53,7 @@ jobs:
       - name: Generate Matrix
         id: generate
         run: |
-          python3 -m pip install -r conf/common/requirements.txt
+          python3 -m pip install -r conf/requirements.txt
           PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py all
 
   # Symbiflow tests

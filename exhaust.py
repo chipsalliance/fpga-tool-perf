@@ -36,7 +36,6 @@ from infrastructure.tool_parameters import ToolParametersHelper
 from fpgaperf import get_projects, get_toolchains, get_boards
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
-src_dir = root_dir + '/src'
 
 logger = logging.getLogger(__name__)
 
@@ -220,13 +219,12 @@ def main():
         global logger
         logger = logging.getLogger('MyLogger')
         handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(levelname)s: %(message)s')
-        handler.setFormatter(formatter)
+        handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
         logger.addHandler(handler)
         logger.setLevel(logging.DEBUG)
     logger.debug("Parsing Arguments")
 
-    tasks = Tasks(src_dir)
+    tasks = Tasks(root_dir + '/src')
 
     assert args.run_config is None or args.run_config and not (
         args.project or args.toolchain

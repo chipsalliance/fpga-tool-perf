@@ -55,7 +55,7 @@ install_f4pga: | $(CONDA_ENV_PYTHON)
 	# Adapt the environment file from f4pga-arch-defs
 	test -e env/f4pga/xc7_env/xc7_environment.yml && \
 		sed -i 's/name: xc7/name: f4pga-env/g' env/f4pga/xc7_env/xc7_environment.yml
-	cat conf/common/requirements.txt conf/f4pga/requirements.txt > env/f4pga/xc7_env/xc7_requirements.txt
+	cat conf/requirements.txt conf/f4pga/requirements.txt > env/f4pga/xc7_env/xc7_requirements.txt
 	@$(IN_CONDA_ENV_BASE) conda env update --name f4pga-env --file env/f4pga/xc7_env/xc7_environment.yml
 	# List the actual package versions installed
 	@$(CONDA_ACTIVATE) f4pga-env && conda list

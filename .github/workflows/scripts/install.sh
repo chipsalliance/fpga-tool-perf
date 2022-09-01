@@ -18,10 +18,7 @@
 
 set -e
 
-echo
-echo "======================================="
-echo "Installing packages"
-echo "---------------------------------------"
+echo '::group::Installing packages'
 $(command -v sudo) apt update -qq
 DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-install-recommends \
   curl \
@@ -34,53 +31,40 @@ DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-instal
   default-jdk \
   xz-utils \
   libtinfo5
-echo "---------------------------------------"
+echo '::endgroup::'
 
-echo
-echo "======================================="
-echo "Installing Python packages"
-echo "---------------------------------------"
-python3 -m pip install -r conf/common/requirements.txt
-echo "---------------------------------------"
+echo '::group::Installing Python packages'
+python3 -m pip install -r conf/requirements.txt
+echo '::endgroup::'
 
 USE_VIVADO=""
 RW_LINK=""
-
 TOOLCHAIN=""
 BOARD=""
-
 while getopts vl:t:b: opt; do
-    case "${opt}" in
-        v) USE_VIVADO="TRUE";;
-        l) RW_LINK=${OPTARG};;
-        t) TOOLCHAIN=${OPTARG};;
-        b) BOARD=${OPTARG};;
-        *)
-            echo "ERROR: option not recognized!"
-            exit;;
-    esac
+  case "${opt}" in
+    v) USE_VIVADO="TRUE";;
+    l) RW_LINK=${OPTARG};;
+    t) TOOLCHAIN=${OPTARG};;
+    b) BOARD=${OPTARG};;
+    *) echo "ERROR: option not recognized!"; exit ;;
+  esac
 done
 
 if [ ! -z "$USE_VIVADO" ]; then
-    echo
-    echo "======================================="
-    echo "Creating Vivado Symbolic Link"
-    echo "---------------------------------------"
-    ln -s /mnt/aux/Xilinx /opt/Xilinx
-    source /opt/Xilinx/Vivado/2017.2/settings64.sh
-    vivado -version
+  echo '::group::Creating Vivado Symbolic Link'
+  ln -s /mnt/aux/Xilinx /opt/Xilinx
+  source /opt/Xilinx/Vivado/2017.2/settings64.sh
+  vivado -version
+  echo '::endgroup::'
 fi
 
 if [ ! -z "$RW_LINK" ]; then
-    echo
-    echo "======================================="
-    echo "Export RapidWright JARs Link"
-    echo "---------------------------------------"
-    export RW_LINK=$RW_LINK
+  echo '::group::Export RapidWright JARs Link'
+  export RW_LINK=$RW_LINK
+  echo '::endgroup::'
 fi
 
-echo
-echo "======================================="
-echo "Generate Test's environment"
-echo "---------------------------------------"
+echo '::group::Generate Test environment'
 eval $(PYTHONPATH=$(pwd) ./.github/workflows/scripts/get_env_cmd.py $TOOLCHAIN $BOARD)
+echo '::endgroup::'
