@@ -54,7 +54,7 @@ jobs:
         id: generate
         run: |
           python3 -m pip install -r conf/requirements.txt
-          PYTHONPATH=$(pwd) python3 ./.github/workflows/scripts/generate_job_matrix.py all
+          PYTHONPATH=$(pwd) python3 ./.github/scripts/generate_job_matrix.py all
 
   # Symbiflow tests
   VPR:
@@ -76,7 +76,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -118,7 +118,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -158,7 +158,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -201,7 +201,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -243,7 +243,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -285,7 +285,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -328,7 +328,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -367,7 +367,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -406,7 +406,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -445,7 +445,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
@@ -487,7 +487,7 @@ jobs:
           submodules: recursive
 
       - name: Install
-        run: ./.github/workflows/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
 
       - name: Run Test
         run: >
