@@ -51,7 +51,7 @@ env:: | $(CONDA_ENV_PYTHON)
 
 install_f4pga: | $(CONDA_ENV_PYTHON)
 	mkdir -p env/f4pga
-	curl -fsSL ${F4PGA_LATEST_URL} | xargs curl -fsSL | tar -xJC env/f4pga
+	curl -fsSL https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/20220901-121844/symbiflow-arch-defs-install-xc7-75e2533.tar.xz | tar -xJC env/f4pga
 	# Adapt the environment file from f4pga-arch-defs
 	test -e env/f4pga/xc7_env/xc7_environment.yml && \
 		sed -i 's/name: xc7/name: f4pga-env/g' env/f4pga/xc7_env/xc7_environment.yml
@@ -61,7 +61,7 @@ install_f4pga: | $(CONDA_ENV_PYTHON)
 	@$(CONDA_ACTIVATE) f4pga-env && conda list
 	# Install all devices
 	for device in ${F4PGA_DEVICES}; do \
-		curl -fsSL ${F4PGA_LATEST_URL_BASE}/symbiflow-$${device}_test-latest | xargs curl -fsSL | tar -xJC env/f4pga; \
+		curl -fsSL https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/20220901-121844/symbiflow-arch-defs-$${device}_test-75e2533.tar.xz | tar -xJC env/f4pga; \
 	done
 
 install_interchange:
