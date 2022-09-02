@@ -243,8 +243,8 @@ def run(
         err = str(e)
         if not verbose and len(err) > 1000:
             err = f"[...]\n{err[-1000:]}"
-        err = err.split("\n")
         logger.debug(f"ERROR: {err}")
+        err = err.split("\n")
     else:
         logger.debug("Printing Stats")
         print_stats(tch)
