@@ -42,7 +42,5 @@ for combination in get_combinations():
         dict(project=project, toolchain=toolchain, board=board)
     )
 
-# Different matrices need to be produced to overcome the 256 jobs limit imposed
-# by GH actions
-for tool, matrix in jobs.items():
-    print(f"::set-output name=matrix_{tool.replace('-', '_')}:: {matrix}")
+matrices = {tool.replace('-', '_'): content for tool, content in jobs.items()}
+print(f"::set-output name=matrices::{matrices}")
