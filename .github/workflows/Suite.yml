@@ -20,17 +20,7 @@ jobs:
   Matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix_vpr: ${{ steps.generate.outputs.matrix_vpr }}
-      matrix_vpr_fasm2bels: ${{ steps.generate.outputs.matrix_vpr_fasm2bels }}
-      matrix_vivado: ${{ steps.generate.outputs.matrix_vivado }}
-      matrix_yosys_vivado: ${{ steps.generate.outputs.matrix_yosys_vivado }}
-      matrix_yosys_vivado_uhdm: ${{ steps.generate.outputs.matrix_yosys_vivado_uhdm }}
-      matrix_nextpnr_fpga_interchange: ${{ steps.generate.outputs.matrix_nextpnr_fpga_interchange }}
-      matrix_nextpnr_ice40: ${{ steps.generate.outputs.matrix_nextpnr_ice40 }}
-      matrix_nextpnr_nexus: ${{ steps.generate.outputs.matrix_nextpnr_nexus }}
-      matrix_nextpnr_xilinx: ${{ steps.generate.outputs.matrix_nextpnr_xilinx }}
-      matrix_nextpnr_xilinx_fasm2bels: ${{ steps.generate.outputs.matrix_nextpnr_xilinx_fasm2bels }}
-      matrix_quicklogic: ${{ steps.generate.outputs.matrix_quicklogic }}
+      matrices: ${{ steps.generate.outputs.matrices }}
       link: ${{ steps.link.outputs.link }}
 
     steps:
@@ -63,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).vpr }}
 
     container: ubuntu:focal
 
@@ -102,7 +92,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_vpr_fasm2bels) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).vpr_fasm2bels }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
@@ -145,7 +135,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_quicklogic) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).quicklogic }}
 
     container: ubuntu:focal
 
@@ -185,7 +175,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_vivado) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).vivado }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
@@ -227,7 +217,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_vivado) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).yosys_vivado }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
@@ -269,7 +259,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_yosys_vivado_uhdm) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).yosys_vivado_uhdm }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
@@ -312,7 +302,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_fpga_interchange) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
@@ -354,7 +344,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_ice40) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_ice40 }}
 
     container: ubuntu:focal
 
@@ -393,7 +383,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_nexus) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_nexus }}
 
     container: ubuntu:focal
 
@@ -432,7 +422,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_xilinx }}
 
     container: ubuntu:focal
 
@@ -471,7 +461,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrix_nextpnr_xilinx_fasm2bels) }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_xilinx_fasm2bels }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"
