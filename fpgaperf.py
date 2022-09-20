@@ -28,7 +28,12 @@ import yaml
 from terminaltables import AsciiTable
 
 from toolchains.icestorm import NextpnrIcestorm
-from toolchains.nextpnr import NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchange
+from toolchains.nextpnr import (
+    NextpnrOxide,
+    NextpnrXilinx,
+    NextpnrFPGAInterchange,
+    NextPnrInterchangeNoSynth
+)
 from toolchains.vivado import Vivado, VivadoYosys, VivadoYosysUhdm
 from toolchains.f4pga import VPR, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
@@ -51,6 +56,7 @@ toolchains = {
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
     'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
+    'nextpnr-fpga-interchange-presynth': NextPnrInterchangeNoSynth,
     'quicklogic': Quicklogic,
     'nextpnr-nexus': NextpnrOxide,
     # TODO: These are not extensively tested at the moment
@@ -188,7 +194,7 @@ def run(
     device = board_info['device']
     package = board_info['package']
 
-    assert family in ['ice40', 'xc7', 'eos', 'nexus']
+    assert family in ['ice40', 'xc7', 'eos', 'nexus', 'xcup']
 
     # some toolchains use signed 32 bit
     assert seed is None or 0 <= seed <= 0x7FFFFFFF

@@ -1,0 +1,9 @@
+srcs:
+ - src/gnl-2-4-5-2.0-gnl-2000-08-5-80-80/gnl_2_4_5_2.0_gnl_2000_08_5_80_80.netlist
+top: top
+name: gnl-2-4-5-2.0-gnl-2000-08-5-80-80
+vendors:
+  xilinx:
+    - xczu7ev
+required_toolchains:
+  - nextpnr-fpga-interchange-presynth

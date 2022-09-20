@@ -5,6 +5,7 @@ xilinx:
     - basys3
     - zybo
     - nexys-video
+    - xczu7ev
   toolchains:
     - vivado
     - yosys-vivado
@@ -13,6 +14,7 @@ xilinx:
     - vpr-fasm2bels
     - nextpnr-xilinx
     - nextpnr-fpga-interchange
+    - nextpnr-fpga-interchange-presynth
     - nextpnr-xilinx-fasm2bels
 lattice-ice40:
   boards:

@@ -13,5 +13,5 @@ simplejson
 termcolor
 terminaltables
 yapf==0.31.0
-git+https://github.com/SymbiFlow/edalize.git@symbiflow_update#egg=edalize
+git+https://github.com/antmicro/edalize.git@nextpnr-fpga_interchange#egg=edalize
 https://github.com/chipsalliance/f4pga/archive/de9ed1f3dba34d641c354bdb070232887254b142.zip#subdirectory=f4pga

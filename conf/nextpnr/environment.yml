@@ -8,7 +8,7 @@ dependencies:
   - litex-hub::vtr-optimized
   - litex-hub::nextpnr-ice40
   - litex-hub::nextpnr-nexus
-  - litex-hub::nextpnr-fpga_interchange=v0.0_3848_g9c32e2d8=20211001_162618_py37
+  - litex-hub::nextpnr-fpga_interchange
   - litex-hub::nextpnr-xilinx=v0.0_2840_g86500ec6=20210722_152338_py37
     # FIXME: Pin prjoxide as newer packages require glibc 2.29
   - litex-hub::prjoxide=v0.0_407_g026e545=20210923_082942

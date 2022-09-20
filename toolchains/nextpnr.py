@@ -60,6 +60,14 @@ class NextpnrGeneric(Toolchain):
             if "env/bin/{}".format(self.toolchain_bin) in location:
                 nextpnr_location = os.path.abspath(os.path.dirname(location))
                 break
+        
+        if not nextpnr_location:
+            out = subprocess.run(
+                ["which", self.toolchain_bin], stdout=subprocess.PIPE
+            )
+            decoded = out.stdout.decode('utf-8')
+            if decoded != '':
+                nextpnr_location = os.path.abspath(os.path.dirname(decoded))
 
         assert nextpnr_location
 
@@ -352,6 +360,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         self.toolchain = "nextpnr-fpga-interchange"
         self.toolchain_bin = "nextpnr-fpga_interchange"
 
+        # TODO: This should probably be extracted from interchange architecture definition
         self.resources_map = dict(families=dict())
         self.resources_map['families']['xc7'] = {
             'LUT': ('LUTS', 'LUT1', 'LUT2', 'LUT3', 'LUT4', 'LUT5', 'LUT6'),
@@ -383,7 +392,6 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
         self.chip = self.family + self.device
         share_dir = NextpnrGeneric.get_share_data(self)
-
         self.chipdb = os.path.join(
             self.rootdir, 'env', 'interchange', 'devices', self.chip,
             '{}.bin'.format(self.chip)
@@ -482,6 +490,156 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         report_file = os.path.join(self.out_dir, f"{self.project_name}.timing")
         return get_vivado_max_freq(report_file)
 
+
+class NextPnrInterchangeNoSynth(Toolchain):
+    '''nextpnr using pressynthesized netlist'''
+    def __init__(self, rootdir):
+        Toolchain.__init__(self, rootdir)
+        self.arch = 'fpga_interchange'
+        self.vendor = None
+        self.toolchain = 'nextpnr-fpga-interchange-presynth'
+        self.toolchain_bin = "nextpnr-fpga_interchange"
+        self.chipdb = None
+        self.chip = None
+        self.env_script = None
+        self.builddir = "."
+        self.dbroot = None
+        self.files = list()
+        self.schema_dir = None
+        self.device_file = None
+        self.fasm2bels = False
+        self.tool_options = dict()
+
+        self.nextpnr_log = 'nextpnr.log'
+    def get_share_data(self):
+        out = subprocess.run(
+            ['find', '.', '-name', self.toolchain_bin], stdout=subprocess.PIPE
+        )
+        nextpnr_locations = out.stdout.decode('utf-8').split('\n')
+        nextpnr_location = None
+
+        for location in nextpnr_locations:
+            if "env/bin/{}".format(self.toolchain_bin) in location:
+                nextpnr_location = os.path.abspath(os.path.dirname(location))
+                break
+
+        assert nextpnr_location
+
+        return os.path.join(nextpnr_location, '..', 'share')
+    
+    def configure(self):
+
+        os.makedirs(self.out_dir, exist_ok=True)
+
+        self.files.append(get_file_dict(self.chipdb, 'bba'))
+
+        assert self.arch == "fpga_interchange"
+
+        options = self.tool_options
+        options['arch'] = 'fpga_interchange'
+        options['package'] = self.package
+        options['nextpnr_options'] = self.options
+    
+    def run_steps(self):
+        with Timed(self, 'bitstream'):
+            self.backend.build_main(self.project_name + '.phys')
+    
+    def run(self):
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                self.edam = self.prepare_edam()
+                #raise Exception(self.edam)
+                os.environ["EDALIZE_LAUNCHER"
+                           ] = f"source {self.env_script} nextpnr &&"
+                self.backend = edalize.get_edatool('nextpnr')(
+                    edam=self.edam, work_root=self.out_dir
+                )
+                self.backend.flow_config = { 'arch': 'fpga_interchange' }
+                self.backend.configure("")
+            
+            self.backend.build_main(self.project_name + '.phys')
+            self.run_steps()
+
+        # TODO: Support for timing
+        # with Timed(self, 'report_timing'):
+        #     self.backend.build_main(self.project_name + '.timing')
+
+        del os.environ["EDALIZE_LAUNCHER"]
+
+        self.add_runtimes()
+        self.add_wirelength()
+    
+    def prepare_edam(self):
+        assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
+        
+        # TODO: This is a bad approach.
+        if self.family not in ['xcup']:
+            self.chip = self.family + self.device
+        else:
+            self.chip = self.device
+
+        self.chipdb = os.path.join(
+            self.rootdir, 'env', 'interchange', 'devices', self.chip,
+            '{}.bin'.format(self.chip)
+        )
+
+        self.tool_options['chipdb'] = self.chipdb
+
+        self.schema_dir = os.path.join(
+            self.rootdir, 'third_party', 'fpga-interchange-schema',
+            'interchange'
+        )
+
+        self.device_file = os.path.join(
+            self.rootdir, 'env', 'interchange', 'devices', self.chip,
+            '{}.device'.format(self.chip)
+        )
+        self.files.append(get_file_dict(self.device_file, 'device'))
+
+        self.options = ['--log', self.nextpnr_log, '--disable-lut-mapping-cache']
+        self.env_script = os.path.abspath(
+            'env.sh'
+        ) + ' nextpnr fpga_interchange-' + self.device
+
+        # Run generic configure before constructing an edam
+        self.configure()
+
+        # Assemble edam
+        edam = dict()
+        edam['files'] = self.files
+        edam['name'] = self.project_name
+        edam['toplevel'] = self.top
+        edam['tool_options'] = dict(nextpnr=self.tool_options)
+
+        return edam
+    
+    def add_common_files(self):
+        for f in self.srcs:
+            if f.endswith(".netlist"):
+                self.files.append(get_file_dict(f, 'fpgaInterchangeNetlist'))
+        
+        if self.xdc:
+            self.files.append(get_file_dict(self.xdc, 'XDC'))
+    
+    def versions(self):
+        return {
+            # 'yosys': 'N/A',
+            '{}'.format(self.toolchain_bin):
+                self.nextpnr_version(self.toolchain_bin),
+        }
+    
+    @staticmethod
+    def nextpnr_version(toolchain):
+        '''
+        nextpnr-<variant>  --version
+        '''
+        return subprocess.check_output(
+            'bash -c ". ./env.sh nextpnr && {} --version"'.format(toolchain),
+            shell=True,
+            universal_newlines=True,
+            stderr=subprocess.STDOUT
+        ).strip()
+        
 
 class NextpnrXilinx(NextpnrGeneric):
     '''nextpnr Xilinx variant using Yosys for synthesis'''
