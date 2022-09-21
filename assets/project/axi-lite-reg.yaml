@@ -14,3 +14,4 @@ skip_toolchains:
   - yosys-vivado-uhdm
   - yosys-vivado
   - vpr-fasm2bels
+  - nextpnr-fpga-interchange-presynth

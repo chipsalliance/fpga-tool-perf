@@ -27,3 +27,5 @@ required_toolchains:
   - vpr-fasm2bels
   - nextpnr-ice40
   - quicklogic
+skip_toolchains:
+  - nextpnr-fpga-interchange-presynth

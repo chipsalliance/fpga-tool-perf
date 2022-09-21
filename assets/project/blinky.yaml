@@ -18,3 +18,5 @@ required_toolchains:
   - vpr
   - vpr-fasm2bels
   - nextpnr-fpga-interchange
+skip_toolchains:
+  - nextpnr-fpga-interchange-presynth

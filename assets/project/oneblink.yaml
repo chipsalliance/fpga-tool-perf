@@ -30,3 +30,5 @@ required_toolchains:
   - quicklogic
   - synpro-radiant
   - lse-radiant
+skip_toolchains:
+  - nextpnr-fpga-interchange-presynth
