@@ -174,7 +174,8 @@ def run(
     if verbose:
         handler = logging.StreamHandler()
         handler.setFormatter(
-            logging.Formatter('[fpgaperf.run] %(levelname)s: %(message)s')
+            logging.
+            Formatter('[%(name)s | %(funcName)s] %(levelname)s: %(message)s')
         )
         logger.addHandler(handler)
         logger.setLevel(logging.DEBUG)
@@ -545,8 +546,10 @@ def main():
         global logger
         logger = logging.getLogger('MyLogger')
         handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(levelname)s: %(message)s')
-        handler.setFormatter(formatter)
+        handler.setFormatter(
+            logging.
+            Formatter('[%(name)s | %(funcName)s] %(levelname)s: %(message)s')
+        )
         logger.addHandler(handler)
         logger.setLevel(logging.DEBUG)
 
