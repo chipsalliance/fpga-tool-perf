@@ -71,11 +71,11 @@ class NotAvailable:
 
 def print_stats(t):
     def print_section_header(title):
-        print('')
-        print('=' * len(title))
-        print(title)
-        print('=' * len(title))
-        print('')
+        print(f'''
+{"=" * len(title)}
+{title}
+{"=" * len(title)}
+''')
 
     print_section_header('Setting')
 
@@ -219,13 +219,17 @@ def run(
     tch.build_type = build_type
 
     logger.debug("Running Project")
+
+    vendors = get_vendors(toolchain=toolchain, board=board)
+    assert len(vendors) == 1, (vendors, toolchain, board)
+
     tch.project(
         project_dict,
         family,
         device,
         package,
         board,
-        get_vendor(toolchain=toolchain, board=board),
+        vendors[0],
         params_file,
         params_string,
         out_dir=out_dir,
@@ -307,13 +311,6 @@ def list_combinations(
                     table_data.append(row)
     table = AsciiTable(table_data)
     print(table.table)
-
-
-def get_vendor(toolchain, board):
-    vendors = get_vendors(toolchain=toolchain, board=board)
-
-    assert len(vendors) == 1, (vendors, toolchain, board)
-    return vendors[0]
 
 
 def get_vendors(toolchain=None, board=None):
