@@ -26,7 +26,6 @@ import gzip
 import json
 import pandas
 from multiprocessing import Pool, cpu_count
-from contextlib import redirect_stdout
 
 from fpgaperf import run
 from infrastructure.dataframe import generate_dataframe
@@ -73,24 +72,23 @@ class Runner:
 
         build = self.build_format.format(build_number)
 
-        with redirect_stdout(open(os.devnull, 'w')):
-            run(
-                board,
-                toolchain,
-                project,
-                None,  #params_file
-                option,  #params_string
-                None,  #out_dir
-                self.out_prefix,
-                self.overwrite,
-                self.verbose,
-                None,  #strategy
-                seed,
-                None,  #carry
-                build,
-                self.build_type,
-                self.timeout
-            )
+        run(
+            board,
+            toolchain,
+            project,
+            None,  #params_file
+            option,  #params_string
+            None,  #out_dir
+            self.out_prefix,
+            self.overwrite,
+            self.verbose,
+            None,  #strategy
+            seed,
+            None,  #carry
+            build,
+            self.build_type,
+            self.timeout
+        )
 
     def run(self):
         os.makedirs(os.path.expanduser(self.out_prefix), exist_ok=True)
