@@ -72,6 +72,7 @@ jobs:
         run: >
           source env.sh &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -114,6 +115,7 @@ jobs:
         run: >
           source env.sh &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -154,6 +156,7 @@ jobs:
         run: >
           source env.sh quicklogic &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -197,6 +200,7 @@ jobs:
         run: >
           source env.sh &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -239,6 +243,7 @@ jobs:
         run: >
           source env.sh &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -281,6 +286,7 @@ jobs:
         run: >
           source env.sh &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -324,6 +330,7 @@ jobs:
         run: >
           source env.sh nextpnr &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -363,6 +370,7 @@ jobs:
         run: >
           source env.sh nextpnr &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -402,6 +410,7 @@ jobs:
         run: >
           source env.sh nextpnr &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -441,6 +450,7 @@ jobs:
         run: >
           source env.sh nextpnr &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -483,6 +493,7 @@ jobs:
         run: >
           source env.sh nextpnr &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}

@@ -159,7 +159,8 @@ class Vivado(Toolchain):
                                 }
                             )
                     },
-                    work_root=self.out_dir
+                    work_root=self.out_dir,
+                    verbose=True
                 )
                 self.backend.configure("")
             self.backend.build()
