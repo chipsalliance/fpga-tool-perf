@@ -219,7 +219,10 @@ def main():
         global logger
         logger = logging.getLogger('MyLogger')
         handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+        handler.setFormatter(
+            logging.
+            Formatter('[%(name)s | %(funcName)s] %(levelname)s: %(message)s')
+        )
         logger.addHandler(handler)
         logger.setLevel(logging.DEBUG)
     logger.debug("Parsing Arguments")
