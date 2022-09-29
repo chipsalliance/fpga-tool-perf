@@ -35,7 +35,9 @@ nextpnr = [
     "nextpnr-ice40", "nextpnr-nexus", "nextpnr-xilinx",
     "nextpnr-xilinx-fasm2bels"
 ]
-interchange = ["nextpnr-fpga-interchange", "nextpnr-fpga-interchange-already-synth"]
+interchange = [
+    "nextpnr-fpga-interchange", "nextpnr-fpga-interchange-already-synth"
+]
 quicklogic = ["quicklogic"]
 
 toolchain = ""
@@ -55,7 +57,9 @@ elif tool in interchange:
     board_device = board["device"]
     board_family = board["family"]
     # TODO: Fix naming convention
-    device_name = board_family + board_device if board_family not in ["xcup"] else board_device
+    device_name = board_family + board_device if board_family not in [
+        "xcup"
+    ] else board_device
     install = f"INTERCHANGE_DEVICES={device_name} make install_interchange"
 elif tool in quicklogic:
     toolchain = "quicklogic"

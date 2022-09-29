@@ -29,9 +29,7 @@ from terminaltables import AsciiTable
 
 from toolchains.icestorm import NextpnrIcestorm
 from toolchains.nextpnr import (
-    NextpnrOxide,
-    NextpnrXilinx,
-    NextpnrFPGAInterchange,
+    NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchange,
     NextPnrInterchangeNoSynth
 )
 from toolchains.vivado import Vivado, VivadoYosys, VivadoYosysUhdm

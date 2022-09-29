@@ -60,7 +60,7 @@ class NextpnrGeneric(Toolchain):
             if "env/bin/{}".format(self.toolchain_bin) in location:
                 nextpnr_location = os.path.abspath(os.path.dirname(location))
                 break
-        
+
         if not nextpnr_location:
             out = subprocess.run(
                 ["which", self.toolchain_bin], stdout=subprocess.PIPE
@@ -511,6 +511,7 @@ class NextPnrInterchangeNoSynth(Toolchain):
         self.tool_options = dict()
 
         self.nextpnr_log = 'nextpnr.log'
+
     def get_share_data(self):
         out = subprocess.run(
             ['find', '.', '-name', self.toolchain_bin], stdout=subprocess.PIPE
@@ -526,7 +527,7 @@ class NextPnrInterchangeNoSynth(Toolchain):
         assert nextpnr_location
 
         return os.path.join(nextpnr_location, '..', 'share')
-    
+
     def configure(self):
 
         os.makedirs(self.out_dir, exist_ok=True)
@@ -539,11 +540,11 @@ class NextPnrInterchangeNoSynth(Toolchain):
         options['arch'] = 'fpga_interchange'
         options['package'] = self.package
         options['nextpnr_options'] = self.options
-    
+
     def run_steps(self):
         with Timed(self, 'bitstream'):
             self.backend.build_main(self.project_name + '.phys')
-    
+
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
@@ -554,9 +555,9 @@ class NextPnrInterchangeNoSynth(Toolchain):
                 self.backend = edalize.get_edatool('nextpnr')(
                     edam=self.edam, work_root=self.out_dir
                 )
-                self.backend.flow_config = { 'arch': 'fpga_interchange' }
+                self.backend.flow_config = {'arch': 'fpga_interchange'}
                 self.backend.configure("")
-            
+
             self.backend.build_main(self.project_name + '.phys')
             self.run_steps()
 
@@ -568,10 +569,10 @@ class NextPnrInterchangeNoSynth(Toolchain):
 
         self.add_runtimes()
         self.add_wirelength()
-    
+
     def prepare_edam(self):
         assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
-        
+
         # TODO: This is a bad approach.
         if self.family not in ['xcup']:
             self.chip = self.family + self.device
@@ -596,7 +597,9 @@ class NextPnrInterchangeNoSynth(Toolchain):
         )
         self.files.append(get_file_dict(self.device_file, 'device'))
 
-        self.options = ['--log', self.nextpnr_log, '--disable-lut-mapping-cache']
+        self.options = [
+            '--log', self.nextpnr_log, '--disable-lut-mapping-cache'
+        ]
         self.env_script = os.path.abspath(
             'env.sh'
         ) + ' nextpnr fpga_interchange-' + self.device
@@ -612,22 +615,22 @@ class NextPnrInterchangeNoSynth(Toolchain):
         edam['tool_options'] = dict(nextpnr=self.tool_options)
 
         return edam
-    
+
     def add_common_files(self):
         for f in self.srcs:
             if f.endswith(".netlist"):
                 self.files.append(get_file_dict(f, 'fpgaInterchangeNetlist'))
-        
+
         if self.xdc:
             self.files.append(get_file_dict(self.xdc, 'XDC'))
-    
+
     def versions(self):
         return {
             # 'yosys': 'N/A',
             '{}'.format(self.toolchain_bin):
                 self.nextpnr_version(self.toolchain_bin),
         }
-    
+
     @staticmethod
     def nextpnr_version(toolchain):
         '''
@@ -639,7 +642,7 @@ class NextPnrInterchangeNoSynth(Toolchain):
             universal_newlines=True,
             stderr=subprocess.STDOUT
         ).strip()
-        
+
 
 class NextpnrXilinx(NextpnrGeneric):
     '''nextpnr Xilinx variant using Yosys for synthesis'''
