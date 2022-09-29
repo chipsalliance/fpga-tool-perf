@@ -764,13 +764,13 @@ class NextpnrOxide(NextpnrGeneric):
 
     def prepare_edam(self):
         os.makedirs(self.out_dir, exist_ok=True)
-        args = f"--device {self.device}-{self.package} "
-        args += "--timing-allow-fail "
+        args = "--timing-allow-fail "
         args += "--router router2 "
         args += "--estimate-delay-mult 25 "
         if self.seed:
             args += " --seed %u" % (self.seed, )
         options = dict(nextpnr_options=args.split())
+        options['device'] = f"{self.device}-{self.package}"
 
         edam = dict()
         edam['files'] = self.files
