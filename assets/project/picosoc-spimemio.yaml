@@ -23,4 +23,4 @@ required_toolchains:
   - nextpnr-ice40
   - quicklogic
 skip_toolchains:
-  - nextpnr-fpga-interchange-presynth
+  - nextpnr-fpga-interchange-already-synth

@@ -14,7 +14,7 @@ xilinx:
     - vpr-fasm2bels
     - nextpnr-xilinx
     - nextpnr-fpga-interchange
-    - nextpnr-fpga-interchange-presynth
+    - nextpnr-fpga-interchange-already-synth
     - nextpnr-xilinx-fasm2bels
 lattice-ice40:
   boards:

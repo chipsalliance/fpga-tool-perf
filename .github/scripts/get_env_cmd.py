@@ -35,7 +35,7 @@ nextpnr = [
     "nextpnr-ice40", "nextpnr-nexus", "nextpnr-xilinx",
     "nextpnr-xilinx-fasm2bels"
 ]
-interchange = ["nextpnr-fpga-interchange", "nextpnr-fpga-interchange-presynth"]
+interchange = ["nextpnr-fpga-interchange", "nextpnr-fpga-interchange-already-synth"]
 quicklogic = ["quicklogic"]
 
 toolchain = ""

@@ -345,13 +345,13 @@ jobs:
             **/results*.gz
             **/plot_*.svg
   
-  NextpnrFPGAInterchangePreSynth:
+  NextpnrFPGAInterchangeAlreadySynthesized:
     needs: Matrix
 
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange_presynth }}
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange_already_synth }}
 
     env:
       GHA_EXTERNAL_DISK: "tools"

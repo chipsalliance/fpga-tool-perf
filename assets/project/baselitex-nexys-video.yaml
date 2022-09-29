@@ -29,4 +29,4 @@ required_toolchains:
   #- vpr
   #- vpr-fasm2bels
 skip_toolchains:
-  - nextpnr-fpga-interchange-presynth
+  - nextpnr-fpga-interchange-already-synth

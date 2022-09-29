@@ -56,7 +56,7 @@ toolchains = {
     'nextpnr-xilinx': NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
     'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
-    'nextpnr-fpga-interchange-presynth': NextPnrInterchangeNoSynth,
+    'nextpnr-fpga-interchange-already-synth': NextPnrInterchangeNoSynth,
     'quicklogic': Quicklogic,
     'nextpnr-nexus': NextpnrOxide,
     # TODO: These are not extensively tested at the moment

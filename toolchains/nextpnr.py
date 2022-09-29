@@ -492,12 +492,12 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
 
 
 class NextPnrInterchangeNoSynth(Toolchain):
-    '''nextpnr using pressynthesized netlist'''
+    '''nextpnr using already synthesized netlist'''
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
         self.arch = 'fpga_interchange'
         self.vendor = None
-        self.toolchain = 'nextpnr-fpga-interchange-presynth'
+        self.toolchain = 'nextpnr-fpga-interchange-already-synth'
         self.toolchain_bin = "nextpnr-fpga_interchange"
         self.chipdb = None
         self.chip = None
