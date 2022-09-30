@@ -264,7 +264,9 @@ def get_combinations():
     """ Returns a list of tuples with all the possible combinations of supported builds """
     combs = list()
     for p in get_projects():
-        vendor_info = get_project(p)["vendors"]
+        project = get_project(p)
+        vendor_info = project["vendors"]
+        project_name = project["name"]
         for t in get_toolchains():
             vendors = get_vendors(t)
             for vendor in vendors:
@@ -278,9 +280,7 @@ def get_combinations():
 
                     if board_info is None or b not in board_info:
                         continue
-
-                    combs.append((p, t, b))
-
+                    combs.append((project_name, t, b))
     return combs
 
 
@@ -397,6 +397,18 @@ def get_projects(project=None):
         return [project]
     else:
         return []
+
+
+def get_project_names():
+    '''Query all supported project names'''
+    projects = get_projects()
+    project_names = []
+
+    for p in projects:
+        project = get_project(p)
+        project_names.append(project["name"])
+
+    return project_names
 
 
 def list_projects():
