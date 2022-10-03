@@ -27,6 +27,7 @@ lattice-ice40:
 lattice-nexus:
   boards:
     - lifcl-40
+    - lifcl-40-QFN72
     - lifcl-17
     - lifcl-17-WLCSP72
   toolchains:

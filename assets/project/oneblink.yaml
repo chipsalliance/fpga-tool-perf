@@ -16,6 +16,7 @@ vendors:
     - icebreaker
   lattice-nexus:
     - lifcl-40
+    - lifcl-40-QFN72
     - lifcl-17
     - lifcl-17-WLCSP72
   quicklogic:
