@@ -17,6 +17,7 @@ vendors:
   lattice-nexus:
     - lifcl-40
     - lifcl-17
+    - lifcl-17-WLCSP72
   quicklogic:
     - quickfeather
 required_toolchains:

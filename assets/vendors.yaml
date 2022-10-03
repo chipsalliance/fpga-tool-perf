@@ -28,10 +28,12 @@ lattice-nexus:
   boards:
     - lifcl-40
     - lifcl-17
+    - lifcl-17-WLCSP72
   toolchains:
     - nextpnr-nexus
     - synpro-radiant
     - lse-radiant
+    - nextpnr-fpga-interchange
 quicklogic:
   boards:
     - quickfeather

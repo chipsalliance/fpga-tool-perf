@@ -15,5 +15,6 @@ clock_aliases:
 vendors:
   lattice-nexus:
     - lifcl-17
+    - lifcl-17-WLCSP72
 required_toolchains:
   - nextpnr-nexus
