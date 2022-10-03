@@ -74,7 +74,7 @@ class NextpnrGeneric(Toolchain):
         return os.path.join(nextpnr_location, '..', 'share')
 
     def configure(self):
-        assert self.xdc
+        assert self.xdc, "Interchange format requires xdc constraint file."
 
         os.makedirs(self.out_dir, exist_ok=True)
 
@@ -390,7 +390,7 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
 
     def prepare_edam(self):
         assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
-        self.chip = self.family + self.device
+        self.chip = self.family + self.device if self.family != "nexus" else self.device
         share_dir = NextpnrGeneric.get_share_data(self)
         self.chipdb = os.path.join(
             self.rootdir, 'env', 'interchange', 'devices', self.chip,
@@ -414,10 +414,15 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
             'env.sh'
         ) + ' nextpnr fpga_interchange-' + self.device
 
-        self.yosys_synth_opts = [
-            "-flatten", "-nowidelut", "-arch {}".format(self.family), "-nodsp",
-            "-nosrl"
-        ]
+        if self.family != "nexus":
+            self.yosys_synth_opts = [
+                "-flatten", "-nowidelut", "-arch {}".format(self.family), "-nodsp",
+                "-nosrl"
+            ]
+        else:
+            self.yosys_synth_opts = [
+                "-flatten", "-nowidelut", "-nodsp"
+            ]
 
         lib_file = os.path.join(
             self.rootdir, 'env', 'interchange', 'techmaps',
