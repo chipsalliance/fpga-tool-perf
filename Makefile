@@ -37,7 +37,7 @@ QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quic
 
 INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/continuous/50/20211008-072036
 INTERCHANGE_VERSION = 6ff4159
-INTERCHANGE_DEVICES ?= xc7a35t xc7a100t xc7a200t xc7z010
+INTERCHANGE_DEVICES ?= xc7a35t xc7a100t xc7a200t xc7z010 xczu7ev
 RAPIDWRIGHT_PATH = $(TOP_DIR)/third_party/RapidWright
 
 

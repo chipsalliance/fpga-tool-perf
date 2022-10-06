@@ -23,3 +23,5 @@ required_toolchains:
   - vpr
   - vpr-fasm2bels
   - yosys-vivado
+skip_toolchains:
+  - nextpnr-fpga-interchange-already-synth

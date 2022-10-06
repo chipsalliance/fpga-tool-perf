@@ -28,3 +28,5 @@ required_toolchains:
   # FIXME: https://github.com/chipsalliance/fpga-tool-perf/issues/444
   #- vpr
   #- vpr-fasm2bels
+skip_toolchains:
+  - nextpnr-fpga-interchange-already-synth

@@ -21,3 +21,5 @@ required_toolchains:
   - nextpnr-nexus
   - synpro-radiant
   - lse-radiant
+skip_toolchains:
+  - nextpnr-fpga-interchange-already-synth

@@ -21,7 +21,7 @@ if [ -z "${FPGA_TOOL_PERF_BASE_DIR}" ]; then
 fi
 if [ -z "${VIVADO_SETTINGS}" ]; then
     #FIXME: to use the conda xilinx-vivado virtual package when available
-    export VIVADO_SETTINGS=/opt/Xilinx/Vivado/2017.2/settings64.sh
+    export VIVADO_SETTINGS=`find /opt/Xilinx/Vivado/ -regex ".*[0-90-90-90-9].[0-9]/settings64.sh"`
 fi
 if [ -z "${QUICKLOGIC}" ]; then
     export QUICKLOGIC=${FPGA_TOOL_PERF_BASE_DIR}/env/quicklogic
@@ -49,6 +49,9 @@ if [ "quicklogic" == ${environment} ]; then
 elif [ "nextpnr" == ${environment} ]; then
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate nextpnr-env
 else
+    if [ -n "${VIVADO_SETTINGS}" ]; then
+        . ${VIVADO_SETTINGS}
+    fi
     . ${FPGA_TOOL_PERF_BASE_DIR}/env/conda/bin/activate f4pga-env
     export F4PGA_INSTALL_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/f4pga
     export F4PGA_SHARE_DIR=${FPGA_TOOL_PERF_BASE_DIR}/env/f4pga/share/f4pga

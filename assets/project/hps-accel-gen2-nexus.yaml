@@ -17,3 +17,5 @@ vendors:
     - lifcl-17
 required_toolchains:
   - nextpnr-nexus
+skip_toolchains:
+  - nextpnr-fpga-interchange-already-synth

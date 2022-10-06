@@ -46,3 +46,7 @@ lifcl-17:
   family: nexus
   device: LIFCL-17
   package: 8UWG72C
+xczu7ev:
+  family: xcup
+  device: xczu7ev
+  package: ffvc1156

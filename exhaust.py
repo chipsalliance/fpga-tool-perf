@@ -33,7 +33,7 @@ from utils.utils import safe_get_dict_value
 from infrastructure.tasks import Tasks
 from infrastructure.runner import Runner
 from infrastructure.tool_parameters import ToolParametersHelper
-from fpgaperf import get_projects, get_toolchains, get_boards
+from fpgaperf import get_project_names, get_toolchains, get_boards
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -142,7 +142,7 @@ def parse_args():
         '--project',
         default=None,
         nargs="+",
-        choices=get_projects(),
+        choices=get_project_names(),
         help='run given project(s) only (default: all)'
     )
     parser.add_argument(

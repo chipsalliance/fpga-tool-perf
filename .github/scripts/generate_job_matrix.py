@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from fpgaperf import get_combinations
+from fpgaperf import get_combinations, get_projects, get_project, toolchains
 import sys
 
 if len(sys.argv) < 2:
@@ -29,18 +29,29 @@ tools = sys.argv[1:]
 all_toolchains = "all" in tools
 
 jobs = dict()
-for combination in get_combinations():
-    project, toolchain, board = combination
+combinations = get_combinations()
+for project_file in get_projects():
+    project_dict = get_project(project_file)
+    project_name = project_dict["name"]
 
-    if toolchain not in tools and not all_toolchains:
-        continue
+    for toolchain in toolchains.keys():
+        if ((toolchain not in tools and not all_toolchains)
+                or ('skip_toolchains' in project_dict
+                    and toolchain in project_dict["skip_toolchains"])):
+            continue
 
-    if toolchain not in jobs:
-        jobs[toolchain] = list()
+        for vendor in project_dict["vendors"].items():
+            for board in vendor[1]:
+                if (project_name, toolchain, board) not in combinations:
+                    continue
 
-    jobs[toolchain].append(
-        dict(project=project, toolchain=toolchain, board=board)
-    )
+                if toolchain not in jobs:
+                    jobs[toolchain] = list()
+                jobs[toolchain].append(
+                    dict(
+                        project=project_name, toolchain=toolchain, board=board
+                    )
+                )
 
 matrices = {tool.replace('-', '_'): content for tool, content in jobs.items()}
 print(f"::set-output name=matrices::{matrices}")
