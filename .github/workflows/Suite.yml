@@ -408,7 +408,7 @@ jobs:
         with:
           submodules: recursive
       
-      - uses: ./.github/workflows/BuildTools.yml
+      - uses: ./.github/actions/BuildNextPnrFpgaInterchange@main
 
       - name: Install
         run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
