@@ -386,6 +386,50 @@ jobs:
           path: |
             **/results*.gz
             **/plot_*.svg
+  
+  NextpnrFPGAInterchangeExperimentalAlreadySynthesized:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange_experimental_already_synth }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+
+    container: ubuntu:focal
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
+      - uses: ./.github/workflows/BuildTools.yml
+
+      - name: Install
+        run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
 
   NextpnrIce40:
     needs: Matrix

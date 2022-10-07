@@ -30,7 +30,7 @@ from terminaltables import AsciiTable
 from toolchains.icestorm import NextpnrIcestorm
 from toolchains.nextpnr import (
     NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchange,
-    NextPnrInterchangeNoSynth
+    NextPnrInterchangeNoSynth, NextPnrInterchangeExperimentalNoSynth
 )
 from toolchains.vivado import Vivado, VivadoYosys, VivadoYosysUhdm
 from toolchains.f4pga import VPR, Quicklogic
@@ -55,6 +55,7 @@ toolchains = {
     'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
     'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
     'nextpnr-fpga-interchange-already-synth': NextPnrInterchangeNoSynth,
+    'nextpnr-fpga-interchange-experimental-already-synth': NextPnrInterchangeExperimentalNoSynth,
     'quicklogic': Quicklogic,
     'nextpnr-nexus': NextpnrOxide,
     # TODO: These are not extensively tested at the moment

@@ -21,3 +21,4 @@ required_toolchains:
   - nextpnr-ice40
 skip_toolchains:
   - nextpnr-fpga-interchange-already-synth
+  - nextpnr-fpga-interchange-experimental-already-synth

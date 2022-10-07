@@ -21,6 +21,7 @@ import edalize
 import os
 import re
 import subprocess
+from pathlib import Path
 
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec, get_file_dict, get_vivado_max_freq, get_yosys_resources
@@ -565,7 +566,6 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 self.edam = self.prepare_edam()
-                #raise Exception(self.edam)
                 os.environ["EDALIZE_LAUNCHER"
                            ] = f"source {self.env_script} nextpnr &&"
                 self.backend = edalize.get_edatool('nextpnr')(
@@ -676,6 +676,14 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
     def max_freq(self):
         return dict()
 
+class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
+    def __init__(self, rootdir):
+        super().__init__(rootdir)
+        self.toolchain_bin = '/usr/bin/nextpnr-fpga_interchange-experimental'
+
+    def configure(self):
+        super().configure()
+        self.tool_options['binary_path'] = self.toolchain_bin
 
 class NextpnrXilinx(NextpnrGeneric):
     '''nextpnr Xilinx variant using Yosys for synthesis'''

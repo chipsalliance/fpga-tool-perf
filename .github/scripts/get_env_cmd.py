@@ -36,7 +36,9 @@ nextpnr = [
     "nextpnr-xilinx-fasm2bels"
 ]
 interchange = [
-    "nextpnr-fpga-interchange", "nextpnr-fpga-interchange-already-synth"
+    "nextpnr-fpga-interchange",
+    "nextpnr-fpga-interchange-already-synth",
+    "nextpnr-fpga-interchange-experimental-already-synth"
 ]
 quicklogic = ["quicklogic"]
 
