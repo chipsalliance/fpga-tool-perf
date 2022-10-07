@@ -510,8 +510,6 @@ class NextPnrInterchangeNoSynth(Toolchain):
         self.fasm2bels = False
         self.tool_options = dict()
 
-        self.nextpnr_log = 'nextpnr.log'
-
     def get_share_data(self):
         out = subprocess.run(
             ['find', '.', '-name', self.toolchain_bin], stdout=subprocess.PIPE
@@ -597,9 +595,7 @@ class NextPnrInterchangeNoSynth(Toolchain):
         )
         self.files.append(get_file_dict(self.device_file, 'device'))
 
-        self.options = [
-            '--log', self.nextpnr_log, '--disable-lut-mapping-cache'
-        ]
+        self.options = ['--disable-lut-mapping-cache']
         self.env_script = os.path.abspath(
             'env.sh'
         ) + ' nextpnr fpga_interchange-' + self.device
