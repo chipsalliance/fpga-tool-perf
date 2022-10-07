@@ -42,10 +42,18 @@ lifcl-40:
   family: nexus
   device: LIFCL-40
   package: 9BG400C
+lifcl-40-QFN72:
+  family: nexus
+  device: LIFCL-40
+  package: QFN72
 lifcl-17:
   family: nexus
   device: LIFCL-17
   package: 8UWG72C
+lifcl-17-WLCSP72:
+  family: nexus
+  device: LIFCL-17
+  package: WLCSP72
 xczu7ev:
   family: xcup
   device: xczu7ev
