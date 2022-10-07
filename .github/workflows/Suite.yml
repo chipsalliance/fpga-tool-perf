@@ -408,7 +408,8 @@ jobs:
         with:
           submodules: recursive
       
-      - uses: ./.github/actions/BuildNextPnrFpgaInterchange@main
+      - name: Build and install nextpnr-fpga_interchange-experimental
+        run: bash .github/scripts/build_nextpnr_fpga_interchange.sh
 
       - name: Install
         run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}

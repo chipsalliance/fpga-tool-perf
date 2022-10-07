@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo Building nextpnr-fpga_interchange-experimental
+    
+echo Installing dependencies
+apt update
+apt install -y python3-dev libboost-dev libboost-filesystem-dev libboost-thread-dev libboost-program-options-dev libboost-iostreams-dev libboost-dev libeigen3-dev capnproto
+cp ./third_party/capnproto-java/compiler/src/main/schema/capnp/java.capnp /usr/include/capnp/java.capnp
+    
+echo Building nextpnr-fpga_interchange
+cd ./third_party/nextpnr
+cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=./third_party/RapidWright -DINTERCHANGE_SCHEMA_PATH
+make
+
+echo Installing nextpnr-fpga_interchange-experimental
+cp ./third_party/nextpnr/nextpnr-fpga_interchange /usr/bin/nextpnr-fpga_interchange-experimental
