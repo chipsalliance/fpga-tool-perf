@@ -2,10 +2,11 @@
 
 echo Building nextpnr-fpga_interchange-experimental
     
-echo Installing dependencies
+echo '::group::Installing dependencies'
 export DEBIAN_FRONTEND=noninteractive
 apt update -qq
 apt install -y --no-install-recommends \
+    ca-certificates \
     python3-dev \
     libboost-dev \
     libboost-filesystem-dev \
@@ -21,8 +22,11 @@ apt install -y --no-install-recommends \
     cmake \
     wget
 cp ./third_party/capnproto-java/compiler/src/main/schema/capnp/java.capnp /usr/include/capnp/java.capnp
-    
-echo Building nextpnr-fpga_interchange
+
+echo '::group::Updating CA certificates'
+update-ca-certificates
+
+echo '::group::Building nextpnr-fpga_interchange'
 cd ./third_party/nextpnr
 cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=`realpath ../RapidWright` -DINTERCHANGE_SCHEMA_PATH=`realpath ../fpga-interchange-schema`
 make
