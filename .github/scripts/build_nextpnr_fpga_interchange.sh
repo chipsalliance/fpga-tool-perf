@@ -16,9 +16,10 @@ apt install -y --no-install-recommends \
     libeigen3-dev \
     capnproto \
     libcapnp-dev \
-    build-essential \
     tcl8.6-dev \
-    cmake
+    build-essential \
+    cmake \
+    wget
 cp ./third_party/capnproto-java/compiler/src/main/schema/capnp/java.capnp /usr/include/capnp/java.capnp
     
 echo Building nextpnr-fpga_interchange

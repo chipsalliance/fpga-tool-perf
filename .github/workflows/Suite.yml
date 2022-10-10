@@ -47,9 +47,6 @@ jobs:
           PYTHONPATH=$(pwd) python3 ./.github/scripts/generate_job_matrix.py all
   
   Build_nextpnr-fpga_interchange-experimental:
-
-    strategy:
-      fail-fast: false
     
     container: ubuntu:focal
     runs-on: [self-hosted, Linux, X64]
