@@ -53,16 +53,6 @@ jobs:
         make env
         make install_f4pga
     
-    - name: Build Tools
-      run: bash .github/scripts/build_nextpnr_fpga_interchange.sh
-    
-    - name: Upload nextpnr-fpga_interchange-experimental
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: nextpnr-fpga_interchange-experimental
-        path: ./third_party/nextpnr/nextpnr-fpga_interchange
-
     - name: Run tests
       run: |
         source env.sh

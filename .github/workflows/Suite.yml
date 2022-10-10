@@ -45,6 +45,30 @@ jobs:
         run: |
           python3 -m pip install -r conf/requirements.txt
           PYTHONPATH=$(pwd) python3 ./.github/scripts/generate_job_matrix.py all
+  
+  Build_nextpnr-fpga_interchange-experimental:
+
+    strategy:
+      fail-fast: false
+    
+    container: ubuntu:focal
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
+      - name: Build Tools
+        run: bash .github/scripts/build_nextpnr_fpga_interchange.sh
+      
+      - name: Upload nextpnr-fpga_interchange-experimental
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: nextpnr-fpga_interchange-experimental
+          path: ./third_party/nextpnr/nextpnr-fpga_interchange
+
 
   # Symbiflow tests
   VPR:
@@ -388,7 +412,9 @@ jobs:
             **/plot_*.svg
   
   NextpnrFPGAInterchangeExperimentalAlreadySynthesized:
-    needs: Matrix
+    needs:
+      - Matrix
+      - Build_nextpnr-fpga_interchange-experimental
 
     strategy:
       fail-fast: false
