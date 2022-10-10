@@ -436,6 +436,9 @@ jobs:
         with:
           name: nextpnr-fpga_interchange-experimental
           path: /usr/bin/nextpnr-fpga_interchange-experimental
+      
+      - name: Install nextpnr-fpga_interchange-experimental
+        run: chmod +x /usr/bin/nextpnr-fpga_interchange-experimental
 
       - name: Install
         run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
