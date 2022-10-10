@@ -360,7 +360,8 @@ class Toolchain:
             'nextpnr-nexus': ('yosys', 'nextpnr'),
             'nextpnr-fpga-interchange': ('yosys', 'nextpnr'),
             'nextpnr-fpga-interchange-already-synth': ('N/A', 'nextpnr'),
-            'nextpnr-fpga-interchange-experimental-already-synth': ('N/A', 'nextpnr'),
+            'nextpnr-fpga-interchange-experimental-already-synth':
+                ('N/A', 'nextpnr'),
             'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
             'quicklogic': ('yosys', 'vpr'),
             'lse-radiant': ('lse', 'radiant'),

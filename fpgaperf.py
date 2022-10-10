@@ -45,25 +45,40 @@ src_dir = os.path.join(root_dir, 'src')
 logger = logging.getLogger(__name__)
 
 toolchains = {
-    'vivado': Vivado,
-    'yosys-vivado': VivadoYosys,
-    'yosys-vivado-uhdm': VivadoYosysUhdm,
-    'vpr': VPR,
-    'vpr-fasm2bels': VPRFasm2Bels,
-    'nextpnr-ice40': NextpnrIcestorm,
-    'nextpnr-xilinx': NextpnrXilinx,
-    'nextpnr-xilinx-fasm2bels': NextpnrXilinxFasm2Bels,
-    'nextpnr-fpga-interchange': NextpnrFPGAInterchange,
-    'nextpnr-fpga-interchange-already-synth': NextPnrInterchangeNoSynth,
-    'nextpnr-fpga-interchange-experimental-already-synth': NextPnrInterchangeExperimentalNoSynth,
-    'quicklogic': Quicklogic,
-    'nextpnr-nexus': NextpnrOxide,
+    'vivado':
+        Vivado,
+    'yosys-vivado':
+        VivadoYosys,
+    'yosys-vivado-uhdm':
+        VivadoYosysUhdm,
+    'vpr':
+        VPR,
+    'vpr-fasm2bels':
+        VPRFasm2Bels,
+    'nextpnr-ice40':
+        NextpnrIcestorm,
+    'nextpnr-xilinx':
+        NextpnrXilinx,
+    'nextpnr-xilinx-fasm2bels':
+        NextpnrXilinxFasm2Bels,
+    'nextpnr-fpga-interchange':
+        NextpnrFPGAInterchange,
+    'nextpnr-fpga-interchange-already-synth':
+        NextPnrInterchangeNoSynth,
+    'nextpnr-fpga-interchange-experimental-already-synth':
+        NextPnrInterchangeExperimentalNoSynth,
+    'quicklogic':
+        Quicklogic,
+    'nextpnr-nexus':
+        NextpnrOxide,
     # TODO: These are not extensively tested at the moment
     #'synpro-icecube2': Icecube2Synpro,
     #'lse-icecube2': Icecube2LSE,
     #'yosys-icecube2': Icecube2Yosys,
-    'synpro-radiant': RadiantSynpro,
-    'lse-radiant': RadiantLSE,
+    'synpro-radiant':
+        RadiantSynpro,
+    'lse-radiant':
+        RadiantLSE,
     #'yosys-radiant': RadiantYosys,
     #'radiant': VPR,
 }

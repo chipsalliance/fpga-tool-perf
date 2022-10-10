@@ -28,7 +28,6 @@
 [submodule "third_party/nextpnr"]
 	path = third_party/nextpnr
 	url = https://github.com/antmicro/nextpnr.git
-[submodule "nextpnr"]
 	branch = interchange-experimental
 [submodule "third_party/capnproto-java"]
 	path = third_party/capnproto-java
