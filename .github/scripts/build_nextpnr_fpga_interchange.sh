@@ -14,7 +14,9 @@ apt install -y --no-install-recommends \
     libboost-iostreams-dev \
     libboost-dev \
     libeigen3-dev \
-    capnproto
+    capnproto \
+    build-essential \
+    cmake
 cp ./third_party/capnproto-java/compiler/src/main/schema/capnp/java.capnp /usr/include/capnp/java.capnp
     
 echo Building nextpnr-fpga_interchange
