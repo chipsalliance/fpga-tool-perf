@@ -26,5 +26,3 @@ cd ./third_party/nextpnr
 cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=./third_party/RapidWright -DINTERCHANGE_SCHEMA_PATH=./third_party/fpga-interchange-schema
 make
 
-echo Installing nextpnr-fpga_interchange-experimental
-cp ./third_party/nextpnr/nextpnr-fpga_interchange /usr/bin/nextpnr-fpga_interchange-experimental
