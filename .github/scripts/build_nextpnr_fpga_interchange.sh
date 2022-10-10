@@ -21,7 +21,7 @@ cp ./third_party/capnproto-java/compiler/src/main/schema/capnp/java.capnp /usr/i
     
 echo Building nextpnr-fpga_interchange
 cd ./third_party/nextpnr
-cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=./third_party/RapidWright -DINTERCHANGE_SCHEMA_PATH
+cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=./third_party/RapidWright -DINTERCHANGE_SCHEMA_PATH=./third_party/fpga-interchange-schema
 make
 
 echo Installing nextpnr-fpga_interchange-experimental
