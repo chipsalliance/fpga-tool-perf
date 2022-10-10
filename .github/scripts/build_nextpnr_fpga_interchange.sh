@@ -15,7 +15,9 @@ apt install -y --no-install-recommends \
     libboost-dev \
     libeigen3-dev \
     capnproto \
+    libcapnp-dev \
     build-essential \
+    tcl8.6-dev \
     cmake
 cp ./third_party/capnproto-java/compiler/src/main/schema/capnp/java.capnp /usr/include/capnp/java.capnp
     
