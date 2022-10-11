@@ -438,7 +438,8 @@ jobs:
       
       - name: Install nextpnr-fpga_interchange-experimental
         run: |
-          mv download/nextpnr-fpga_interchange-experimental /usr/bin/nextpnr-fpga_interchange-experimental
+          ls download/nextpnr-fpga_interchange-experimental
+          mv download/nextpnr-fpga_interchange-experimental/* /usr/bin/
           chmod +x /usr/bin/nextpnr-fpga_interchange-experimental
 
       - name: Install
