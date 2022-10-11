@@ -57,14 +57,16 @@ jobs:
           submodules: recursive
       
       - name: Build Tools
-        run: bash .github/scripts/build_nextpnr_fpga_interchange.sh
+        run: |
+          bash .github/scripts/build_nextpnr_fpga_interchange.sh
+          mv ./third_party/nextpnr/nextpnr-fpga_interchange ./third_party/nextpnr/nextpnr-fpga_interchange.this_is_a_file
       
       - name: Upload nextpnr-fpga_interchange-experimental
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: nextpnr-fpga_interchange-experimental
-          path: ./third_party/nextpnr/nextpnr-fpga_interchange
+          path: ./third_party/nextpnr/nextpnr-fpga_interchange.this_is_a_file
 
 
   # Symbiflow tests
@@ -434,12 +436,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: nextpnr-fpga_interchange-experimental
-          path: download/nextpnr-fpga_interchange-experimental
+          path: ./download/
       
       - name: Install nextpnr-fpga_interchange-experimental
         run: |
-          ls download/nextpnr-fpga_interchange-experimental
-          mv download/nextpnr-fpga_interchange-experimental/* /usr/bin/
+          ls -R
+          ls -la download
+          mv ./download/nextpnr-fpga_interchange.this_is_a_file /usr/bin/nextpnr-fpga_interchange-experimental
           chmod +x /usr/bin/nextpnr-fpga_interchange-experimental
 
       - name: Install
