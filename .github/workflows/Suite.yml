@@ -444,7 +444,10 @@ jobs:
           mv ./download/nextpnr-fpga_interchange.this_is_a_file /usr/bin/nextpnr-fpga_interchange-experimental
           chmod +x /usr/bin/nextpnr-fpga_interchange-experimental
           DEBIAN_FRONTEND=noninteractive apt update -qq
-          DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libtcl8.6 libboost-all-dev
+          DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+            libtcl8.6 \
+            libboost-all-dev \
+            libcapnp-0.7.0
 
       - name: Install
         run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
