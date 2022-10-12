@@ -32,7 +32,6 @@ YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
 
 class NextpnrGeneric(Toolchain):
     '''nextpnr using Yosys for synthesis'''
-
     def __init__(self, rootdir):
         Toolchain.__init__(self, rootdir)
         self.arch = None
@@ -148,7 +147,6 @@ class NextpnrGeneric(Toolchain):
         self.add_wirelength()
 
     def add_wirelength(self):
-
         def get_wirelength(log_file):
             wirelen = 0
             with open(log_file, 'r') as fp:
@@ -358,7 +356,6 @@ class NextpnrGeneric(Toolchain):
 
 class NextpnrFPGAInterchange(NextpnrGeneric):
     '''nextpnr fpga-interchange variant using Yosys for synthesis'''
-
     def __init__(self, rootdir):
         NextpnrGeneric.__init__(self, rootdir)
         self.arch = "fpga_interchange"
@@ -529,7 +526,6 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
 
 class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
     '''nextpnr using already synthesized netlist'''
-
     def __init__(self, rootdir):
         NextpnrFPGAInterchange.__init__(self, rootdir)
         self.nextpnr_log = "next.log"
@@ -687,8 +683,8 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
     def max_freq(self):
         return dict()
 
-class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
 
+class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
     def __init__(self, rootdir):
         super().__init__(rootdir)
         self.toolchain_bin = '/usr/bin/nextpnr-fpga_interchange-experimental'
@@ -700,7 +696,6 @@ class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
 
 class NextpnrXilinx(NextpnrGeneric):
     '''nextpnr Xilinx variant using Yosys for synthesis'''
-
     def __init__(self, rootdir):
         NextpnrGeneric.__init__(self, rootdir)
         self.arch = "xilinx"
@@ -767,7 +762,6 @@ class NextpnrXilinx(NextpnrGeneric):
 
 class NextpnrOxide(NextpnrGeneric):
     '''Nextpnr PnR + Yosys synthesis'''
-
     def __init__(self, rootdir):
         NextpnrGeneric.__init__(self, rootdir)
         self.toolchain = "nextpnr-nexus"
