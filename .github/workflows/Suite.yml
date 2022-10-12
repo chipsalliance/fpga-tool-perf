@@ -441,9 +441,10 @@ jobs:
       - name: Install nextpnr-fpga_interchange-experimental
         run: |
           ls -R
-          ls -la download
           mv ./download/nextpnr-fpga_interchange.this_is_a_file /usr/bin/nextpnr-fpga_interchange-experimental
           chmod +x /usr/bin/nextpnr-fpga_interchange-experimental
+          apt update
+          apt install libtcl8.6
 
       - name: Install
         run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
