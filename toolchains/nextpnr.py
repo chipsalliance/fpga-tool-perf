@@ -367,34 +367,57 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         }
 
         self.resources_map = dict(families=dict())
-        self.resources_map['families']['xc7']  = dict(xilinx_resources)
+        self.resources_map['families']['xc7'] = dict(xilinx_resources)
         self.resources_map['families']['xcup'] = dict(xilinx_resources)
 
-        self.resources_map['families']['xc7'].update({
-            'CARRY': ('CARRY', 'CARRY4'),
-            'IOB':
-                (
-                    'IBUFs',
-                    'OBUFs',
-                    'IBUF',
-                    'OBUF',
-                    'OBUFT',
-                    'IOBUF',
-                    'OBUFTDS',
-                    'OBUFDS',
-                    ('IOBUF', 2),
-                    ('IOBUFDS', 2),
+        self.resources_map['families']['xc7'].update(
+            {
+                'CARRY': ('CARRY', 'CARRY4'),
+                'IOB':
+                    (
+                        'IBUFs',
+                        'OBUFs',
+                        'IBUF',
+                        'OBUF',
+                        'OBUFT',
+                        'IOBUF',
+                        'OBUFTDS',
+                        'OBUFDS',
+                        ('IOBUF', 2),
+                        ('IOBUFDS', 2),
+                    ),
+                'PLL': ('PLL', 'PLLE2_ADV', 'MMCME2_ADV'),
+                'BRAM': (
+                    'BRAMS',
+                    'RAMB18E1',
+                    ('RAMB36E1', 2),
                 ),
-            'PLL': ('PLL', 'PLLE2_ADV', 'MMCME2_ADV'),
-            'BRAM': (
-                'BRAMS',
-                'RAMB18E1',
-                ('RAMB36E1', 2),
-            ),
-            'DSP': ('DSP48E1')
-        })
+                'DSP': ('DSP48E1')
+            }
+        )
 
         # TODO: resources for XCUP
+        self.resources_map['families']['xcup'].update(
+            {
+                'CARRY': ('CARRY', 'CARRY8'),
+                'IOB':
+                    (
+                        'IBUFs',
+                        'OBUFs',
+                        'IBUF',
+                        'OBUF',
+                        'OBUFT',
+                        'IOBUF',
+                        'OBUFTDS',
+                        'OBUFDS',
+                        ('IOBUF', 2),
+                        ('IOBUFDS', 2),
+                    ),
+                'PLL': ('PLL', 'PLLE4_ADV', 'MMCME4_ADV'),
+                'BRAM': ('BRAMS', ),
+                'URAM': ('UBRAMS', ),
+            }
+        )
 
     def prepare_edam(self):
         assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
