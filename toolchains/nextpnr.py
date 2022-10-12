@@ -361,32 +361,63 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         self.toolchain_bin = "nextpnr-fpga_interchange"
 
         # TODO: This should probably be extracted from interchange architecture definition
-        self.resources_map = dict(families=dict())
-        self.resources_map['families']['xc7'] = {
+        xilinx_resources = {
             'LUT': ('LUTS', 'LUT1', 'LUT2', 'LUT3', 'LUT4', 'LUT5', 'LUT6'),
             'DFF': ('FLIP_FLOPS', 'FDRE', 'FDSE', 'FDPE', 'FDCE'),
-            'CARRY': ('CARRY', 'CARRY4'),
-            'IOB':
-                (
-                    'IBUFs',
-                    'OBUFs',
-                    'IBUF',
-                    'OBUF',
-                    'OBUFT',
-                    'IOBUF',
-                    'OBUFTDS',
-                    'OBUFDS',
-                    ('IOBUF', 2),
-                    ('IOBUFDS', 2),
-                ),
-            'PLL': ('PLL', 'PLLE2_ADV', 'MMCME2_ADV'),
-            'BRAM': (
-                'BRAMS',
-                'RAMB18E1',
-                ('RAMB36E1', 2),
-            ),
-            'DSP': ('DSP48E1')
         }
+
+        self.resources_map = dict(families=dict())
+        self.resources_map['families']['xc7'] = dict(xilinx_resources)
+        self.resources_map['families']['xcup'] = dict(xilinx_resources)
+
+        self.resources_map['families']['xc7'].update(
+            {
+                'CARRY': ('CARRY', 'CARRY4'),
+                'IOB':
+                    (
+                        'IBUFs',
+                        'OBUFs',
+                        'IBUF',
+                        'OBUF',
+                        'OBUFT',
+                        'IOBUF',
+                        'OBUFTDS',
+                        'OBUFDS',
+                        ('IOBUF', 2),
+                        ('IOBUFDS', 2),
+                    ),
+                'PLL': ('PLL', 'PLLE2_ADV', 'MMCME2_ADV'),
+                'BRAM': (
+                    'BRAMS',
+                    'RAMB18E1',
+                    ('RAMB36E1', 2),
+                ),
+                'DSP': ('DSP48E1')
+            }
+        )
+
+        # TODO: resources for XCUP
+        self.resources_map['families']['xcup'].update(
+            {
+                'CARRY': ('CARRY', 'CARRY8'),
+                'IOB':
+                    (
+                        'IBUFs',
+                        'OBUFs',
+                        'IBUF',
+                        'OBUF',
+                        'OBUFT',
+                        'IOBUF',
+                        'OBUFTDS',
+                        'OBUFDS',
+                        ('IOBUF', 2),
+                        ('IOBUFDS', 2),
+                    ),
+                'PLL': ('PLL', 'PLLE4_ADV', 'MMCME4_ADV'),
+                'BRAM': ('BRAMS', ),
+                'URAM': ('UBRAMS', ),
+            }
+        )
 
     def prepare_edam(self):
         assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
@@ -491,24 +522,11 @@ class NextpnrFPGAInterchange(NextpnrGeneric):
         return get_vivado_max_freq(report_file)
 
 
-class NextPnrInterchangeNoSynth(Toolchain):
+class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
     '''nextpnr using already synthesized netlist'''
     def __init__(self, rootdir):
-        Toolchain.__init__(self, rootdir)
-        self.arch = 'fpga_interchange'
-        self.vendor = None
-        self.toolchain = 'nextpnr-fpga-interchange-already-synth'
-        self.toolchain_bin = "nextpnr-fpga_interchange"
-        self.chipdb = None
-        self.chip = None
-        self.env_script = None
-        self.builddir = "."
-        self.dbroot = None
-        self.files = list()
-        self.schema_dir = None
-        self.device_file = None
-        self.fasm2bels = False
-        self.tool_options = dict()
+        NextpnrFPGAInterchange.__init__(self, rootdir)
+        self.nextpnr_log = "next.log"
 
     def get_share_data(self):
         out = subprocess.run(
@@ -627,6 +645,15 @@ class NextPnrInterchangeNoSynth(Toolchain):
                 self.nextpnr_version(self.toolchain_bin),
         }
 
+    def add_runtimes(self):
+        """Returns the runtimes of the various steps"""
+
+        nextpnr_log = os.path.join(self.out_dir, self.nextpnr_log)
+        impl_times = self.get_nextpnr_runtimes(nextpnr_log)
+
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t])
+
     @staticmethod
     def nextpnr_version(toolchain):
         '''
@@ -638,6 +665,16 @@ class NextPnrInterchangeNoSynth(Toolchain):
             universal_newlines=True,
             stderr=subprocess.STDOUT
         ).strip()
+
+    def resources(self):
+        impl_resources = self.get_resources()
+        impl_resources = self.get_resources_count(impl_resources)
+
+        return {"synth": impl_resources, "impl": impl_resources}
+
+    # FIXME: No frequency data from nextpnr-fpga_interchange for now.
+    def max_freq(self):
+        return dict()
 
 
 class NextpnrXilinx(NextpnrGeneric):
