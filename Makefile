@@ -48,6 +48,7 @@ third_party/make-env/conda.mk:
 include third_party/make-env/conda.mk
 
 env:: | $(CONDA_ENV_PYTHON)
+	$(IN_CONDA_ENV) conda list
 
 install_f4pga: | $(CONDA_ENV_PYTHON)
 	mkdir -p env/f4pga
