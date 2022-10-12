@@ -440,7 +440,6 @@ jobs:
       
       - name: Install nextpnr-fpga_interchange-experimental
         run: |
-          ls -R
           mv ./download/nextpnr-fpga_interchange.this_is_a_file /usr/bin/nextpnr-fpga_interchange-experimental
           chmod +x /usr/bin/nextpnr-fpga_interchange-experimental
           DEBIAN_FRONTEND=noninteractive apt update -qq
