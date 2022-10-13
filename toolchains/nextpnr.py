@@ -555,9 +555,15 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
 
         assert self.arch == "fpga_interchange"
 
+        # Remove speed grade from the package name.
+        # FIXME: Why that's not needed in NextpnrInterchange ??
+        package = self.package
+        if "-" in package:
+            package = package.rsplit("-", maxsplit=1)[0]
+
         options = self.tool_options
         options['arch'] = 'fpga_interchange'
-        options['package'] = self.package
+        options['package'] = package
         options['nextpnr_options'] = self.options
 
     def run_steps(self):
