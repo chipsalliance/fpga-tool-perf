@@ -32,3 +32,4 @@ required_toolchains:
   - lse-radiant
 skip_toolchains:
   - nextpnr-fpga-interchange-already-synth
+  - nextpnr-fpga-interchange-experimental-already-synth

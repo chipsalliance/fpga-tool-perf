@@ -21,6 +21,8 @@ import edalize
 import os
 import re
 import subprocess
+from pathlib import Path
+import sys
 
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec, get_file_dict, get_vivado_max_freq, get_yosys_resources
@@ -566,7 +568,6 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 self.edam = self.prepare_edam()
-                #raise Exception(self.edam)
                 os.environ["EDALIZE_LAUNCHER"
                            ] = f"source {self.env_script} nextpnr &&"
                 self.backend = edalize.get_edatool('nextpnr')(
@@ -660,12 +661,18 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
         '''
         nextpnr-<variant>  --version
         '''
-        return subprocess.check_output(
-            'bash -c ". ./env.sh nextpnr && {} --version"'.format(toolchain),
-            shell=True,
-            universal_newlines=True,
-            stderr=subprocess.STDOUT
-        ).strip()
+        try:
+            return subprocess.check_output(
+                'bash -c ". ./env.sh nextpnr && {} --version"'.
+                format(toolchain),
+                shell=True,
+                universal_newlines=True,
+                stderr=subprocess.STDOUT
+            ).strip()
+        except subprocess.CalledProcessError as e:
+            print("ERROR (stdout/sterr):")
+            print(e.output, file=sys.stderr)
+            raise e
 
     def resources(self):
         impl_resources = self.get_resources()
@@ -676,6 +683,16 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
     # FIXME: No frequency data from nextpnr-fpga_interchange for now.
     def max_freq(self):
         return dict()
+
+
+class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
+    def __init__(self, rootdir):
+        super().__init__(rootdir)
+        self.toolchain_bin = '/usr/bin/nextpnr-fpga_interchange-experimental'
+
+    def configure(self):
+        super().configure()
+        self.tool_options['binary_path'] = self.toolchain_bin
 
 
 class NextpnrXilinx(NextpnrGeneric):

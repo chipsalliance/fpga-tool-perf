@@ -15,3 +15,4 @@ skip_toolchains:
   - yosys-vivado
   - vpr-fasm2bels
   - nextpnr-fpga-interchange-already-synth
+  - nextpnr-fpga-interchange-experimental-already-synth

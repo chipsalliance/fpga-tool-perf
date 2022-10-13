@@ -25,3 +25,10 @@
 [submodule "third_party/RapidWright"]
 	path = third_party/RapidWright
 	url = https://github.com/Xilinx/RapidWright.git
+[submodule "third_party/nextpnr"]
+	path = third_party/nextpnr
+	url = https://github.com/antmicro/nextpnr.git
+	branch = interchange-experimental
+[submodule "third_party/capnproto-java"]
+	path = third_party/capnproto-java
+	url = https://github.com/capnproto/capnproto-java.git

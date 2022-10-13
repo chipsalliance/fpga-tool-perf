@@ -52,7 +52,7 @@ jobs:
       run: |
         make env
         make install_f4pga
-
+    
     - name: Run tests
       run: |
         source env.sh
