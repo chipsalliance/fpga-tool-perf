@@ -526,6 +526,7 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
     '''nextpnr using already synthesized netlist'''
     def __init__(self, rootdir):
         NextpnrFPGAInterchange.__init__(self, rootdir)
+        self.toolchain = "nextpnr-fpga-interchange-already-synth"
         self.nextpnr_log = "next.log"
 
     def get_share_data(self):
