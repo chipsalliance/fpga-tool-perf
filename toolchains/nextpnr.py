@@ -688,6 +688,7 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
 class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
     def __init__(self, rootdir):
         super().__init__(rootdir)
+        self.toolchain = "nextpnr-fpga-interchange-experimental-already-synth"
         self.toolchain_bin = '/usr/bin/nextpnr-fpga_interchange-experimental'
 
     def configure(self):
