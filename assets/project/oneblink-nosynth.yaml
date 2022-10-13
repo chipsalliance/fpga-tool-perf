@@ -1,5 +1,6 @@
 srcs:
  - src/oneblink-nosynth/oneblink.netlist
+ - src/oneblink-nosynth/oneblink.json
 top: top
 name: oneblink-nosynth
 clocks:

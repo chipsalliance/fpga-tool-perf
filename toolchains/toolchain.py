@@ -103,6 +103,8 @@ class Toolchain:
                 file_type = vhdl_type
             elif is_verilog:
                 file_type = verilog_type
+            else:
+                continue
 
             self.files.append(get_file_dict(f, file_type))
 
@@ -363,6 +365,7 @@ class Toolchain:
             'nextpnr-fpga-interchange-experimental-already-synth':
                 ('N/A', 'nextpnr'),
             'nextpnr-xilinx-fasm2bels': ('yosys', 'nextpnr'),
+            'nextpnr-xilinx-already-synth': ('N/A', 'nextpnr'),
             'quicklogic': ('yosys', 'vpr'),
             'lse-radiant': ('lse', 'radiant'),
             'synpro-radiant': ('synplify', 'radiant')
