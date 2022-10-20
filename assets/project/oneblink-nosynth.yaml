@@ -10,7 +10,6 @@ vendors:
     - arty-a35t
     - arty-a100t
     - nexys-video
-    - xczu7ev
 required_toolchains:
   - nextpnr-fpga-interchange-already-synth
 skip_toolchains:
