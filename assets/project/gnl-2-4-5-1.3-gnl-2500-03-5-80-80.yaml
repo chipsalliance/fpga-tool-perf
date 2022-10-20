@@ -1,5 +1,6 @@
 srcs:
  - src/gnl-2-4-5-1.3-gnl-2500-03-5-80-80/gnl_2_4_5_1.3_gnl_2500_03_5_80_80.netlist
+ - src/gnl-2-4-5-1.3-gnl-2500-03-5-80-80/gnl_2_4_5_1.3_gnl_2500_03_5_80_80.json
 top: top
 name: gnl-2-4-5-1.3-gnl-2500-03-5-80-80
 clocks:
@@ -22,4 +23,3 @@ skip_toolchains:
   - nextpnr-xilinx
   - nextpnr-xilinx-fasm2bels
   - nextpnr-fpga-interchange
-  - nextpnr-xilinx-already-synth
