@@ -22,9 +22,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -48,9 +46,8 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
 
       - name: Build Tools
         run: |
@@ -79,32 +76,14 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: xilinx-a35t
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
 
-      - name: Install
-        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   VPRFASM2Bels:
     needs: Matrix
@@ -122,32 +101,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: xilinx-a35t
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v
 
-      - name: Install
-        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   # Quicklogic tests
   QuickLogic:
@@ -163,32 +125,14 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: quicklogic
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
 
-      - name: Install
-        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh quicklogic &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   # Vivado
   Vivado:
@@ -207,32 +151,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: xilinx-a35t
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v
 
-      - name: Install
-        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   YosysVivado:
     needs: Matrix
@@ -250,32 +177,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: xilinx-a35t
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v
 
-      - name: Install
-        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   YosysVivadoUHDM:
     needs: Matrix
@@ -293,32 +203,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: xilinx-a35t
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v
 
-      - name: Install
-        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   VivadoAlreadySynthesized:
     needs: Matrix
@@ -380,32 +273,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: nextpnr
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v -l $(echo ${{needs.Matrix.outputs.link}})
 
-      - name: Install
-        run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh nextpnr &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   NextpnrFPGAInterchangeAlreadySynthesized:
     needs: Matrix
@@ -423,32 +299,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: nextpnr
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v -l $(echo ${{needs.Matrix.outputs.link}})
 
-      - name: Install
-        run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh nextpnr &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   NextpnrFPGAInterchangeExperimentalAlreadySynthesized:
     needs:
@@ -468,9 +327,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
 
       - name: Download nextpnr-fpga_interchange-experimental
         uses: actions/download-artifact@v3
@@ -510,6 +367,7 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
+
   NextpnrIce40:
     needs: Matrix
 
@@ -523,32 +381,14 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: nextpnr
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
 
-      - name: Install
-        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh nextpnr &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   NextpnrNexus:
     needs: Matrix
@@ -563,32 +403,14 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: nextpnr
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
 
-      - name: Install
-        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh nextpnr &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   NextpnrXilinx:
     needs: Matrix
@@ -603,32 +425,14 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: nextpnr
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
 
-      - name: Install
-        run: ./.github/scripts/install.sh -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh nextpnr &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   NextpnrXilinxFASM2Bels:
     needs: Matrix
@@ -646,32 +450,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      - uses: actions/checkout@v3
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
         with:
-          submodules: recursive
+          environment: nextpnr
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v
 
-      - name: Install
-        run: ./.github/scripts/install.sh -v -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
-
-      - name: Run Test
-        run: >
-          source env.sh nextpnr &&
-          python3 exhaust.py
-          --verbose
-          --project ${{ matrix.project }}
-          --toolchain ${{ matrix.toolchain }}
-          --board ${{ matrix.board }}
-          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
-          --fail
-          --timeout ${{ env.timeout }}
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          path: |
-            **/results*.gz
-            **/plot_*.svg
 
   AggregateResults:
     # Restore all the others once this works
