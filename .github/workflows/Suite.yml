@@ -45,9 +45,9 @@ jobs:
         run: |
           python3 -m pip install -r conf/requirements.txt
           PYTHONPATH=$(pwd) python3 ./.github/scripts/generate_job_matrix.py all
-  
+
   Build_nextpnr-fpga_interchange-experimental:
-    
+
     container: ubuntu:focal
     runs-on: [self-hosted, Linux, X64]
 
@@ -55,12 +55,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      
+
       - name: Build Tools
         run: |
           bash .github/scripts/build_nextpnr_fpga_interchange.sh
           mv ./third_party/nextpnr/nextpnr-fpga_interchange ./third_party/nextpnr/nextpnr-fpga_interchange.this_is_a_file
-      
+
       - name: Upload nextpnr-fpga_interchange-experimental
         uses: actions/upload-artifact@v3
         if: always()
@@ -367,7 +367,7 @@ jobs:
           path: |
             **/results*.gz
             **/plot_*.svg
-  
+
   NextpnrFPGAInterchangeAlreadySynthesized:
     needs: Matrix
 
@@ -396,6 +396,7 @@ jobs:
         run: >
           source env.sh nextpnr &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
@@ -409,7 +410,7 @@ jobs:
           path: |
             **/results*.gz
             **/plot_*.svg
-  
+
   NextpnrFPGAInterchangeExperimentalAlreadySynthesized:
     needs:
       - Matrix
@@ -431,13 +432,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      
+
       - name: Download nextpnr-fpga_interchange-experimental
         uses: actions/download-artifact@v3
         with:
           name: nextpnr-fpga_interchange-experimental
           path: ./download/
-      
+
       - name: Install nextpnr-fpga_interchange-experimental
         run: |
           mv ./download/nextpnr-fpga_interchange.this_is_a_file /usr/bin/nextpnr-fpga_interchange-experimental
@@ -455,6 +456,7 @@ jobs:
         run: >
           source env.sh nextpnr &&
           python3 exhaust.py
+          --verbose
           --project ${{ matrix.project }}
           --toolchain ${{ matrix.toolchain }}
           --board ${{ matrix.board }}
