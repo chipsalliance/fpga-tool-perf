@@ -35,8 +35,7 @@ F4PGA_DEVICES ?= xc7a50t xc7a100t xc7a200t xc7z010 xc7z020
 
 QUICKLOGIC_URL = https://storage.googleapis.com/symbiflow-arch-defs-install/quicklogic-arch-defs-63c3d8f9.tar.gz
 
-INTERCHANGE_BASE_URL = https://storage.googleapis.com/fpga-interchange-tests/artifacts/prod/foss-fpga-tools/fpga-interchange-tests/continuous/50/20211008-072036
-INTERCHANGE_VERSION = 6ff4159
+INTERCHANGE_RELEASES_URL = https://github.com/chipsalliance/fpga-interchange-tests/releases/download/latest
 INTERCHANGE_DEVICES ?= xc7a35t xc7a100t xc7a200t xc7z010 xczu7ev
 RAPIDWRIGHT_PATH = $(TOP_DIR)/third_party/RapidWright
 
@@ -67,9 +66,11 @@ install_f4pga: | $(CONDA_ENV_PYTHON)
 
 install_interchange:
 	mkdir -p env/interchange/devices
-	curl -fsSL ${INTERCHANGE_BASE_URL}/interchange-techmaps-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange; \
+	TECHMAP_DATA_URL=$$(curl -fsSL ${INTERCHANGE_RELEASES_URL}/interchange-techmaps-latest); \
+	curl -fsSL $${TECHMAP_DATA_URL} | tar -xJC env/interchange; \
 	for device in ${INTERCHANGE_DEVICES}; do \
-		curl -fsSL ${INTERCHANGE_BASE_URL}/interchange-$${device}-${INTERCHANGE_VERSION}.tar.xz | tar -xJC env/interchange/devices; \
+		DEVICE_DATA_URL=$$(curl -fsSL ${INTERCHANGE_RELEASES_URL}/interchange-$${device}-latest); \
+		curl -fsSL $${DEVICE_DATA_URL} | tar -xJC env/interchange/devices; \
 	done
 	pushd ${RAPIDWRIGHT_PATH} && \
 		./gradlew updateJars --no-watch-fs && \
