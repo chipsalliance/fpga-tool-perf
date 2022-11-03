@@ -32,7 +32,9 @@ from toolchains.nextpnr import (
     NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchange,
     NextPnrInterchangeNoSynth, NextPnrInterchangeExperimentalNoSynth
 )
-from toolchains.vivado import Vivado, VivadoYosys, VivadoYosysUhdm
+from toolchains.vivado import (
+    Vivado, VivadoYosys, VivadoYosysUhdm, VivadoNoSynth
+)
 from toolchains.f4pga import VPR, Quicklogic
 from toolchains.fasm2bels import VPRFasm2Bels, NextpnrXilinxFasm2Bels
 from toolchains.radiant import RadiantSynpro, RadiantLSE
@@ -47,6 +49,8 @@ logger = logging.getLogger(__name__)
 toolchains = {
     'vivado':
         Vivado,
+    'vivado-already-synth':
+        VivadoNoSynth,
     'yosys-vivado':
         VivadoYosys,
     'yosys-vivado-uhdm':

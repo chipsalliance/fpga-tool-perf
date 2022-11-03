@@ -354,6 +354,7 @@ class Toolchain:
             'vpr-fasm2bels': ('yosys', 'vpr'),
             'yosys-vivado': ('yosys', 'vivado'),
             'yosys-vivado-uhdm': ('yosys', 'vivado'),
+            'vivado-already-synth': ('N/A', 'vivado'),
             'vivado': ('vivado', 'vivado'),
             'nextpnr-ice40': ('yosys', 'nextpnr'),
             'nextpnr-xilinx': ('yosys', 'nextpnr'),

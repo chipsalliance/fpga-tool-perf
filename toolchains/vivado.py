@@ -279,6 +279,95 @@ class Vivado(Toolchain):
         return {"vivado": self.vivado_ver()}
 
 
+class VivadoNoSynth(Vivado):
+    '''Vivado PnR using already synthesized netlist'''
+    def __init__(self, rootdir):
+        self.netlist = None
+        self.toolchain = "vivado-already-synth"
+        Vivado.__init__(self, rootdir)
+
+    def get_output_edif_name(self, netlist):
+        basename = os.path.basename(netlist)
+        path, _ = os.path.splitext(basename)
+        edif_path = os.path.join(self.out_dir, self.project_name + ".edif")
+        return os.path.abspath(edif_path)
+
+    def prepare_output_edif(self, netlist):
+        output_edif = self.get_output_edif_name(self.netlist)
+        with open(output_edif, "w") as fd:
+            fd.write("This should be substituted by edalize pre_build hook")
+            fd.flush()
+
+    def prepare_edam(self):
+        hooks = {}
+
+        if self.netlist is not None:
+            output_edif = self.get_output_edif_name(self.netlist)
+            hooks = {
+                'pre_build':
+                    [
+                        {
+                            'cmd':
+                                [
+                                    '${RAPIDWRIGHT_PATH}/scripts/invoke_rapidwright.sh',
+                                    'com.xilinx.rapidwright.interchange.LogicalNetlistToEdif',
+                                    self.netlist,
+                                    output_edif,
+                                ],
+                            'name': 'netlist_to_edif',
+                        }
+                    ],
+            }
+            self.files.append(get_file_dict(output_edif, 'edif'))
+
+        edam = super().prepare_edam()
+        edam["synth"] = None
+        edam["hooks"] = hooks
+
+        return edam
+
+    def run(self):
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                os.makedirs(self.out_dir, exist_ok=True)
+
+                if self.netlist is not None:
+                    self.prepare_output_edif(self.netlist)
+
+                edam = self.prepare_edam()
+                self.backend = edalize.get_edatool('vivado')(
+                    edam=edam, work_root=self.out_dir, verbose=True
+                )
+
+                self.backend.configure('')
+            self.backend.build()
+        self.add_runtimes()
+        self.add_maximum_memory_use()
+
+    def add_common_files(self):
+        for f in self.srcs:
+            is_vhdl = f.endswith(".vhd") or f.endswith(".vhdl")
+            is_verilog = f.endswith(".v")
+            is_edif = f.endswith(".edif")
+            is_interchange = f.endswith(".netlist")
+
+            if is_edif:
+                self.files.append(get_file_dict(f, 'edif'))
+            elif is_interchange:
+                if self.netlist is not None:
+                    raise Exception('Only one netlist file allowed')
+                self.netlist = f
+            elif is_vhdl or is_verilog:
+                raise Exception(
+                    'Verilog and VHDL not allowed for VivadoNoSynth toolchain'
+                )
+            else:
+                raise Exception('Unknown file format')
+
+        if self.xdc:
+            self.files.append(get_file_dict(self.xdc, 'xdc'))
+
+
 class VivadoYosys(Vivado):
     '''Vivado PnR + Yosys synthesis'''
     def __init__(self, rootdir):
