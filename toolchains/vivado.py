@@ -124,43 +124,38 @@ class Vivado(Toolchain):
         for t in impl_times:
             self.add_runtime(t, impl_times[t])
 
+    def prepare_edam(self):
+        if self.family == "xcup":
+            part = self.device + "-" + self.package
+        else:
+            part = self.family + self.device + self.package
+
+        edam = {
+            'files': self.files,
+            'name': self.project_name,
+            'toplevel': self.top,
+            'tool_options': dict(
+                vivado={
+                    'part': part,
+                    'synth': self.synthtool,
+                    'vivado-settings': os.getenv('VIVADO_SETTINGS'),
+                    'yosys_synth_options': self.synthoptions,
+                }
+            ),
+            'parameters': dict(
+                VIVADO={'paramtype': 'vlogdefine', 'datatype': 'int', 'default': 1}
+            ),
+        }
+
+        return edam
+
     def run(self):
         with Timed(self, 'total'):
             with Timed(self, 'prepare'):
                 os.makedirs(self.out_dir, exist_ok=True)
+                edam = self.prepare_edam()
                 self.backend = edalize.get_edatool('vivado')(
-                    edam={
-                        'files':
-                            self.files,
-                        'name':
-                            self.project_name,
-                        'toplevel':
-                            self.top,
-                        'tool_options':
-                            dict(
-                                vivado={
-                                    'part':
-                                        self.family + self.device +
-                                        self.package,
-                                    'synth':
-                                        self.synthtool,
-                                    'vivado-settings':
-                                        os.getenv('VIVADO_SETTINGS'),
-                                    'yosys_synth_options':
-                                        self.synthoptions
-                                }
-                            ),
-                        'parameters':
-                            dict(
-                                VIVADO={
-                                    'paramtype': 'vlogdefine',
-                                    'datatype': 'int',
-                                    'default': 1
-                                }
-                            )
-                    },
-                    work_root=self.out_dir,
-                    verbose=True
+                    edam=edam, work_root=self.out_dir, verbose=True
                 )
                 self.backend.configure("")
             self.backend.build()
