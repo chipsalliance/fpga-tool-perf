@@ -53,6 +53,8 @@ if tool in f4pga:
 elif tool in vivado:
     # The basic f4pga environment contains yosys and yosys-uhdm
     toolchain = "f4pga"
+    if tool == "vivado-already-synth":
+        install = "make install_rapidwright"
 elif tool in nextpnr:
     toolchain = "nextpnr"
 elif tool in interchange:
