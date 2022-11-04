@@ -30,7 +30,9 @@ tool = sys.argv[1]
 board = get_boards()[sys.argv[2]]
 
 f4pga = ["vpr", "vpr-fasm2bels"]
-vivado = ["vivado", "yosys-vivado", "yosys-vivado-uhdm"]
+vivado = [
+    "vivado", "yosys-vivado", "yosys-vivado-uhdm", "vivado-already-synth"
+]
 nextpnr = [
     "nextpnr-ice40", "nextpnr-nexus", "nextpnr-xilinx",
     "nextpnr-xilinx-fasm2bels"
