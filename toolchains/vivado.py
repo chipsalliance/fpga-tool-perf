@@ -45,46 +45,47 @@ class Vivado(Toolchain):
         self.files = []
         self.edam = None
         self.backend = None
+
+        default_resources = {
+            'LUT': (
+                'LUT1',
+                'LUT2',
+                'LUT3',
+                'LUT4',
+                'LUT5',
+                'LUT6',
+            ),
+            'DFF': (
+                'FDRE',
+                'FDSE',
+                'FDPE',
+                'FDCE',
+            ),
+            'CARRY': ('CARRY4', ),
+            'IOB':
+                (
+                    'IBUF',
+                    'OBUF',
+                    'OBUFT',
+                    'IOBUF',
+                    'OBUFTDS',
+                    'OBUFDS',
+                    ('IOBUF', 2),
+                    ('IOBUFDS', 2),
+                ),
+            'PLL': ('MMCME2_ADV', 'PLLE2_ADV'),
+            'BRAM': (
+                'RAMB18E1',
+                ('RAMB36E1', 2),
+            ),
+            'DSP': ('DSP48E1', ),
+        }
+
         self.resources_map = {
-            "families":
-                {
-                    "xc7":
-                        {
-                            'LUT':
-                                (
-                                    'LUT1',
-                                    'LUT2',
-                                    'LUT3',
-                                    'LUT4',
-                                    'LUT5',
-                                    'LUT6',
-                                ),
-                            'DFF': (
-                                'FDRE',
-                                'FDSE',
-                                'FDPE',
-                                "FDCE",
-                            ),
-                            'CARRY': ('CARRY4', ),
-                            'IOB':
-                                (
-                                    'IBUF',
-                                    'OBUF',
-                                    'OBUFT',
-                                    'IOBUF',
-                                    'OBUFTDS',
-                                    'OBUFDS',
-                                    ('IOBUF', 2),
-                                    ('IOBUFDS', 2),
-                                ),
-                            'PLL': ('MMCME2_ADV', 'PLLE2_ADV'),
-                            'BRAM': (
-                                'RAMB18E1',
-                                ('RAMB36E1', 2),
-                            ),
-                            'DSP': ('DSP48E1', ),
-                        }
-                }
+            'families': {
+                'xc7': default_resources,
+                'xcup': default_resources
+            }
         }
 
     def get_vivado_runtimes(self, logfile):
@@ -131,20 +132,29 @@ class Vivado(Toolchain):
             part = self.family + self.device + self.package
 
         edam = {
-            'files': self.files,
-            'name': self.project_name,
-            'toplevel': self.top,
-            'tool_options': dict(
-                vivado={
-                    'part': part,
-                    'synth': self.synthtool,
-                    'vivado-settings': os.getenv('VIVADO_SETTINGS'),
-                    'yosys_synth_options': self.synthoptions,
-                }
-            ),
-            'parameters': dict(
-                VIVADO={'paramtype': 'vlogdefine', 'datatype': 'int', 'default': 1}
-            ),
+            'files':
+                self.files,
+            'name':
+                self.project_name,
+            'toplevel':
+                self.top,
+            'tool_options':
+                dict(
+                    vivado={
+                        'part': part,
+                        'synth': self.synthtool,
+                        'vivado-settings': os.getenv('VIVADO_SETTINGS'),
+                        'yosys_synth_options': self.synthoptions,
+                    }
+                ),
+            'parameters':
+                dict(
+                    VIVADO={
+                        'paramtype': 'vlogdefine',
+                        'datatype': 'int',
+                        'default': 1
+                    }
+                ),
         }
 
         return edam
@@ -282,9 +292,9 @@ class Vivado(Toolchain):
 class VivadoNoSynth(Vivado):
     '''Vivado PnR using already synthesized netlist'''
     def __init__(self, rootdir):
+        Vivado.__init__(self, rootdir)
         self.netlist = None
         self.toolchain = "vivado-already-synth"
-        Vivado.__init__(self, rootdir)
 
     def get_output_edif_name(self, netlist):
         basename = os.path.basename(netlist)
@@ -325,6 +335,27 @@ class VivadoNoSynth(Vivado):
         edam["hooks"] = hooks
 
         return edam
+
+    def add_runtimes(self):
+        runs_dir = os.path.join(self.out_dir, self.project_name + ".runs")
+        log_file = os.path.join(runs_dir, 'impl_1/runme.log')
+        impl_times = self.get_vivado_runtimes(log_file)
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t])
+
+    def resources(self, report_file=None):
+        def get_report_file(step, suffix):
+            return os.path.join(
+                self.out_dir, f"{self.project_name}.runs", f"{step}_1",
+                f"{self.top}_utilization_{suffix}.rpt"
+            )
+
+        impl_resources = self.vivado_resources(
+            get_report_file("impl", "placed")
+        )
+        impl_resources = self.get_resources_count(impl_resources)
+
+        return {"synth": impl_resources, "impl": impl_resources}
 
     def run(self):
         with Timed(self, 'total'):
