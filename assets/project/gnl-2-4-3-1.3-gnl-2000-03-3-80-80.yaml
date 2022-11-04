@@ -1,6 +1,6 @@
 srcs:
  - src/gnl-2-4-3-1.3-gnl-2000-03-3-80-80/gnl_2_4_3_1.3_gnl_2000_03_3_80_80.netlist
-top: top
+top: gnl-2-4-3-1.3-gnl-2000-03-3-80-80
 name: gnl-2-4-3-1.3-gnl-2000-03-3-80-80
 clocks:
   clk: 10.0
