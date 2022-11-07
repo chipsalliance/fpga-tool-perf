@@ -9,7 +9,6 @@ vendors:
     - arty-a35t
     - arty-a100t
     - nexys-video
-    - xczu7ev
 # Known to fail from: https://github.com/chipsalliance/fpga-interchange-tests/issues/122
 # required_toolchains:
 #   - nextpnr-fpga-interchange-already-synth

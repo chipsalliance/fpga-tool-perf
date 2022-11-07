@@ -5,7 +5,7 @@
 ####################################################################################
 
 
-# User Generated physical constraints 
+# User Generated physical constraints
 
 set_property PACKAGE_PIN F6 [get_ports clk]
 set_property PACKAGE_PIN AB13 [get_ports {ip[0]}]
