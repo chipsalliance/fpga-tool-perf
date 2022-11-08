@@ -676,7 +676,21 @@ jobs:
 
   AggregateResults:
     # Restore all the others once this works
-    needs: [VPR, VPRFASM2Bels, Vivado, YosysVivado, YosysVivadoUHDM, QuickLogic, NextpnrFPGAInterchange, NextpnrIce40, NextpnrNexus, NextpnrXilinx, NextpnrXilinxFASM2Bels]
+    needs:
+      - VPR
+      - VPRFASM2Bels
+      - QuickLogic
+      - Vivado
+      - YosysVivado
+      - YosysVivadoUHDM
+      - VivadoAlreadySynthesized
+      - NextpnrFPGAInterchange
+      - NextpnrFPGAInterchangeAlreadySynthesized
+      - NextpnrFPGAInterchangeExperimentalAlreadySynthesized
+      - NextpnrIce40
+      - NextpnrNexus
+      - NextpnrXilinx
+      - NextpnrXilinxFASM2Bels
 
     runs-on: [self-hosted, Linux, X64]
     container: ubuntu:focal
