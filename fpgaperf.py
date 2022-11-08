@@ -206,6 +206,7 @@ def run(
 
     logger.debug("Preparing Project")
     project_dict = get_project(project)
+    project_name = project_dict["name"]
 
     board_info = get_boards()[board]
     family = board_info['family']
@@ -228,10 +229,10 @@ def run(
 
     # Constraint files shall be in their directories
     logger.debug("Getting Constraints")
-    pcf = get_constraint(project, board, toolchain, 'pcf')
-    sdc = get_constraint(project, board, toolchain, 'sdc')
-    xdc = get_constraint(project, board, toolchain, 'xdc')
-    pdc = get_constraint(project, board, toolchain, 'pdc')
+    pcf = get_constraint(project_name, board, toolchain, 'pcf')
+    sdc = get_constraint(project_name, board, toolchain, 'sdc')
+    xdc = get_constraint(project_name, board, toolchain, 'xdc')
+    pdc = get_constraint(project_name, board, toolchain, 'pdc')
 
     # XXX: sloppy path handling here...
     tch.pcf = os.path.realpath(pcf) if pcf else None
