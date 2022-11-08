@@ -1,5 +1,5 @@
 srcs:
- - src/gnl-2-4-5-1.3-gnl-2500-03-5-80-80-xcup/gnl_2_4_5_1.3_gnl_2500_03_5_80_80_xcup.netlist
+ - src/gnl-2-4-5-1.3-gnl-2500-03-5-80-80/gnl_2_4_5_1.3_gnl_2500_03_5_80_80_xcup.netlist
 top: gnl-2-4-5-1.3-gnl-2500-03-5-80-80
 name: gnl-2-4-5-1.3-gnl-2500-03-5-80-80
 clocks:
