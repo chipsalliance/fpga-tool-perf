@@ -3,9 +3,6 @@ name: Full Test Suite
 on:
   workflow_call:
     secrets:
-      GCP_SERVICE_ACCOUNT_KEY_FILE:
-        description: 'GCP SERVICE_ACCOUNT_KEY_FILE.'
-        required: false
       GCP_STORAGE_BUCKET:
         description: 'GCP STORAGE_BUCKET.'
         required: false
@@ -638,12 +635,22 @@ jobs:
     # Restore all the others once this works
     needs: [VPR, VPRFASM2Bels, Vivado, YosysVivado, YosysVivadoUHDM, QuickLogic, NextpnrFPGAInterchange, NextpnrIce40, NextpnrNexus, NextpnrXilinx, NextpnrXilinxFASM2Bels]
 
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
+    container: ubuntu:focal
+    env:
+      GHA_SA: gh-sa-fpga-tool-perf-ci
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
+      - name: Install prerequisites
+        run: |
+          apt update -qqy
+          apt install -qqy curl python3 python3-pip gnupg2
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+          apt update -qqy
+          apt install -qqy google-cloud-cli
 
       - uses: actions/download-artifact@v3
 
@@ -662,9 +669,5 @@ jobs:
       - name: Upload to GCP
         if: ${{ (github.event_name == 'push' || github.event_name == 'schedule') &&
                 github.ref == 'refs/heads/main' }}
-        uses: weslenng/gcp-storage-sync@master
-        env:
-          GCP_SERVICE_ACCOUNT_KEY_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_FILE }}
-          GCP_STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
-          SOURCE_DIR: "upload"
-
+        run: |
+          gsutil -m cp upload/* gs://${{ secrets.GCP_STORAGE_BUCKET }}
