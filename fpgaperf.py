@@ -296,7 +296,15 @@ def get_combinations():
 
                     if board_info is None or b not in board_info:
                         continue
+
+                    if t == 'vpr' and project_name != 'baselitex':
+                        continue
+
+                    if t == 'vpr-fasm2bels' and project_name not in ['blinky', 'oneblink']:
+                        continue
+
                     combs.append((project_name, t, b))
+
     return combs
 
 
