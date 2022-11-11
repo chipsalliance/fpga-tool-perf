@@ -20,6 +20,7 @@
 import glob
 import logging
 from pathlib import Path
+import traceback
 import os
 import re
 import signal
@@ -29,7 +30,7 @@ from terminaltables import AsciiTable
 
 from toolchains.icestorm import NextpnrIcestorm
 from toolchains.nextpnr import (
-    NextpnrOxide, NextpnrXilinx, NextpnrFPGAInterchange,
+    NextpnrOxide, NextpnrXilinx, NextpnrXilinxNoSynth, NextpnrFPGAInterchange,
     NextPnrInterchangeNoSynth, NextPnrInterchangeExperimentalNoSynth
 )
 from toolchains.vivado import Vivado, VivadoYosys, VivadoYosysUhdm
@@ -61,6 +62,8 @@ toolchains = {
         NextpnrXilinx,
     'nextpnr-xilinx-fasm2bels':
         NextpnrXilinxFasm2Bels,
+    'nextpnr-xilinx-already-synth':
+        NextpnrXilinxNoSynth,
     'nextpnr-fpga-interchange':
         NextpnrFPGAInterchange,
     'nextpnr-fpga-interchange-already-synth':
@@ -263,10 +266,14 @@ def run(
         tch.run()
         signal.alarm(0)
     except Exception as e:
+        stacktrace = traceback.format_exc()
+        stacktrace = stacktrace.split("\n")
         err = str(e)
         if not verbose and len(err) > 1000:
             err = f"[...]\n{err[-1000:]}"
-        logger.debug(f"ERROR: {err}")
+        for line in stacktrace:
+            logger.error(f"ERROR: {line}")
+        logger.error(f"ERROR: {err}")
         err = err.split("\n")
     else:
         logger.debug("Printing Stats")

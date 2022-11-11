@@ -13,3 +13,4 @@ vendors:
     - quickfeather
 required_toolchains:
   - quicklogic
+  - nextpnr-xilinx-already-synth

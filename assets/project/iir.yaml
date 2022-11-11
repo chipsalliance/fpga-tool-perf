@@ -9,3 +9,5 @@ vendors:
     - chandalar
     - quickfeather
 required_toolchains: []
+skip_toolchains:
+  - nextpnr-xilinx-already-synth

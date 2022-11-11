@@ -768,6 +768,72 @@ class NextpnrXilinx(NextpnrGeneric):
         NextpnrGeneric.generic_run(self, self.prepare_edam)
 
 
+class NextpnrXilinxNoSynth(NextpnrXilinx):
+    '''nextpnr Xilinx variant using Yosys for synthesis'''
+    def __init__(self, rootdir):
+        super().__init__(rootdir)
+        self.toolchain = 'nextpnr-xilinx-already-synth'
+        self.nextpnr_log = 'next.log'
+
+    def add_common_files(self):
+        for f in self.srcs:
+            if f.endswith(".json"):
+                self.files.append(get_file_dict(f, 'jsonNetlist'))
+
+        if self.xdc:
+            self.files.append(get_file_dict(self.xdc, 'XDC'))
+
+    def prepare_edam(self):
+        assert "fasm2bels" not in self.toolchain, "fasm2bels unsupported for fpga_interchange variant"
+
+        edam = super().prepare_edam()
+        edam['tool_options']['nextpnr'] = edam['tool_options']['symbiflow']
+        del edam['tool_options']['symbiflow']
+
+        tool_options = edam['tool_options']['nextpnr']
+        tool_options["nextpnr_options"] = ["--chipdb {}".format(self.chipdb)]
+        del tool_options["package"]
+
+        import pprint
+        pprint.pprint(edam)
+
+        return edam
+
+    def run(self):
+        with Timed(self, 'total'):
+            with Timed(self, 'prepare'):
+                self.edam = self.prepare_edam()
+                os.environ["EDALIZE_LAUNCHER"
+                           ] = f"source {self.env_script} nextpnr &&"
+                self.backend = edalize.get_edatool('nextpnr')(
+                    edam=self.edam, work_root=self.out_dir
+                )
+                self.backend.flow_config = {'arch': self.arch}
+                self.backend.configure("")
+
+            self.backend.build_main(self.project_name + '.fasm')
+
+        del os.environ["EDALIZE_LAUNCHER"]
+
+        self.add_runtimes()
+        self.add_wirelength()
+
+    def add_runtimes(self):
+        """Returns the runtimes of the various steps"""
+
+        nextpnr_log = os.path.join(self.out_dir, self.nextpnr_log)
+        impl_times = self.get_nextpnr_runtimes(nextpnr_log)
+
+        for t in impl_times:
+            self.add_runtime(t, impl_times[t])
+
+    def resources(self):
+        impl_resources = self.get_resources()
+        impl_resources = self.get_resources_count(impl_resources)
+
+        return {"synth": impl_resources, "impl": impl_resources}
+
+
 class NextpnrOxide(NextpnrGeneric):
     '''Nextpnr PnR + Yosys synthesis'''
     def __init__(self, rootdir):

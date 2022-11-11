@@ -29,3 +29,5 @@ vendors:
 # TODO: yosys seems to infer more RAM blocks than the available ones
 #required_toolchains:
 #  - nextpnr-ice40
+skip_toolchains:
+  - nextpnr-xilinx-already-synth

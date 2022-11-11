@@ -13,6 +13,7 @@ xilinx:
     - vpr
     - vpr-fasm2bels
     - nextpnr-xilinx
+    - nextpnr-xilinx-already-synth
     - nextpnr-fpga-interchange
     - nextpnr-fpga-interchange-already-synth
     - nextpnr-fpga-interchange-experimental-already-synth

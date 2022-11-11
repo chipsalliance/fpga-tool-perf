@@ -16,3 +16,4 @@ skip_toolchains:
   - vpr-fasm2bels
   - nextpnr-fpga-interchange-already-synth
   - nextpnr-fpga-interchange-experimental-already-synth
+  - nextpnr-xilinx-already-synth
