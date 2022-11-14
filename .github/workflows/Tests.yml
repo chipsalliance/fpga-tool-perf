@@ -40,7 +40,7 @@ jobs:
         python --version
         pip install yapf==0.31.0
         make format
-        test $(git status --porcelain | wc -l) -eq 0 || { git diff; false;  }
+        test $(git status --untracked-files=no --porcelain | wc -l) -eq 0 || { git diff; false;  }
 
     - name: Check license
       run: source .github/scripts/check_license.sh
@@ -52,7 +52,7 @@ jobs:
       run: |
         make env
         make install_f4pga
-    
+
     - name: Run tests
       run: |
         source env.sh
