@@ -30,7 +30,13 @@ DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-instal
   unzip \
   default-jdk \
   xz-utils \
-  libtinfo5
+  libtinfo5 \
+  locales
+echo '::endgroup::'
+
+echo '::group::Locales setup'
+$(command -v sudo) locale-gen en_US.UTF-8
+$(command -v sudo) dpkg-reconfigure --frontend=noninteractive locales
 echo '::endgroup::'
 
 echo '::group::Installing Python packages'
