@@ -1,0 +1,23 @@
+srcs:
+ - src/gnl-2-4-3-1.3-gnl-2000-03-3-80-80/gnl_2_4_3_1.3_gnl_2000_03_3_80_80_xc7.netlist
+top: gnl-2-4-3-1.3-gnl-2000-03-3-80-80
+name: gnl-2-4-3-1.3-gnl-2000-03-3-80-80
+clocks:
+  clk: 10.0
+vendors:
+  xilinx:
+    - arty-a35t
+    - arty-a100t
+    - nexys-video
+# Known to fail from: https://github.com/chipsalliance/fpga-interchange-tests/issues/122
+# required_toolchains:
+#   - nextpnr-fpga-interchange-already-synth
+skip_toolchains:
+  - vivado
+  - yosys-vivado
+  - yosys-vivado-uhdm
+  - vpr
+  - vpr-fasm2bels
+  - nextpnr-xilinx
+  - nextpnr-xilinx-fasm2bels
+  - nextpnr-fpga-interchange

@@ -45,6 +45,7 @@ def get_vivado_max_freq(report_file):
 
     group = ""
     delay = ""
+    requirement = ""
     freq = 0
     freqs = dict()
     path_type = None

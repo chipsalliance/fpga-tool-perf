@@ -8,6 +8,7 @@ xilinx:
     - xczu7ev
   toolchains:
     - vivado
+    - vivado-already-synth
     - yosys-vivado
     - yosys-vivado-uhdm
     - vpr

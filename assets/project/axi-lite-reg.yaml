@@ -11,8 +11,9 @@ required_toolchains:
   - vpr
 skip_toolchains:
   - nextpnr-fpga-interchange
-  - yosys-vivado-uhdm
-  - yosys-vivado
-  - vpr-fasm2bels
   - nextpnr-fpga-interchange-already-synth
   - nextpnr-fpga-interchange-experimental-already-synth
+  - vivado-already-synth
+  - vpr-fasm2bels
+  - yosys-vivado
+  - yosys-vivado-uhdm

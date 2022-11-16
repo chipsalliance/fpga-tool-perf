@@ -1,0 +1,22 @@
+srcs:
+ - src/gnl-2-4-5-2.0-gnl-2000-08-5-80-80/gnl_2_4_5_2.0_gnl_2000_08_5_80_80_xcup.netlist
+top: gnl-2-4-5-2.0-gnl-2000-08-5-80-80
+name: gnl-2-4-5-2.0-gnl-2000-08-5-80-80
+clocks:
+  clk: 10.0
+vendors:
+  xilinx:
+    - xczu7ev
+# Known to fail from: https://github.com/chipsalliance/fpga-interchange-tests/issues/122
+# required_toolchains:
+#   - nextpnr-fpga-interchange-already-synth
+skip_toolchains:
+  - vivado
+  - vivado-already-synth
+  - yosys-vivado
+  - yosys-vivado-uhdm
+  - vpr
+  - vpr-fasm2bels
+  - nextpnr-xilinx
+  - nextpnr-xilinx-fasm2bels
+  - nextpnr-fpga-interchange

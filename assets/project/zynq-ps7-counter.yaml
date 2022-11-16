@@ -18,3 +18,4 @@ required_toolchains:
 skip_toolchains:
   - nextpnr-fpga-interchange-already-synth
   - nextpnr-fpga-interchange-experimental-already-synth
+  - vivado-already-synth

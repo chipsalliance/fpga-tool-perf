@@ -72,6 +72,9 @@ install_interchange:
 		DEVICE_DATA_URL=$$(curl -fsSL ${INTERCHANGE_RELEASES_URL}/interchange-$${device}-latest); \
 		curl -fsSL $${DEVICE_DATA_URL} | tar -xJC env/interchange/devices; \
 	done
+	make install_rapidwright
+
+install_rapidwright:
 	pushd ${RAPIDWRIGHT_PATH} && \
 		./gradlew updateJars --no-watch-fs && \
 		make compile && \

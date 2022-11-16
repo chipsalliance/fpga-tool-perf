@@ -559,7 +559,7 @@ class NextPnrInterchangeNoSynth(NextpnrFPGAInterchange):
         # FIXME: Why that's not needed in NextpnrInterchange ??
         package = self.package
         if "-" in package:
-            package = package.rsplit("-", maxsplit=1)[0]
+            package = package.split("-", maxsplit=1)[0]
 
         options = self.tool_options
         options['arch'] = 'fpga_interchange'
