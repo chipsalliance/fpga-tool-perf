@@ -30,7 +30,13 @@ DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-instal
   unzip \
   default-jdk \
   xz-utils \
-  libtinfo5
+  libtinfo5 \
+  locales
+echo '::endgroup::'
+
+echo '::group::Locales setup'
+$(command -v sudo) locale-gen en_US.UTF-8
+$(command -v sudo) dpkg-reconfigure --frontend=noninteractive locales
 echo '::endgroup::'
 
 echo '::group::Installing Python packages'
@@ -54,7 +60,20 @@ done
 if [ ! -z "$USE_VIVADO" ]; then
   echo '::group::Creating Vivado Symbolic Link'
   ln -s /mnt/aux/Xilinx /opt/Xilinx
-  source /opt/Xilinx/Vivado/2017.2/settings64.sh
+  echo "Available Vivado versions:"
+  find /opt/Xilinx/Vivado/ -regex ".*[0-90-90-90-9].[0-9]/settings64.sh" \
+    -exec bash -c "echo {} | sed \"s/.*\([0-9]\{4\}\.[0-9]\).*/- \1/g\"" \;
+  echo '::endgroup::'
+
+  echo '::group::Select Vivado version'
+  VIVADO_VERSION="2017.2"
+  if [ "$BOARD" == "xczu7ev" ]; then
+    VIVADO_VERSION="2021.2"
+  fi
+  export VIVADO_SETTINGS="/opt/Xilinx/Vivado/${VIVADO_VERSION}/settings64.sh"
+  echo VIVADO_SETTINGS="${VIVADO_SETTINGS}" >> $GITHUB_ENV
+  echo "Selected Vivado version is ${VIVADO_VERSION}"
+  source "${VIVADO_SETTINGS}"
   vivado -version
   echo '::endgroup::'
 fi

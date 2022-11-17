@@ -12,7 +12,6 @@ vendors:
 #   - nextpnr-fpga-interchange-already-synth
 skip_toolchains:
   - vivado
-  - vivado-already-synth
   - yosys-vivado
   - yosys-vivado-uhdm
   - vpr

@@ -21,7 +21,7 @@ if [ -z "${FPGA_TOOL_PERF_BASE_DIR}" ]; then
 fi
 if [ -z "${VIVADO_SETTINGS}" ]; then
     #FIXME: to use the conda xilinx-vivado virtual package when available
-    export VIVADO_SETTINGS=`find /opt/Xilinx/Vivado/ -regex ".*[0-90-90-90-9].[0-9]/settings64.sh"`
+    export VIVADO_SETTINGS=$(find /opt/Xilinx/Vivado/ -regex ".*[0-90-90-90-9].[0-9]/settings64.sh" | head -n 1)
 fi
 if [ -z "${QUICKLOGIC}" ]; then
     export QUICKLOGIC=${FPGA_TOOL_PERF_BASE_DIR}/env/quicklogic
