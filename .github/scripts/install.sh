@@ -64,6 +64,18 @@ if [ ! -z "$USE_VIVADO" ]; then
   find /opt/Xilinx/Vivado/ -regex ".*[0-90-90-90-9].[0-9]/settings64.sh" \
     -exec bash -c "echo {} | sed \"s/.*\([0-9]\{4\}\.[0-9]\).*/- \1/g\"" \;
   echo '::endgroup::'
+
+  echo '::group::Select Vivado version'
+  VIVADO_VERSION="2017.2"
+  if [ "$BOARD" == "xczu7ev" ]; then
+    VIVADO_VERSION="2021.2"
+  fi
+  export VIVADO_SETTINGS="/opt/Xilinx/Vivado/${VIVADO_VERSION}/settings64.sh"
+  echo VIVADO_SETTINGS="${VIVADO_SETTINGS}" >> $GITHUB_ENV
+  echo "Selected Vivado version is ${VIVADO_VERSION}"
+  source "${VIVADO_SETTINGS}"
+  vivado -version
+  echo '::endgroup::'
 fi
 
 if [ ! -z "$RW_LINK" ]; then
