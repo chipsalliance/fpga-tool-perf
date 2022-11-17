@@ -60,8 +60,9 @@ done
 if [ ! -z "$USE_VIVADO" ]; then
   echo '::group::Creating Vivado Symbolic Link'
   ln -s /mnt/aux/Xilinx /opt/Xilinx
-  source /opt/Xilinx/Vivado/2017.2/settings64.sh
-  vivado -version
+  echo "Available Vivado versions:"
+  find /opt/Xilinx/Vivado/ -regex ".*[0-90-90-90-9].[0-9]/settings64.sh" \
+    -exec bash -c "echo {} | sed \"s/.*\([0-9]\{4\}\.[0-9]\).*/- \1/g\"" \;
   echo '::endgroup::'
 fi
 
