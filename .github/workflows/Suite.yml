@@ -34,8 +34,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y curl wget
-          export LINK=$(curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")
-          echo ::set-output name=link::$LINK
+          echo "link=$(curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")" >> $GITHUB_OUTPUT
 
       - name: Generate Matrix
         id: generate
