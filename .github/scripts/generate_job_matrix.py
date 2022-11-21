@@ -17,14 +17,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from os import environ
+from sys import argv as sys_argv, exit as sys_exit
 from fpgaperf import get_combinations, get_projects, get_project, toolchains
-import sys
 
-if len(sys.argv) < 2:
-    print("Usage {} <tool>".format(sys.argv[0]))
-    sys.exit(1)
+if len(sys_argv) < 2:
+    print("Usage {} <tool>".format(sys_argv[0]))
+    sys_exit(1)
 
-tools = sys.argv[1:]
+tools = sys_argv[1:]
 
 all_toolchains = "all" in tools
 
@@ -54,4 +55,6 @@ for project_file in get_projects():
                 )
 
 matrices = {tool.replace('-', '_'): content for tool, content in jobs.items()}
-print(f"::set-output name=matrices::{matrices}")
+
+with open(environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as gho:
+    gho.write(f"matrices={matrices!s}\n")
