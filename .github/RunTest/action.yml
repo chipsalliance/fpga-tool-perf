@@ -1,0 +1,49 @@
+name: 'Run fpga-tool-perf test'
+description: 'Run fpga-tool-perf test'
+
+inputs:
+  environment:
+    description: 'Name of the Conda environment.'
+    required: true
+  project:
+    description: 'Project.'
+    required: true
+  board:
+    description: 'Board.'
+    required: true
+  toolchain:
+    description: 'Toolchain.'
+    required: true
+  install:
+    description: 'Additional install options.'
+    required: false
+  timeout:
+    description: 'Timeout.'
+    required: false
+    default: 7200
+
+runs:
+  using: 'composite'
+  steps:
+
+    - shell: bash
+      run: ./.github/scripts/install.sh -t ${{ inputs.toolchain }} -b ${{ inputs.board }} ${{ inputs.install }}
+
+    - shell: bash
+      run: >
+        source env.sh ${{ inputs.environment }} &&
+        python3 exhaust.py
+        --verbose
+        --project ${{ inputs.project }}
+        --toolchain ${{ inputs.toolchain }}
+        --board ${{ inputs.board }}
+        --build_type ${{ inputs.project }}-${{ inputs.toolchain }}-${{ inputs.board }}
+        --fail
+        --timeout ${{ inputs.timeout }}
+
+    - uses: actions/upload-artifact@v3
+      if: ${{ always() }}
+      with:
+        path: |
+          **/results*.gz
+          **/plot_*.svg
