@@ -28,6 +28,7 @@ The output of this script are the following:
 
 import jinja2
 from argparse import ArgumentParser
+from jsmin import jsmin
 import os
 
 from generate_index_page import generate_index_html
@@ -82,7 +83,7 @@ def main():
 
         os.makedirs(data_dir, exist_ok=True)
         with open(os.path.join(data_dir, 'data.js'), 'w') as out_file:
-            out_file.write(data_page)
+            out_file.write(jsmin(data_page))
 
 
 if __name__ == "__main__":
