@@ -294,7 +294,7 @@ def generate_device_data(results: ProjectResults):
 
 def generate_index_html(
     index_template: jinja2.Template, data_template: jinja2.Template,
-    results: List[ProjectResults]
+    main_template: jinja2.Template, results: List[ProjectResults]
 ):
     print('Generating index page...')
 
@@ -381,6 +381,16 @@ def generate_index_html(
         projects=sorted(projects)
     )
 
-    data_page = data_template.render(devices_data=device_data)
+    var_name = dict()
+    for project in device_data.keys():
+        var_name[project] = project.replace("-", "_").replace(".", "_")
 
-    return index_page, data_page
+    data_pages = dict()
+    for project, data in device_data.items():
+        data_pages[project] = data_template.render(
+            var_name=var_name[project], device_data=data
+        )
+
+    main_page = main_template.render(var_name=var_name)
+
+    return index_page, data_pages, main_page

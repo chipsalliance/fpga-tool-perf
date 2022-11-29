@@ -68,6 +68,10 @@
     </div>
   </body>
 
+{% for project, devices in device_data.items() %}
+<script type="text/javascript" src="data/{{project}}.js"></script>
+{% endfor %}
+
 <script type="text/javascript" src="data/data.js"></script>
 <script charset="utf-8">
 

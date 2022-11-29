@@ -28,6 +28,7 @@ The output of this script are the following:
 
 import jinja2
 from argparse import ArgumentParser
+from jsmin import jsmin
 import os
 
 from generate_index_page import generate_index_html
@@ -55,7 +56,8 @@ def main():
         os.makedirs(args.in_dir)
 
     index_template = env.get_template('index.html')
-    data_template = env.get_template('data.js')
+    data_template = env.get_template('projects.js')
+    main_template = env.get_template('data.js')
 
     results = list()
 
@@ -69,9 +71,13 @@ def main():
         project_results = ProjectResults(project_name, project_dir)
         results.append(project_results)
 
-    index_page, data_page = generate_index_html(
-        index_template, data_template, results
+    index_page, data_pages, main_page = generate_index_html(
+        index_template, data_template, main_template, results
     )
+
+    # Minimize javascript files
+    for project, data in data_pages.items():
+        data_pages[project] = jsmin(data)
 
     if args.out_dir:
         index_path = os.path.join(args.out_dir, 'index.html')
@@ -81,8 +87,13 @@ def main():
         data_dir = os.path.join(args.out_dir, 'data')
 
         os.makedirs(data_dir, exist_ok=True)
-        with open(os.path.join(data_dir, 'data.js'), 'w') as out_file:
-            out_file.write(data_page)
+        for project, data in data_pages.items():
+            with open(os.path.join(data_dir, f'{project}.js'),
+                      'w') as out_file:
+                out_file.write(data)
+
+        with open(os.path.join(data_dir, "data.js"), 'w') as out_file:
+            out_file.write(main_page)
 
 
 if __name__ == "__main__":
