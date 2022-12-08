@@ -298,8 +298,7 @@ class VivadoNoSynth(Vivado):
 
     def get_output_edif_name(self, netlist):
         basename = os.path.basename(netlist)
-        path, _ = os.path.splitext(basename)
-        edif_path = os.path.join(self.out_dir, self.project_name + ".edif")
+        edif_path = os.path.join(self.out_dir, self.top + ".edif")
         return os.path.abspath(edif_path)
 
     def prepare_output_edif(self, netlist):
