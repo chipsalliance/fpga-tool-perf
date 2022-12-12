@@ -367,6 +367,30 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
+  NextpnrFPGAInterchangeConstSeedAlreadySynthesized:
+    needs: Matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange_const_seed_already_synth }}
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+
+    container: ubuntu:focal
+
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+      - uses: ./.github/RunTest
+        with:
+          environment: nextpnr
+          project: ${{ matrix.project }}
+          toolchain: ${{ matrix.toolchain }}
+          board: ${{ matrix.board }}
+          install: -v -l $(echo ${{needs.Matrix.outputs.link}})
 
   NextpnrIce40:
     needs: Matrix

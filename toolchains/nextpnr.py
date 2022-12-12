@@ -702,6 +702,12 @@ class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
         self.tool_options['binary_path'] = self.toolchain_bin
 
 
+class NextpnrFPGAInterchangeNoSynthConstSeed(NextPnrInterchangeNoSynth):
+    def configure(self):
+        super().configure()
+        self.tool_options['nextpnr_options'] += ['--seed', '0']
+
+
 class NextpnrXilinx(NextpnrGeneric):
     '''nextpnr Xilinx variant using Yosys for synthesis'''
     def __init__(self, rootdir):
