@@ -51,15 +51,15 @@ jobs:
 
       - name: Build Tools
         run: |
-          bash .github/scripts/build_nextpnr_fpga_interchange.sh
-          mv ./third_party/nextpnr/nextpnr-fpga_interchange ./third_party/nextpnr/nextpnr-fpga_interchange.this_is_a_file
+          ./.github/scripts/build_nextpnr_fpga_interchange.sh
+          cp ./third_party/nextpnr/nextpnr-fpga_interchange nextpnr-fpga_interchange-experimental
 
       - name: Upload nextpnr-fpga_interchange-experimental
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: nextpnr-fpga_interchange-experimental
-          path: ./third_party/nextpnr/nextpnr-fpga_interchange.this_is_a_file
+          path: nextpnr-fpga_interchange-experimental
 
 
   # Symbiflow tests
@@ -333,12 +333,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: nextpnr-fpga_interchange-experimental
-          path: ./download/
 
       - name: Install nextpnr-fpga_interchange-experimental
         run: |
-          mv ./download/nextpnr-fpga_interchange.this_is_a_file /usr/bin/nextpnr-fpga_interchange-experimental
-          chmod +x /usr/bin/nextpnr-fpga_interchange-experimental
+          chmod +x nextpnr-fpga_interchange-experimental
+          mv nextpnr-fpga_interchange-experimental /usr/local/bin
           DEBIAN_FRONTEND=noninteractive apt update -qq
           DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
             libtcl8.6 \
