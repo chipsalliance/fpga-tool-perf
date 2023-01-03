@@ -32,7 +32,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y curl wget
-          echo "link=$(curl -s https://api.github.com/repos/Xilinx/RapidWright/releases/latest | grep "browser_download_url.*_jars.zip" | cut -d : -f 2,3 | tr -d \" | tr -d " ")" >> $GITHUB_OUTPUT
+          ./.github/scripts/get_rapidwright_link.sh | tee -a $GITHUB_OUTPUT
 
       - name: Generate Matrix
         id: generate
