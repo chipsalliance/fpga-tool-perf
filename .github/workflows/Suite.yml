@@ -12,6 +12,10 @@ on:
 env:
   timeout: 7200
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
 
   Matrix:
