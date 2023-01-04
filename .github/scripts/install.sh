@@ -31,8 +31,7 @@ DEBIAN_FRONTEND=noninteractive $(command -v sudo) apt install -qq -y --no-instal
   default-jdk \
   xz-utils \
   libtinfo5 \
-  locales \
-  libtbb2
+  locales
 echo '::endgroup::'
 
 echo '::group::Locales setup'
