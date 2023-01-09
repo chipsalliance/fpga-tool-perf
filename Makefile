@@ -67,11 +67,15 @@ install_f4pga: | $(CONDA_ENV_PYTHON)
 install_interchange:
 	mkdir -p env/interchange/devices
 	TECHMAP_DATA_URL=$$(curl -fsSL ${INTERCHANGE_RELEASES_URL}/interchange-techmaps-latest); \
+	echo "FPGA Interchange techmaps URL: $${TECHMAP_DATA_URL}"; \
 	curl -fsSL $${TECHMAP_DATA_URL} | tar -xJC env/interchange; \
 	for device in ${INTERCHANGE_DEVICES}; do \
 		DEVICE_DATA_URL=$$(curl -fsSL ${INTERCHANGE_RELEASES_URL}/interchange-$${device}-latest); \
+		echo "FPGA Interchange $${device} data URL: $${DEVICE_DATA_URL}"; \
 		curl -fsSL $${DEVICE_DATA_URL} | tar -xJC env/interchange/devices; \
 	done
+	@echo "FPGA Interchange device data MD5 checksums:"
+	@find env/interchange/devices -type f | xargs md5sum
 	make install_rapidwright
 
 install_rapidwright:
