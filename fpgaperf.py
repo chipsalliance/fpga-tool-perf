@@ -25,6 +25,7 @@ import re
 import signal
 import sys
 import yaml
+import traceback
 from terminaltables import AsciiTable
 
 from toolchains.icestorm import NextpnrIcestorm
@@ -271,7 +272,13 @@ def run(
         err = str(e)
         if not verbose and len(err) > 1000:
             err = f"[...]\n{err[-1000:]}"
-        logger.debug(f"ERROR: {err}")
+        logger.error(err)
+
+        if verbose:
+            trace = traceback.format_exc()
+            for line in trace.split("\n"):
+                logger.error(line)
+
         err = err.split("\n")
     else:
         logger.debug("Printing Stats")
