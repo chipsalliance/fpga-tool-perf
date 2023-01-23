@@ -699,7 +699,18 @@ class NextPnrInterchangeExperimentalNoSynth(NextPnrInterchangeNoSynth):
 
     def configure(self):
         super().configure()
+
         self.tool_options['binary_path'] = self.toolchain_bin
+
+        nisp_data = os.path.join(
+            self.rootdir, 'env', 'interchange', 'devices', self.chip,
+            '{}_site_routability.json'.format(self.chip)
+        )
+
+        self.tool_options['nextpnr_options'].extend([
+            "--site-routing-graph",
+            nisp_data
+        ])
 
 
 class NextpnrXilinx(NextpnrGeneric):
