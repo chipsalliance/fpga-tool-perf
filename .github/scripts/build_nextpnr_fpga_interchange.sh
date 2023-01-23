@@ -28,6 +28,6 @@ echo '::endgroup::'
 
 echo '::group::Building nextpnr-fpga_interchange'
 cd ./third_party/nextpnr
-cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=`realpath ../RapidWright` -DINTERCHANGE_SCHEMA_PATH=`realpath ../fpga-interchange-schema`
-make
+cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=`realpath ../RapidWright` -DINTERCHANGE_SCHEMA_PATH=`realpath ../fpga-interchange-schema` -DENABLE_NISP=ON
+make -j `nproc`
 echo '::endgroup::'
