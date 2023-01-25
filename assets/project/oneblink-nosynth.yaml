@@ -12,6 +12,7 @@ vendors:
     - xczu7ev
 required_toolchains:
   - nextpnr-fpga-interchange-already-synth
+  - nextpnr-fpga-interchange-experimental-already-synth-single-thread
 skip_toolchains:
   - nextpnr-fpga-interchange
   - nextpnr-xilinx

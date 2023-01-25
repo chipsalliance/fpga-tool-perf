@@ -65,6 +65,26 @@ jobs:
           name: nextpnr-fpga_interchange-experimental
           path: nextpnr-fpga_interchange-experimental
 
+  Build_nextpnr-fpga_interchange-experimental-single-thread:
+
+    container: ubuntu:focal
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+
+      - name: Build Tools
+        run: |
+          ./.github/scripts/build_nextpnr_fpga_interchange.sh single_thread
+          cp ./third_party/nextpnr/nextpnr-fpga_interchange nextpnr-fpga_interchange-experimental-single-thread
+
+      - name: Upload nextpnr-fpga_interchange-experimental-single-thread
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: nextpnr-fpga_interchange-experimental-single-thread
+          path: nextpnr-fpga_interchange-experimental-single-thread
 
   # Symbiflow tests
   VPR:
@@ -370,6 +390,62 @@ jobs:
             **/results*.gz
             **/plot_*.svg
 
+  NextpnrFPGAInterchangeExperimentalAlreadySynthesizedSingleThread:
+    needs:
+      - Matrix
+      - Build_nextpnr-fpga_interchange-experimental-single-thread
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange_experimental_already_synth_single_thread }}
+
+    container: ubuntu:focal
+    runs-on: [self-hosted, Linux, X64]
+
+    env:
+      GHA_EXTERNAL_DISK: "tools"
+
+    steps:
+
+      - {uses: actions/checkout@v3, with: { submodules: recursive }}
+
+      - name: Download nextpnr-fpga_interchange-experimental-single-thread
+        uses: actions/download-artifact@v3
+        with:
+          name: nextpnr-fpga_interchange-experimental-single-thread
+
+      - name: Install nextpnr-fpga_interchange-experimental-single-thread
+        run: |
+          chmod +x nextpnr-fpga_interchange-experimental-single-thread
+          mv nextpnr-fpga_interchange-experimental-single-thread /usr/local/bin
+          DEBIAN_FRONTEND=noninteractive apt update -qq
+          DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+            libtcl8.6 \
+            libboost-all-dev \
+            libcapnp-0.7.0
+
+      - name: Install
+        run: ./.github/scripts/install.sh -v -l $(echo ${{needs.Matrix.outputs.link}}) -t ${{ matrix.toolchain }} -b ${{ matrix.board }}
+
+      - name: Run Test
+        run: >
+          source env.sh nextpnr &&
+          python3 exhaust.py
+          --verbose
+          --project ${{ matrix.project }}
+          --toolchain ${{ matrix.toolchain }}
+          --board ${{ matrix.board }}
+          --build_type ${{ matrix.project }}-${{ matrix.toolchain }}-${{ matrix.board }}
+          --fail
+          --timeout ${{ env.timeout }}
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          path: |
+            **/results*.gz
+            **/plot_*.svg
 
   NextpnrIce40:
     needs: Matrix
@@ -476,6 +552,7 @@ jobs:
       - NextpnrFPGAInterchange
       - NextpnrFPGAInterchangeAlreadySynthesized
       - NextpnrFPGAInterchangeExperimentalAlreadySynthesized
+      - NextpnrFPGAInterchangeExperimentalAlreadySynthesizedSingleThread
       - NextpnrIce40
       - NextpnrNexus
       - NextpnrXilinx
