@@ -27,7 +27,10 @@ update-ca-certificates
 echo '::endgroup::'
 
 echo '::group::Building nextpnr-fpga_interchange'
+if [ "$1" == "no_threads" ]; then
+THREADS="-DUSE_THREADS=OFF"
+fi
 cd ./third_party/nextpnr
-cmake . -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=`realpath ../RapidWright` -DINTERCHANGE_SCHEMA_PATH=`realpath ../fpga-interchange-schema`
+cmake . ${THREADS} -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=`realpath ../RapidWright` -DINTERCHANGE_SCHEMA_PATH=`realpath ../fpga-interchange-schema`
 make
 echo '::endgroup::'
