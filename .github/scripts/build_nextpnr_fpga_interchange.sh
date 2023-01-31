@@ -27,7 +27,7 @@ update-ca-certificates
 echo '::endgroup::'
 
 echo '::group::Building nextpnr-fpga_interchange'
-if [ "$1" == "no_threads" ]; then
+if [ "$1" == "single_thread" ]; then
 THREADS="-DUSE_THREADS=OFF"
 fi
 cd ./third_party/nextpnr
