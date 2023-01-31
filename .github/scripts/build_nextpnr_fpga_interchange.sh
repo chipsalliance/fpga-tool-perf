@@ -28,7 +28,7 @@ echo '::endgroup::'
 
 if [ "$1" == "single_thread" ]; then
     VERSION="(single-thread)"
-    THREADS="-DUSE_THREADS=OFF"
+    THREADS="-DCMAKE_CXX_FLAGS='-DNPNR_DISABLE_THREADS'"
 fi
 
 echo "::group::Building nextpnr-fpga_interchange ${VERSION}"
