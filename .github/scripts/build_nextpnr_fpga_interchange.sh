@@ -26,10 +26,12 @@ echo '::group::Updating CA certificates'
 update-ca-certificates
 echo '::endgroup::'
 
-echo '::group::Building nextpnr-fpga_interchange'
 if [ "$1" == "single_thread" ]; then
-THREADS="-DUSE_THREADS=OFF"
+    VERSION="(single-thread)"
+    THREADS="-DUSE_THREADS=OFF"
 fi
+
+echo "::group::Building nextpnr-fpga_interchange ${VERSION}"
 cd ./third_party/nextpnr
 cmake . ${THREADS} -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=`realpath ../RapidWright` -DINTERCHANGE_SCHEMA_PATH=`realpath ../fpga-interchange-schema`
 make
