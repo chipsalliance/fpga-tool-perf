@@ -711,6 +711,7 @@ class NextPnrInterchangeExperimentalNoSynthSingleThread(
 
     def configure(self):
         super().configure()
+        self.tool_options['nextpnr_options'] = self.options + ['--threads=1']
         self.tool_options['binary_path'] = self.toolchain_bin
 
 
