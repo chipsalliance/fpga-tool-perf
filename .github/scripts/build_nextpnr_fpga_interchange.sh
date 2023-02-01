@@ -26,10 +26,12 @@ echo '::group::Updating CA certificates'
 update-ca-certificates
 echo '::endgroup::'
 
-echo '::group::Building nextpnr-fpga_interchange'
-if [ "$1" == "no_threads" ]; then
-THREADS="-DUSE_THREADS=OFF"
+if [ "$1" == "single_thread" ]; then
+    VERSION="(single-thread)"
+    THREADS="-DCMAKE_CXX_FLAGS='-DNPNR_DISABLE_THREADS'"
 fi
+
+echo "::group::Building nextpnr-fpga_interchange ${VERSION}"
 cd ./third_party/nextpnr
 cmake . ${THREADS} -DARCH=fpga_interchange -DRAPIDWRIGHT_PATH=`realpath ../RapidWright` -DINTERCHANGE_SCHEMA_PATH=`realpath ../fpga-interchange-schema`
 make
