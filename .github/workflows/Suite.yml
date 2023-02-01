@@ -46,7 +46,7 @@ jobs:
 
   Build_nextpnr-fpga_interchange-experimental:
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
     runs-on: [self-hosted, Linux, X64]
 
     steps:
@@ -67,7 +67,7 @@ jobs:
 
   Build_nextpnr-fpga_interchange-experimental-single-thread:
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
     runs-on: [self-hosted, Linux, X64]
 
     steps:
@@ -95,7 +95,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrices).vpr }}
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -120,7 +120,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -144,7 +144,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrices).quicklogic }}
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -170,7 +170,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -196,7 +196,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -222,7 +222,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -248,7 +248,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -292,7 +292,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -318,7 +318,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -343,7 +343,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange_experimental_already_synth }}
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
     runs-on: [self-hosted, Linux, X64]
 
     env:
@@ -400,7 +400,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_fpga_interchange_experimental_already_synth_single_thread }}
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
     runs-on: [self-hosted, Linux, X64]
 
     env:
@@ -455,7 +455,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_ice40 }}
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -477,7 +477,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_nexus }}
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -499,7 +499,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.Matrix.outputs.matrices).nextpnr_xilinx }}
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -524,7 +524,7 @@ jobs:
     env:
       GHA_EXTERNAL_DISK: "tools"
 
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
 
     runs-on: [self-hosted, Linux, X64]
 
@@ -559,7 +559,7 @@ jobs:
       - NextpnrXilinxFASM2Bels
 
     runs-on: [self-hosted, Linux, X64]
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
     env:
       GHA_SA: gh-sa-fpga-tool-perf-ci
 
