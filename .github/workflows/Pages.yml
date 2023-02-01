@@ -10,7 +10,7 @@ jobs:
   generate-results-page:
     if: ${{ !(github.actor == 'dependabot[bot]') }}
     runs-on: [self-hosted, Linux, X64]
-    container: ubuntu:focal
+    container: ubuntu:focal-20221130
     env:
       GHA_SA: gh-sa-fpga-tool-perf-ci
 
