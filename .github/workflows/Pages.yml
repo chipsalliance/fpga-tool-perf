@@ -13,6 +13,7 @@ jobs:
     container: ubuntu:focal-20221130
     env:
       GHA_SA: gh-sa-fpga-tool-perf-ci
+      GHA_MACHINE_TYPE: "n2-standard-4"
 
     steps:
       - uses: actions/checkout@v3
