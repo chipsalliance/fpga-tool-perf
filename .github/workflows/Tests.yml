@@ -17,6 +17,12 @@ jobs:
           - '3.9'
     steps:
 
+    - name: Hardware info
+      run: |
+        apt update -qq
+        apt install -qq -y hwinfo
+        hwinfo --short > hwinfo.txt
+
     - name: Install dependencies
       run: |
         apt update -qq
@@ -68,3 +74,4 @@ jobs:
       with:
         path: |
           **/plot_*.svg
+          hwinfo.txt

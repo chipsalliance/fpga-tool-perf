@@ -27,6 +27,12 @@ runs:
   steps:
 
     - shell: bash
+      run: |
+        apt update -qq
+        apt install -qq -y hwinfo
+        hwinfo --short | tee ${GITHUB_JOB}_hwinfo.txt
+
+    - shell: bash
       run: ./.github/scripts/install.sh -t ${{ inputs.toolchain }} -b ${{ inputs.board }} ${{ inputs.install }}
 
     - shell: bash
@@ -47,3 +53,4 @@ runs:
         path: |
           **/results*.gz
           **/plot_*.svg
+          **/*_hwinfo.txt
