@@ -24,6 +24,7 @@ import edalize
 
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec, get_yosys_resources, get_file_dict
+from utils.utils import removeprefix
 
 YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
 
@@ -182,7 +183,7 @@ class NextpnrIcestorm(Icestorm):
         self.toolchain = "nextpnr-ice40"
 
     def run(self):
-        self.device = self.device.lower().lstrip("ice40")
+        self.device = removeprefix(self.device.lower(), "ice40")
         self.package = self.package.lower().rstrip("i")
 
         args = ''

@@ -161,3 +161,17 @@ def safe_get_dict_value(dict, key, default):
 
 def get_file_dict(file_name, file_type):
     return dict(name=os.path.realpath(file_name), file_type=file_type)
+
+
+def removeprefix(string, prefix):
+    if string.startswith(prefix):
+        return string[len(prefix):]
+    else:
+        return string[:]
+
+
+def removesuffix(string, suffix):
+    if suffix and string.endswith(suffix):
+        return string[:-len(suffix)]
+    else:
+        return string[:]
