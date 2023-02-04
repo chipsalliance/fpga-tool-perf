@@ -26,6 +26,7 @@ import sys
 
 from toolchains.toolchain import Toolchain
 from utils.utils import Timed, have_exec, get_file_dict, get_vivado_max_freq, get_yosys_resources
+from utils.utils import removeprefix, removesuffix
 
 YOSYS_REGEXP = re.compile("(Yosys [a-z0-9+.]+) (\(git sha1) ([a-z0-9]+),.*")
 
@@ -259,6 +260,10 @@ class NextpnrGeneric(Toolchain):
         assert False, "No run time found for yosys."
 
     def get_nextpnr_runtimes(self, logfile):
+        def parse_time(string, prefix):
+            string = removeprefix(string, prefix)
+            return removesuffix(string, "s")
+
         log = dict()
 
         placement = 0.0
@@ -270,7 +275,7 @@ class NextpnrGeneric(Toolchain):
                 if len(l) == 0:
                     continue
 
-                l = l.lstrip("Info: ")
+                l = removeprefix(l, "Info: ")
                 heap_placer_string = "HeAP Placer Time: "
                 sa_placer_string = "SA placement time "
 
@@ -278,16 +283,16 @@ class NextpnrGeneric(Toolchain):
                 router2_string = "Router2 time "
 
                 if heap_placer_string in l:
-                    time = float(l.lstrip(heap_placer_string).rstrip("s"))
+                    time = float(parse_time(l, heap_placer_string))
                     placement += time
                 elif sa_placer_string in l:
-                    time = float(l.lstrip(sa_placer_string).rstrip("s"))
+                    time = float(parse_time(l, sa_placer_string))
                     placement += time
                 elif router1_string in l:
-                    time = float(l.lstrip(router1_string).rstrip("s"))
+                    time = float(parse_time(l, router1_string))
                     routing += time
                 elif router2_string in l:
-                    time = float(l.lstrip(router2_string).rstrip("s"))
+                    time = float(parse_time(l, router2_string))
                     routing += time
 
         log["place"] = placement
