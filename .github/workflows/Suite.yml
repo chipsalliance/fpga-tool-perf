@@ -11,6 +11,7 @@ on:
 
 env:
   timeout: 7200
+  GHA_MACHINE_TYPE: "n2-standard-4"
 
 defaults:
   run:
