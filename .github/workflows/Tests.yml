@@ -7,7 +7,7 @@ jobs:
 
   Run-tests:
     container: ubuntu:focal-20221130
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: [self-hosted, Linux, X64, gcp-custom-runners]
 
     env:
       GHA_MACHINE_TYPE: "n2-standard-4"
