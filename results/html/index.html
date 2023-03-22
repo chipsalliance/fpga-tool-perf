@@ -76,6 +76,7 @@
 <script charset="utf-8">
 
 var visible_elem = null;
+var visible_chart_ids = [];
 
 // sets visibility of an element with the w3-hide class by appending/removing w3-show class
 function setVisibility(elem, on) {
@@ -183,7 +184,8 @@ function selectStat(elem_id, device, project) {
 }
 
 function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
-  return new Chart(document.getElementById(canvas_name), {
+    visible_chart_ids.push(canvas_name);
+  const myChart = new Chart(document.getElementById(canvas_name), {
     type: 'line',
     data: {
       labels: labels,
@@ -205,7 +207,15 @@ function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
           },
         },
         legend: {
-          display: legend,
+          display: true,
+            onClick : (t, e, i) => {
+                const n = e.datasetIndex
+                    , o = i.chart;
+                visible_chart_ids.forEach(id => {
+                    const chart = Chart.getChart(document.getElementById(id));
+                    chart.isDatasetVisible(n)? chart.hide(n) : chart.show(n);
+                })
+            }
         },
         zoom: {
           zoom: {
@@ -243,6 +253,7 @@ function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
       }
     }
   });
+  return myChart;
 }
 
 function handleSearchQuery() {
@@ -259,6 +270,7 @@ function handleSearchQuery() {
   var device = params.get('device');
   var project = params.get('project');
   if (elem_id) {
+      visible_chart_ids = []
     selectStat(elem_id, device, project);
     selectGraph("runtime", device, project)
   }
