@@ -162,10 +162,18 @@ def get_entries(json_data: dict, project: str):
 
     entries = list()
     zipped = zip(
-        results['board'], results['toolchain'], results['max_freq'],
-        results['maximum_memory_use'], results['resources'],
-        results['runtime'], wirelength, status, results['toolchain'],
-        results['versions'] if 'versions' in results else {}, results['family'] if 'family' in results else {}, results['device']
+        results["board"],
+        results["toolchain"],
+        results["max_freq"],
+        results["maximum_memory_use"],
+        results["resources"],
+        results["runtime"],
+        wirelength,
+        status,
+        results["toolchain"],
+        results["versions"] if "versions" in results else {},
+        results["family"] if "family" in results else {},
+        results["device"],
     )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
             wirelength, status, toolchain, versions, family, device in zipped:
