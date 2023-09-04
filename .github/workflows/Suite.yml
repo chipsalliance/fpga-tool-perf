@@ -255,7 +255,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -565,7 +565,7 @@ jobs:
       GHA_SA: gh-sa-fpga-tool-perf-ci
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install prerequisites
         run: |
