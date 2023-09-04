@@ -34,7 +34,7 @@ jobs:
         update-alternatives --install /usr/bin/python python /usr/bin/python${{ matrix.python-version }} 1
         update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 

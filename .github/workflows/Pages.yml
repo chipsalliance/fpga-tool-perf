@@ -16,7 +16,7 @@ jobs:
       GHA_MACHINE_TYPE: "n2-standard-4"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name:  Install prerequisites
         run: |
