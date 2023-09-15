@@ -109,7 +109,9 @@ def null_generator():
 
 
 def get_entries(json_data: dict, project: str):
+
     def make_clks(clkdef: 'dict | float | None'):
+
         def get_clk(freq):
             clk = Clk()
             clk.actual = freq
@@ -165,7 +167,8 @@ def get_entries(json_data: dict, project: str):
         results['board'], results['toolchain'], results['max_freq'],
         results['maximum_memory_use'], results['resources'],
         results['runtime'], wirelength, status, results['toolchain'],
-        results['versions'], results['family'], results['device']
+        results['versions'] if 'versions' in results else {},
+        results['family'] if 'family' in results else {}, results['device']
     )
     for board, toolchain_dict, max_freq, max_mem_use, resources, runtime, \
             wirelength, status, toolchain, versions, family, device in zipped:
