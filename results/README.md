@@ -13,6 +13,6 @@ make env
 To generate the HTML pages to visualize the results run:
 
 ```
-make fetch
+make preprocess
 make build
 ```
