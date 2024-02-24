@@ -27,7 +27,7 @@
   </style>
   <body>
     <div id="header" class="w3-container w3-left w3-padding">
-      <h1>FPGA Tool Perf results</h1>
+      <h1>FPGA Tool Perf Results</h1>
     </div>
 
     <div class="w3-row">
@@ -183,7 +183,7 @@ function selectStat(elem_id, device, project) {
 }
 
 function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
-  return new Chart(document.getElementById(canvas_name), {
+  const chart = new Chart(document.getElementById(canvas_name), {
     type: 'line',
     data: {
       labels: labels,
@@ -240,10 +240,26 @@ function LineChart(canvas_name, title, unitstr, labels, datasets, legend) {
             }
           }
         }
-      }
+      },
     }
   });
+
+//Toolchain will be hidden when clicked
+document.getElementById(canvas_name).addEventListener('click', function(evt) {
+  const activePoints = chart.getElementsAtEventForMode(evt, 'point', { intersect: true }, true);
+
+  if (activePoints.length > 0) {
+      const clickedDatasetIndex = activePoints[0].datasetIndex;
+      chart.data.datasets[clickedDatasetIndex].hidden = !chart.data.datasets[clickedDatasetIndex].hidden;
+
+      chart.update();
+  }
+});
+
+
+  return chart;
 }
+
 
 function handleSearchQuery() {
   var search_query = window.location.search;
