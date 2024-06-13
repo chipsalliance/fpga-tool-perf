@@ -5,7 +5,6 @@ channels:
 dependencies:
   - litex-hub::yosys
   - litex-hub::yosys-symbiflow-plugins
-  - litex-hub::vtr-optimized
   - litex-hub::nextpnr-ice40
   - litex-hub::nextpnr-nexus
   - litex-hub::nextpnr-fpga_interchange
